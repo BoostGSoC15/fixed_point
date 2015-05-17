@@ -20,6 +20,7 @@
   #include <limits>
   #include <ostream>
   #include <sstream>
+  #include <string>
   #include <type_traits>
 
   #include <boost/cstdfloat.hpp>
@@ -325,6 +326,22 @@
     static_assert(-resolution < range - 1,
                   "Error: the negatable class resolution exceeds the available range.");
 
+    template<typename T>
+    void print_bits (T num)
+    {
+      std::string ans = "";
+      size_t bits = sizeof (num) * 8;
+      int mask = 1;
+      for (int i = 0; i < bits; i++)
+      {
+        if (num & mask) ans+="1";
+        else ans+="0";
+        mask = mask << 1;
+      }
+      std::reverse (ans.begin (), ans.end ());
+      std::cout<<ans<<"\n";
+    }
+
   public:
     typedef typename detail::integer_type_helper<range>::exact_signed_type value_type;
 
@@ -337,7 +354,15 @@
                                             || std::is_same<int,        signed_integral_type>::value
                                             || std::is_same<long,       signed_integral_type>::value
                                             || std::is_same<long long,  signed_integral_type>::value
-                                            || std::is_same<value_type, signed_integral_type>::value>::type* = nullptr) : data(n * radix_split_value<value_type>()) { }
+                                            || std::is_same<value_type, signed_integral_type>::value>::type* = nullptr) : data(n * radix_split_value<value_type>())
+    {
+      std::cout<<typeid(signed_integral_type).name() <<"\n";
+      std::cout<<sizeof(signed_integral_type)<<"\n";
+      std::cout<<typeid(value_type).name() <<"\n";
+      std::cout<<sizeof(value_type)<<std::endl;
+      std::cout<<data<<"\n";
+      print_bits(data);
+    }
 
     template<typename unsigned_integral_type>
     negatable(const unsigned_integral_type& u,
@@ -351,7 +376,10 @@
     negatable(const floating_point_type& f,
               const typename std::enable_if<   std::is_same<float,       floating_point_type>::value
                                             || std::is_same<double,      floating_point_type>::value
-                                            || std::is_same<long double, floating_point_type>::value>::type* = nullptr) : data(value_type(f * radix_split_value<floating_point_type>())) { }
+                                            || std::is_same<long double, floating_point_type>::value>::type* = nullptr) : data(value_type(f * radix_split_value<floating_point_type>()))
+    {
+      print_bits(data);
+    }
 
     negatable(const negatable& v) : data(v.data) { }
 
