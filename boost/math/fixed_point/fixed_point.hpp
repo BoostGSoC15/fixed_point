@@ -60,8 +60,8 @@
 
   // Forward declaration of the negatable class.
   namespace boost { namespace math { namespace fixed_point {
-    template<const int range,
-             const int resolution,
+    template<const int integral_range,
+             const int decimal_resolution,
              const math::fixed_point::round::round_type round_mode,
              const math::fixed_point::overflow::overflow_type overflow_mode>
     class negatable;
@@ -71,11 +71,11 @@
   namespace std
   {
     // Forward declaration of the specialization of std::numeric_limits<negatable>.
-    template<const int range,
-             const int resolution,
+    template<const int integral_range,
+             const int decimal_resolution,
              const boost::math::fixed_point::round::round_type round_mode,
              const boost::math::fixed_point::overflow::overflow_type overflow_mode>
-    class numeric_limits<boost::math::fixed_point::negatable<range, resolution, round_mode, overflow_mode> >;
+    class numeric_limits<boost::math::fixed_point::negatable<integral_range, decimal_resolution, round_mode, overflow_mode> >;
   }
 
   namespace boost { namespace math { namespace fixed_point {
@@ -310,18 +310,22 @@
   // namespace boost::math::fixed_point::detail
 
   // We will now begin the implementation of the negatable class.
-  template<const int range,
-           const int resolution,
+  template<const int integral_range,
+           const int decimal_resolution,
            const round::round_type round_mode = round::fastest,
            const overflow::overflow_type overflow_mode = overflow::undefined>
   class negatable
   {
-  public:
+  private:
+    static const int range      = integral_range - decimal_resolution;
+    static const int resolution = decimal_resolution;
+
     static_assert( resolution < 0,
                   "Error: the negatable class resolution must be fractional (negative).");
     static_assert(-resolution < range - 1,
                   "Error: the negatable class resolution exceeds the available range.");
 
+  public:
     typedef typename detail::integer_type_helper<range>::exact_signed_type value_type;
 
     negatable() : data() { }
@@ -1440,14 +1444,20 @@
   namespace std
   {
     // Provide a specialization of std::numeric_limits<negatable>.
-    template<const int range,
-             const int resolution,
+    template<const int integral_range,
+             const int decimal_resolution,
              const boost::math::fixed_point::round::round_type round_mode,
              const boost::math::fixed_point::overflow::overflow_type overflow_mode>
-    class numeric_limits<boost::math::fixed_point::negatable<range, resolution, round_mode, overflow_mode> >
+    class numeric_limits<boost::math::fixed_point::negatable<integral_range, decimal_resolution, round_mode, overflow_mode> >
     {
     private:
-      typedef boost::math::fixed_point::negatable<range, resolution, round_mode, overflow_mode> negatable_type;
+      typedef boost::math::fixed_point::negatable<integral_range,
+                                                  decimal_resolution,
+                                                  round_mode,
+                                                  overflow_mode> negatable_type;
+
+      static const int range      = integral_range - decimal_resolution;
+      static const int resolution = decimal_resolution;
 
     public:
       static const bool                    is_specialized    = true;
