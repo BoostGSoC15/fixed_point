@@ -9,40 +9,20 @@
 
 #include <iomanip>
 #include <iostream>
-#include "fixed_point.hpp"
+#include "boost/math/fixed_point/fixed_point.hpp"
 
-typedef boost::math::fixed_point::negatable<8, -24> fixed_point_type;
+typedef boost::math::fixed_point::negatable<28, -4> fixed_point_type;
 
 int main()
 {
-  fixed_point_type x = fixed_point_type(10) / 3;
+  fixed_point_type x = fixed_point_type(10)/3;
   double           d = 10.0 / 3.0;
 
   std::cout << std::setprecision(std::numeric_limits<fixed_point_type>::digits10)
             << x
             << std::endl;
-  std::cout << std::setprecision(std::numeric_limits<float>::digits10)
+  std::cout << std::setprecision(std::numeric_limits<double>::digits10)
             << std::fixed << d
             << std::endl;
 
-  std::cout << std::setprecision(std::numeric_limits<fixed_point_type>::digits10)
-            << cosh(x)
-            << std::endl;
-  std::cout << std::setprecision(std::numeric_limits<float>::digits10)
-            << std::fixed << std::cosh(d)
-            << std::endl;
-
-  std::cout << std::setprecision(std::numeric_limits<fixed_point_type>::digits10)
-            << cos(x)
-            << std::endl;
-  std::cout << std::setprecision(std::numeric_limits<float>::digits10)
-            << std::fixed << std::cos(d)
-            << std::endl;
-
-  std::cout << std::setprecision(std::numeric_limits<fixed_point_type>::digits10)
-            << log(x)
-            << std::endl;
-  std::cout << std::setprecision(std::numeric_limits<float>::digits10)
-            << std::fixed << std::log(d)
-            << std::endl;
 }

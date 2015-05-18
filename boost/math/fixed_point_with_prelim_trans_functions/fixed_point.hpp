@@ -1120,6 +1120,350 @@
     friend inline bool      operator<=(const float& u,                const negatable& v)          { return ((negatable(u).data <= v.data) || ((negatable::is_quiet_nan(u)) && negatable::is_quiet_nan(v))); }
     friend inline bool      operator<=(const double& u,               const negatable& v)          { return ((negatable(u).data <= v.data) || ((negatable::is_quiet_nan(u)) && negatable::is_quiet_nan(v))); }
     friend inline bool      operator<=(const double long& u,          const negatable& v)          { return ((negatable(u).data <= v.data) || ((negatable::is_quiet_nan(u)) && negatable::is_quiet_nan(v))); }
+
+    friend inline negatable fabs(const negatable& x)
+    {
+      return ((x.data < value_type(0)) ? -x : x);
+    }
+
+    friend inline negatable floor(const negatable& x)
+    {
+      // TBD: implement floor().
+      return negatable(0);
+    }
+
+    friend inline negatable ceil(const negatable& x)
+    {
+      // TBD: implement ceil().
+      return negatable(0);
+    }
+
+    // TBD: implement frexp().
+    // TBD: implement ldexp().
+
+    friend inline negatable sqrt(const negatable& x)
+    {
+      if(negatable::is_quiet_nan(x))
+      {
+        return negatable::value_quiet_nan();
+      }
+      else if(x > 0)
+      {
+        // TBD: This is horrible!
+        // TBD: Use a more efficient square root algorithm (if one can be found).
+        return exp(log(x) / 2);
+      }
+      else if(x < 0)
+      {
+        return negatable::value_quiet_nan();
+      }
+      else
+      {
+        return negatable(0);
+      }
+    }
+
+    friend inline negatable exp(const negatable& x)
+    {
+      if(negatable::is_quiet_nan(x))
+      {
+        return negatable::value_quiet_nan();
+      }
+      else if(x > 0)
+      {
+        // TBD: Is plain int the right type for n here?
+        const int n = static_cast<int>(x / negatable(nothing(), make_unsigned_constant(11629079)));
+
+        const negatable alpha = x - (n * negatable(nothing(), make_unsigned_constant(11629079)));
+
+        // Obtained from Wolfram's Alpha or Mathematica(R) with the following command.
+        // The coefficientws have subsequently been *rationalized* for the <32,-24> split.
+        // Fit[N[Table[{x, Exp[x] - 1}, {x, -Log[2], Log[2], 1/180}], 50], {x, x^2, x^3, x^4, x^5, x^6}, x]
+        negatable sum  =   1
+                         + alpha * (negatable(nothing(), make_unsigned_constant(16777246))
+                         + alpha * (negatable(nothing(), make_unsigned_constant( 8388613))
+                         + alpha * (negatable(nothing(), make_unsigned_constant( 2795628))
+                         + alpha * (negatable(nothing(), make_unsigned_constant(  698971))
+                         + alpha * (negatable(nothing(), make_unsigned_constant(  142422))
+                         + alpha * (negatable(nothing(), make_unsigned_constant(   23635))))))));
+
+        return negatable(nothing(), sum.data << n);
+      }
+      else if(x < 0)
+      {
+        return 1 / exp(-x);
+      }
+      else
+      {
+        return negatable(1);
+      }
+    }
+
+    friend inline negatable log(const negatable& x)
+    {
+      if(negatable::is_quiet_nan(x))
+      {
+        return negatable::value_quiet_nan();
+      }
+      else if(x > 0)
+      {
+        if(x > 1)
+        {
+          negatable xx  = x;
+
+          // TBD: Is plain int the right type for n here?
+          const int n = static_cast<int>(xx / 2);
+
+          // TBD: Is argument scaling here correct, or would it be better to use a constant offset?
+          xx.data >>= n;
+
+          --xx;
+
+          // TBD: Should this approximation be improved?
+          negatable sum        = xx * (negatable(nothing(), + make_unsigned_constant(16768752))
+                               + xx * (negatable(nothing(), - make_unsigned_constant( 8252862))
+                               + xx * (negatable(nothing(), + make_unsigned_constant( 4856580))
+                               + xx * (negatable(nothing(), - make_unsigned_constant( 2282754))
+                               + xx * (negatable(nothing(), + make_unsigned_constant(  539529)))))));
+
+          return sum + (n * negatable(nothing(), make_unsigned_constant(11629079)));
+        }
+        else if(x < 1)
+        {
+          return -log(1 / x);
+        }
+        else
+        {
+          return negatable(0);
+        }
+      }
+      else
+      {
+        return negatable::value_quiet_nan();
+      }
+    }
+
+    friend inline negatable sin(const negatable& x)
+    {
+      if(negatable::is_quiet_nan(x))
+      {
+        return negatable::value_quiet_nan();
+      }
+      else
+      {
+        return cos(x - negatable(nothing(), make_unsigned_constant(26353589)));
+      }
+    }
+
+    friend inline negatable cos(const negatable& x)
+    {
+      if(negatable::is_quiet_nan(x))
+      {
+        return negatable::value_quiet_nan();
+      }
+      else
+      {
+        negatable xx = x;
+
+        if(x < 0) { xx = -xx; }
+
+        // TBD: Is plain int the right type for n here?
+        const int n = static_cast<int>(x * negatable(nothing(), make_unsigned_constant(10680707)));
+
+        xx = xx - (n * negatable(nothing(), make_unsigned_constant(26353589)));
+
+        bool x_sym = true;
+        bool y_sym = true;
+
+        if((n % 2) == 0) { y_sym = false; }
+        if((n % 3) == 0) { x_sym = y_sym = false; }
+        if((n % 4) == 0) { x_sym = y_sym = false; }
+
+        if(y_sym) { xx = negatable(nothing(), make_unsigned_constant(26353589)) - xx; }
+
+        const negatable x2  = xx * xx;
+
+        const negatable sum =         1
+                              + x2 * (negatable(nothing(), - make_unsigned_constant(8388607))
+                              + x2 * (negatable(nothing(), + make_unsigned_constant( 699050))
+                              + x2 * (negatable(nothing(), - make_unsigned_constant(  23300))
+                              + x2 * (negatable(nothing(), + make_unsigned_constant(    415))
+                              + x2 * (negatable(nothing(), - make_unsigned_constant(      4)))))));
+
+        return ((x_sym) ? -sum : sum);
+      }
+    }
+
+    friend inline negatable tan(const negatable& x)
+    {
+      if(negatable::is_quiet_nan(x))
+      {
+        return negatable::value_quiet_nan();
+      }
+      else
+      {
+        return sin(x) / cos(x);
+      }
+    }
+
+    friend inline negatable asin(const negatable& x)
+    {
+      if(negatable::is_quiet_nan(x))
+      {
+        return negatable::value_quiet_nan();
+      }
+      else if(x > 0)
+      {
+        if(x > 1)
+        {
+          return negatable::value_quiet_nan();
+        }
+        else
+        {
+          const negatable sum =          negatable(nothing(), + make_unsigned_constant(26353588))
+                                  + x * (negatable(nothing(), - make_unsigned_constant( 3600370))
+                                  + x * (negatable(nothing(), + make_unsigned_constant( 1492819))
+                                  + x * (negatable(nothing(), - make_unsigned_constant(  841785))
+                                  + x * (negatable(nothing(), + make_unsigned_constant(  518279))
+                                  + x * (negatable(nothing(), - make_unsigned_constant(  286691))
+                                  + x * (negatable(nothing(), + make_unsigned_constant(  111905))
+                                  + x * (negatable(nothing(), - make_unsigned_constant(   21181)))))))));
+
+          return negatable(nothing(), + make_unsigned_constant(26353589)) - (sqrt(1 - x) * sum);
+        }
+      }
+      else
+      {
+        return -asin(-x);
+      }
+    }
+
+    friend inline negatable acos(const negatable& x)
+    {
+      if(negatable::is_quiet_nan(x))
+      {
+        return negatable::value_quiet_nan();
+      }
+      else
+      {
+        return negatable(nothing(), make_unsigned_constant(26353589)) - asin(x);
+      }
+    }
+
+    friend inline negatable atan(const negatable& x)
+    {
+      if(negatable::is_quiet_nan(x))
+      {
+        return negatable::value_quiet_nan();
+      }
+      else if(x < 0)
+      {
+        return -atan(-x);
+      }
+      else if(x > 0)
+      {
+        if(x > 1)
+        {
+          return negatable(nothing(), + make_unsigned_constant(26353589)) - atan(1 / x);
+        }
+        else
+        {
+          const negatable x2 = x * x;
+
+          return     x * (negatable(nothing(), + make_unsigned_constant(16774967))
+                  + x2 * (negatable(nothing(), - make_unsigned_constant( 5541506))
+                  + x2 * (negatable(nothing(), + make_unsigned_constant( 3022264))
+                  + x2 * (negatable(nothing(), - make_unsigned_constant( 1428294))
+                  + x2 * (negatable(nothing(), + make_unsigned_constant(  349554)))))));
+        }
+      }
+      else
+      {
+        return negatable(0);
+      }
+    }
+
+    friend inline negatable sinh(const negatable& x)
+    {
+      if(negatable::is_quiet_nan(x))
+      {
+        return negatable::value_quiet_nan();
+      }
+      else
+      {
+        // TBD: Use a small argument approximation for small arguments.
+        const negatable ep = exp(x);
+        const negatable em = 1 / ep;
+
+        return (ep - em) / 2;
+      }
+    }
+
+    friend inline negatable cosh(const negatable& x)
+    {
+      if(negatable::is_quiet_nan(x))
+      {
+        return negatable::value_quiet_nan();
+      }
+      else
+      {
+        const negatable ep = exp(x);
+        const negatable em = 1 / ep;
+
+        return (ep + em) / 2;
+      }
+    }
+
+    friend inline negatable tanh(const negatable& x)
+    {
+      if(negatable::is_quiet_nan(x))
+      {
+        return negatable::value_quiet_nan();
+      }
+      else
+      {
+        const negatable ep = exp(+x);
+        const negatable em = 1 / ep;
+
+        return (ep - em) / (ep + em);
+      }
+    }
+
+    friend inline negatable asinh(const negatable& x)
+    {
+      if(negatable::is_quiet_nan(x))
+      {
+        return negatable::value_quiet_nan();
+      }
+      else
+      {
+        return log(x + exp(log((x * x) + 1) / 2));
+      }
+    }
+
+    friend inline negatable acosh(const negatable& x)
+    {
+      if(negatable::is_quiet_nan(x))
+      {
+        return negatable::value_quiet_nan();
+      }
+      else
+      {
+        return log(x + exp(log((x * x) - 1) / 2));
+      }
+    }
+
+    friend inline negatable atanh(const negatable& x)
+    {
+      if(negatable::is_quiet_nan(x))
+      {
+        return negatable::value_quiet_nan();
+      }
+      else
+      {
+        return log((1 + x) / (1 - x)) / 2;
+      }
+    }
   };
 
   } } }
