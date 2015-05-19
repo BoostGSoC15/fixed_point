@@ -1,0 +1,43 @@
+# Copyright 2015 Paul A. Bristow
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file
+# LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+# Draft of index file for fixed-point documentation.
+#
+# Rewrite the class scanner to accept declarations, not just definitions,
+# as the docs don't include full definitions.
+#
+!define-scanner class_name "^[[:space:]]*(template[[:space:]]*<[^;:{]+>[[:space:]]*)?(class|struct)[[:space:]]*(\<\w+\>([[:blank:]]*\([^)]*\))?[[:space:]]*)*(\<\w*\>)[[:space:]]*(<[^;:{]+>)?[[:space:]]*(\{|:[^;\{()]*\{)" "(?:class|struct)[^;{]+\\<\5\\>\\s*[;{]" \5
+
+!scan-path ../include/boost/fixed_point fixed_point.hpp true
+
+
+# Might be useful to Doxygen document everything for maintainance?
+#!scan "../include/boost/detail/" "*.hpp" true
+
+!scan ../example/fixed_point_demo.cpp
+
+base \<\w*\base\w*\>
+boolalpha \<\w*boolalpha\w*\>
+fixed \<\w*fixed\w*\>
+floating-point \<\w*float\w*\>
+fixed-point \<\w*fixed\w*\>
+dec
+encryption \<\w*(encryption|decryption)\w*\>
+hex
+leading
+locale \<\w*\locale\w*\>
+precision
+oct
+scientific
+skipws  \<skip\w*\>
+transformation \<transform\w*\>
+user-defined types (UDT)  \<\w*user\w*\>
+whitespace \<white\w*\>
+
+
+
+
+
+

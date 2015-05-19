@@ -1,0 +1,186 @@
+<?xml version="1.0" standalone="yes"?>
+<library-reference id="boost_fixed_point_c___reference"><title>Boost.Fixed_point C++ Reference</title><header name="boost/fixed_point/fixed_point.hpp">
+<namespace name="boost">
+<namespace name="math">
+<namespace name="fixed_point">
+<class name="negatable"><template>
+      <template-nontype-parameter name="range"><type>const int</type></template-nontype-parameter>
+      <template-nontype-parameter name="resolution"><type>const int</type></template-nontype-parameter>
+      <template-nontype-parameter name="round_mode"><type>const round::round_type</type><default>round::nearest_odd</default></template-nontype-parameter>
+      <template-nontype-parameter name="overflow_mode"><type>const overflow::overflow_type</type><default>overflow::exception</default></template-nontype-parameter>
+    </template><description><para>Signed Fixed-point class with defined range and resolution, and controllable rounding and overflow behaviour.<sbr/>
+ (See <computeroutput>non_negatable</computeroutput> for an unsigned analog). </para></description><struct name="nothing"/><typedef name="value_type"><type><emphasis>unspecified</emphasis></type></typedef>
+<method-group name="public member functions">
+<method name="operator++"><type><classname>negatable</classname> &amp;</type></method>
+<method name="operator--"><type><classname>negatable</classname> &amp;</type></method>
+<method name="operator++"><type><classname>negatable</classname></type><parameter name=""><paramtype>int</paramtype></parameter></method>
+<method name="operator--"><type><classname>negatable</classname></type><parameter name=""><paramtype>int</paramtype></parameter></method>
+<method name="operator+="><type><classname>negatable</classname> &amp;</type><parameter name="v"><paramtype>const <classname>negatable</classname> &amp;</paramtype></parameter></method>
+<method name="operator-="><type><classname>negatable</classname> &amp;</type><parameter name="v"><paramtype>const <classname>negatable</classname> &amp;</paramtype></parameter></method>
+<method name="operator*="><type><classname>negatable</classname> &amp;</type><parameter name="v"><paramtype>const <classname>negatable</classname> &amp;</paramtype></parameter></method>
+<method name="operator/="><type><classname>negatable</classname> &amp;</type><parameter name="v"><paramtype>const <classname>negatable</classname> &amp;</paramtype></parameter></method>
+<method name="operator+="><type><classname>negatable</classname> &amp;</type><parameter name="n"><paramtype>const char &amp;</paramtype></parameter></method>
+<method name="operator+="><type><classname>negatable</classname> &amp;</type><parameter name="n"><paramtype>const short &amp;</paramtype></parameter></method>
+<method name="operator+="><type><classname>negatable</classname> &amp;</type><parameter name="n"><paramtype>const int &amp;</paramtype></parameter></method>
+<method name="operator+="><type><classname>negatable</classname> &amp;</type><parameter name="n"><paramtype>const long &amp;</paramtype></parameter></method>
+<method name="operator+="><type><classname>negatable</classname> &amp;</type><parameter name="n"><paramtype>const long long &amp;</paramtype></parameter></method>
+<method name="operator+="><type><classname>negatable</classname> &amp;</type><parameter name="u"><paramtype>const unsigned char &amp;</paramtype></parameter></method>
+<method name="operator+="><type><classname>negatable</classname> &amp;</type><parameter name="u"><paramtype>const unsigned short &amp;</paramtype></parameter></method>
+<method name="operator+="><type><classname>negatable</classname> &amp;</type><parameter name="u"><paramtype>const unsigned int &amp;</paramtype></parameter></method>
+<method name="operator+="><type><classname>negatable</classname> &amp;</type><parameter name="u"><paramtype>const unsigned long &amp;</paramtype></parameter></method>
+<method name="operator+="><type><classname>negatable</classname> &amp;</type><parameter name="u"><paramtype>const unsigned long long &amp;</paramtype></parameter></method>
+<method name="operator+="><type><classname>negatable</classname> &amp;</type><parameter name="f"><paramtype>const float &amp;</paramtype></parameter></method>
+<method name="operator+="><type><classname>negatable</classname> &amp;</type><parameter name="f"><paramtype>const double &amp;</paramtype></parameter></method>
+<method name="operator+="><type><classname>negatable</classname> &amp;</type><parameter name="f"><paramtype>const long double &amp;</paramtype></parameter></method>
+<method name="operator-="><type><classname>negatable</classname> &amp;</type><parameter name="n"><paramtype>const char &amp;</paramtype></parameter></method>
+<method name="operator-="><type><classname>negatable</classname> &amp;</type><parameter name="n"><paramtype>const short &amp;</paramtype></parameter></method>
+<method name="operator-="><type><classname>negatable</classname> &amp;</type><parameter name="n"><paramtype>const int &amp;</paramtype></parameter></method>
+<method name="operator-="><type><classname>negatable</classname> &amp;</type><parameter name="n"><paramtype>const long &amp;</paramtype></parameter></method>
+<method name="operator-="><type><classname>negatable</classname> &amp;</type><parameter name="n"><paramtype>const long long &amp;</paramtype></parameter></method>
+<method name="operator-="><type><classname>negatable</classname> &amp;</type><parameter name="u"><paramtype>const unsigned char &amp;</paramtype></parameter></method>
+<method name="operator-="><type><classname>negatable</classname> &amp;</type><parameter name="u"><paramtype>const unsigned short &amp;</paramtype></parameter></method>
+<method name="operator-="><type><classname>negatable</classname> &amp;</type><parameter name="u"><paramtype>const unsigned int &amp;</paramtype></parameter></method>
+<method name="operator-="><type><classname>negatable</classname> &amp;</type><parameter name="u"><paramtype>const unsigned long &amp;</paramtype></parameter></method>
+<method name="operator-="><type><classname>negatable</classname> &amp;</type><parameter name="u"><paramtype>const unsigned long long &amp;</paramtype></parameter></method>
+<method name="operator-="><type><classname>negatable</classname> &amp;</type><parameter name="f"><paramtype>const float &amp;</paramtype></parameter></method>
+<method name="operator-="><type><classname>negatable</classname> &amp;</type><parameter name="f"><paramtype>const double &amp;</paramtype></parameter></method>
+<method name="operator-="><type><classname>negatable</classname> &amp;</type><parameter name="f"><paramtype>const long double &amp;</paramtype></parameter></method>
+<method name="operator*="><type><classname>negatable</classname> &amp;</type><parameter name="n"><paramtype>const char &amp;</paramtype></parameter></method>
+<method name="operator*="><type><classname>negatable</classname> &amp;</type><parameter name="n"><paramtype>const short &amp;</paramtype></parameter></method>
+<method name="operator*="><type><classname>negatable</classname> &amp;</type><parameter name="n"><paramtype>const int &amp;</paramtype></parameter></method>
+<method name="operator*="><type><classname>negatable</classname> &amp;</type><parameter name="n"><paramtype>const long &amp;</paramtype></parameter></method>
+<method name="operator*="><type><classname>negatable</classname> &amp;</type><parameter name="n"><paramtype>const long long &amp;</paramtype></parameter></method>
+<method name="operator*="><type><classname>negatable</classname> &amp;</type><parameter name="u"><paramtype>const unsigned char &amp;</paramtype></parameter></method>
+<method name="operator*="><type><classname>negatable</classname> &amp;</type><parameter name="u"><paramtype>const unsigned short &amp;</paramtype></parameter></method>
+<method name="operator*="><type><classname>negatable</classname> &amp;</type><parameter name="u"><paramtype>const unsigned int &amp;</paramtype></parameter></method>
+<method name="operator*="><type><classname>negatable</classname> &amp;</type><parameter name="u"><paramtype>const unsigned long &amp;</paramtype></parameter></method>
+<method name="operator*="><type><classname>negatable</classname> &amp;</type><parameter name="u"><paramtype>const unsigned long long &amp;</paramtype></parameter></method>
+<method name="operator*="><type><classname>negatable</classname> &amp;</type><parameter name="f"><paramtype>const float &amp;</paramtype></parameter></method>
+<method name="operator*="><type><classname>negatable</classname> &amp;</type><parameter name="f"><paramtype>const double &amp;</paramtype></parameter></method>
+<method name="operator*="><type><classname>negatable</classname> &amp;</type><parameter name="f"><paramtype>const long double &amp;</paramtype></parameter></method>
+<method name="operator/="><type><classname>negatable</classname> &amp;</type><parameter name="n"><paramtype>const char &amp;</paramtype></parameter></method>
+<method name="operator/="><type><classname>negatable</classname> &amp;</type><parameter name="n"><paramtype>const short &amp;</paramtype></parameter></method>
+<method name="operator/="><type><classname>negatable</classname> &amp;</type><parameter name="n"><paramtype>const int &amp;</paramtype></parameter></method>
+<method name="operator/="><type><classname>negatable</classname> &amp;</type><parameter name="n"><paramtype>const long &amp;</paramtype></parameter></method>
+<method name="operator/="><type><classname>negatable</classname> &amp;</type><parameter name="n"><paramtype>const long long &amp;</paramtype></parameter></method>
+<method name="operator/="><type><classname>negatable</classname> &amp;</type><parameter name="u"><paramtype>const unsigned char &amp;</paramtype></parameter></method>
+<method name="operator/="><type><classname>negatable</classname> &amp;</type><parameter name="u"><paramtype>const unsigned short &amp;</paramtype></parameter></method>
+<method name="operator/="><type><classname>negatable</classname> &amp;</type><parameter name="u"><paramtype>const unsigned int &amp;</paramtype></parameter></method>
+<method name="operator/="><type><classname>negatable</classname> &amp;</type><parameter name="u"><paramtype>const unsigned long &amp;</paramtype></parameter></method>
+<method name="operator/="><type><classname>negatable</classname> &amp;</type><parameter name="u"><paramtype>const unsigned long long &amp;</paramtype></parameter></method>
+<method name="operator/="><type><classname>negatable</classname> &amp;</type><parameter name="f"><paramtype>const float &amp;</paramtype></parameter></method>
+<method name="operator/="><type><classname>negatable</classname> &amp;</type><parameter name="f"><paramtype>const double &amp;</paramtype></parameter></method>
+<method name="operator/="><type><classname>negatable</classname> &amp;</type><parameter name="f"><paramtype>const long double &amp;</paramtype></parameter></method>
+<method name="conversion-operator"><type>char</type></method>
+<method name="conversion-operator"><type>short</type></method>
+<method name="conversion-operator"><type>int</type></method>
+<method name="conversion-operator"><type>long</type></method>
+<method name="conversion-operator"><type>long long</type></method>
+<method name="conversion-operator"><type>unsigned char</type></method>
+<method name="conversion-operator"><type>unsigned short</type></method>
+<method name="conversion-operator"><type>unsigned int</type></method>
+<method name="conversion-operator"><type>unsigned long</type></method>
+<method name="conversion-operator"><type>unsigned long long</type></method>
+<method name="conversion-operator"><type>float</type></method>
+<method name="conversion-operator"><type>double</type></method>
+<method name="conversion-operator"><type>long double</type></method>
+</method-group>
+<constructor/>
+<constructor><template>
+          <template-type-parameter name="signed_integral_type"/>
+        </template><parameter name="n"><paramtype>const signed_integral_type &amp;</paramtype></parameter><parameter name=""><paramtype>const typename std::enable_if&lt; std::is_same&lt; char, signed_integral_type &gt;::value||std::is_same&lt; short, signed_integral_type &gt;::value||std::is_same&lt; int, signed_integral_type &gt;::value||std::is_same&lt; long, signed_integral_type &gt;::value||std::is_same&lt; long long, signed_integral_type &gt;::value||std::is_same&lt; value_type, signed_integral_type &gt;::value &gt;::type *</paramtype><default>nullptr</default></parameter></constructor>
+<constructor><template>
+          <template-type-parameter name="unsigned_integral_type"/>
+        </template><parameter name="u"><paramtype>const unsigned_integral_type &amp;</paramtype></parameter><parameter name=""><paramtype>const typename std::enable_if&lt; std::is_same&lt; unsigned char, unsigned_integral_type &gt;::value||std::is_same&lt; unsigned short, unsigned_integral_type &gt;::value||std::is_same&lt; unsigned int, unsigned_integral_type &gt;::value||std::is_same&lt; unsigned long, unsigned_integral_type &gt;::value||std::is_same&lt; unsigned long long, unsigned_integral_type &gt;::value &gt;::type *</paramtype><default>nullptr</default></parameter></constructor>
+<constructor><template>
+          <template-type-parameter name="floating_point_type"/>
+        </template><parameter name="f"><paramtype>const floating_point_type &amp;</paramtype></parameter><parameter name=""><paramtype>const typename std::enable_if&lt; std::is_same&lt; float, floating_point_type &gt;::value||std::is_same&lt; double, floating_point_type &gt;::value||std::is_same&lt; long double, floating_point_type &gt;::value &gt;::type *</paramtype><default>nullptr</default></parameter></constructor>
+<constructor><parameter name="v"><paramtype>const <classname>negatable</classname> &amp;</paramtype></parameter></constructor>
+<destructor/>
+<copy-assignment><type><classname>negatable</classname> &amp;</type><parameter name="v"><paramtype>const <classname>negatable</classname> &amp;</paramtype></parameter></copy-assignment>
+<copy-assignment><type><classname>negatable</classname> &amp;</type><parameter name="n"><paramtype>const char &amp;</paramtype></parameter></copy-assignment>
+<copy-assignment><type><classname>negatable</classname> &amp;</type><parameter name="n"><paramtype>const short &amp;</paramtype></parameter></copy-assignment>
+<copy-assignment><type><classname>negatable</classname> &amp;</type><parameter name="n"><paramtype>const int &amp;</paramtype></parameter></copy-assignment>
+<copy-assignment><type><classname>negatable</classname> &amp;</type><parameter name="n"><paramtype>const long &amp;</paramtype></parameter></copy-assignment>
+<copy-assignment><type><classname>negatable</classname> &amp;</type><parameter name="n"><paramtype>const long long &amp;</paramtype></parameter></copy-assignment>
+<copy-assignment><type><classname>negatable</classname> &amp;</type><parameter name="u"><paramtype>const unsigned char &amp;</paramtype></parameter></copy-assignment>
+<copy-assignment><type><classname>negatable</classname> &amp;</type><parameter name="u"><paramtype>const unsigned short &amp;</paramtype></parameter></copy-assignment>
+<copy-assignment><type><classname>negatable</classname> &amp;</type><parameter name="u"><paramtype>const unsigned int &amp;</paramtype></parameter></copy-assignment>
+<copy-assignment><type><classname>negatable</classname> &amp;</type><parameter name="u"><paramtype>const unsigned long &amp;</paramtype></parameter></copy-assignment>
+<copy-assignment><type><classname>negatable</classname> &amp;</type><parameter name="u"><paramtype>const unsigned long long &amp;</paramtype></parameter></copy-assignment>
+<copy-assignment><type><classname>negatable</classname> &amp;</type><parameter name="f"><paramtype>const float &amp;</paramtype></parameter></copy-assignment>
+<copy-assignment><type><classname>negatable</classname> &amp;</type><parameter name="f"><paramtype>const double &amp;</paramtype></parameter></copy-assignment>
+<copy-assignment><type><classname>negatable</classname> &amp;</type><parameter name="f"><paramtype>const long double &amp;</paramtype></parameter></copy-assignment>
+<method-group name="private static functions">
+<method name="radix_split_value" specifiers="static"><type>arithmetic_type</type><template>
+          <template-type-parameter name="arithmetic_type"/>
+        </template></method>
+<method name="is_quiet_nan" specifiers="static"><type>bool</type><parameter name="x"><paramtype>const <classname>negatable</classname> &amp;</paramtype></parameter></method>
+<method name="is_infinity" specifiers="static"><type>bool</type><parameter name="x"><paramtype>const <classname>negatable</classname> &amp;</paramtype></parameter></method>
+<method name="make_unsigned_constant" specifiers="static"><type>value_type</type><parameter name="x"><paramtype>const value_type &amp;</paramtype></parameter></method>
+<method name="value_epsilon" specifiers="static"><type><classname>negatable</classname></type></method>
+<method name="value_min" specifiers="static"><type><classname>negatable</classname></type></method>
+<method name="value_max" specifiers="static"><type><classname>negatable</classname></type></method>
+<method name="value_infinity" specifiers="static"><type><classname>negatable</classname></type></method>
+<method name="value_quiet_nan" specifiers="static"><type><classname>negatable</classname></type></method>
+</method-group>
+<method-group name="private member functions">
+</method-group>
+<constructor><template>
+          <template-type-parameter name="signed_integral_type"/>
+        </template><parameter name=""><paramtype>const nothing &amp;</paramtype></parameter><parameter name="n"><paramtype>const signed_integral_type &amp;</paramtype></parameter><parameter name=""><paramtype>const typename std::enable_if&lt; std::is_same&lt; char, signed_integral_type &gt;::value||std::is_same&lt; short, signed_integral_type &gt;::value||std::is_same&lt; int, signed_integral_type &gt;::value||std::is_same&lt; long, signed_integral_type &gt;::value||std::is_same&lt; long long, signed_integral_type &gt;::value||std::is_same&lt; value_type, signed_integral_type &gt;::value &gt;::type *</paramtype><default>nullptr</default></parameter></constructor>
+<constructor><template>
+          <template-type-parameter name="unsigned_integral_type"/>
+        </template><parameter name=""><paramtype>const nothing &amp;</paramtype></parameter><parameter name="u"><paramtype>const unsigned_integral_type &amp;</paramtype></parameter><parameter name=""><paramtype>const typename std::enable_if&lt; std::is_same&lt; unsigned char, unsigned_integral_type &gt;::value||std::is_same&lt; unsigned short, unsigned_integral_type &gt;::value||std::is_same&lt; unsigned int, unsigned_integral_type &gt;::value||std::is_same&lt; unsigned long, unsigned_integral_type &gt;::value||std::is_same&lt; unsigned long long, unsigned_integral_type &gt;::value &gt;::type *</paramtype><default>nullptr</default></parameter></constructor>
+</class><namespace name="overflow">
+<enum name="enum_overflow_type"><enumvalue name="impossible"/><enumvalue name="undefined"/><enumvalue name="modulus"/><enumvalue name="saturate"/><enumvalue name="exception"/></enum>
+<typedef name="overflow_type"><type>enum boost::math::fixed_point::overflow::enum_overflow_type</type></typedef>
+</namespace>
+<namespace name="round">
+<enum name="enum_round_type"><enumvalue name="fastest"/><enumvalue name="negative"/><enumvalue name="truncated"/><enumvalue name="positive"/><enumvalue name="classic"/><enumvalue name="nearest_even"/><enumvalue name="nearest_odd"/></enum>
+<typedef name="round_type"><type>enum boost::math::fixed_point::round::enum_round_type</type></typedef>
+</namespace>
+</namespace>
+</namespace>
+</namespace>
+<namespace name="std">
+<class-specialization name="numeric_limits"><template>
+      <template-nontype-parameter name="range"><type>const int</type></template-nontype-parameter>
+      <template-nontype-parameter name="resolution"><type>const int</type></template-nontype-parameter>
+      <template-nontype-parameter name="round_mode"><type>const boost::math::fixed_point::round::round_type</type></template-nontype-parameter>
+      <template-nontype-parameter name="overflow_mode"><type>const boost::math::fixed_point::overflow::overflow_type</type></template-nontype-parameter>
+    </template><specialization><template-arg>boost::math::fixed_point::negatable&lt; range</template-arg><template-arg>resolution</template-arg><template-arg>round_mode</template-arg><template-arg>overflow_mode &gt;</template-arg></specialization><data-member name="is_specialized" specifiers="static"><type>const bool</type></data-member>
+<data-member name="digits" specifiers="static"><type>const int</type></data-member>
+<data-member name="digits10" specifiers="static"><type>const int</type></data-member>
+<data-member name="max_digits10" specifiers="static"><type>const int</type></data-member>
+<data-member name="is_signed" specifiers="static"><type>const bool</type></data-member>
+<data-member name="is_integer" specifiers="static"><type>const bool</type></data-member>
+<data-member name="is_exact" specifiers="static"><type>const bool</type></data-member>
+<data-member name="radix" specifiers="static"><type>const int</type></data-member>
+<data-member name="min_exponent" specifiers="static"><type>const int</type></data-member>
+<data-member name="min_exponent10" specifiers="static"><type>const int</type></data-member>
+<data-member name="max_exponent" specifiers="static"><type>const int</type></data-member>
+<data-member name="max_exponent10" specifiers="static"><type>const int</type></data-member>
+<data-member name="has_infinity" specifiers="static"><type>const bool</type></data-member>
+<data-member name="has_quiet_NaN" specifiers="static"><type>const bool</type></data-member>
+<data-member name="has_signaling_NaN" specifiers="static"><type>const bool</type></data-member>
+<data-member name="has_denorm" specifiers="static"><type>const std::float_denorm_style</type></data-member>
+<data-member name="has_denorm_loss" specifiers="static"><type>const bool</type></data-member>
+<data-member name="is_iec559" specifiers="static"><type>const bool</type></data-member>
+<data-member name="is_bounded" specifiers="static"><type>const bool</type></data-member>
+<data-member name="is_modulo" specifiers="static"><type>const bool</type></data-member>
+<data-member name="traps" specifiers="static"><type>const bool</type></data-member>
+<data-member name="tinyness_before" specifiers="static"><type>const bool</type></data-member>
+<data-member name="round_style" specifiers="static"><type>const std::float_round_style</type></data-member>
+<method-group name="public static functions">
+<method name="min" specifiers="static"><type><classname>negatable_type</classname>()</type></method>
+<method name="max" specifiers="static"><type><classname>negatable_type</classname>()</type></method>
+<method name="lowest" specifiers="static"><type><classname>negatable_type</classname></type></method>
+<method name="epsilon" specifiers="static"><type><classname>negatable_type</classname></type></method>
+<method name="round_error" specifiers="static"><type><classname>negatable_type</classname></type></method>
+<method name="infinity" specifiers="static"><type><classname>negatable_type</classname></type></method>
+<method name="quiet_NaN" specifiers="static"><type><classname>negatable_type</classname></type></method>
+</method-group>
+</class-specialization></namespace>
+</header>
+</library-reference>

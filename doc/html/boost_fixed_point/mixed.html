@@ -1,0 +1,69 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Mixed Precision Arithmetic</title>
+<link rel="stylesheet" href="../../../../../doc/src/boostbook.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../index.html" title="Chapter&#160;1.&#160;Boost.Fixed-point">
+<link rel="up" href="../index.html" title="Chapter&#160;1.&#160;Boost.Fixed-point">
+<link rel="prev" href="conversions.html" title="Constructing and Interconverting Between Number Types">
+<link rel="next" href="how_to_tell.html" title="How to Determine the Kind of a Number From std::numeric_limits">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="277" height="86" src="../../../../../boost.png"></td>
+<td align="center"><a href="../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="conversions.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="how_to_tell.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="boost_fixed_point.mixed"></a><a class="link" href="mixed.html" title="Mixed Precision Arithmetic">Mixed Precision Arithmetic</a>
+</h2></div></div></div>
+<p>
+      Mixed precision arithmetic is fully supported by the library.
+    </p>
+<p>
+      There are two different forms:
+    </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+          Where the operands are of different precision.
+        </li>
+<li class="listitem">
+          Where the operands are of the same precision, but yield a higher precision
+          result.
+        </li>
+</ul></div>
+<p>
+      specialization as it would be impossible to define all the members at compile
+      time. In contrast the precision of a type such as <code class="computeroutput"><span class="identifier">mpfr_float_50</span></code>
+      is known at compile time, and so it <span class="emphasis"><em>does</em></span> have a <code class="computeroutput"><span class="identifier">numeric_limits</span></code> specialization.
+    </p>
+<p>
+      Note that not all the <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span></code> member constants and functions
+      are meaningful for all user-defined types (UDT), such as the decimal and binary
+      multiprecision types provided here. More information on this is given in the
+      sections below.
+    </p>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2013 Christopher Kormanyos<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="conversions.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="how_to_tell.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

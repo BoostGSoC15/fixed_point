@@ -1,0 +1,14 @@
+
+Building the Fixed-point docs with automatic index generation disabled. Try building with --enable-index.
+Performing configuration checks
+
+    - symlinks supported       : yes (cached)
+...found 36 targets...
+...updating 3 targets...
+quickbook.quickbook-to-boostbook ..\..\..\bin.v2\libs\fixed_point\doc\msvc-12.0\debug\threading-multi\fixed_point.xml
+Generating Output File: ..\..\..\bin.v2\libs\fixed_point\doc\msvc-12.0\debug\threading-multi\fixed_point.xml
+fixed_point.qbk: warning: Quickbook 1.7 is still under development and is likely to change in the future.
+xslt-xsltproc.windows ..\..\..\bin.v2\libs\fixed_point\doc\msvc-12.0\debug\threading-multi\fixed_point.docbook
+xslt-xsltproc-dir.windows html\standalone_HTML.manifest
+Error: no ID for constraint linkend: boost_multiprecision.ref.number.traits_class_support.
+...updated 3 targets...

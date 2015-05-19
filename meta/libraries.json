@@ -1,0 +1,20 @@
+{
+    "key": "Fixed-point",
+    "name": "Fixed_point",
+    "authors": [
+        "Christopher Kormanyos",
+				"Nikhar Agrawal",
+				"Paul A. Bristow",
+	      "John Maddock"		
+    ],
+    "description": "Arithmetic types for Fixed-point arithmetic.",
+    "category": [
+        "Math"
+    ],
+    "maintainers": [
+        "Nikhar Agrawal <nikharagrawal2006 -at- gmail.com>",
+				"John Maddock <john -at- johnmaddock.co.uk>",
+        "christopher Kormanyos <e_float -at- yahoo.com>",
+				"Paul A. Bristow <pbristow -at- hetlp-u-net.com>"
+    ]
+}

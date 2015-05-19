@@ -1,0 +1,181 @@
+[/
+  Copyright 2013 Christopher Kormanyos.
+  Copyright 2015 John Maddock.
+  Copyright 2015 Paul A. Bristow.
+  Copyright 2015Nikhar Agrawal.
+
+  Distributed under the Boost Software License, Version 1.0.
+  (See accompanying file LICENSE_1_0.txt or copy at
+  http://www.boost.org/LICENSE_1_0.txt).
+]
+
+[article Boost.Fixed-point
+    [quickbook 1.7]
+    [copyright 2013 Christopher Kormanyos]
+    [purpose Fixed-point Number library]
+    [license
+         Distributed under the Boost Software License, Version 1.0.
+         (See accompanying file LICENSE_1_0.txt or copy at
+         [@http://www.boost.org/LICENSE_1_0.txt])
+    ]
+    [authors [Kormanyos, Christopher], [Maddock, John], [Agrawal, Nikhar], [Bristow, Paul A.]]
+    [/last-revision $Date: 2011-07-08 18:51:46 +0100 (Fri, 08 Jul 2011) $]
+]
+
+[import html4_symbols.qbk]
+
+[/import ../example/fixed_point_snips.cpp]
+
+[template super[x]'''<superscript>'''[x]'''</superscript>''']
+[template sub[x]'''<subscript>'''[x]'''</subscript>''']
+
+[template equation[name]  '''<inlinemediaobject>
+<imageobject role="html">
+<imagedata fileref="../'''[name]'''.png"></imagedata>
+</imageobject>
+<imageobject role="print">
+<imagedata fileref="../'''[name]'''.svg"></imagedata>
+</imageobject>
+</inlinemediaobject>''']
+
+[def __cpp_int [link boost_fixed_point.ints.cpp_int cpp_int]]
+
+[section:intro Introduction]
+The Fixed-point Library provides fixed-point types in C++ that have different
+range and precision than C++'s ordinary built-in types.
+The  Fixed-point types can also interoperate with the
+built-in types in C++ using clearly defined conversion rules.
+This allows Boost.Fixed-point to be used for all
+kinds of mathematical calculations involving integer,
+rational and floating-point types requiring extended
+range and precision.
+[endsect] [/section:intro Introduction]
+
+[section:conversions Constructing and Interconverting Between Number Types]
+All of the number types that are based on `number` have certain conversion rules in common.
+In particular:
+[endsect] [/section:conversions Constructing and Interconverting Between Number Types]
+
+[section:mixed Mixed Precision Arithmetic]
+Mixed precision arithmetic is fully supported by the library.
+
+There are two different forms:
+
+* Where the operands are of different precision.
+* Where the operands are of the same precision, but yield a higher precision result.
+
+specialization as it would be impossible to define all the members at compile time.  In contrast
+the precision of a type such as `mpfr_float_50` is known at compile time, and so it ['does] have a
+`numeric_limits` specialization.
+
+Note that not all the `std::numeric_limits` member constants and functions are meaningful for all user-defined types (UDT),
+such as the decimal and binary multiprecision types provided here.  More information on this is given in the sections below.
+
+[/ Tables of values for numeric_limits for various built-in and cpp_bin_float types]
+[/include numeric_limits_32_tables.qbk]
+[/include numeric_limits_64_tables.qbk]
+
+[endsect] [/section:mixed Mixed Precision Arithmetic]
+
+[section:how_to_tell How to Determine the Kind of a Number From `std::numeric_limits`]
+
+Based on the information above, one can see that different kinds of numbers can be
+differentiated based on the information stored in `std::numeric_limits`.  This is
+in addition to the traits class [link boost_multiprecision.ref.number.traits_class_support
+number_category] provided by this library.
+
+[endsect] [/section:how_to_tell How to Determine the Kind of a Number From `std::numeric_limits`]
+
+[include numeric_limits_32_tables.qbk]
+
+[/J:\Cpp\big_number\numeric_limits_32_tables\numeric_limits_32_tables.qbk]
+
+[section:headers Header File Structure]
+
+[table Top level headers
+[[Header][Contains]]
+]
+
+[table Implementation Headers
+[[Header][Contains]]
+]
+
+[endsect] [/section:headers Header File Structure]
+
+[section:perf Performance Comparison]
+
+[endsect] [/section:perf Performance Comparison]
+
+[section:map Roadmap]
+
+[/section:history History]
+
+[h4 1.?]
+
+* First Release.
+
+[h4 Post review changes]
+
+[h4 Pre-review history]
+
+* 2013, Christopher Kormanyos develops the all C++ arithmetic fixed point code.
+
+[endsect] [/section:map Roadmap]
+
+[section:todo TODO]
+
+[h4 Pre-Review Comments]
+
+[endsect] [/section:todo TODO]
+
+[section:faq FAQ]
+
+[variablelist
+[  [Why do I get compiler errors when passing a `number` to a template function?]
+   [Most likely you are actually passing an expression template type to the function and
+   template-argument-deduction deduces the "wrong" type.  Try casting the arguments
+   involving expressions to the actual number type, or as a last resort turning off
+   expression template support in the number type you are using.]
+ ]
+]
+
+[endsect] [/section:faq FAQ]
+
+[section:ack Acknowledgements]
+
+This library would not have happened without:
+
+* Christopher Kormanyos' C++ decimal number code.
+
+* [@http://www-cs-faculty.stanford.edu/~uno/taocp.html "The Art Of Computer Programming"],
+Donald E. Knuth, Volume 2: Seminumerical Algorithms, Third Edition
+(Reading, Massachusetts: Addison-Wesley, 1997), xiv+762pp. ISBN 0-201-89684-2
+
+[endsect] [/section:ack Acknowledgements]
+
+[xinclude autodoc.xml] [/ Using Doxygen reference documentation.]
+
+[section:indexes Indexes]
+
+'''
+<index type="function_name">
+<title>Function Index</title>
+</index>
+
+<index type="class_name">
+<title>Class Index</title>
+</index>
+
+<index type="typedef_name">
+<title>Typedef Index</title>
+</index>
+
+<index/>
+'''
+
+[endsect] [/section:indexes Indexes]
+
+
+
+
+
