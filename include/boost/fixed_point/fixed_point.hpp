@@ -330,8 +330,8 @@
     void print_bits (T num)
     {
       std::string ans = "";
-      size_t bits = sizeof (num) * 8;
-      int mask = 1;
+      size_t bits = range;
+      T mask = T(1);
       for (int i = 0; i < bits; i++)
       {
         if (num & mask) ans+="1";
@@ -378,6 +378,11 @@
                                             || std::is_same<double,      floating_point_type>::value
                                             || std::is_same<long double, floating_point_type>::value>::type* = nullptr) : data(value_type(f * radix_split_value<floating_point_type>()))
     {
+      std::cout<<typeid(floating_point_type).name() <<"\n";
+      std::cout<<sizeof(floating_point_type)<<"\n";
+      std::cout<<typeid(value_type).name() <<"\n";
+      std::cout<<sizeof(value_type)<<std::endl;
+      std::cout<<data<<"\n";
       print_bits(data);
     }
 

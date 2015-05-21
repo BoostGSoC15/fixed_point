@@ -9,20 +9,16 @@
 
 #include <iomanip>
 #include <iostream>
-#include "boost/math/fixed_point/fixed_point.hpp"
+#include "boost/fixed_point/fixed_point.hpp"
 
-typedef boost::math::fixed_point::negatable<28, -4> fixed_point_type;
+typedef boost::math::fixed_point::negatable<87, -2> fixed_point_type;
 
 int main()
 {
-  fixed_point_type x = fixed_point_type(10)/3;
-  double           d = 10.0 / 3.0;
+  fixed_point_type x = fixed_point_type(-1.25);
 
   std::cout << std::setprecision(std::numeric_limits<fixed_point_type>::digits10)
             << x
-            << std::endl;
-  std::cout << std::setprecision(std::numeric_limits<double>::digits10)
-            << std::fixed << d
             << std::endl;
 
 }
