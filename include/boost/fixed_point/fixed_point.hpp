@@ -9,8 +9,7 @@
 
 // This file is a partial reference implementation for the proposed
 // "C++ binary fixed-point arithmetic" as specified in N3352.
-// See: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html
-
+// See: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.htm
 #ifndef FIXED_POINT_2015_03_06_HPP_
   #define FIXED_POINT_2015_03_06_HPP_
 
@@ -325,6 +324,8 @@
                   "Error: the negatable class resolution must be fractional (negative).");
     static_assert(-resolution < range - 1,
                   "Error: the negatable class resolution exceeds the available range.");
+    static_assert( round_mode == round::fastest || round_mode == round::negative,
+                  "Error: only negative and fastest round modes supported at the moment");
 
     template<typename T>
     void print_bits (T num)
@@ -342,6 +343,44 @@
       std::cout<<ans<<"\n";
     }
 
+    /*round the value at the time of construction
+      for example: negatable<2,-2, round::negative> a (-1.32);
+      the value of a should not be -1.5
+    */
+    template<typename initialize_type, typename underlying_type>
+    void round_construct (const initialize_type &value, underlying_type &data)
+    {
+      // tbd: this works under the assumption that without any work, the default behavior happens to be similar to round::truncated
+      // I'm not sure if this is machine specific though
+      if (round_mode == round::negative)
+      {
+        /* check if number is already perfectly representable; no need to round then*/
+        if (resolution > 0)
+        {
+          // TBD: I don't really like dividing here, not sure if there's a better way though
+          initialize_type scale = value / fixed_point::detail::radix_split_maker<initialize_type, resolution>::value ();
+
+          /* no rounding needed if perfectly divisible */
+          if (floor (scale) == scale)
+            return;
+        }
+
+        if (resolution < 0)
+        {
+          initialize_type scale = value * fixed_point::detail::radix_split_maker<initialize_type, -resolution>::value ();
+
+          /* no rounding needed if perfectly divisible */
+          if (floor (scale) == scale)
+            return;
+        }
+
+        /*Since the default rounding behaviour is towards_zero/truncated, for values > 0, behaviour is same as towards_zero*/
+        if (value < 0) 
+          data -= 1;
+
+      }
+    }
+
   public:
     typedef typename detail::integer_type_helper<range>::exact_signed_type value_type;
 
@@ -356,11 +395,12 @@
                                             || std::is_same<long long,  signed_integral_type>::value
                                             || std::is_same<value_type, signed_integral_type>::value>::type* = nullptr) : data(n * radix_split_value<value_type>())
     {
-      std::cout<<typeid(signed_integral_type).name() <<"\n";
+      round_construct (n, data);
+      /*std::cout<<typeid(signed_integral_type).name() <<"\n";
       std::cout<<sizeof(signed_integral_type)<<"\n";
       std::cout<<typeid(value_type).name() <<"\n";
       std::cout<<sizeof(value_type)<<std::endl;
-      std::cout<<data<<"\n";
+      std::cout<<data<<"\n";*/
       print_bits(data);
     }
 
@@ -370,7 +410,11 @@
                                             || std::is_same<unsigned short,     unsigned_integral_type>::value
                                             || std::is_same<unsigned int,       unsigned_integral_type>::value
                                             || std::is_same<unsigned long,      unsigned_integral_type>::value
-                                            || std::is_same<unsigned long long, unsigned_integral_type>::value>::type* = nullptr) : data(value_type(u) << radix_split) { }
+                                            || std::is_same<unsigned long long, unsigned_integral_type>::value>::type* = nullptr) : data(value_type(u) << radix_split)
+    {
+      round_construct (u, data);
+      print_bits(data);
+    }
 
     template<typename floating_point_type>
     negatable(const floating_point_type& f,
@@ -378,11 +422,12 @@
                                             || std::is_same<double,      floating_point_type>::value
                                             || std::is_same<long double, floating_point_type>::value>::type* = nullptr) : data(value_type(f * radix_split_value<floating_point_type>()))
     {
-      std::cout<<typeid(floating_point_type).name() <<"\n";
+      round_construct (f, data);
+      /*std::cout<<typeid(floating_point_type).name() <<"\n";
       std::cout<<sizeof(floating_point_type)<<"\n";
       std::cout<<typeid(value_type).name() <<"\n";
       std::cout<<sizeof(value_type)<<std::endl;
-      std::cout<<data<<"\n";
+      std::cout<<data<<"\n";*/
       print_bits(data);
     }
 
