@@ -28,7 +28,7 @@
   #include <boost/multiprecision/cpp_bin_float.hpp>
   #include <boost/multiprecision/cpp_int.hpp>
 
-  namespace boost { namespace math { namespace fixed_point {
+  namespace boost { namespace fixed_point {
 
   namespace round
   {
@@ -57,29 +57,29 @@
     }
     overflow_type;
   }
-  } } } // namespace boost::math::fixed_point
+  } } // namespace boost::fixed_point
 
   // Forward declaration of the negatable class.
-  namespace boost { namespace math { namespace fixed_point {
+  namespace boost { namespace fixed_point {
     template<const int integral_range,
              const int decimal_resolution,
-             const math::fixed_point::round::round_type round_mode,
-             const math::fixed_point::overflow::overflow_type overflow_mode>
+             const fixed_point::round::round_type round_mode,
+             const fixed_point::overflow::overflow_type overflow_mode>
     class negatable;
-  } } }
-  // namespace boost::math::fixed_point
+  } }
+  // namespace boost::fixed_point
 
   namespace std
   {
     // Forward declaration of the specialization of std::numeric_limits<negatable>.
     template<const int integral_range,
              const int decimal_resolution,
-             const boost::math::fixed_point::round::round_type round_mode,
-             const boost::math::fixed_point::overflow::overflow_type overflow_mode>
-    class numeric_limits<boost::math::fixed_point::negatable<integral_range, decimal_resolution, round_mode, overflow_mode> >;
+             const boost::fixed_point::round::round_type round_mode,
+             const boost::fixed_point::overflow::overflow_type overflow_mode>
+    class numeric_limits<boost::fixed_point::negatable<integral_range, decimal_resolution, round_mode, overflow_mode> >;
   }
 
-  namespace boost { namespace math { namespace fixed_point {
+  namespace boost { namespace fixed_point {
 
   namespace detail
   {
@@ -308,7 +308,7 @@
     template<typename arithmetic_type> struct radix_split_maker<arithmetic_type, 30> { static arithmetic_type value() { return arithmetic_type(UINT32_C(1073741824)); } };
     template<typename arithmetic_type> struct radix_split_maker<arithmetic_type, 31> { static arithmetic_type value() { return arithmetic_type(UINT32_C(2147483648)); } };
   }
-  // namespace boost::math::fixed_point::detail
+  // namespace boost::fixed_point::detail
 
   // We will now begin the implementation of the negatable class.
   template<const int integral_range,
@@ -779,7 +779,7 @@
       std::stringstream ss;
       ss << x.data;
 
-      namespace fp = boost::math::fixed_point;
+      namespace fp = boost::fixed_point;
 
       typedef typename fp::detail::float_type_helper<total_range>::exact_float_type float_type;
 
@@ -1127,20 +1127,20 @@
     friend inline bool      operator<=(const double long& u,          const negatable& v)          { return ((negatable(u).data <= v.data) || ((negatable::is_quiet_nan(u)) && negatable::is_quiet_nan(v))); }
   };
 
-  } } }
-  // namespace boost::math::fixed_point
+  } }
+  // namespace boost::fixed_point
 
   namespace std
   {
     // Provide a specialization of std::numeric_limits<negatable>.
     template<const int integral_range,
              const int decimal_resolution,
-             const boost::math::fixed_point::round::round_type round_mode,
-             const boost::math::fixed_point::overflow::overflow_type overflow_mode>
-    class numeric_limits<boost::math::fixed_point::negatable<integral_range, decimal_resolution, round_mode, overflow_mode> >
+             const boost::fixed_point::round::round_type round_mode,
+             const boost::fixed_point::overflow::overflow_type overflow_mode>
+    class numeric_limits<boost::fixed_point::negatable<integral_range, decimal_resolution, round_mode, overflow_mode> >
     {
     private:
-      typedef boost::math::fixed_point::negatable<integral_range,
+      typedef boost::fixed_point::negatable<integral_range,
                                                   decimal_resolution,
                                                   round_mode,
                                                   overflow_mode> negatable_type;
@@ -1200,7 +1200,7 @@
 #include <iostream>
 #include "fixed_point.hpp"
 
-typedef boost::math::fixed_point::negatable<32, -24> fixed_point_type;
+typedef boost::fixed_point::negatable<32, -24> fixed_point_type;
 
 int main()
 {

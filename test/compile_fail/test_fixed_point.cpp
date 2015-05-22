@@ -11,7 +11,7 @@
 #include <iostream>
 #include "boost/fixed_point/fixed_point.hpp"
 
-typedef boost::math::fixed_point::negatable<87, -2> fixed_point_type;
+typedef boost::fixed_point::negatable<87, -2> fixed_point_type;
 
 int main()
 {
