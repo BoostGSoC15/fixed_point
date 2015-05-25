@@ -29,7 +29,8 @@
                                                        bit_count,
                                                        boost::multiprecision::signed_magnitude,
                                                        boost::multiprecision::unchecked,
-                                                       void>>
+                                                       void>,
+                boost::multiprecision::et_off>
       exact_signed_type;
 
       typedef boost::multiprecision::number<
@@ -37,7 +38,8 @@
                                                        bit_count,
                                                        boost::multiprecision::unsigned_magnitude,
                                                        boost::multiprecision::unchecked,
-                                                       void>>
+                                                       void>,
+                boost::multiprecision::et_off>
       exact_unsigned_type;
     };
 
@@ -86,7 +88,8 @@
                                                        128U,
                                                        boost::multiprecision::signed_magnitude,
                                                        boost::multiprecision::unchecked,
-                                                       void>>
+                                                       void>,
+                boost::multiprecision::et_off>
       exact_signed_type;
 
       typedef boost::multiprecision::number<
@@ -94,7 +97,8 @@
                                                        128U,
                                                        boost::multiprecision::unsigned_magnitude,
                                                        boost::multiprecision::unchecked,
-                                                       void>>
+                                                       void>,
+                boost::multiprecision::et_off>
       exact_unsigned_type;
     };
 
@@ -108,7 +112,8 @@
                                                        512U,
                                                        boost::multiprecision::signed_magnitude,
                                                        boost::multiprecision::unchecked,
-                                                       void>>
+                                                       void>,
+                boost::multiprecision::et_off>
       exact_signed_type;
 
       typedef boost::multiprecision::number<
@@ -116,7 +121,8 @@
                                                        512U,
                                                        boost::multiprecision::unsigned_magnitude,
                                                        boost::multiprecision::unchecked,
-                                                       void>>
+                                                       void>,
+                boost::multiprecision::et_off>
       exact_unsigned_type;
     };
 
@@ -130,7 +136,8 @@
                                                        1024U,
                                                        boost::multiprecision::signed_magnitude,
                                                        boost::multiprecision::unchecked,
-                                                       void>>
+                                                       void>,
+                boost::multiprecision::et_off>
       exact_signed_type;
 
       typedef boost::multiprecision::number<
@@ -138,7 +145,8 @@
                                                        1024U,
                                                        boost::multiprecision::unsigned_magnitude,
                                                        boost::multiprecision::unchecked,
-                                                       void>>
+                                                       void>,
+                boost::multiprecision::et_off>
       exact_unsigned_type;
     };
 
@@ -152,7 +160,8 @@
                                                        2048U,
                                                        boost::multiprecision::signed_magnitude,
                                                        boost::multiprecision::unchecked,
-                                                       void>>
+                                                       void>,
+                boost::multiprecision::et_off>
       exact_signed_type;
 
       typedef boost::multiprecision::number<
@@ -160,7 +169,8 @@
                                                        2048U,
                                                        boost::multiprecision::unsigned_magnitude,
                                                        boost::multiprecision::unchecked,
-                                                       void>>
+                                                       void>,
+                boost::multiprecision::et_off>
       exact_unsigned_type;
     };
 
@@ -174,7 +184,8 @@
                                                        4096U,
                                                        boost::multiprecision::signed_magnitude,
                                                        boost::multiprecision::unchecked,
-                                                       void>>
+                                                       void>,
+                boost::multiprecision::et_off>
       exact_signed_type;
 
       typedef boost::multiprecision::number<
@@ -182,7 +193,8 @@
                                                        4096U,
                                                        boost::multiprecision::unsigned_magnitude,
                                                        boost::multiprecision::unchecked,
-                                                       void>>
+                                                       void>,
+                boost::multiprecision::et_off>
       exact_unsigned_type;
     };
 
@@ -196,7 +208,8 @@
                                                        8192U,
                                                        boost::multiprecision::signed_magnitude,
                                                        boost::multiprecision::unchecked,
-                                                       void>>
+                                                       void>,
+                boost::multiprecision::et_off>
       exact_signed_type;
 
       typedef boost::multiprecision::number<
@@ -204,7 +217,8 @@
                                                        8192U,
                                                        boost::multiprecision::unsigned_magnitude,
                                                        boost::multiprecision::unchecked,
-                                                       void>>
+                                                       void>,
+                boost::multiprecision::et_off>
       exact_unsigned_type;
     };
 
@@ -227,7 +241,7 @@
 
     template<const unsigned bit_count>
     struct float_type_helper<bit_count,
-                             typename std::enable_if<   (bit_count >= 25U)
+                             typename std::enable_if<   (bit_count >  24U)
                                                      && (bit_count <= 53U)>::type>
     {
       typedef boost::float64_t exact_float_type;
@@ -286,9 +300,10 @@
                              radix_split,
                              typename std::enable_if<(radix_split < 32)>::type>
     {
-      static arithmetic_type value()
+      static arithmetic_type& value()
       {
-        return arithmetic_type(UINT32_C(1) << radix_split);
+        static arithmetic_type the_result(UINT32_C(1) << radix_split);
+        return the_result;
       }
     };
 
@@ -299,9 +314,10 @@
                              typename std::enable_if<   (radix_split >= 32)
                                                      && (radix_split <  64)>::type>
     {
-      static arithmetic_type value()
+      static arithmetic_type& value()
       {
-        return arithmetic_type(UINT64_C(1) << radix_split);
+        static arithmetic_type the_result(UINT64_C(1) << radix_split);
+        return the_result;
       }
     };
   } } } // namespace boost::fixed_point::detail

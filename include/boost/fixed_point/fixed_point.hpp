@@ -86,70 +86,13 @@
   class negatable
   {
   private:
-    static const int range      = integral_range - decimal_resolution;
-    static const int resolution = decimal_resolution;
+    static BOOST_CONSTEXPR_OR_CONST int range      = integral_range - decimal_resolution;
+    static BOOST_CONSTEXPR_OR_CONST int resolution = decimal_resolution;
 
     static_assert( resolution < 0,
                   "Error: the negatable class resolution must be fractional (negative).");
     static_assert(-resolution < range - 1,
                   "Error: the negatable class resolution exceeds the available range.");
-    static_assert( round_mode == round::fastest || round_mode == round::negative,
-                  "Error: only negative and fastest round modes supported at the moment");
-
-    /*Primarily for debugging/testing purposes*/
-    template<typename T>
-    void print_bits (T num)
-    {
-      std::string ans = "";
-      size_t bits = range;
-      T mask = T(1);
-      for (int i = 0; i < bits; i++)
-      {
-        if (num & mask) ans+="1";
-        else ans+="0";
-        mask = mask << 1;
-      }
-      std::reverse (ans.begin (), ans.end ());
-      std::cout<<ans<<"\n";
-    }
-
-    /*round the value at the time of construction
-      for example: negatable<2,-2, round::negative> a (-1.32);
-      the value of a should be -1.5
-    */
-    template<typename initialize_type, typename underlying_type>
-    void round_construct (const initialize_type &value, underlying_type &data)
-    {
-      // tbd: this works under the assumption that without any work, the default behavior happens to be similar to round::truncated
-      // I'm not sure if this is machine specific though
-      if (round_mode == round::negative)
-      {
-        /* check if number is already perfectly representable; no need to round then*/
-        if (resolution > 0)
-        {
-          // TBD: I don't really like dividing here, not sure if there's a better way though
-          initialize_type scale = value / fixed_point::detail::radix_split_maker<initialize_type, resolution>::value ();
-
-          /* no rounding needed if perfectly divisible */
-          if (floor (scale) == scale)
-            return;
-        }
-
-        if (resolution < 0)
-        {
-          initialize_type scale = value * fixed_point::detail::radix_split_maker<initialize_type, -resolution>::value ();
-
-          /* no rounding needed if perfectly divisible */
-          if (floor (scale) == scale)
-            return;
-        }
-
-        /*Since the default rounding behaviour is towards_zero/truncated, for values > 0, behaviour is same as towards_zero*/
-        if (value < 0) 
-          data -= 1;
-
-      }
-    }
 
   public:
     typedef typename detail::integer_type_helper<range>::exact_signed_type value_type;
@@ -162,30 +105,19 @@
               const typename std::enable_if<   std::is_integral<signed_integral_type>::value
                                             && std::numeric_limits<signed_integral_type>::is_signed == true>::type* = nullptr) : data(n * radix_split_value<value_type>())
     {
-      //round_construct (n, data);
-      /*std::cout<<typeid(signed_integral_type).name() <<"\n";
-      std::cout<<sizeof(signed_integral_type)<<"\n";
-      std::cout<<typeid(value_type).name() <<"\n";
-      std::cout<<sizeof(value_type)<<std::endl;
-      std::cout<<data<<"\n";*/
-      print_bits(data);
+    
     }
 
     template<typename unsigned_integral_type>
     negatable(const unsigned_integral_type& u,
               const typename std::enable_if<   std::is_integral<unsigned_integral_type>::value
-                                            && std::numeric_limits<unsigned_integral_type>::is_signed == false>::type* = nullptr) : data(value_type(u) << radix_split)
-    {
-      //round_construct (u, data);
-      print_bits(data);
-    }
+                                            && std::numeric_limits<unsigned_integral_type>::is_signed == false>::type* = nullptr) : data(value_type(u) << radix_split) { }
 
     template<typename floating_point_type>
     negatable(const floating_point_type& f,
               const typename std::enable_if<std::is_floating_point<floating_point_type>::value>::type* = nullptr) : data(value_type(f * radix_split_value<floating_point_type>()))
     {
-      //round_construct (f, data);
-      print_bits(data);	
+      std::cout<<"This statement is causing error\n";
     }
 
     negatable(const negatable& v) : data(v.data) { }
@@ -238,8 +170,8 @@
 
     negatable& operator*=(const negatable& v)
     {
-      const bool u_is_neg      = (  data < 0);
-      const bool v_is_neg      = (v.data < 0);
+      const bool u_is_neg      = (  data < value_type(0));
+      const bool v_is_neg      = (v.data < value_type(0));
       const bool result_is_neg = (u_is_neg != v_is_neg);
 
       unsigned_large_type result((!u_is_neg) ? data : -data);
@@ -260,8 +192,8 @@
 
     negatable& operator/=(const negatable& v)
     {
-      const bool u_is_neg      = (  data < 0);
-      const bool v_is_neg      = (v.data < 0);
+      const bool u_is_neg      = (  data < value_type(0));
+      const bool v_is_neg      = (v.data < value_type(0));
       const bool result_is_neg = (u_is_neg != v_is_neg);
 
       if(v.data == 0)
@@ -351,15 +283,17 @@
   private:
     value_type data;
 
-    static const int radix_split = -resolution;
+    static BOOST_CONSTEXPR_OR_CONST int radix_split = -resolution;
 
     typedef typename detail::integer_type_helper<range * 1>::exact_unsigned_type unsigned_small_type;
     typedef typename detail::integer_type_helper<range * 2>::exact_unsigned_type unsigned_large_type;
 
     template<typename arithmetic_type>
-    static arithmetic_type radix_split_value()
+    static const arithmetic_type& radix_split_value()
     {
-      return detail::radix_split_maker<arithmetic_type, radix_split>::value();
+      static const arithmetic_type the_radix_split_value(detail::radix_split_maker<arithmetic_type, radix_split>::value());
+
+      return the_radix_split_value;
     }
 
     struct nothing { };
@@ -370,10 +304,11 @@
               const typename std::enable_if<   std::is_integral<integral_type>::value
                                             || std::is_same<value_type, integral_type>::value>::type* = nullptr) : data(n) { }
 
-    static negatable& value_epsilon()
+    static const negatable& value_epsilon()
     {
       static bool      is_init     = bool();
-      static negatable the_epsilon = negatable();
+
+      negatable local_epsilon = negatable();
 
       if(is_init == false)
       {
@@ -383,7 +318,7 @@
 
         if(r10 <= 10)
         {
-          the_epsilon = negatable(nothing(), 1);
+          local_epsilon = negatable(nothing(), 1);
         }
         else
         {
@@ -392,24 +327,25 @@
             r10 = (r10 + 9) / 10;
           }
 
-          the_epsilon = negatable(nothing(), r10);
+          local_epsilon = negatable(nothing(), r10);
         }
       }
+
+      static const negatable the_epsilon(local_epsilon);
 
       return the_epsilon;
     }
 
-    static negatable& value_min() { static negatable the_value_min(nothing(), 1); return the_value_min; }
-    static negatable& value_max() { static negatable the_value_max(nothing(), (std::numeric_limits<value_type>::max)()); return the_value_max; }
+    static const negatable& value_min() { static const negatable the_value_min(nothing(), 1); return the_value_min; }
+    static const negatable& value_max() { static const negatable the_value_max(nothing(), (std::numeric_limits<value_type>::max)()); return the_value_max; }
 
     friend class std::numeric_limits<negatable>;
 
     template<typename char_type,
              typename traits_type>
-    friend
-    inline std::basic_ostream<char_type,
-                              traits_type>& operator<<(std::basic_ostream<char_type, traits_type>& os,
-                                                       const negatable& x)
+    friend inline std::basic_ostream<char_type,
+                                     traits_type>& operator<<(std::basic_ostream<char_type, traits_type>& os,
+                                                              const negatable& x)
     {
       std::basic_ostringstream<char_type, traits_type> ostr;
 
@@ -436,8 +372,8 @@
     }
 
     // Implementations of global unary plus and minus.
-    friend inline negatable operator+(const negatable& left) { return negatable(left); }
-    friend inline negatable operator-(const negatable& left) { negatable tmp(left); tmp.data = -tmp.data; return tmp; }
+    friend inline negatable operator+(const negatable& self) { return negatable(self); }
+    friend inline negatable operator-(const negatable& self) { negatable tmp(self); tmp.data = -tmp.data; return tmp; }
 
     // Implementations of global add, sub, mul, div of [lhs(negatable)] operator [rhs(negatable)].
     template<typename T, typename std::enable_if<std::is_same<T, negatable>::value>::type* = nullptr> friend inline T operator+(const T& u, const T& v) { return T(u) += v; }
@@ -504,31 +440,32 @@
                                             overflow_mode> negatable_type;
 
     public:
-      // TBD: Use the proper C++11 interface to numeric_limits.
-      static const bool                    is_specialized    = true;
-      static const int                     digits            = std::numeric_limits<typename negatable_type::value_type>::digits;
-      static const int                     digits10          = std::numeric_limits<typename negatable_type::value_type>::digits10;
-      static const int                     max_digits10      = std::numeric_limits<typename negatable_type::value_type>::max_digits10;
-      static const bool                    is_signed         = true;
-      static const bool                    is_integer        = false;
-      static const bool                    is_exact          = true;
-      static const int                     radix             = 2;
-      static const int                     min_exponent      = -negatable_type::radix_split;
-      static const int                     min_exponent10    = static_cast<int>((static_cast<long>(min_exponent) * 301L) / 1000L);
-      static const int                     max_exponent      = std::numeric_limits<typename negatable_type::value_type>::digits - negatable_type::radix_split;
-      static const int                     max_exponent10    = static_cast<int>((static_cast<long>(max_exponent) * 301L) / 1000L);
-      static const bool                    has_infinity      = false;
-      static const bool                    has_quiet_NaN     = false;
-      static const bool                    has_signaling_NaN = false;
-      static const std::float_denorm_style has_denorm        = std::denorm_absent;
-      static const bool                    has_denorm_loss   = false;
-      static const bool                    is_iec559         = false;
-      static const bool                    is_bounded        = true;
-      static const bool                    is_modulo         = false;
-      static const bool                    traps             = false;
-      static const bool                    tinyness_before   = false;
-      static const std::float_round_style  round_style       = std::round_toward_zero;
+      static BOOST_CONSTEXPR_OR_CONST bool                    is_specialized    = true;
+      static BOOST_CONSTEXPR_OR_CONST int                     digits            = std::numeric_limits<typename negatable_type::value_type>::digits;
+      static BOOST_CONSTEXPR_OR_CONST int                     digits10          = std::numeric_limits<typename negatable_type::value_type>::digits10;
+      static BOOST_CONSTEXPR_OR_CONST int                     max_digits10      = std::numeric_limits<typename negatable_type::value_type>::max_digits10;
+      static BOOST_CONSTEXPR_OR_CONST bool                    is_signed         = true;
+      static BOOST_CONSTEXPR_OR_CONST bool                    is_integer        = false;
+      static BOOST_CONSTEXPR_OR_CONST bool                    is_exact          = true;
+      static BOOST_CONSTEXPR_OR_CONST int                     radix             = 2;
+      static BOOST_CONSTEXPR_OR_CONST int                     min_exponent      = -negatable_type::radix_split;
+      static BOOST_CONSTEXPR_OR_CONST int                     min_exponent10    = static_cast<int>((static_cast<long>(min_exponent) * 301L) / 1000L);
+      static BOOST_CONSTEXPR_OR_CONST int                     max_exponent      = std::numeric_limits<typename negatable_type::value_type>::digits - negatable_type::radix_split;
+      static BOOST_CONSTEXPR_OR_CONST int                     max_exponent10    = static_cast<int>((static_cast<long>(max_exponent) * 301L) / 1000L);
+      static BOOST_CONSTEXPR_OR_CONST bool                    has_infinity      = false;
+      static BOOST_CONSTEXPR_OR_CONST bool                    has_quiet_NaN     = false;
+      static BOOST_CONSTEXPR_OR_CONST bool                    has_signaling_NaN = false;
+      static BOOST_CONSTEXPR_OR_CONST std::float_denorm_style has_denorm        = std::denorm_absent;
+      static BOOST_CONSTEXPR_OR_CONST bool                    has_denorm_loss   = false;
+      static BOOST_CONSTEXPR_OR_CONST bool                    is_iec559         = false;
+      static BOOST_CONSTEXPR_OR_CONST bool                    is_bounded        = true;
+      static BOOST_CONSTEXPR_OR_CONST bool                    is_modulo         = false;
+      static BOOST_CONSTEXPR_OR_CONST bool                    traps             = false;
+      static BOOST_CONSTEXPR_OR_CONST bool                    tinyness_before   = false;
+      static BOOST_CONSTEXPR_OR_CONST std::float_round_style  round_style       = std::round_toward_zero;
 
+      // TBD: Is there any way to improve C++11 consistency with
+      // numeric_limits using, for example, BOOST_CONSTEXPR_OR_CONST?
       static negatable_type (min)      () throw()            { return negatable_type::value_min(); }
       static negatable_type (max)      () throw()            { return negatable_type::value_max(); }
       static negatable_type lowest     () throw()            { return -(max)(); }
@@ -537,71 +474,6 @@
       static negatable_type infinity   () throw()            { return negatable_type(0); }
       static negatable_type quiet_NaN  () throw()            { return negatable_type(0); }
     };
-  }
-  // namespace std
+  } // namespace std
 
 #endif // FIXED_POINT_2015_03_06_HPP_
-
-/*
-#include <iomanip>
-#include <iostream>
-#include <limits>
-#include <boost/fixed_point/fixed_point.hpp>
-
-int main()
-{
-  typedef boost::fixed_point::negatable<8, -120> fixed_point_type;
-  typedef fixed_point_type::float_type           float_point_type;
-
-  const fixed_point_type xa = fixed_point_type(10) / 3;
-  const fixed_point_type xb = fixed_point_type(10) / 7;
-
-  const float_point_type fa = float_point_type(10) / 3;
-  const float_point_type fb = float_point_type(10) / 7;
-
-  std::cout << std::setprecision(std::numeric_limits<fixed_point_type>::digits10)
-            << xa + xb
-            << std::endl;
-  std::cout << std::setprecision(std::numeric_limits<float_point_type>::digits10)
-            << fa + fb
-            << std::endl;
-
-  std::cout << std::setprecision
-  (std::numeric_limits<fixed_point_type>::digits10)
-            << xa - xb
-            << std::endl;
-  std::cout << std::setprecision(std::numeric_limits<float_point_type>::digits10)
-            << fa - fb
-            << std::endl;
-
-  std::cout << std::setprecision(std::numeric_limits<fixed_point_type>::digits10)
-            << xa * xb
-            << std::endl;
-  std::cout << std::setprecision(std::numeric_limits<float_point_type>::digits10)
-            << fa * fb
-            << std::endl;
-
-  std::cout << std::setprecision(std::numeric_limits<fixed_point_type>::digits10)
-            << xa / xb
-            << std::endl;
-  std::cout << std::setprecision(std::numeric_limits<float_point_type>::digits10)
-            << fa / fb
-            << std::endl;
-
-  std::cout << std::boolalpha
-            << (xa == xa)
-            << std::endl;
-
-  std::cout << std::boolalpha
-            << (xa == xb)
-            << std::endl;
-
-  std::cout << std::boolalpha
-            << (xa != xb)
-            << std::endl;
-
-  std::cout << std::boolalpha
-            << (xa != 1)
-            << std::endl;
-}
-*/
