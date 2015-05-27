@@ -26,7 +26,7 @@
 
   namespace round
   {
-    typedef enum round_type
+    /*typedef enum round_type
     {
       fastest,       // Speed is more important than the choice in value.
       negative,      // Round towards negative infinity. This mode is useful in interval arithmetic.
@@ -36,94 +36,54 @@
       nearest_even,  // Round towards the nearest value, but exactly-half values are rounded towards even values. This mode has more balance than the classic mode.
       nearest_odd,   // Round towards the nearest value, but exactly-half values are rounded towards odd values. This mode has as much balance as the near_even mode, but preserves more information.
     }
-    round_type;
-  }
+    round_type;*/
 
-  namespace overflow
-  {
-    typedef enum overflow_type
-    {
-      impossible, // Programmer analysis of the program has determined that overflow cannot occur. Uses of this mode should be accompanied by an argument supporting the conclusion.
-      undefined,  // Programmers are willing to accept undefined behavior in the event of an overflow.
-      modulus,    // The assigned value is the dynamic value mod the range of the variable. This mode makes sense only with unsigned numbers. It is useful for angular measures.
-      saturate,   // If the dynamic value exceeds the range of the variable, assign the nearest representable value.
-      exception   // If the dynamic value exceeds the range of the variable, throw an exeception of type std::overflow_error.
-    }
-    overflow_type;
-  }
-  } } // namespace boost::fixed_point
-
-  // Forward declaration of the negatable class.
-  namespace boost { namespace fixed_point {
-    template<const int integral_range,
-             const int decimal_resolution,
-             const fixed_point::round::round_type round_mode,
-             const fixed_point::overflow::overflow_type overflow_mode>
-    class negatable;
-  } }
-  // namespace boost::fixed_point
-
-  namespace std
-  {
-    // Forward declaration of the specialization of std::numeric_limits<negatable>.
-    template<const int integral_range,
-             const int decimal_resolution,
-             const boost::fixed_point::round::round_type round_mode,
-             const boost::fixed_point::overflow::overflow_type overflow_mode>
-    class numeric_limits<boost::fixed_point::negatable<integral_range,
-                                                       decimal_resolution,
-                                                       round_mode,
-                                                       overflow_mode>>;
-  }
-
-  namespace boost { namespace fixed_point {
-
-  // We will now begin the implementation of the negatable class.
-  template<const int integral_range,
-           const int decimal_resolution,
-           const round::round_type round_mode = round::fastest,
-           const overflow::overflow_type overflow_mode = overflow::undefined>
-  class negatable
-  {
-  private:
-    static const int range      = integral_range - decimal_resolution;
-    static const int resolution = decimal_resolution;
-
-    static_assert( resolution < 0,
-                  "Error: the negatable class resolution must be fractional (negative).");
-    static_assert(-resolution < range - 1,
-                  "Error: the negatable class resolution exceeds the available range.");
-    static_assert( round_mode == round::fastest || round_mode == round::negative,
-                  "Error: only negative and fastest round modes supported at the moment");
-
-    /*Primarily for debugging/testing purposes*/
-    template<typename T>
-    void print_bits (T num)
-    {
-      std::string ans = "";
-      size_t bits = range;
-      T mask = T(1);
-      for (int i = 0; i < bits; i++)
-      {
-        if (num & mask) ans+="1";
-        else ans+="0";
-        mask = mask << 1;
-      }
-      std::reverse (ans.begin (), ans.end ());
-      std::cout<<ans<<"\n";
-    }
-
-    /*round the value at the time of construction
-      for example: negatable<2,-2, round::negative> a (-1.32);
-      the value of a should be -1.5
+    /**
+    *  Speed is more important than the choice in value.
     */
-    template<typename initialize_type, typename underlying_type>
-    void round_construct (const initialize_type &value, underlying_type &data)
+    struct fastest
     {
-      // tbd: this works under the assumption that without any work, the default behavior happens to be similar to round::truncated
-      // I'm not sure if this is machine specific though
-      if (round_mode == round::negative)
+      //BOOST_STATIC_CONSTEXPR
+      std::float_round_style round_style = std::round_indeterminate;
+
+      template <typename from, typename to>
+      static to round (from const& rhs, int from_resolution, int to_resolution)
       {
+        /*TODO: Right now same as round::negative*/
+        int shift_by = to_resolution - from_resolution;
+        from rounded_value = rhs >> shift_by;
+        return static_cast<to>(rounded_value);
+      }
+
+      template<typename initialize_type, typename underlying_type, int resolution>
+      static void round_construct (const initialize_type &value, underlying_type &data)
+      {
+      }
+    };
+
+    /**
+    * Rounds toward negative infinity.
+    *
+    * This mode is useful in interval arithmetic.
+    */
+    struct negative
+    {
+      std::float_round_style round_style = std::round_toward_neg_infinity;
+      
+      template <typename from, typename to>
+      static to round (from const& rhs, int from_resolution, int to_resolution)
+      {
+        int shift_by = to_resolution - from_resolution;
+        from rounded_value = rhs >> shift_by;
+        return static_cast<to>(rounded_value);
+      }
+
+      template<typename initialize_type, typename underlying_type, int resolution>
+      static void round_construct (const initialize_type &value, underlying_type &data)
+      {
+        // tbd: this works under the assumption that without any work, the default behavior happens to be similar to round::truncated
+        // I'm not sure if this is machine specific though
+
         /* check if number is already perfectly representable; no need to round then*/
         if (resolution > 0)
         {
@@ -147,9 +107,126 @@
         /*Since the default rounding behaviour is towards_zero/truncated, for values > 0, behaviour is same as towards_zero*/
         if (value < 0) 
           data -= 1;
+      }
+    };
+
+    struct positive
+    {
+
+    };
+  }
+
+  namespace overflow
+  {
+    typedef enum overflow_type
+    {
+      impossible, // Programmer analysis of the program has determined that overflow cannot occur. Uses of this mode should be accompanied by an argument supporting the conclusion.
+      undefined,  // Programmers are willing to accept undefined behavior in the event of an overflow.
+      modulus,    // The assigned value is the dynamic value mod the range of the variable. This mode makes sense only with unsigned numbers. It is useful for angular measures.
+      saturate,   // If the dynamic value exceeds the range of the variable, assign the nearest representable value.
+      exception   // If the dynamic value exceeds the range of the variable, throw an exeception of type std::overflow_error.
+    }
+    overflow_type;
+  }
+  } } // namespace boost::fixed_point
+
+  // Forward declaration of the negatable class.
+  namespace boost { namespace fixed_point {
+    template<const int integral_range,
+             const int decimal_resolution,
+             typename round_mode,
+             const fixed_point::overflow::overflow_type overflow_mode>
+    class negatable;
+  } }
+  // namespace boost::fixed_point
+
+  namespace std
+  {
+    // Forward declaration of the specialization of std::numeric_limits<negatable>.
+    template<const int integral_range,
+             const int decimal_resolution,
+             typename round_mode,
+             const boost::fixed_point::overflow::overflow_type overflow_mode>
+    class numeric_limits<boost::fixed_point::negatable<integral_range,
+                                                       decimal_resolution,
+                                                       round_mode,
+                                                       overflow_mode>>;
+  }
+
+  namespace boost { namespace fixed_point {
+
+  // We will now begin the implementation of the negatable class.
+  template<const int integral_range,
+           const int decimal_resolution,
+           typename round_mode = round::fastest,
+           const overflow::overflow_type overflow_mode = overflow::undefined>
+  class negatable
+  {
+  private:
+    static const int range      = integral_range - decimal_resolution;
+    static const int resolution = decimal_resolution;
+
+    static_assert( resolution < 0,
+                  "Error: the negatable class resolution must be fractional (negative).");
+    static_assert(-resolution < range - 1,
+                  "Error: the negatable class resolution exceeds the available range.");
+    static_assert( std::is_same<round_mode, round::fastest>::value || std::is_same<round_mode, round::negative>::value,
+                  "Error: only negative and fastest round modes supported at the moment");
+
+    /*Primarily for debugging/testing purposes*/
+    template<typename T>
+    void print_bits (T num)
+    {
+      std::string ans = "";
+      size_t bits = range;
+      T mask = T(1);
+      for (int i = 0; i < bits; i++)
+      {
+        if (num & mask) ans+="1";
+        else ans+="0";
+        mask = mask << 1;
+      }
+      std::reverse (ans.begin (), ans.end ());
+      std::cout<<ans<<"\n";
+    }
+
+    /*round the value at the time of construction
+      for example: negatable<2,-2, round::negative> a (-1.32);
+      the value of a should be -1.5
+    */
+    /*template<typename initialize_type, typename underlying_type>
+    void round_construct (const initialize_type &value, underlying_type &data)
+    {
+      // tbd: this works under the assumption that without any work, the default behavior happens to be similar to round::truncated
+      // I'm not sure if this is machine specific though
+      if (round_mode == round::negative)
+      {
+       // /* check if number is already perfectly representable; no need to round then
+        if (resolution > 0)
+        {
+          // TBD: I don't really like dividing here, not sure if there's a better way though
+          initialize_type scale = value / fixed_point::detail::radix_split_maker<initialize_type, resolution>::value ();
+
+          ///* no rounding needed if perfectly divisible 
+          if (floor (scale) == scale)
+            return;
+        }
+
+        if (resolution < 0)
+        {
+          initialize_type scale = value * fixed_point::detail::radix_split_maker<initialize_type, -resolution>::value ();
+
+         // /* no rounding needed if perfectly divisible 
+          if (floor (scale) == scale)
+            return;
+        }
+
+        ///*Since the default rounding behaviour is towards_zero/truncated, for values > 0, behaviour is same as towards_zero
+        if (value < 0) 
+          data -= 1;
 
       }
-    }
+    }*/
 
   public:
     typedef typename detail::integer_type_helper<range>::exact_signed_type value_type;
@@ -166,16 +243,16 @@
       std::cout<<typeid(value_type).name() <<"\n";
       std::cout<<sizeof(value_type)<<std::endl;
       std::cout<<data<<"\n";*/
-      round_construct (n, data);
-      print_bits(data);
+      round_mode::template round_construct<integral_type, value_type, resolution> (n, data);
+     // print_bits(data);
     }
 
     template<typename floating_point_type>
     negatable(const floating_point_type& f,
               const typename std::enable_if<std::is_floating_point<floating_point_type>::value>::type* = nullptr) : data(value_type(f * radix_split_value<floating_point_type>()))
     {
-      round_construct (f, data);
-      print_bits(data);	
+      round_mode::template round_construct<floating_point_type, value_type, resolution> (f, data);
+     // print_bits(data);	
     }
 
     negatable(const negatable& v) : data(v.data) { }
@@ -236,14 +313,10 @@
 
       result *= ((!v_is_neg) ? unsigned_large_type(v.data) : unsigned_large_type(-v.data));
 
-      result >>= radix_split;
+      /*We need to make this conversion for round::negative to work correctly*/
+      signed_large_type signed_result((!result_is_neg) ? result : -result);
 
-      data = detail::convert_to<unsigned_large_type, value_type>(result);
-
-      if(result_is_neg)
-      {
-        data = -data;
-      }
+      data = round_mode::template round<signed_large_type, value_type>(signed_result, 2* resolution, resolution);
 
       return *this;
     }
@@ -345,6 +418,8 @@
 
     typedef typename detail::integer_type_helper<range * 1>::exact_unsigned_type unsigned_small_type;
     typedef typename detail::integer_type_helper<range * 2>::exact_unsigned_type unsigned_large_type;
+    typedef typename detail::integer_type_helper<range * 2 + 1>::exact_signed_type signed_large_type;
+
 
     template<typename arithmetic_type>
     static arithmetic_type radix_split_value()
@@ -415,7 +490,7 @@
       // TBD: Or is there a more sensible way to do this?
 
       std::stringstream ss;
-      ss << unsigned_large_type(x.data);
+      ss << signed_large_type(x.data);
 
       float_type v;
       ss >> v;
@@ -480,7 +555,7 @@
     // Provide a specialization of std::numeric_limits<negatable>.
     template<const int integral_range,
              const int decimal_resolution,
-             const boost::fixed_point::round::round_type round_mode,
+             typename round_mode,
              const boost::fixed_point::overflow::overflow_type overflow_mode>
     class numeric_limits<boost::fixed_point::negatable<integral_range,
                                                        decimal_resolution,
