@@ -186,8 +186,8 @@
   {
   private:
     static BOOST_CONSTEXPR_OR_CONST int total_digits2 = integral_range - decimal_resolution;
-    static BOOST_CONSTEXPR_OR_CONST int range      = integral_range - decimal_resolution;
-    static BOOST_CONSTEXPR_OR_CONST int resolution = decimal_resolution;
+    static BOOST_CONSTEXPR_OR_CONST int range         = integral_range - decimal_resolution;
+    static BOOST_CONSTEXPR_OR_CONST int resolution    = decimal_resolution;
 
     static_assert( resolution < 0,
                   "Error: The resolution of negatable must be fractional (negative).");

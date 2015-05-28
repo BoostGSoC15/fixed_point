@@ -248,11 +248,11 @@
       typedef boost::float64_t exact_float_type;
     };
 
-  template<typename source_type,
-           typename destination_type>
-  destination_type convert_to(const source_type& source)
+    template<typename source_type,
+             typename destination_type>
+    destination_type convert_to(const source_type& source)
     {
-    return static_cast<destination_type>(source);
+      return static_cast<destination_type>(source);
     }
 
     template<typename arithmetic_type,
@@ -299,12 +299,13 @@
              const int radix_split>
     struct radix_split_maker<arithmetic_type,
                              radix_split,
-                             typename std::enable_if<(radix_split < 32)>::type>
+                             typename std::enable_if<   std::is_integral<arithmetic_type>::value
+                                                     && (radix_split < 8)>::type>
     {
-    static const arithmetic_type& value()
+      static const arithmetic_type& value()
       {
-      static const arithmetic_type& the_result(UINT32_C(1) << radix_split);
-      return the_result;
+        static const arithmetic_type& the_result(UINT8_C(1) << radix_split);
+        return the_result;
       }
     };
 
@@ -312,13 +313,44 @@
              const int radix_split>
     struct radix_split_maker<arithmetic_type,
                              radix_split,
-                             typename std::enable_if<   (radix_split >= 32)
+                             typename std::enable_if<   std::is_integral<arithmetic_type>::value
+                                                     && (radix_split >=  8)
+                                                     && (radix_split <  16)>::type>
+    {
+      static const arithmetic_type& value()
+      {
+        static const arithmetic_type& the_result(UINT16_C(1) << radix_split);
+        return the_result;
+      }
+    };
+
+    template<typename arithmetic_type,
+             const int radix_split>
+    struct radix_split_maker<arithmetic_type,
+                             radix_split,
+                             typename std::enable_if<   std::is_integral<arithmetic_type>::value
+                                                     && (radix_split >= 16)
+                                                     && (radix_split <  32)>::type>
+    {
+      static const arithmetic_type& value()
+      {
+        static const arithmetic_type& the_result(UINT32_C(1) << radix_split);
+        return the_result;
+      }
+    };
+
+    template<typename arithmetic_type,
+             const int radix_split>
+    struct radix_split_maker<arithmetic_type,
+                             radix_split,
+                             typename std::enable_if<   std::is_integral<arithmetic_type>::value
+                                                     && (radix_split >= 32)
                                                      && (radix_split <  64)>::type>
     {
-    static const arithmetic_type& value()
+      static const arithmetic_type& value()
       {
-      static const arithmetic_type the_result(UINT64_C(1) << radix_split);
-      return the_result;
+        static const arithmetic_type the_result(UINT64_C(1) << radix_split);
+        return the_result;
       }
     };
   } } } // namespace boost::fixed_point::detail
