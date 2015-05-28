@@ -186,7 +186,7 @@
   {
   private:
     static BOOST_CONSTEXPR_OR_CONST int total_digits2 = integral_range - decimal_resolution;
-    static BOOST_CONSTEXPR_OR_CONST int range         = integral_range - decimal_resolution;
+    static BOOST_CONSTEXPR_OR_CONST int range         = integral_range;
     static BOOST_CONSTEXPR_OR_CONST int resolution    = decimal_resolution;
 
     static_assert( resolution < 0,
@@ -288,19 +288,19 @@
                                             || std::is_same<integral_type, value_type>::value>::type* = nullptr) : data(value_type(n) * radix_split_value<value_type>())
     {
       #if defined(DEBUG_PRINT_IS_ENABLED)
-        std::cout<<typeid(integral_type).name() <<"\n";
-        std::cout<<sizeof(integral_type)<<"\n";
+        std::cout << typeid(integral_type).name() <<"\n";
+        std::cout << sizeof(integral_type)        <<"\n";
 
-        std::cout<<typeid(value_type).name() <<"\n";
-        std::cout<<sizeof(value_type)<<std::endl;
-        std::cout<<data<<"\n";
+        std::cout << typeid(value_type).name() << "\n";
+        std::cout << sizeof(value_type)        << "\n";
+        std::cout << data                      << "\n";
       #endif // DEBUG_PRINT_IS_ENABLED
 
       round_mode::template round_construct<integral_type, value_type, resolution>(n, data);
 
       #if defined(DEBUG_PRINT_IS_ENABLED)
         print_bits(data);
-      #endif // DEBUG_PRINT_IS_ENABLED
+      #endif
     }
 
     template<typename floating_point_type>
@@ -311,7 +311,7 @@
 
       #if defined(DEBUG_PRINT_IS_ENABLED)
         print_bits(data);
-      #endif // DEBUG_PRINT_IS_ENABLED
+      #endif
     }
 
     negatable(const negatable& v) : data(v.data) { }
@@ -477,10 +477,9 @@
 
     static BOOST_CONSTEXPR_OR_CONST int radix_split = -resolution;
 
-    typedef typename detail::integer_type_helper<total_digits2 * 1>::exact_unsigned_type unsigned_small_type;
-    typedef typename detail::integer_type_helper<total_digits2 * 2>::exact_unsigned_type unsigned_large_type;
-    typedef typename detail::integer_type_helper<total_digits2 * 2 + 1>::exact_signed_type signed_large_type;
-
+    typedef typename detail::integer_type_helper<total_digits2 * 1    >::exact_unsigned_type unsigned_small_type;
+    typedef typename detail::integer_type_helper<total_digits2 * 2    >::exact_unsigned_type unsigned_large_type;
+    typedef typename detail::integer_type_helper<total_digits2 * 2 + 1>::exact_signed_type     signed_large_type;
 
     template<typename arithmetic_type>
     static const arithmetic_type& radix_split_value()
@@ -635,19 +634,19 @@
     friend inline negatable operator+(const negatable& self) { return negatable(self); }
     friend inline negatable operator-(const negatable& self) { negatable tmp(self); tmp.data = -tmp.data; return tmp; }
 
-    // Implementations of global add, sub, mul, div of [lhs(negatable)] operator [rhs(negatable)].
+    // Implementations of global binary add, sub, mul, div of [lhs(negatable)] operator [rhs(negatable)].
     template<typename T, typename std::enable_if<std::is_same<T, negatable>::value>::type* = nullptr> friend inline T operator+(const T& u, const T& v) { return T(u) += v; }
     template<typename T, typename std::enable_if<std::is_same<T, negatable>::value>::type* = nullptr> friend inline T operator-(const T& u, const T& v) { return T(u) -= v; }
     template<typename T, typename std::enable_if<std::is_same<T, negatable>::value>::type* = nullptr> friend inline T operator*(const T& u, const T& v) { return T(u) *= v; }
     template<typename T, typename std::enable_if<std::is_same<T, negatable>::value>::type* = nullptr> friend inline T operator/(const T& u, const T& v) { return T(u) /= v; }
 
-    // Implementations of global add, sub, mul, div of [lhs(negatable)] operator [rhs(arithmetic_type)].
+    // Implementations of global binary add, sub, mul, div of [lhs(negatable)] operator [rhs(arithmetic_type)].
     template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr> friend inline negatable operator+(const negatable& u, const T& v) { return negatable(u) += v; }
     template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr> friend inline negatable operator-(const negatable& u, const T& v) { return negatable(u) -= v; }
     template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr> friend inline negatable operator*(const negatable& u, const T& v) { return negatable(u) *= v; }
     template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr> friend inline negatable operator/(const negatable& u, const T& v) { return negatable(u) /= v; }
 
-    // Implementations of global add, sub, mul, div of [lhs(arithmetic_type)] operator [rhs(negatable)].
+    // Implementations of global binary add, sub, mul, div of [lhs(arithmetic_type)] operator [rhs(negatable)].
     template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr> friend inline negatable operator+(const T& u, const negatable& v) { return negatable(u) += v; }
     template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr> friend inline negatable operator-(const T& u, const negatable& v) { return negatable(u) -= v; }
     template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr> friend inline negatable operator*(const T& u, const negatable& v) { return negatable(u) *= v; }
@@ -680,6 +679,7 @@
     template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>      friend inline bool operator<=(const T& u, const negatable& v) { return (negatable(u).data <= v.data); }
 
     // Helper utilities for mathematical constants.
+    // TBD: We will need these later for transcendental functions.
     template<const int bit_count,
              typename enable_type = void>
     struct constant_maker
