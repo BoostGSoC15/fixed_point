@@ -26,20 +26,20 @@
   {
     typedef boost::multiprecision::number<
               boost::multiprecision::cpp_int_backend<bit_count,
-                                                      bit_count,
-                                                      boost::multiprecision::signed_magnitude,
-                                                      boost::multiprecision::unchecked,
-                                                    void>,
-            boost::multiprecision::et_off>
+                                                     bit_count,
+                                                     boost::multiprecision::signed_magnitude,
+                                                     boost::multiprecision::unchecked,
+                                                     void>,
+              boost::multiprecision::et_off>
     exact_signed_type;
 
     typedef boost::multiprecision::number<
               boost::multiprecision::cpp_int_backend<bit_count,
-                                                      bit_count,
-                                                      boost::multiprecision::unsigned_magnitude,
-                                                      boost::multiprecision::unchecked,
-                                                    void>,
-            boost::multiprecision::et_off>
+                                                     bit_count,
+                                                     boost::multiprecision::unsigned_magnitude,
+                                                     boost::multiprecision::unchecked,
+                                                     void>,
+              boost::multiprecision::et_off>
     exact_unsigned_type;
   };
 
@@ -85,20 +85,20 @@
   {
     typedef boost::multiprecision::number<
               boost::multiprecision::cpp_int_backend<128U,
-                                                      128U,
-                                                      boost::multiprecision::signed_magnitude,
-                                                      boost::multiprecision::unchecked,
-                                                    void>,
-            boost::multiprecision::et_off>
+                                                     128U,
+                                                     boost::multiprecision::signed_magnitude,
+                                                     boost::multiprecision::unchecked,
+                                                     void>,
+              boost::multiprecision::et_off>
     exact_signed_type;
 
     typedef boost::multiprecision::number<
               boost::multiprecision::cpp_int_backend<128U,
-                                                      128U,
-                                                      boost::multiprecision::unsigned_magnitude,
-                                                      boost::multiprecision::unchecked,
-                                                    void>,
-            boost::multiprecision::et_off>
+                                                     128U,
+                                                     boost::multiprecision::unsigned_magnitude,
+                                                     boost::multiprecision::unchecked,
+                                                     void>,
+              boost::multiprecision::et_off>
     exact_unsigned_type;
   };
 
@@ -109,20 +109,20 @@
   {
     typedef boost::multiprecision::number<
               boost::multiprecision::cpp_int_backend<512U,
-                                                      512U,
-                                                      boost::multiprecision::signed_magnitude,
-                                                      boost::multiprecision::unchecked,
-                                                    void>,
-            boost::multiprecision::et_off>
+                                                     512U,
+                                                     boost::multiprecision::signed_magnitude,
+                                                     boost::multiprecision::unchecked,
+                                                     void>,
+              boost::multiprecision::et_off>
     exact_signed_type;
 
     typedef boost::multiprecision::number<
               boost::multiprecision::cpp_int_backend<512U,
-                                                      512U,
-                                                      boost::multiprecision::unsigned_magnitude,
-                                                      boost::multiprecision::unchecked,
+                                                     512U,
+                                                     boost::multiprecision::unsigned_magnitude,
+                                                     boost::multiprecision::unchecked,
                                                     void>,
-            boost::multiprecision::et_off>
+              boost::multiprecision::et_off>
     exact_unsigned_type;
   };
 
@@ -133,20 +133,20 @@
   {
     typedef boost::multiprecision::number<
               boost::multiprecision::cpp_int_backend<1024U,
-                                                      1024U,
-                                                      boost::multiprecision::signed_magnitude,
-                                                      boost::multiprecision::unchecked,
-                                                    void>,
-            boost::multiprecision::et_off>
+                                                     1024U,
+                                                     boost::multiprecision::signed_magnitude,
+                                                     boost::multiprecision::unchecked,
+                                                     void>,
+              boost::multiprecision::et_off>
     exact_signed_type;
 
     typedef boost::multiprecision::number<
               boost::multiprecision::cpp_int_backend<1024U,
-                                                      1024U,
-                                                      boost::multiprecision::unsigned_magnitude,
-                                                      boost::multiprecision::unchecked,
-                                                    void>,
-            boost::multiprecision::et_off>
+                                                     1024U,
+                                                     boost::multiprecision::unsigned_magnitude,
+                                                     boost::multiprecision::unchecked,
+                                                     void>,
+              boost::multiprecision::et_off>
     exact_unsigned_type;
   };
 
@@ -157,20 +157,20 @@
   {
     typedef boost::multiprecision::number<
               boost::multiprecision::cpp_int_backend<2048U,
-                                                      2048U,
-                                                      boost::multiprecision::signed_magnitude,
-                                                      boost::multiprecision::unchecked,
-                                                    void>,
-            boost::multiprecision::et_off>
+                                                     2048U,
+                                                     boost::multiprecision::signed_magnitude,
+                                                     boost::multiprecision::unchecked,
+                                                     void>,
+              boost::multiprecision::et_off>
     exact_signed_type;
 
     typedef boost::multiprecision::number<
               boost::multiprecision::cpp_int_backend<2048U,
-                                                      2048U,
-                                                      boost::multiprecision::unsigned_magnitude,
-                                                      boost::multiprecision::unchecked,
-                                                    void>,
-            boost::multiprecision::et_off>
+                                                     2048U,
+                                                     boost::multiprecision::unsigned_magnitude,
+                                                     boost::multiprecision::unchecked,
+                                                     void>,
+              boost::multiprecision::et_off>
     exact_unsigned_type;
   };
 
@@ -181,20 +181,20 @@
   {
     typedef boost::multiprecision::number<
               boost::multiprecision::cpp_int_backend<4096U,
-                                                      4096U,
-                                                      boost::multiprecision::signed_magnitude,
-                                                      boost::multiprecision::unchecked,
-                                                    void>,
-            boost::multiprecision::et_off>
+                                                     4096U,
+                                                     boost::multiprecision::signed_magnitude,
+                                                     boost::multiprecision::unchecked,
+                                                     void>,
+              boost::multiprecision::et_off>
     exact_signed_type;
 
     typedef boost::multiprecision::number<
               boost::multiprecision::cpp_int_backend<4096U,
-                                                      4096U,
-                                                      boost::multiprecision::unsigned_magnitude,
-                                                      boost::multiprecision::unchecked,
-                                                    void>,
-            boost::multiprecision::et_off>
+                                                     4096U,
+                                                     boost::multiprecision::unsigned_magnitude,
+                                                     boost::multiprecision::unchecked,
+                                                     void>,
+              boost::multiprecision::et_off>
     exact_unsigned_type;
   };
 
@@ -205,20 +205,20 @@
   {
     typedef boost::multiprecision::number<
               boost::multiprecision::cpp_int_backend<8192U,
-                                                      8192U,
-                                                      boost::multiprecision::signed_magnitude,
-                                                      boost::multiprecision::unchecked,
-                                                    void>,
-            boost::multiprecision::et_off>
+                                                     8192U,
+                                                     boost::multiprecision::signed_magnitude,
+                                                     boost::multiprecision::unchecked,
+                                                     void>,
+              boost::multiprecision::et_off>
     exact_signed_type;
 
     typedef boost::multiprecision::number<
               boost::multiprecision::cpp_int_backend<8192U,
-                                                      8192U,
-                                                      boost::multiprecision::unsigned_magnitude,
-                                                      boost::multiprecision::unchecked,
-                                                    void>,
-            boost::multiprecision::et_off>
+                                                     8192U,
+                                                     boost::multiprecision::unsigned_magnitude,
+                                                     boost::multiprecision::unchecked,
+                                                     void>,
+              boost::multiprecision::et_off>
     exact_unsigned_type;
   };
 
@@ -228,7 +228,7 @@
   {
     typedef boost::multiprecision::number<
               boost::multiprecision::backends::cpp_bin_float<bit_count,
-                                                              boost::multiprecision::backends::digit_base_2>,
+                                                             boost::multiprecision::backends::digit_base_2>,
             boost::multiprecision::et_off>
     exact_float_type;
   };
