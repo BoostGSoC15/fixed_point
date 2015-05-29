@@ -220,7 +220,7 @@
 
         std::reverse(ans.begin(), ans.end());
 
-        std::cout <<ans << "\n";
+        std::cout << ans << "\n";
       }
     #endif // DEBUG_PRINT_IS_ENABLED
 
@@ -373,9 +373,9 @@
       result *= ((!v_is_neg) ? unsigned_large_type(v.data) : unsigned_large_type(-v.data));
 
       // We need to make this conversion for round::negative to work correctly.
-      signed_large_type signed_result((!result_is_neg) ? result : -result);
+      signed_round_type signed_result((!result_is_neg) ? signed_round_type(result) : -signed_round_type(result));
 
-      data = round_mode::template round<signed_large_type, value_type>(signed_result, 2* resolution, resolution);
+      data = round_mode::template round<signed_round_type, value_type>(signed_result, 2 * resolution, resolution);
 
       return *this;
     }
@@ -479,7 +479,7 @@
 
     typedef typename detail::integer_type_helper<total_digits2 * 1    >::exact_unsigned_type unsigned_small_type;
     typedef typename detail::integer_type_helper<total_digits2 * 2    >::exact_unsigned_type unsigned_large_type;
-    typedef typename detail::integer_type_helper<total_digits2 * 2 + 1>::exact_signed_type     signed_large_type;
+    typedef typename detail::integer_type_helper<total_digits2 * 2 + 1>::exact_signed_type     signed_round_type;
 
     template<typename arithmetic_type>
     static const arithmetic_type& radix_split_value()
@@ -677,108 +677,6 @@
     template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>      friend inline bool operator< (const T& u, const negatable& v) { return (negatable(u).data <  v.data); }
     template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>      friend inline bool operator>=(const T& u, const negatable& v) { return (negatable(u).data >= v.data); }
     template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>      friend inline bool operator<=(const T& u, const negatable& v) { return (negatable(u).data <= v.data); }
-
-    // Helper utilities for mathematical constants.
-    // TBD: We will need these later for transcendental functions.
-    template<const int bit_count,
-             typename enable_type = void>
-    struct constant_maker
-    {
-      static const negatable& pi()
-      {
-        static_assert(integral_range >= 3,
-                      "The constant pi can not be created with fewer than 3 binary signed integer digits");
-
-        static const negatable value_pi(boost::math::constants::pi<negatable>());
-        return value_pi;
-      }
-
-      static const negatable& ln_two()
-      {
-        static const negatable value_ln_two(boost::math::constants::ln_two<negatable>());
-        return value_ln_two;
-      }
-    };
-
-    template<const int bit_count>
-    struct constant_maker<bit_count,
-                          typename std::enable_if<(bit_count <= 8)>::type>
-    {
-      static const negatable& pi()
-      {
-        static_assert(integral_range >= 3,
-                      "The constant pi can not be created with fewer than 3 binary signed integer digits");
-
-        static const negatable value_pi(nothing(), value_type((UINT8_C(0x64) + ((UINT8_C(1) << (5 + decimal_resolution)) / 2U)) >> (5 + decimal_resolution)));
-        return value_pi;
-      }
-
-      static const negatable& ln_two()
-      {
-        static const negatable value_ln_two(nothing(), value_type((UINT8_C(0x58) + ((UINT8_C(1) << (7 + decimal_resolution)) / 2U)) >> (7 + decimal_resolution)));
-        return value_ln_two;
-      }
-    };
-
-    template<const int bit_count>
-    struct constant_maker<bit_count,
-                          typename std::enable_if<(bit_count > 8) && (bit_count <= 16)>::type>
-    {
-      static const negatable& pi()
-      {
-        static_assert(integral_range >= 3,
-                      "The constant pi can not be created with fewer than 3 binary signed integer digits");
-
-        static const negatable value_pi(nothing(), value_type((UINT16_C(0x6487) + ((UINT16_C(1) << (13 + decimal_resolution)) / 2U)) >> (13 + decimal_resolution)));
-        return value_pi;
-      }
-
-      static const negatable& ln_two()
-      {
-        static const negatable value_ln_two(nothing(), value_type((UINT16_C(0x58B9) + ((UINT16_C(1) << (15 + decimal_resolution)) / 2U)) >> (15 + decimal_resolution)));
-        return value_ln_two;
-      }
-    };
-
-    template<const int bit_count>
-    struct constant_maker<bit_count,
-                          typename std::enable_if<(bit_count > 16) && (bit_count <= 32)>::type>
-    {
-      static const negatable& pi()
-      {
-        static_assert(integral_range >= 3,
-                      "The constant pi can not be created with fewer than 3 binary signed integer digits");
-
-        static const negatable value_pi(nothing(), value_type((UINT32_C(0x6487ED51) + ((UINT32_C(1) << (29 + decimal_resolution)) / 2U)) >> (29 + decimal_resolution)));
-        return value_pi;
-      }
-
-      static const negatable& ln_two()
-      {
-        static const negatable value_ln_two(nothing(), value_type((UINT32_C(0x58B90BfB) + ((UINT32_C(1) << (31 + decimal_resolution)) / 2U)) >> (31 + decimal_resolution)));
-        return value_ln_two;
-      }
-    };
-
-    template<const int bit_count>
-    struct constant_maker<bit_count,
-                          typename std::enable_if<(bit_count > 32) && (bit_count <= 64)>::type>
-    {
-      static const negatable& pi()
-      {
-        static_assert(integral_range >= 3,
-                      "The constant pi can not be created with fewer than 3 binary signed integer digits");
-
-        static const negatable value_pi(nothing(), value_type((UINT64_C(0x6487ED5110B4611A) + ((UINT64_C(1) << (61 + decimal_resolution)) / 2U)) >> (61 + decimal_resolution)));
-        return value_pi;
-      }
-
-      static const negatable& ln_two()
-      {
-        static const negatable value_ln_two(nothing(), value_type((UINT64_C(0x58B90BFBE8E7BCD6) + ((UINT64_C(1) << (63 + decimal_resolution)) / 2U)) >> (63 + decimal_resolution)));
-        return value_ln_two;
-      }
-    };
   };
   } } // namespace boost::fixed_point
 

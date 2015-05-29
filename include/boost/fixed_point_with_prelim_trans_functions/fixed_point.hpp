@@ -17,22 +17,21 @@
   #include <algorithm>
   #include <cmath>
   #include <iomanip>
+  #include <istream>
   #include <limits>
   #include <ostream>
   #include <sstream>
-  #include <string>
-  #include <type_traits>
+  #include <boost/fixed_point/fixed_point_detail.hpp>
+  #include <boost/math/constants/constants.hpp>
 
-  #include <boost/cstdfloat.hpp>
-  #include <boost/cstdint.hpp>
-  #include <boost/multiprecision/cpp_bin_float.hpp>
-  #include <boost/multiprecision/cpp_int.hpp>
+  //#define DEBUG_PRINT_IS_ENABLED
 
-  namespace boost { namespace math { namespace fixed_point {
+  namespace boost { namespace fixed_point {
 
   namespace round
   {
-    typedef enum enum_round_type
+    /*
+    typedef enum round_type
     {
       fastest,       // Speed is more important than the choice in value.
       negative,      // Round towards negative infinity. This mode is useful in interval arithmetic.
@@ -43,11 +42,104 @@
       nearest_odd,   // Round towards the nearest value, but exactly-half values are rounded towards odd values. This mode has as much balance as the near_even mode, but preserves more information.
     }
     round_type;
+    */
+
+    // Speed is more important than the choice in value.
+    struct fastest
+    {
+      static BOOST_CONSTEXPR_OR_CONST std::float_round_style round_style = std::round_indeterminate;
+
+      template<typename from, typename to>
+      static to round(from const& rhs, int from_resolution, int to_resolution)
+      {
+        // TBD: Right now same as round::negative.
+
+        int shift_by = to_resolution - from_resolution;
+
+        from rounded_value = rhs >> shift_by;
+
+        return static_cast<to>(rounded_value);
+      }
+
+      template<typename initialize_type, typename underlying_type, int resolution>
+      static void round_construct(const initialize_type& value, underlying_type& data)
+      {
+        static_cast<void>(value);
+        static_cast<void>(data);
+      }
+    };
+
+    // Rounds toward negative infinity.
+    // This mode is useful in interval arithmetic.
+    struct negative
+    {
+      static BOOST_CONSTEXPR_OR_CONST std::float_round_style round_style = std::round_toward_neg_infinity;
+
+      template <typename from, typename to>
+      static to round (from const& rhs, int from_resolution, int to_resolution)
+      {
+        int shift_by = to_resolution - from_resolution;
+
+        from rounded_value = rhs >> shift_by;
+
+        return static_cast<to>(rounded_value);
+      }
+
+      template<typename initialize_type, typename underlying_type, int resolution>
+      static void round_construct (const initialize_type &value, underlying_type &data)
+      {
+        // TBD: this works under the assumption that without any work,
+        // the default behavior happens to be similar to round::truncated.
+        // I'm not sure if this is machine specific though.
+
+        // Check if number is already perfectly representable;
+        // no need to round then.
+
+        if(resolution > 0)
+        {
+          // TBD: I don't really like dividing here,
+          // not sure if there's a better way though.
+
+          initialize_type scale = value / fixed_point::detail::radix_split_maker<initialize_type, resolution>::value ();
+
+          // No rounding needed if perfectly divisible.
+          // TBD: Is floor inefficient here and elsewhere in the program?
+          // Is there a better choice than using floor?
+
+          if(floor(scale) == scale)
+          {
+            return;
+          }
+        }
+
+        if(resolution < 0)
+        {
+          initialize_type scale = value * fixed_point::detail::radix_split_maker<initialize_type, -resolution>::value();
+
+          // No rounding needed if perfectly divisible.
+          if(floor(scale) == scale)
+          {
+            return;
+          }
+        }
+
+        // Since the default rounding behaviour is towards_zero/truncated,
+        // for values > 0, behaviour is same as towards_zero.
+        if(value < 0)
+        {
+          --data;
+        }
+      }
+    };
+
+    struct positive
+    {
+    };
   }
 
   namespace overflow
   {
-    typedef enum enum_overflow_type
+    typedef enum overflow_type
     {
       impossible, // Programmer analysis of the program has determined that overflow cannot occur. Uses of this mode should be accompanied by an argument supporting the conclusion.
       undefined,  // Programmers are willing to accept undefined behavior in the event of an overflow.
@@ -57,328 +149,205 @@
     }
     overflow_type;
   }
-  } } } // namespace boost::math::fixed_point
+  } } // namespace boost::fixed_point
 
-  // Forward declaration of the negatable class.
-  namespace boost { namespace math { namespace fixed_point {
+  namespace boost { namespace fixed_point {
+
+    // Forward declaration of the negatable class.
     template<const int integral_range,
              const int decimal_resolution,
-             const math::fixed_point::round::round_type round_mode,
-             const math::fixed_point::overflow::overflow_type overflow_mode>
+             typename round_mode,
+             const overflow::overflow_type overflow_mode>
     class negatable;
-  } } }
-  // namespace boost::math::fixed_point
+
+    template<const int integral_range,
+             const int decimal_resolution,
+             typename round_mode,
+             const overflow::overflow_type overflow_mode>
+    inline negatable<integral_range,
+                     decimal_resolution,
+                     round_mode,
+                     overflow_mode> frexp(negatable<integral_range,
+                                          decimal_resolution,
+                                          round_mode,
+                                          overflow_mode> x, int* expptr);
+
+    template<const int integral_range,
+             const int decimal_resolution,
+             typename round_mode,
+             const overflow::overflow_type overflow_mode>
+    inline negatable<integral_range,
+                     decimal_resolution,
+                     round_mode,
+                     overflow_mode> ldexp(negatable<integral_range,
+                                          decimal_resolution,
+                                          round_mode,
+                                          overflow_mode> x, int exp);
+
+    template<const int integral_range,
+             const int decimal_resolution,
+             typename round_mode,
+             const overflow::overflow_type overflow_mode>
+    inline negatable<integral_range,
+                     decimal_resolution,
+                     round_mode,
+                     overflow_mode> sqrt(negatable<integral_range,
+                                                   decimal_resolution,
+                                                   round_mode,
+                                                   overflow_mode> x);
+
+  } } // namespace boost::fixed_point
 
   namespace std
   {
     // Forward declaration of the specialization of std::numeric_limits<negatable>.
     template<const int integral_range,
              const int decimal_resolution,
-             const boost::math::fixed_point::round::round_type round_mode,
-             const boost::math::fixed_point::overflow::overflow_type overflow_mode>
-    class numeric_limits<boost::math::fixed_point::negatable<integral_range, decimal_resolution, round_mode, overflow_mode> >;
+             typename round_mode,
+             const boost::fixed_point::overflow::overflow_type overflow_mode>
+    class numeric_limits<boost::fixed_point::negatable<integral_range,
+                                                       decimal_resolution,
+                                                       round_mode,
+                                                       overflow_mode>>;
   }
 
-  namespace boost { namespace math { namespace fixed_point {
-
-  namespace detail
-  {
-    namespace mp = boost::multiprecision;
-
-    template<const unsigned bit_count> struct integer_type_helper
-    {
-      typedef detail::mp::number<mp::cpp_int_backend<bit_count,
-                                                     bit_count,
-                                                     detail::mp::signed_magnitude,
-                                                     detail::mp::unchecked,
-                                                     void> > exact_signed_type;
-
-      typedef detail::mp::number<mp::cpp_int_backend<bit_count,
-                                                     bit_count,
-                                                     detail::mp::unsigned_magnitude,
-                                                     detail::mp::unchecked,
-                                                     void> > exact_unsigned_type;
-    };
-
-    template<> struct integer_type_helper< 0U> { typedef boost::int8_t  exact_signed_type; typedef boost::uint8_t  exact_unsigned_type; };
-    template<> struct integer_type_helper< 1U> { typedef boost::int8_t  exact_signed_type; typedef boost::uint8_t  exact_unsigned_type; };
-    template<> struct integer_type_helper< 2U> { typedef boost::int8_t  exact_signed_type; typedef boost::uint8_t  exact_unsigned_type; };
-    template<> struct integer_type_helper< 3U> { typedef boost::int8_t  exact_signed_type; typedef boost::uint8_t  exact_unsigned_type; };
-    template<> struct integer_type_helper< 4U> { typedef boost::int8_t  exact_signed_type; typedef boost::uint8_t  exact_unsigned_type; };
-    template<> struct integer_type_helper< 5U> { typedef boost::int8_t  exact_signed_type; typedef boost::uint8_t  exact_unsigned_type; };
-    template<> struct integer_type_helper< 6U> { typedef boost::int8_t  exact_signed_type; typedef boost::uint8_t  exact_unsigned_type; };
-    template<> struct integer_type_helper< 7U> { typedef boost::int8_t  exact_signed_type; typedef boost::uint8_t  exact_unsigned_type; };
-    template<> struct integer_type_helper< 8U> { typedef boost::int8_t  exact_signed_type; typedef boost::uint8_t  exact_unsigned_type; };
-
-    template<> struct integer_type_helper< 9U> { typedef boost::int16_t exact_signed_type; typedef boost::uint16_t exact_unsigned_type; };
-    template<> struct integer_type_helper<10U> { typedef boost::int16_t exact_signed_type; typedef boost::uint16_t exact_unsigned_type; };
-    template<> struct integer_type_helper<11U> { typedef boost::int16_t exact_signed_type; typedef boost::uint16_t exact_unsigned_type; };
-    template<> struct integer_type_helper<12U> { typedef boost::int16_t exact_signed_type; typedef boost::uint16_t exact_unsigned_type; };
-    template<> struct integer_type_helper<13U> { typedef boost::int16_t exact_signed_type; typedef boost::uint16_t exact_unsigned_type; };
-    template<> struct integer_type_helper<14U> { typedef boost::int16_t exact_signed_type; typedef boost::uint16_t exact_unsigned_type; };
-    template<> struct integer_type_helper<15U> { typedef boost::int16_t exact_signed_type; typedef boost::uint16_t exact_unsigned_type; };
-    template<> struct integer_type_helper<16U> { typedef boost::int16_t exact_signed_type; typedef boost::uint16_t exact_unsigned_type; };
-
-    template<> struct integer_type_helper<17U> { typedef boost::int32_t exact_signed_type; typedef boost::uint32_t exact_unsigned_type; };
-    template<> struct integer_type_helper<18U> { typedef boost::int32_t exact_signed_type; typedef boost::uint32_t exact_unsigned_type; };
-    template<> struct integer_type_helper<19U> { typedef boost::int32_t exact_signed_type; typedef boost::uint32_t exact_unsigned_type; };
-    template<> struct integer_type_helper<20U> { typedef boost::int32_t exact_signed_type; typedef boost::uint32_t exact_unsigned_type; };
-    template<> struct integer_type_helper<21U> { typedef boost::int32_t exact_signed_type; typedef boost::uint32_t exact_unsigned_type; };
-    template<> struct integer_type_helper<22U> { typedef boost::int32_t exact_signed_type; typedef boost::uint32_t exact_unsigned_type; };
-    template<> struct integer_type_helper<23U> { typedef boost::int32_t exact_signed_type; typedef boost::uint32_t exact_unsigned_type; };
-    template<> struct integer_type_helper<24U> { typedef boost::int32_t exact_signed_type; typedef boost::uint32_t exact_unsigned_type; };
-    template<> struct integer_type_helper<25U> { typedef boost::int32_t exact_signed_type; typedef boost::uint32_t exact_unsigned_type; };
-    template<> struct integer_type_helper<26U> { typedef boost::int32_t exact_signed_type; typedef boost::uint32_t exact_unsigned_type; };
-    template<> struct integer_type_helper<27U> { typedef boost::int32_t exact_signed_type; typedef boost::uint32_t exact_unsigned_type; };
-    template<> struct integer_type_helper<28U> { typedef boost::int32_t exact_signed_type; typedef boost::uint32_t exact_unsigned_type; };
-    template<> struct integer_type_helper<29U> { typedef boost::int32_t exact_signed_type; typedef boost::uint32_t exact_unsigned_type; };
-    template<> struct integer_type_helper<30U> { typedef boost::int32_t exact_signed_type; typedef boost::uint32_t exact_unsigned_type; };
-    template<> struct integer_type_helper<31U> { typedef boost::int32_t exact_signed_type; typedef boost::uint32_t exact_unsigned_type; };
-    template<> struct integer_type_helper<32U> { typedef boost::int32_t exact_signed_type; typedef boost::uint32_t exact_unsigned_type; };
-
-    template<> struct integer_type_helper<33U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<34U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<35U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<36U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<37U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<38U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<39U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<40U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<41U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<42U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<43U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<44U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<45U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<46U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<47U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<48U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<49U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<50U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<51U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<52U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<53U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<54U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<55U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<56U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<57U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<58U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<59U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<60U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<61U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<62U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<63U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-    template<> struct integer_type_helper<64U> { typedef boost::int64_t exact_signed_type; typedef boost::uint64_t exact_unsigned_type; };
-
-    template<const unsigned bit_count>
-    struct float_type_helper
-    {
-      typedef
-      detail::mp::number<detail::mp::backends::cpp_bin_float<bit_count,
-                                                             detail::mp::backends::digit_base_2> >
-      exact_float_type;
-    };
-
-    template<> struct float_type_helper< 0U> { typedef boost::float32_t exact_float_type; };
-    template<> struct float_type_helper< 1U> { typedef boost::float32_t exact_float_type; };
-    template<> struct float_type_helper< 2U> { typedef boost::float32_t exact_float_type; };
-    template<> struct float_type_helper< 3U> { typedef boost::float32_t exact_float_type; };
-    template<> struct float_type_helper< 4U> { typedef boost::float32_t exact_float_type; };
-    template<> struct float_type_helper< 5U> { typedef boost::float32_t exact_float_type; };
-    template<> struct float_type_helper< 6U> { typedef boost::float32_t exact_float_type; };
-    template<> struct float_type_helper< 7U> { typedef boost::float32_t exact_float_type; };
-    template<> struct float_type_helper< 8U> { typedef boost::float32_t exact_float_type; };
-    template<> struct float_type_helper< 9U> { typedef boost::float32_t exact_float_type; };
-    template<> struct float_type_helper<10U> { typedef boost::float32_t exact_float_type; };
-    template<> struct float_type_helper<11U> { typedef boost::float32_t exact_float_type; };
-    template<> struct float_type_helper<12U> { typedef boost::float32_t exact_float_type; };
-    template<> struct float_type_helper<13U> { typedef boost::float32_t exact_float_type; };
-    template<> struct float_type_helper<14U> { typedef boost::float32_t exact_float_type; };
-    template<> struct float_type_helper<15U> { typedef boost::float32_t exact_float_type; };
-    template<> struct float_type_helper<16U> { typedef boost::float32_t exact_float_type; };
-    template<> struct float_type_helper<17U> { typedef boost::float32_t exact_float_type; };
-    template<> struct float_type_helper<18U> { typedef boost::float32_t exact_float_type; };
-    template<> struct float_type_helper<19U> { typedef boost::float32_t exact_float_type; };
-    template<> struct float_type_helper<20U> { typedef boost::float32_t exact_float_type; };
-    template<> struct float_type_helper<21U> { typedef boost::float32_t exact_float_type; };
-    template<> struct float_type_helper<22U> { typedef boost::float32_t exact_float_type; };
-    template<> struct float_type_helper<23U> { typedef boost::float32_t exact_float_type; };
-    template<> struct float_type_helper<24U> { typedef boost::float32_t exact_float_type; };
-
-    template<> struct float_type_helper<25U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<26U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<27U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<28U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<29U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<30U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<31U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<32U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<33U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<34U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<35U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<36U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<37U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<38U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<39U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<40U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<41U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<42U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<43U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<44U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<45U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<46U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<47U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<48U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<49U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<50U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<51U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<52U> { typedef boost::float64_t exact_float_type; };
-    template<> struct float_type_helper<53U> { typedef boost::float64_t exact_float_type; };
-
-    template<typename integral_source_type,
-             typename other_destination_type>
-    other_destination_type convert_to(const integral_source_type& source)
-    {
-      return static_cast<other_destination_type>(source);
-    }
-
-    template<typename arithmetic_type,
-             const int radix_split>
-    struct radix_split_maker
-    {
-      static arithmetic_type value()
-      {
-        // TBD: Store the result as a static variable
-        // that only needs to be computed *once*.
-
-        // The variable xn stores the binary powers of x.
-        arithmetic_type result(((radix_split % 2) != 0) ? arithmetic_type(2) : arithmetic_type(1));
-
-        arithmetic_type xn(2);
-
-        int p2 = radix_split;
-
-        while((p2 /= 2) != 0)
-        {
-          // Square xn for each binary power.
-          xn *= xn;
-
-          const bool has_binary_power = ((p2 % 2) != 0);
-
-          if(has_binary_power)
-          {
-            // Multiply the result with each binary power contained in the exponent.
-            result *= xn;
-          }
-        }
-
-        return result;
-      }
-    };
-
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type,  0> { static arithmetic_type value() { return arithmetic_type(UINT32_C(         1)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type,  1> { static arithmetic_type value() { return arithmetic_type(UINT32_C(         2)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type,  2> { static arithmetic_type value() { return arithmetic_type(UINT32_C(         4)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type,  3> { static arithmetic_type value() { return arithmetic_type(UINT32_C(         8)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type,  4> { static arithmetic_type value() { return arithmetic_type(UINT32_C(        16)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type,  5> { static arithmetic_type value() { return arithmetic_type(UINT32_C(        32)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type,  6> { static arithmetic_type value() { return arithmetic_type(UINT32_C(        64)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type,  7> { static arithmetic_type value() { return arithmetic_type(UINT32_C(       128)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type,  8> { static arithmetic_type value() { return arithmetic_type(UINT32_C(       256)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type,  9> { static arithmetic_type value() { return arithmetic_type(UINT32_C(       512)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type, 10> { static arithmetic_type value() { return arithmetic_type(UINT32_C(      1024)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type, 11> { static arithmetic_type value() { return arithmetic_type(UINT32_C(      2048)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type, 12> { static arithmetic_type value() { return arithmetic_type(UINT32_C(      4096)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type, 13> { static arithmetic_type value() { return arithmetic_type(UINT32_C(      8192)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type, 14> { static arithmetic_type value() { return arithmetic_type(UINT32_C(     16384)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type, 15> { static arithmetic_type value() { return arithmetic_type(UINT32_C(     32768)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type, 16> { static arithmetic_type value() { return arithmetic_type(UINT32_C(     65536)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type, 17> { static arithmetic_type value() { return arithmetic_type(UINT32_C(    131072)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type, 18> { static arithmetic_type value() { return arithmetic_type(UINT32_C(    262144)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type, 19> { static arithmetic_type value() { return arithmetic_type(UINT32_C(    524288)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type, 20> { static arithmetic_type value() { return arithmetic_type(UINT32_C(   1048576)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type, 21> { static arithmetic_type value() { return arithmetic_type(UINT32_C(   2097152)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type, 22> { static arithmetic_type value() { return arithmetic_type(UINT32_C(   4194304)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type, 23> { static arithmetic_type value() { return arithmetic_type(UINT32_C(   8388608)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type, 24> { static arithmetic_type value() { return arithmetic_type(UINT32_C(  16777216)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type, 25> { static arithmetic_type value() { return arithmetic_type(UINT32_C(  33554432)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type, 26> { static arithmetic_type value() { return arithmetic_type(UINT32_C(  67108864)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type, 27> { static arithmetic_type value() { return arithmetic_type(UINT32_C( 134217728)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type, 28> { static arithmetic_type value() { return arithmetic_type(UINT32_C( 268435456)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type, 29> { static arithmetic_type value() { return arithmetic_type(UINT32_C( 536870912)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type, 30> { static arithmetic_type value() { return arithmetic_type(UINT32_C(1073741824)); } };
-    template<typename arithmetic_type> struct radix_split_maker<arithmetic_type, 31> { static arithmetic_type value() { return arithmetic_type(UINT32_C(2147483648)); } };
-  }
-  // namespace boost::math::fixed_point::detail
+  namespace boost { namespace fixed_point {
 
   // We will now begin the implementation of the negatable class.
   template<const int integral_range,
            const int decimal_resolution,
-           const round::round_type round_mode = round::fastest,
+           typename round_mode = round::fastest,
            const overflow::overflow_type overflow_mode = overflow::undefined>
   class negatable
   {
   private:
-    static const int range      = integral_range - decimal_resolution;
-    static const int resolution = decimal_resolution;
+    static BOOST_CONSTEXPR_OR_CONST int total_digits2 = integral_range - decimal_resolution;
+    static BOOST_CONSTEXPR_OR_CONST int range         = integral_range;
+    static BOOST_CONSTEXPR_OR_CONST int resolution    = decimal_resolution;
 
     static_assert( resolution < 0,
-                  "Error: the negatable class resolution must be fractional (negative).");
-    static_assert(-resolution < range - 1,
-                  "Error: the negatable class resolution exceeds the available range.");
+                  "Error: The resolution of negatable must be fractional (negative).");
+    static_assert(-resolution < total_digits2,
+                  "Error: The resolution of negatable exceeds its available total total range.");
+    static_assert(range > 0,
+                  "Error: The range of negatable must be at least one (minimally to hold the sign bit).");
+    static_assert( std::is_same<round_mode, round::fastest>::value || std::is_same<round_mode, round::negative>::value,
+                  "Error: only negative and fastest round modes supported at the moment");
 
-    template<typename T>
-    void print_bits (T num)
-    {
-      std::string ans = "";
-      size_t bits = sizeof (num) * 8;
-      int mask = 1;
-      for (int i = 0; i < bits; i++)
+    #if defined(DEBUG_PRINT_IS_ENABLED)
+      template<typename T>
+      void print_bits(T num)
       {
-        if (num & mask) ans+="1";
-        else ans+="0";
-        mask = mask << 1;
+        std::string ans;
+
+        T mask(1);
+
+        for(int i = 0; i < total_digits2; i++)
+        {
+          if(num & mask)
+          {
+            ans += "1";
+          }
+
+          else ans += "0";
+
+          mask <<= 1;
+        }
+
+        std::reverse(ans.begin(), ans.end());
+
+        std::cout << ans << "\n";
       }
-      std::reverse (ans.begin (), ans.end ());
-      std::cout<<ans<<"\n";
+    #endif // DEBUG_PRINT_IS_ENABLED
+
+    // Round the value at the time of construction
+    // for example: negatable<2,-2, round::negative> a (-1.32);
+    // the value of a should be -1.5
+
+    /*
+    template<typename initialize_type, typename underlying_type>
+    void round_construct (const initialize_type &value, underlying_type &data)
+    {
+      // TBD: this works under the assumption that without any work,
+      // the default behavior happens to be similar to round::truncated.
+      // I'm not sure if this is machine specific though.
+
+      if(round_mode == round::negative)
+      {
+        // Check if number is already perfectly representable;
+        // no need to round then.
+
+        if(resolution > 0)
+        {
+          // TBD: I don't really like dividing here,
+          // not sure if there's a better way though.
+
+          initialize_type scale = value / fixed_point::detail::radix_split_maker<initialize_type, resolution>::value();
+
+          // No rounding needed if perfectly divisible.
+          if(floor (scale) == scale)
+          {
+            return;
+          }
+        }
+
+        if(resolution < 0)
+        {
+          initialize_type scale = value * fixed_point::detail::radix_split_maker<initialize_type, -resolution>::value();
+
+          // No rounding needed if perfectly divisible.
+          if(floor (scale) == scale)
+          {
+            return;
+          }
+        }
+
+        // Since the default rounding behaviour is towards_zero/truncated,
+        // for values > 0, behaviour is same as towards_zero.
+        if(value < 0)
+        {
+          --data;
+        }
+      }
     }
+    */
 
   public:
-    typedef typename detail::integer_type_helper<range>::exact_signed_type value_type;
+    typedef typename detail::integer_type_helper<total_digits2>::exact_signed_type value_type;
+    typedef typename detail::float_type_helper  <total_digits2>::exact_float_type  float_type;
 
     negatable() : data() { }
 
-    template<typename signed_integral_type>
-    negatable(const signed_integral_type& n,
-              const typename std::enable_if<   std::is_same<char,       signed_integral_type>::value
-                                            || std::is_same<short,      signed_integral_type>::value
-                                            || std::is_same<int,        signed_integral_type>::value
-                                            || std::is_same<long,       signed_integral_type>::value
-                                            || std::is_same<long long,  signed_integral_type>::value
-                                            || std::is_same<value_type, signed_integral_type>::value>::type* = nullptr) : data(n * radix_split_value<value_type>())
+    template<typename integral_type>
+    negatable(const integral_type& n,
+              const typename std::enable_if<   std::is_integral<integral_type>::value
+                                            || std::is_same<integral_type, value_type>::value>::type* = nullptr) : data(value_type(n) * radix_split_value<value_type>())
     {
-      std::cout<<typeid(signed_integral_type).name() <<"\n";
-      std::cout<<sizeof(signed_integral_type)<<"\n";
-      std::cout<<typeid(value_type).name() <<"\n";
-      std::cout<<sizeof(value_type)<<std::endl;
-      std::cout<<data<<"\n";
-      print_bits(data);
-    }
+      #if defined(DEBUG_PRINT_IS_ENABLED)
+        std::cout << typeid(integral_type).name() <<"\n";
+        std::cout << sizeof(integral_type)        <<"\n";
 
-    template<typename unsigned_integral_type>
-    negatable(const unsigned_integral_type& u,
-              const typename std::enable_if<   std::is_same<unsigned char,      unsigned_integral_type>::value
-                                            || std::is_same<unsigned short,     unsigned_integral_type>::value
-                                            || std::is_same<unsigned int,       unsigned_integral_type>::value
-                                            || std::is_same<unsigned long,      unsigned_integral_type>::value
-                                            || std::is_same<unsigned long long, unsigned_integral_type>::value>::type* = nullptr) : data(value_type(u) << radix_split) { }
+        std::cout << typeid(value_type).name() << "\n";
+        std::cout << sizeof(value_type)        << "\n";
+        std::cout << data                      << "\n";
+      #endif // DEBUG_PRINT_IS_ENABLED
+
+      round_mode::template round_construct<integral_type, value_type, resolution>(n, data);
+
+      #if defined(DEBUG_PRINT_IS_ENABLED)
+        print_bits(data);
+      #endif
+    }
 
     template<typename floating_point_type>
     negatable(const floating_point_type& f,
-              const typename std::enable_if<   std::is_same<float,       floating_point_type>::value
-                                            || std::is_same<double,      floating_point_type>::value
-                                            || std::is_same<long double, floating_point_type>::value>::type* = nullptr) : data(value_type(f * radix_split_value<floating_point_type>()))
+              const typename std::enable_if<std::is_floating_point<floating_point_type>::value>::type* = nullptr) : data(value_type(f * radix_split_value<floating_point_type>()))
     {
-      print_bits(data);
+      round_mode::template round_construct<floating_point_type, value_type, resolution> (f, data);
+
+      #if defined(DEBUG_PRINT_IS_ENABLED)
+        print_bits(data);
+      #endif
     }
 
     negatable(const negatable& v) : data(v.data) { }
@@ -387,26 +356,29 @@
 
     negatable& operator=(const negatable& v)
     {
-      if(this != (&v)) { data = v.data; }
+      if(this != (&v))
+      {
+        data = v.data;
+      }
 
       return *this;
     }
 
-    negatable& operator=(const char& n)               { data = value_type(n * radix_split_value<value_type>()); return *this; }
-    negatable& operator=(const short& n)              { data = value_type(n * radix_split_value<value_type>()); return *this; }
-    negatable& operator=(const int& n)                { data = value_type(n * radix_split_value<value_type>()); return *this; }
-    negatable& operator=(const long& n)               { data = value_type(n * radix_split_value<value_type>()); return *this; }
-    negatable& operator=(const long long& n)          { data = value_type(n * radix_split_value<value_type>()); return *this; }
+    negatable& operator=(const char& n)               { data = value_type(n) << radix_split; return *this; }
+    negatable& operator=(const short& n)              { data = value_type(n) << radix_split; return *this; }
+    negatable& operator=(const int& n)                { data = value_type(n) << radix_split; return *this; }
+    negatable& operator=(const long& n)               { data = value_type(n) << radix_split; return *this; }
+    negatable& operator=(const long long& n)          { data = value_type(n) << radix_split; return *this; }
 
-    negatable& operator=(const unsigned char& u)      { data = value_type(u) << radix_split; return *this; }
-    negatable& operator=(const unsigned short& u)     { data = value_type(u) << radix_split; return *this; }
-    negatable& operator=(const unsigned int& u)       { data = value_type(u) << radix_split; return *this; }
-    negatable& operator=(const unsigned long& u)      { data = value_type(u) << radix_split; return *this; }
-    negatable& operator=(const unsigned long long& u) { data = value_type(u) << radix_split; return *this; }
+    negatable& operator=(const unsigned char& u)      { data = value_type(unsigned_small_type(u) << radix_split); return *this; }
+    negatable& operator=(const unsigned short& u)     { data = value_type(unsigned_small_type(u) << radix_split); return *this; }
+    negatable& operator=(const unsigned int& u)       { data = value_type(unsigned_small_type(u) << radix_split); return *this; }
+    negatable& operator=(const unsigned long& u)      { data = value_type(unsigned_small_type(u) << radix_split); return *this; }
+    negatable& operator=(const unsigned long long& u) { data = value_type(unsigned_small_type(u) << radix_split); return *this; }
 
-    negatable& operator=(const float& f)              { data = value_type(f * radix_split_value<float>()); return *this; }
-    negatable& operator=(const double& f)             { data = value_type(f * radix_split_value<double>()); return *this; }
-    negatable& operator=(const long double& f)        { data = value_type(f * radix_split_value<long double>()); return *this; }
+    negatable& operator=(const float& f)              { data = value_type(f  * radix_split_value<float>      ()); return *this; }
+    negatable& operator=(const double& d)             { data = value_type(d  * radix_split_value<double>     ()); return *this; }
+    negatable& operator=(const long double& ld)       { data = value_type(ld * radix_split_value<long double>()); return *this; }
 
     negatable& operator++()   { data += value_type(unsigned_small_type(1) << radix_split); return *this; }
     negatable& operator--()   { data -= value_type(unsigned_small_type(1) << radix_split); return *this; }
@@ -416,225 +388,83 @@
 
     negatable& operator+=(const negatable& v)
     {
-      if(is_quiet_nan(*this) || is_quiet_nan(v))
-      {
-        data = value_quiet_nan().data;
-        return *this;
-      }
-
-      if(is_infinity(*this))
-      {
-        return *this;
-      }
-
-      if(is_infinity(v))
-      {
-        data = v.data;
-      }
-      else
-      {
-        const bool has_potential_overflow = ((data > 0) && (v.data > 0));
-
-        data += v.data;
-
-        if(has_potential_overflow && ((data > value_max().data) || (data < 0)))
-        {
-          data = value_infinity().data;
-        }
-      }
-
+      data += v.data;
       return *this;
     }
 
     negatable& operator-=(const negatable& v)
     {
-      if(is_quiet_nan(*this) || is_quiet_nan(v))
-      {
-        data = value_quiet_nan().data;
-        return *this;
-      }
-
-      if(is_infinity(*this))
-      {
-        return *this;
-      }
-
-      if(is_infinity(v))
-      {
-        data = -v.data;
-      }
-      else
-      {
-        const bool has_potential_overflow = ((data < 0) && (v.data < 0));
-
-        data -= v.data;
-
-        if(has_potential_overflow && ((data < -value_max().data) || (data > 0)))
-        {
-          data = value_infinity().data;
-        }
-      }
-
+      data -= v.data;
       return *this;
     }
 
     negatable& operator*=(const negatable& v)
     {
-      const bool u_is_neg      = (  data < 0);
-      const bool v_is_neg      = (v.data < 0);
+      const bool u_is_neg      = (  data < value_type(0));
+      const bool v_is_neg      = (v.data < value_type(0));
       const bool result_is_neg = (u_is_neg != v_is_neg);
 
-      if(is_quiet_nan(*this) || is_quiet_nan(v))
-      {
-        data = value_quiet_nan().data;
-        return *this;
-      }
+      unsigned_large_type result((!u_is_neg) ? data : -data);
 
-      if(is_infinity(*this) || is_infinity(v))
-      {
-        data = value_infinity().data;
-      }
-      else
-      {
-        unsigned_large_type result((!u_is_neg) ? data : -data);
+      result *= ((!v_is_neg) ? unsigned_large_type(v.data) : unsigned_large_type(-v.data));
 
-        result *= ((!v_is_neg) ? unsigned_large_type(v.data) : unsigned_large_type(-v.data));
+      // We need to make this conversion for round::negative to work correctly.
+      signed_round_type signed_result((!result_is_neg) ? signed_round_type(result) : -signed_round_type(result));
 
-        result >>= radix_split;
-
-        if(result > unsigned_large_type(value_max().data))
-        {
-          data = value_infinity().data;
-        }
-        else
-        {
-          data = detail::convert_to<unsigned_large_type, value_type>(result);
-        }
-      }
-
-      if(result_is_neg) { data = -data; }
+      data = round_mode::template round<signed_round_type, value_type>(signed_result, 2 * resolution, resolution);
 
       return *this;
     }
 
     negatable& operator/=(const negatable& v)
     {
-      const bool u_is_neg      = (  data < 0);
-      const bool v_is_neg      = (v.data < 0);
+      const bool u_is_neg      = (  data < value_type(0));
+      const bool v_is_neg      = (v.data < value_type(0));
       const bool result_is_neg = (u_is_neg != v_is_neg);
-
-      if(is_quiet_nan(*this) || is_quiet_nan(v))
-      {
-        data = value_quiet_nan().data;
-        return *this;
-      }
-
-      if(is_infinity(*this))
-      {
-        data = (result_is_neg ? value_infinity().data : -value_infinity().data);
-        return *this;
-      }
 
       if(v.data == 0)
       {
-        data = (u_is_neg ? value_infinity().data : -value_infinity().data);
+        data = 0;
         return *this;
       }
 
-      if(is_infinity(v))
+      unsigned_large_type result((!u_is_neg) ? data : -data);
+
+      result <<= radix_split;
+
+      result /= ((!v_is_neg) ? unsigned_large_type(v.data) : unsigned_large_type(-v.data));
+
+      data = detail::convert_to<unsigned_large_type, value_type>(result);
+
+      if(result_is_neg)
       {
-        data = 0;
-      }
-      else
-      {
-        unsigned_large_type result((!u_is_neg) ? data : -data);
-
-        result <<= radix_split;
-
-        result /= ((!v_is_neg) ? unsigned_large_type(v.data) : unsigned_large_type(-v.data));
-
-        if(result > unsigned_large_type(value_max().data))
-        {
-          data = value_infinity().data;
-        }
-        else
-        {
-          data = detail::convert_to<unsigned_large_type, value_type>(result);
-        }
-
-        if(result_is_neg) { data = -data; }
+        data = -data;
       }
 
       return *this;
     }
 
-    negatable& operator+=(const char& n)               { return (*this) += negatable(n); }
-    negatable& operator+=(const short& n)              { return (*this) += negatable(n); }
-    negatable& operator+=(const int& n)                { return (*this) += negatable(n); }
-    negatable& operator+=(const long& n)               { return (*this) += negatable(n); }
-    negatable& operator+=(const long long& n)          { return (*this) += negatable(n); }
-    negatable& operator+=(const unsigned char& u)      { return (*this) += negatable(u); }
-    negatable& operator+=(const unsigned short& u)     { return (*this) += negatable(u); }
-    negatable& operator+=(const unsigned int& u)       { return (*this) += negatable(u); }
-    negatable& operator+=(const unsigned long& u)      { return (*this) += negatable(u); }
-    negatable& operator+=(const unsigned long long& u) { return (*this) += negatable(u); }
-    negatable& operator+=(const float& f)              { return (*this) += negatable(f); }
-    negatable& operator+=(const double& f)             { return (*this) += negatable(f); }
-    negatable& operator+=(const long double& f)        { return (*this) += negatable(f); }
+    template<typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type> negatable& operator+=(T& n) { return (*this) += negatable(n); }
+    template<typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type> negatable& operator-=(T& n) { return (*this) -= negatable(n); }
+    template<typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type> negatable& operator*=(T& n) { return (*this) *= negatable(n); }
+    template<typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type> negatable& operator/=(T& n) { return (*this) /= negatable(n); }
 
-    negatable& operator-=(const char& n)               { return (*this) -= negatable(n); }
-    negatable& operator-=(const short& n)              { return (*this) -= negatable(n); }
-    negatable& operator-=(const int& n)                { return (*this) -= negatable(n); }
-    negatable& operator-=(const long& n)               { return (*this) -= negatable(n); }
-    negatable& operator-=(const long long& n)          { return (*this) -= negatable(n); }
-    negatable& operator-=(const unsigned char& u)      { return (*this) -= negatable(u); }
-    negatable& operator-=(const unsigned short& u)     { return (*this) -= negatable(u); }
-    negatable& operator-=(const unsigned int& u)       { return (*this) -= negatable(u); }
-    negatable& operator-=(const unsigned long& u)      { return (*this) -= negatable(u); }
-    negatable& operator-=(const unsigned long long& u) { return (*this) -= negatable(u); }
-    negatable& operator-=(const float& f)              { return (*this) -= negatable(f); }
-    negatable& operator-=(const double& f)             { return (*this) -= negatable(f); }
-    negatable& operator-=(const long double& f)        { return (*this) -= negatable(f); }
+    operator char     () { return static_cast<char>     (data / radix_split_value<value_type>()); }
+    operator short    () { return static_cast<short>    (data / radix_split_value<value_type>()); }
+    operator int      () { return static_cast<int>      (data / radix_split_value<value_type>()); }
+    operator long     () { return static_cast<long>     (data / radix_split_value<value_type>()); }
+    operator long long() { return static_cast<long long>(data / radix_split_value<value_type>()); }
 
-    negatable& operator*=(const char& n)               { return (*this) *= negatable(n); }
-    negatable& operator*=(const short& n)              { return (*this) *= negatable(n); }
-    negatable& operator*=(const int& n)                { return (*this) *= negatable(n); }
-    negatable& operator*=(const long& n)               { return (*this) *= negatable(n); }
-    negatable& operator*=(const long long& n)          { return (*this) *= negatable(n); }
-    negatable& operator*=(const unsigned char& u)      { return (*this) *= negatable(u); }
-    negatable& operator*=(const unsigned short& u)     { return (*this) *= negatable(u); }
-    negatable& operator*=(const unsigned int& u)       { return (*this) *= negatable(u); }
-    negatable& operator*=(const unsigned long& u)      { return (*this) *= negatable(u); }
-    negatable& operator*=(const unsigned long long& u) { return (*this) *= negatable(u); }
-    negatable& operator*=(const float& f)              { return (*this) *= negatable(f); }
-    negatable& operator*=(const double& f)             { return (*this) *= negatable(f); }
-    negatable& operator*=(const long double& f)        { return (*this) *= negatable(f); }
+    operator unsigned char     () { return static_cast<unsigned char>     (unsigned_small_type(data) >> radix_split); }
+    operator unsigned short    () { return static_cast<unsigned short>    (unsigned_small_type(data) >> radix_split); }
+    operator unsigned int      () { return static_cast<unsigned int>      (unsigned_small_type(data) >> radix_split); }
+    operator unsigned long     () { return static_cast<unsigned long>     (unsigned_small_type(data) >> radix_split); }
+    operator unsigned long long() { return static_cast<unsigned long long>(unsigned_small_type(data) >> radix_split); }
 
-    negatable& operator/=(const char& n)               { return (*this) /= negatable(n); }
-    negatable& operator/=(const short& n)              { return (*this) /= negatable(n); }
-    negatable& operator/=(const int& n)                { return (*this) /= negatable(n); }
-    negatable& operator/=(const long& n)               { return (*this) /= negatable(n); }
-    negatable& operator/=(const long long& n)          { return (*this) /= negatable(n); }
-    negatable& operator/=(const unsigned char& u)      { return (*this) /= negatable(u); }
-    negatable& operator/=(const unsigned short& u)     { return (*this) /= negatable(u); }
-    negatable& operator/=(const unsigned int& u)       { return (*this) /= negatable(u); }
-    negatable& operator/=(const unsigned long& u)      { return (*this) /= negatable(u); }
-    negatable& operator/=(const unsigned long long& u) { return (*this) /= negatable(u); }
-    negatable& operator/=(const float& f)              { return (*this) /= negatable(f); }
-    negatable& operator/=(const double& f)             { return (*this) /= negatable(f); }
-    negatable& operator/=(const long double& f)        { return (*this) /= negatable(f); }
+    // Floating-point cast operators for float, double and long double.
 
-    operator char()                                    { return static_cast<char>      (data / radix_split_value<value_type>()); }
-    operator short()                                   { return static_cast<short>     (data / radix_split_value<value_type>()); }
-    operator int()                                     { return static_cast<int>       (data / radix_split_value<value_type>()); }
-    operator long()                                    { return static_cast<long>      (data / radix_split_value<value_type>()); }
-    operator long long()                               { return static_cast<long long> (data / radix_split_value<value_type>()); }
-
-    operator unsigned char()                           { return static_cast<unsigned char>     (unsigned_small_type(data) >> radix_split); }
-    operator unsigned short()                          { return static_cast<unsigned short>    (unsigned_small_type(data) >> radix_split); }
-    operator unsigned int()                            { return static_cast<unsigned int>      (unsigned_small_type(data) >> radix_split); }
-    operator unsigned long()                           { return static_cast<unsigned long>     (unsigned_small_type(data) >> radix_split); }
-    operator unsigned long long()                      { return static_cast<unsigned long long>(unsigned_small_type(data) >> radix_split); }
+    // TBD: Can we make use of a private template member function
+    // in order to localize the conversion code to one spot.
 
     operator float()
     {
@@ -681,897 +511,489 @@
   private:
     value_type data;
 
-    static const int radix_split = -resolution;
-    static const int total_range = range;
+    static BOOST_CONSTEXPR_OR_CONST int radix_split = -resolution;
 
-    typedef typename detail::integer_type_helper<range * 1>::exact_unsigned_type unsigned_small_type;
-    typedef typename detail::integer_type_helper<range * 2>::exact_unsigned_type unsigned_large_type;
+    typedef typename detail::integer_type_helper<total_digits2 * 1    >::exact_unsigned_type unsigned_small_type;
+    typedef typename detail::integer_type_helper<total_digits2 * 2    >::exact_unsigned_type unsigned_large_type;
+    typedef typename detail::integer_type_helper<total_digits2 * 2 + 1>::exact_signed_type     signed_round_type;
 
     template<typename arithmetic_type>
-    static arithmetic_type radix_split_value()
+    static const arithmetic_type& radix_split_value()
     {
-      return fixed_point::detail::radix_split_maker<arithmetic_type, radix_split>::value();
+      static const arithmetic_type the_radix_split_value(detail::radix_split_maker<arithmetic_type, radix_split>::value());
+
+      return the_radix_split_value;
     }
 
     struct nothing { };
 
-    template<typename signed_integral_type>
+    template<typename integral_type>
     negatable(const nothing&,
-              const signed_integral_type& n,
-              const typename std::enable_if<   std::is_same<char,       signed_integral_type>::value
-                                            || std::is_same<short,      signed_integral_type>::value
-                                            || std::is_same<int,        signed_integral_type>::value
-                                            || std::is_same<long,       signed_integral_type>::value
-                                            || std::is_same<long long,  signed_integral_type>::value
-                                            || std::is_same<value_type, signed_integral_type>::value>::type* = nullptr) : data(n) { }
+              const integral_type& n,
+              const typename std::enable_if<   std::is_integral<integral_type>::value
+                                            || std::is_same<value_type, integral_type>::value>::type* = nullptr) : data(n) { }
 
-    template<typename unsigned_integral_type>
-    negatable(const nothing&,
-              const unsigned_integral_type& u,
-              const typename std::enable_if<   std::is_same<unsigned char,      unsigned_integral_type>::value
-                                            || std::is_same<unsigned short,     unsigned_integral_type>::value
-                                            || std::is_same<unsigned int,       unsigned_integral_type>::value
-                                            || std::is_same<unsigned long,      unsigned_integral_type>::value
-                                            || std::is_same<unsigned long long, unsigned_integral_type>::value>::type* = nullptr) : data(u) { }
-
-    static bool is_quiet_nan(const negatable& x) { return (x.data  == value_quiet_nan()); }
-    static bool is_infinity (const negatable& x) { using std::abs; return (abs(x.data) == value_infinity()); }
-
-    static value_type make_unsigned_constant(const value_type& x)
+    static const negatable& value_epsilon()
     {
-      // TBD: Provide support for smaller ranges and larger resolutions.
-      // TBD: This will involve the generation of constant coefficients used for transcendentals.
-      // TBD: The magic number *24* represents the number of binary digits for which
-      // the rationalized coefficients have been optimized in transcendentals.
-      // TBD: Herein lies a big chunk of development. We need to derive various
-      // sets of rationalized coefficients for different ranges of precision
-      // and also find a sensible point above which we switch to multiprecision.
-      static_assert(range > 24,
-                    "Error: the negatable class does not yet support such small range for generation of constants.");
+      static bool is_init = bool();
 
-      static_assert(radix_split <= 24,
-                    "Error: the negatable class does not yet support such large resolution for generation of constants.");
+      negatable local_epsilon = negatable();
 
-      return x >> (24 - radix_split);
-    }
-
-    static negatable value_epsilon()
-    {
-      value_type r10  = radix_split_value<value_type>();
-
-      if(r10 <= 10)
+      if(is_init == false)
       {
-        return negatable(nothing(), 1);
-      }
-      else
-      {
-        // TBD: Consider using template metaprogramming instead of a loop here.
-        while(r10 > 10)
+        is_init = true;
+
+        value_type r10  = radix_split_value<value_type>();
+
+        if(r10 <= 10)
         {
-          r10 = (r10 + 9) / 10;
+          local_epsilon = negatable(nothing(), 1);
         }
+        else
+        {
+          while(r10 > 10)
+          {
+            r10 = (r10 + 9) / 10;
+          }
 
-        return negatable(nothing(), r10);
+          local_epsilon = negatable(nothing(), r10);
+        }
       }
+
+      static const negatable the_epsilon(local_epsilon);
+
+      return the_epsilon;
     }
 
-    static negatable value_min()       { return negatable(nothing(), 1); }
-    static negatable value_max()       { return negatable(nothing(), (std::numeric_limits<value_type>::max)() - 3) ; }
-    static negatable value_infinity()  { return negatable(nothing(), value_max().data - 2) ; }
-    static negatable value_quiet_nan() { return negatable(nothing(), value_max().data - 1) ; }
+    static const negatable& value_min() { static const negatable the_value_min(nothing(), 1); return the_value_min; }
+    static const negatable& value_max() { static const negatable the_value_max(nothing(), (std::numeric_limits<value_type>::max)()); return the_value_max; }
 
-    friend class ::std::numeric_limits<negatable>;
+    friend class std::numeric_limits<negatable>;
 
-    template<typename char_type, class traits_type>
-    friend inline std::basic_ostream<char_type, traits_type>& operator<<(std::basic_ostream<char_type, traits_type>& os, const negatable& x)
+    template<typename char_type,
+             typename traits_type>
+    friend inline std::basic_ostream<char_type,
+                                     traits_type>& operator<<(std::basic_ostream<char_type, traits_type>& out,
+                                                              const negatable& x)
     {
       std::basic_ostringstream<char_type, traits_type> ostr;
-      ostr.flags(os.flags());
-      ostr.imbue(os.getloc());
 
-      // TBD: There must be a better way to extract the string
-      // other than using an intermediate stringstream object?
+      const std::streamsize the_precision = out.precision();
+
+      ostr.flags    (out.flags());
+      ostr.imbue    (out.getloc());
+      ostr.precision(the_precision);
+
+      // Use a stringstream to convert the integer representation
+      // of the data to a string and then subsequently extract
+      // a floating-point representation from it.
+
+      // TBD: Is there a more efficient way to do this?
+      // TBD: Is there a more sensible way to do this?
+
+      const bool is_neg = (x.data < value_type(0));
+
       std::stringstream ss;
-      ss << x.data;
-
-      namespace fp = boost::math::fixed_point;
-
-      typedef typename fp::detail::float_type_helper<total_range>::exact_float_type float_type;
+      ss << unsigned_large_type(((!is_neg) ? x.data : -x.data));
 
       float_type v;
       ss >> v;
 
-      v /= fp::detail::radix_split_maker<float_type, radix_split>::value();
+      if(is_neg)
+      {
+        v = -v;
+      }
 
-      // TBD: Use the proper precision value from the ostream object.
-      ostr.precision((radix_split * 301) / 1000);
-      ostr << std::fixed << v;
+      ostr << (v / detail::radix_split_maker<float_type, radix_split>::value());
 
-      return (os << ostr.str());
+      return (out << ostr.str());
+    }
+
+    template<typename char_type,
+             typename traits_type>
+    friend inline std::basic_istream<char_type,
+                                     traits_type>& operator>>(std::basic_istream<char_type, traits_type>& in,
+                                                              negatable& x)
+    {
+      // Use string and stringstream manipulations in combination
+      // with a floating-point representation to extract the
+      // data field and subsequently insert it into the fixed-point
+      // object in its integral form.
+
+      // TBD: Is there a more efficient way to do this?
+      // TBD: Or is there a more sensible way to do this?
+
+      std::string str;
+      float_type  v;
+
+      in >> str;
+
+      // TBD: Why does it *not work* to simply clear the stringstream
+      // in this subroutine with, for example, ss.str(std::string())?
+
+      {
+        std::stringstream ss(str);
+        ss >> v;
+        v *= detail::radix_split_maker<float_type, radix_split>::value();
+      }
+
+      // TBD: Is string manipulation really necessary here.
+      // Or is it possible to print the floating-point
+      // representation in a format without the decimal digits
+      // and a decimal point?
+
+      // TBD: Note: Using setprecision(0) for std::fixed does not
+      // work for cpp_bin_float, nor does it work for cpp_dec_float.
+
+      // TBD: We actually need to correct this in Boost.Multiprecision.
+      // Workaround is: Set the precision to one, and truncate
+      // the string.
+      {
+        std::stringstream ss;
+        ss << std::fixed << std::setprecision(1) << std::showpoint << v;
+        //ss << std::fixed << std::setprecision(0) << std::noshowpoint << v;
+
+        ss >> str;
+        str = str.substr(0U, str.length() - 2U);
+      }
+
+      {
+        std::stringstream ss;
+        ss << str;
+        ss >> x.data;
+      }
+
+      return in;
     }
 
     // Implementations of global unary plus and minus.
-    friend inline negatable operator+ (const negatable& left)                                      { return negatable(left); }
-    friend inline negatable operator- (const negatable& left)                                      { negatable tmp(left); tmp.data = -tmp.data; return tmp; }
+    friend inline negatable operator+(const negatable& self) { return negatable(self); }
+    friend inline negatable operator-(const negatable& self) { negatable tmp(self); tmp.data = -tmp.data; return tmp; }
 
-    // Implementations of global add, sub, mul, div of [lhs(negatable)] operator [rhs(negatable)].
-    friend inline negatable operator+ (const negatable& u,            const negatable& v)          { return negatable(u) += v; }
-    friend inline negatable operator- (const negatable& u,            const negatable& v)          { return negatable(u) -= v; }
-    friend inline negatable operator* (const negatable& u,            const negatable& v)          { return negatable(u) *= v; }
-    friend inline negatable operator/ (const negatable& u,            const negatable& v)          { return negatable(u) /= v; }
+    // Implementations of global binary add, sub, mul, div of [lhs(negatable)] operator [rhs(negatable)].
+    template<typename T, typename std::enable_if<std::is_same<T, negatable>::value>::type* = nullptr> friend inline T operator+(const T& u, const T& v) { return T(u) += v; }
+    template<typename T, typename std::enable_if<std::is_same<T, negatable>::value>::type* = nullptr> friend inline T operator-(const T& u, const T& v) { return T(u) -= v; }
+    template<typename T, typename std::enable_if<std::is_same<T, negatable>::value>::type* = nullptr> friend inline T operator*(const T& u, const T& v) { return T(u) *= v; }
+    template<typename T, typename std::enable_if<std::is_same<T, negatable>::value>::type* = nullptr> friend inline T operator/(const T& u, const T& v) { return T(u) /= v; }
 
-    // Implementations of global add, sub, mul, div of [lhs(negatable)] operator [rhs(arithmetic_type)].
-    friend inline negatable operator+ (const negatable& u,            const char& n)               { return negatable(u) += n; }
-    friend inline negatable operator+ (const negatable& u,            const short& n)              { return negatable(u) += n; }
-    friend inline negatable operator+ (const negatable& u,            const int& n)                { return negatable(u) += n; }
-    friend inline negatable operator+ (const negatable& u,            const long& n)               { return negatable(u) += n; }
-    friend inline negatable operator+ (const negatable& u,            const long long& n)          { return negatable(u) += n; }
-    friend inline negatable operator+ (const negatable& u,            const unsigned char& n)      { return negatable(u) += n; }
-    friend inline negatable operator+ (const negatable& u,            const unsigned short& n)     { return negatable(u) += n; }
-    friend inline negatable operator+ (const negatable& u,            const unsigned int& n)       { return negatable(u) += n; }
-    friend inline negatable operator+ (const negatable& u,            const unsigned long& n)      { return negatable(u) += n; }
-    friend inline negatable operator+ (const negatable& u,            const unsigned long long& n) { return negatable(u) += n; }
-    friend inline negatable operator+ (const negatable& u,            const float& f)              { return negatable(u) += f; }
-    friend inline negatable operator+ (const negatable& u,            const double& f)             { return negatable(u) += f; }
-    friend inline negatable operator+ (const negatable& u,            const long double& f)        { return negatable(u) += f; }
+    // Implementations of global binary add, sub, mul, div of [lhs(negatable)] operator [rhs(arithmetic_type)].
+    template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr> friend inline negatable operator+(const negatable& u, const T& v) { return negatable(u) += v; }
+    template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr> friend inline negatable operator-(const negatable& u, const T& v) { return negatable(u) -= v; }
+    template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr> friend inline negatable operator*(const negatable& u, const T& v) { return negatable(u) *= v; }
+    template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr> friend inline negatable operator/(const negatable& u, const T& v) { return negatable(u) /= v; }
 
-    friend inline negatable operator- (const negatable& u,            const char& n)               { return negatable(u) -= n; }
-    friend inline negatable operator- (const negatable& u,            const short& n)              { return negatable(u) -= n; }
-    friend inline negatable operator- (const negatable& u,            const int& n)                { return negatable(u) -= n; }
-    friend inline negatable operator- (const negatable& u,            const long& n)               { return negatable(u) -= n; }
-    friend inline negatable operator- (const negatable& u,            const long long& n)          { return negatable(u) -= n; }
-    friend inline negatable operator- (const negatable& u,            const unsigned char& n)      { return negatable(u) -= n; }
-    friend inline negatable operator- (const negatable& u,            const unsigned short& n)     { return negatable(u) -= n; }
-    friend inline negatable operator- (const negatable& u,            const unsigned int& n)       { return negatable(u) -= n; }
-    friend inline negatable operator- (const negatable& u,            const unsigned long& n)      { return negatable(u) -= n; }
-    friend inline negatable operator- (const negatable& u,            const unsigned long long& n) { return negatable(u) -= n; }
-    friend inline negatable operator- (const negatable& u,            const float& f)              { return negatable(u) -= f; }
-    friend inline negatable operator- (const negatable& u,            const double& f)             { return negatable(u) -= f; }
-    friend inline negatable operator- (const negatable& u,            const long double& f)        { return negatable(u) -= f; }
-
-    friend inline negatable operator* (const negatable& u,            const char& n)               { return negatable(u) *= n; }
-    friend inline negatable operator* (const negatable& u,            const short& n)              { return negatable(u) *= n; }
-    friend inline negatable operator* (const negatable& u,            const int& n)                { return negatable(u) *= n; }
-    friend inline negatable operator* (const negatable& u,            const long& n)               { return negatable(u) *= n; }
-    friend inline negatable operator* (const negatable& u,            const long long& n)          { return negatable(u) *= n; }
-    friend inline negatable operator* (const negatable& u,            const unsigned char& n)      { return negatable(u) *= n; }
-    friend inline negatable operator* (const negatable& u,            const unsigned short& n)     { return negatable(u) *= n; }
-    friend inline negatable operator* (const negatable& u,            const unsigned int& n)       { return negatable(u) *= n; }
-    friend inline negatable operator* (const negatable& u,            const unsigned long& n)      { return negatable(u) *= n; }
-    friend inline negatable operator* (const negatable& u,            const unsigned long long& n) { return negatable(u) *= n; }
-    friend inline negatable operator* (const negatable& u,            const float& f)              { return negatable(u) *= f; }
-    friend inline negatable operator* (const negatable& u,            const double& f)             { return negatable(u) *= f; }
-    friend inline negatable operator* (const negatable& u,            const long double& f)        { return negatable(u) *= f; }
-
-    friend inline negatable operator/ (const negatable& u,            const char& n)               { return negatable(u) /= n; }
-    friend inline negatable operator/ (const negatable& u,            const short& n)              { return negatable(u) /= n; }
-    friend inline negatable operator/ (const negatable& u,            const int& n)                { return negatable(u) /= n; }
-    friend inline negatable operator/ (const negatable& u,            const long& n)               { return negatable(u) /= n; }
-    friend inline negatable operator/ (const negatable& u,            const long long& n)          { return negatable(u) /= n; }
-    friend inline negatable operator/ (const negatable& u,            const unsigned char& n)      { return negatable(u) /= n; }
-    friend inline negatable operator/ (const negatable& u,            const unsigned short& n)     { return negatable(u) /= n; }
-    friend inline negatable operator/ (const negatable& u,            const unsigned int& n)       { return negatable(u) /= n; }
-    friend inline negatable operator/ (const negatable& u,            const unsigned long& n)      { return negatable(u) /= n; }
-    friend inline negatable operator/ (const negatable& u,            const unsigned long long& n) { return negatable(u) /= n; }
-    friend inline negatable operator/ (const negatable& u,            const float& f)              { return negatable(u) /= f; }
-    friend inline negatable operator/ (const negatable& u,            const double& f)             { return negatable(u) /= f; }
-    friend inline negatable operator/ (const negatable& u,            const long double& f)        { return negatable(u) /= f; }
-
-    // Implementations of global add, sub, mul, div of [lhs(arithmetic_type)] operator [rhs(negatable)].
-    friend inline negatable operator+ (const char& n,                 const negatable& u)          { return negatable(n) += u; }
-    friend inline negatable operator+ (const short& n,                const negatable& u)          { return negatable(n) += u; }
-    friend inline negatable operator+ (const int& n,                  const negatable& u)          { return negatable(n) += u; }
-    friend inline negatable operator+ (const long& n,                 const negatable& u)          { return negatable(n) += u; }
-    friend inline negatable operator+ (const long long& n,            const negatable& u)          { return negatable(n) += u; }
-    friend inline negatable operator+ (const unsigned char& n,        const negatable& u)          { return negatable(n) += u; }
-    friend inline negatable operator+ (const unsigned short& n,       const negatable& u)          { return negatable(n) += u; }
-    friend inline negatable operator+ (const unsigned int& n,         const negatable& u)          { return negatable(n) += u; }
-    friend inline negatable operator+ (const unsigned long& n,        const negatable& u)          { return negatable(n) += u; }
-    friend inline negatable operator+ (const unsigned long long& n,   const negatable& u)          { return negatable(n) += u; }
-    friend inline negatable operator+ (const float& f,                const negatable& u)          { return negatable(f) += u; }
-    friend inline negatable operator+ (const double& f,               const negatable& u)          { return negatable(f) += u; }
-    friend inline negatable operator+ (const long double& f,          const negatable& u)          { return negatable(f) += u; }
-
-    friend inline negatable operator- (const char& n,                 const negatable& u)          { return negatable(n) -= u; }
-    friend inline negatable operator- (const short& n,                const negatable& u)          { return negatable(n) -= u; }
-    friend inline negatable operator- (const int& n,                  const negatable& u)          { return negatable(n) -= u; }
-    friend inline negatable operator- (const long& n,                 const negatable& u)          { return negatable(n) -= u; }
-    friend inline negatable operator- (const long long& n,            const negatable& u)          { return negatable(n) -= u; }
-    friend inline negatable operator- (const unsigned char& n,        const negatable& u)          { return negatable(n) -= u; }
-    friend inline negatable operator- (const unsigned short& n,       const negatable& u)          { return negatable(n) -= u; }
-    friend inline negatable operator- (const unsigned int& n,         const negatable& u)          { return negatable(n) -= u; }
-    friend inline negatable operator- (const unsigned long& n,        const negatable& u)          { return negatable(n) -= u; }
-    friend inline negatable operator- (const unsigned long long& n,   const negatable& u)          { return negatable(n) -= u; }
-    friend inline negatable operator- (const float& f,                const negatable& u)          { return negatable(f) -= u; }
-    friend inline negatable operator- (const double& f,               const negatable& u)          { return negatable(f) -= u; }
-    friend inline negatable operator- (const long double& f,          const negatable& u)          { return negatable(f) -= u; }
-
-    friend inline negatable operator* (const char& n,                 const negatable& u)          { return negatable(n) *= u; }
-    friend inline negatable operator* (const short& n,                const negatable& u)          { return negatable(n) *= u; }
-    friend inline negatable operator* (const int& n,                  const negatable& u)          { return negatable(n) *= u; }
-    friend inline negatable operator* (const long& n,                 const negatable& u)          { return negatable(n) *= u; }
-    friend inline negatable operator* (const long long& n,            const negatable& u)          { return negatable(n) *= u; }
-    friend inline negatable operator* (const unsigned char& n,        const negatable& u)          { return negatable(n) *= u; }
-    friend inline negatable operator* (const unsigned short& n,       const negatable& u)          { return negatable(n) *= u; }
-    friend inline negatable operator* (const unsigned int& n,         const negatable& u)          { return negatable(n) *= u; }
-    friend inline negatable operator* (const unsigned long& n,        const negatable& u)          { return negatable(n) *= u; }
-    friend inline negatable operator* (const unsigned long long& n,   const negatable& u)          { return negatable(n) *= u; }
-    friend inline negatable operator* (const float& f,                const negatable& u)          { return negatable(f) *= u; }
-    friend inline negatable operator* (const double& f,               const negatable& u)          { return negatable(f) *= u; }
-    friend inline negatable operator* (const long double& f,          const negatable& u)          { return negatable(f) *= u; }
-
-    friend inline negatable operator/ (const char& n,                 const negatable& u)          { return negatable(n) /= u; }
-    friend inline negatable operator/ (const short& n,                const negatable& u)          { return negatable(n) /= u; }
-    friend inline negatable operator/ (const int& n,                  const negatable& u)          { return negatable(n) /= u; }
-    friend inline negatable operator/ (const long& n,                 const negatable& u)          { return negatable(n) /= u; }
-    friend inline negatable operator/ (const long long& n,            const negatable& u)          { return negatable(n) /= u; }
-    friend inline negatable operator/ (const unsigned char& n,        const negatable& u)          { return negatable(n) /= u; }
-    friend inline negatable operator/ (const unsigned short& n,       const negatable& u)          { return negatable(n) /= u; }
-    friend inline negatable operator/ (const unsigned int& n,         const negatable& u)          { return negatable(n) /= u; }
-    friend inline negatable operator/ (const unsigned long& n,        const negatable& u)          { return negatable(n) /= u; }
-    friend inline negatable operator/ (const unsigned long long& n,   const negatable& u)          { return negatable(n) /= u; }
-    friend inline negatable operator/ (const float& f,                const negatable& u)          { return negatable(f) /= u; }
-    friend inline negatable operator/ (const double& f,               const negatable& u)          { return negatable(f) /= u; }
-    friend inline negatable operator/ (const long double& f,          const negatable& u)          { return negatable(f) /= u; }
+    // Implementations of global binary add, sub, mul, div of [lhs(arithmetic_type)] operator [rhs(negatable)].
+    template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr> friend inline negatable operator+(const T& u, const negatable& v) { return negatable(u) += v; }
+    template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr> friend inline negatable operator-(const T& u, const negatable& v) { return negatable(u) -= v; }
+    template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr> friend inline negatable operator*(const T& u, const negatable& v) { return negatable(u) *= v; }
+    template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr> friend inline negatable operator/(const T& u, const negatable& v) { return negatable(u) /= v; }
 
     // Implementations of global equality.
-    friend inline bool      operator==(const negatable& u,            const negatable& v)          { return ((u.data == v.data) && (!(negatable::is_quiet_nan(u) && negatable::is_quiet_nan(v)))); }
-
-    friend inline bool      operator==(const negatable& u,            const char& v)               { return (u.data == negatable(v).data); }
-    friend inline bool      operator==(const negatable& u,            const short& v)              { return (u.data == negatable(v).data); }
-    friend inline bool      operator==(const negatable& u,            const int& v)                { return (u.data == negatable(v).data); }
-    friend inline bool      operator==(const negatable& u,            const long& v)               { return (u.data == negatable(v).data); }
-    friend inline bool      operator==(const negatable& u,            const long long& v)          { return (u.data == negatable(v).data); }
-
-    friend inline bool      operator==(const negatable& u,            const unsigned char& v)      { return (u.data == negatable(v).data); }
-    friend inline bool      operator==(const negatable& u,            const unsigned short& v)     { return (u.data == negatable(v).data); }
-    friend inline bool      operator==(const negatable& u,            const unsigned int& v)       { return (u.data == negatable(v).data); }
-    friend inline bool      operator==(const negatable& u,            const unsigned long& v)      { return (u.data == negatable(v).data); }
-    friend inline bool      operator==(const negatable& u,            const unsigned long long& v) { return (u.data == negatable(v).data); }
-
-    friend inline bool      operator==(const negatable& u,            const float& v)              { return ((u.data == negatable(v).data) && (!(negatable::is_quiet_nan(u) && (negatable::is_quiet_nan(v))))); }
-    friend inline bool      operator==(const negatable& u,            const double& v)             { return ((u.data == negatable(v).data) && (!(negatable::is_quiet_nan(u) && (negatable::is_quiet_nan(v))))); }
-    friend inline bool      operator==(const negatable& u,            const long double& v)        { return ((u.data == negatable(v).data) && (!(negatable::is_quiet_nan(u) && (negatable::is_quiet_nan(v))))); }
-
-    friend inline bool      operator==(const char& u,                 const negatable& v)          { return (negatable(u).data == v.data); }
-    friend inline bool      operator==(const short& u,                const negatable& v)          { return (negatable(u).data == v.data); }
-    friend inline bool      operator==(const int& u,                  const negatable& v)          { return (negatable(u).data == v.data); }
-    friend inline bool      operator==(const long& u,                 const negatable& v)          { return (negatable(u).data == v.data); }
-    friend inline bool      operator==(const long long& u,            const negatable& v)          { return (negatable(u).data == v.data); }
-
-    friend inline bool      operator==(const unsigned char& u,        const negatable& v)          { return (negatable(u).data == v.data); }
-    friend inline bool      operator==(const unsigned short& u,       const negatable& v)          { return (negatable(u).data == v.data); }
-    friend inline bool      operator==(const unsigned int& u,         const negatable& v)          { return (negatable(u).data == v.data); }
-    friend inline bool      operator==(const unsigned long& u,        const negatable& v)          { return (negatable(u).data == v.data); }
-    friend inline bool      operator==(const unsigned long long& u,   const negatable& v)          { return (negatable(u).data == v.data); }
-
-    friend inline bool      operator==(const float& u,                const negatable& v)          { return ((negatable(u).data == v.data) && (!((negatable::is_quiet_nan(u)) && negatable::is_quiet_nan(v)))); }
-    friend inline bool      operator==(const double& u,               const negatable& v)          { return ((negatable(u).data == v.data) && (!((negatable::is_quiet_nan(u)) && negatable::is_quiet_nan(v)))); }
-    friend inline bool      operator==(const double long& u,          const negatable& v)          { return ((negatable(u).data == v.data) && (!((negatable::is_quiet_nan(u)) && negatable::is_quiet_nan(v)))); }
+    template<typename T, typename std::enable_if<std::is_same<T, negatable>::value>::type* = nullptr> friend inline bool operator==(const T& u,         const T& v) { return (u.data == v.data); }
+    template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>      friend inline bool operator==(const negatable& u, const T& v) { return (u.data == negatable(v).data); }
+    template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>      friend inline bool operator==(const T& u, const negatable& v) { return (negatable(u).data == v.data); }
 
     // Implementations of global inequality.
-    friend inline bool      operator!=(const negatable& u,            const negatable& v)          { return ((u.data != v.data) || (negatable::is_quiet_nan(u) && negatable::is_quiet_nan(v))); }
-
-    friend inline bool      operator!=(const negatable& u,            const char& v)               { return (u.data != negatable(v).data); }
-    friend inline bool      operator!=(const negatable& u,            const short& v)              { return (u.data != negatable(v).data); }
-    friend inline bool      operator!=(const negatable& u,            const int& v)                { return (u.data != negatable(v).data); }
-    friend inline bool      operator!=(const negatable& u,            const long& v)               { return (u.data != negatable(v).data); }
-    friend inline bool      operator!=(const negatable& u,            const long long& v)          { return (u.data != negatable(v).data); }
-
-    friend inline bool      operator!=(const negatable& u,            const unsigned char& v)      { return (u.data != negatable(v).data); }
-    friend inline bool      operator!=(const negatable& u,            const unsigned short& v)     { return (u.data != negatable(v).data); }
-    friend inline bool      operator!=(const negatable& u,            const unsigned int& v)       { return (u.data != negatable(v).data); }
-    friend inline bool      operator!=(const negatable& u,            const unsigned long& v)      { return (u.data != negatable(v).data); }
-    friend inline bool      operator!=(const negatable& u,            const unsigned long long& v) { return (u.data != negatable(v).data); }
-
-    friend inline bool      operator!=(const negatable& u,            const float& v)              { return ((u.data != negatable(v).data) || (negatable::is_quiet_nan(u) && (negatable::is_quiet_nan(v)))); }
-    friend inline bool      operator!=(const negatable& u,            const double& v)             { return ((u.data != negatable(v).data) || (negatable::is_quiet_nan(u) && (negatable::is_quiet_nan(v)))); }
-    friend inline bool      operator!=(const negatable& u,            const long double& v)        { return ((u.data != negatable(v).data) || (negatable::is_quiet_nan(u) && (negatable::is_quiet_nan(v)))); }
-
-    friend inline bool      operator!=(const char& u,                 const negatable& v)          { return (negatable(u).data != v.data); }
-    friend inline bool      operator!=(const short& u,                const negatable& v)          { return (negatable(u).data != v.data); }
-    friend inline bool      operator!=(const int& u,                  const negatable& v)          { return (negatable(u).data != v.data); }
-    friend inline bool      operator!=(const long& u,                 const negatable& v)          { return (negatable(u).data != v.data); }
-    friend inline bool      operator!=(const long long& u,            const negatable& v)          { return (negatable(u).data != v.data); }
-
-    friend inline bool      operator!=(const unsigned char& u,        const negatable& v)          { return (negatable(u).data != v.data); }
-    friend inline bool      operator!=(const unsigned short& u,       const negatable& v)          { return (negatable(u).data != v.data); }
-    friend inline bool      operator!=(const unsigned int& u,         const negatable& v)          { return (negatable(u).data != v.data); }
-    friend inline bool      operator!=(const unsigned long& u,        const negatable& v)          { return (negatable(u).data != v.data); }
-    friend inline bool      operator!=(const unsigned long long& u,   const negatable& v)          { return (negatable(u).data != v.data); }
-
-    friend inline bool      operator!=(const float& u,                const negatable& v)          { return ((negatable(u).data != v.data) || ((negatable::is_quiet_nan(u)) && negatable::is_quiet_nan(v))); }
-    friend inline bool      operator!=(const double& u,               const negatable& v)          { return ((negatable(u).data != v.data) || ((negatable::is_quiet_nan(u)) && negatable::is_quiet_nan(v))); }
-    friend inline bool      operator!=(const double long& u,          const negatable& v)          { return ((negatable(u).data != v.data) || ((negatable::is_quiet_nan(u)) && negatable::is_quiet_nan(v))); }
+    template<typename T, typename std::enable_if<std::is_same<T, negatable>::value>::type* = nullptr> friend inline bool operator!=(const T& u,         const T& v) { return (u.data != v.data); }
+    template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>      friend inline bool operator!=(const negatable& u, const T& v) { return (u.data != negatable(v).data); }
+    template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>      friend inline bool operator!=(const T& u, const negatable& v) { return (negatable(u).data != v.data); }
 
     // Implementations of global operators >, <, >=, <=.
-    friend inline bool      operator> (const negatable& u,            const negatable& v)          { return ((u.data > v.data) && (!(negatable::is_quiet_nan(u) && negatable::is_quiet_nan(v)))); }
+    template<typename T, typename std::enable_if<std::is_same<T, negatable>::value>::type* = nullptr> friend inline bool operator> (const T& u,         const T& v) { return (u.data >  v.data); }
+    template<typename T, typename std::enable_if<std::is_same<T, negatable>::value>::type* = nullptr> friend inline bool operator< (const T& u,         const T& v) { return (u.data <  v.data); }
+    template<typename T, typename std::enable_if<std::is_same<T, negatable>::value>::type* = nullptr> friend inline bool operator>=(const T& u,         const T& v) { return (u.data >= v.data); }
+    template<typename T, typename std::enable_if<std::is_same<T, negatable>::value>::type* = nullptr> friend inline bool operator<=(const T& u,         const T& v) { return (u.data <= v.data); }
 
-    friend inline bool      operator> (const negatable& u,            const char& v)               { return (u.data > negatable(v).data); }
-    friend inline bool      operator> (const negatable& u,            const short& v)              { return (u.data > negatable(v).data); }
-    friend inline bool      operator> (const negatable& u,            const int& v)                { return (u.data > negatable(v).data); }
-    friend inline bool      operator> (const negatable& u,            const long& v)               { return (u.data > negatable(v).data); }
-    friend inline bool      operator> (const negatable& u,            const long long& v)          { return (u.data > negatable(v).data); }
+    template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>      friend inline bool operator> (const negatable& u, const T& v) { return (u.data >  negatable(v).data); }
+    template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>      friend inline bool operator< (const negatable& u, const T& v) { return (u.data <  negatable(v).data); }
+    template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>      friend inline bool operator>=(const negatable& u, const T& v) { return (u.data >= negatable(v).data); }
+    template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>      friend inline bool operator<=(const negatable& u, const T& v) { return (u.data <= negatable(v).data); }
 
-    friend inline bool      operator> (const negatable& u,            const unsigned char& v)      { return (u.data > negatable(v).data); }
-    friend inline bool      operator> (const negatable& u,            const unsigned short& v)     { return (u.data > negatable(v).data); }
-    friend inline bool      operator> (const negatable& u,            const unsigned int& v)       { return (u.data > negatable(v).data); }
-    friend inline bool      operator> (const negatable& u,            const unsigned long& v)      { return (u.data > negatable(v).data); }
-    friend inline bool      operator> (const negatable& u,            const unsigned long long& v) { return (u.data > negatable(v).data); }
+    template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>      friend inline bool operator> (const T& u, const negatable& v) { return (negatable(u).data >  v.data); }
+    template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>      friend inline bool operator< (const T& u, const negatable& v) { return (negatable(u).data <  v.data); }
+    template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>      friend inline bool operator>=(const T& u, const negatable& v) { return (negatable(u).data >= v.data); }
+    template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>      friend inline bool operator<=(const T& u, const negatable& v) { return (negatable(u).data <= v.data); }
 
-    friend inline bool      operator> (const negatable& u,            const float& v)              { return ((u.data > negatable(v).data) && (!(negatable::is_quiet_nan(u) && (negatable::is_quiet_nan(v))))); }
-    friend inline bool      operator> (const negatable& u,            const double& v)             { return ((u.data > negatable(v).data) && (!(negatable::is_quiet_nan(u) && (negatable::is_quiet_nan(v))))); }
-    friend inline bool      operator> (const negatable& u,            const long double& v)        { return ((u.data > negatable(v).data) && (!(negatable::is_quiet_nan(u) && (negatable::is_quiet_nan(v))))); }
-
-    friend inline bool      operator> (const char& u,                 const negatable& v)          { return (negatable(u).data > v.data); }
-    friend inline bool      operator> (const short& u,                const negatable& v)          { return (negatable(u).data > v.data); }
-    friend inline bool      operator> (const int& u,                  const negatable& v)          { return (negatable(u).data > v.data); }
-    friend inline bool      operator> (const long& u,                 const negatable& v)          { return (negatable(u).data > v.data); }
-    friend inline bool      operator> (const long long& u,            const negatable& v)          { return (negatable(u).data > v.data); }
-
-    friend inline bool      operator> (const unsigned char& u,        const negatable& v)          { return (negatable(u).data > v.data); }
-    friend inline bool      operator> (const unsigned short& u,       const negatable& v)          { return (negatable(u).data > v.data); }
-    friend inline bool      operator> (const unsigned int& u,         const negatable& v)          { return (negatable(u).data > v.data); }
-    friend inline bool      operator> (const unsigned long& u,        const negatable& v)          { return (negatable(u).data > v.data); }
-    friend inline bool      operator> (const unsigned long long& u,   const negatable& v)          { return (negatable(u).data > v.data); }
-
-    friend inline bool      operator> (const float& u,                const negatable& v)          { return ((negatable(u).data > v.data) && (!((negatable::is_quiet_nan(u)) && negatable::is_quiet_nan(v)))); }
-    friend inline bool      operator> (const double& u,               const negatable& v)          { return ((negatable(u).data > v.data) && (!((negatable::is_quiet_nan(u)) && negatable::is_quiet_nan(v)))); }
-    friend inline bool      operator> (const double long& u,          const negatable& v)          { return ((negatable(u).data > v.data) && (!((negatable::is_quiet_nan(u)) && negatable::is_quiet_nan(v)))); }
-
-    friend inline bool      operator< (const negatable& u,            const negatable& v)          { return ((u.data < v.data) || (negatable::is_quiet_nan(u) && negatable::is_quiet_nan(v))); }
-
-    friend inline bool      operator< (const negatable& u,            const char& v)               { return (u.data < negatable(v).data); }
-    friend inline bool      operator< (const negatable& u,            const short& v)              { return (u.data < negatable(v).data); }
-    friend inline bool      operator< (const negatable& u,            const int& v)                { return (u.data < negatable(v).data); }
-    friend inline bool      operator< (const negatable& u,            const long& v)               { return (u.data < negatable(v).data); }
-    friend inline bool      operator< (const negatable& u,            const long long& v)          { return (u.data < negatable(v).data); }
-
-    friend inline bool      operator< (const negatable& u,            const unsigned char& v)      { return (u.data < negatable(v).data); }
-    friend inline bool      operator< (const negatable& u,            const unsigned short& v)     { return (u.data < negatable(v).data); }
-    friend inline bool      operator< (const negatable& u,            const unsigned int& v)       { return (u.data < negatable(v).data); }
-    friend inline bool      operator< (const negatable& u,            const unsigned long& v)      { return (u.data < negatable(v).data); }
-    friend inline bool      operator< (const negatable& u,            const unsigned long long& v) { return (u.data < negatable(v).data); }
-
-    friend inline bool      operator< (const negatable& u,            const float& v)              { return ((u.data < negatable(v).data) || (negatable::is_quiet_nan(u) && (negatable::is_quiet_nan(v)))); }
-    friend inline bool      operator< (const negatable& u,            const double& v)             { return ((u.data < negatable(v).data) || (negatable::is_quiet_nan(u) && (negatable::is_quiet_nan(v)))); }
-    friend inline bool      operator< (const negatable& u,            const long double& v)        { return ((u.data < negatable(v).data) || (negatable::is_quiet_nan(u) && (negatable::is_quiet_nan(v)))); }
-
-    friend inline bool      operator< (const char& u,                 const negatable& v)          { return (negatable(u).data < v.data); }
-    friend inline bool      operator< (const short& u,                const negatable& v)          { return (negatable(u).data < v.data); }
-    friend inline bool      operator< (const int& u,                  const negatable& v)          { return (negatable(u).data < v.data); }
-    friend inline bool      operator< (const long& u,                 const negatable& v)          { return (negatable(u).data < v.data); }
-    friend inline bool      operator< (const long long& u,            const negatable& v)          { return (negatable(u).data < v.data); }
-
-    friend inline bool      operator< (const unsigned char& u,        const negatable& v)          { return (negatable(u).data < v.data); }
-    friend inline bool      operator< (const unsigned short& u,       const negatable& v)          { return (negatable(u).data < v.data); }
-    friend inline bool      operator< (const unsigned int& u,         const negatable& v)          { return (negatable(u).data < v.data); }
-    friend inline bool      operator< (const unsigned long& u,        const negatable& v)          { return (negatable(u).data < v.data); }
-    friend inline bool      operator< (const unsigned  long long& u,  const negatable& v)          { return (negatable(u).data < v.data); }
-
-    friend inline bool      operator< (const float& u,                const negatable& v)          { return ((negatable(u).data < v.data) || ((negatable::is_quiet_nan(u)) && negatable::is_quiet_nan(v))); }
-    friend inline bool      operator< (const double& u,               const negatable& v)          { return ((negatable(u).data < v.data) || ((negatable::is_quiet_nan(u)) && negatable::is_quiet_nan(v))); }
-    friend inline bool      operator< (const double long& u,          const negatable& v)          { return ((negatable(u).data < v.data) || ((negatable::is_quiet_nan(u)) && negatable::is_quiet_nan(v))); }
-
-    friend inline bool      operator>=(const negatable& u,            const negatable& v)          { return ((u.data >= v.data) && (!(negatable::is_quiet_nan(u) && negatable::is_quiet_nan(v)))); }
-
-    friend inline bool      operator>=(const negatable& u,            const char& v)               { return (u.data >= negatable(v).data); }
-    friend inline bool      operator>=(const negatable& u,            const short& v)              { return (u.data >= negatable(v).data); }
-    friend inline bool      operator>=(const negatable& u,            const int& v)                { return (u.data >= negatable(v).data); }
-    friend inline bool      operator>=(const negatable& u,            const long& v)               { return (u.data >= negatable(v).data); }
-    friend inline bool      operator>=(const negatable& u,            const long long& v)          { return (u.data >= negatable(v).data); }
-
-    friend inline bool      operator>=(const negatable& u,            const unsigned char& v)      { return (u.data >= negatable(v).data); }
-    friend inline bool      operator>=(const negatable& u,            const unsigned short& v)     { return (u.data >= negatable(v).data); }
-    friend inline bool      operator>=(const negatable& u,            const unsigned int& v)       { return (u.data >= negatable(v).data); }
-    friend inline bool      operator>=(const negatable& u,            const unsigned long& v)      { return (u.data >= negatable(v).data); }
-    friend inline bool      operator>=(const negatable& u,            const unsigned long long& v) { return (u.data >= negatable(v).data); }
-
-    friend inline bool      operator>=(const negatable& u,            const float& v)              { return ((u.data >= negatable(v).data) && (!(negatable::is_quiet_nan(u) && (negatable::is_quiet_nan(v))))); }
-    friend inline bool      operator>=(const negatable& u,            const double& v)             { return ((u.data >= negatable(v).data) && (!(negatable::is_quiet_nan(u) && (negatable::is_quiet_nan(v))))); }
-    friend inline bool      operator>=(const negatable& u,            const long double& v)        { return ((u.data >= negatable(v).data) && (!(negatable::is_quiet_nan(u) && (negatable::is_quiet_nan(v))))); }
-
-    friend inline bool      operator>=(const char& u,                 const negatable& v)          { return (negatable(u).data >= v.data); }
-    friend inline bool      operator>=(const short& u,                const negatable& v)          { return (negatable(u).data >= v.data); }
-    friend inline bool      operator>=(const int& u,                  const negatable& v)          { return (negatable(u).data >= v.data); }
-    friend inline bool      operator>=(const long& u,                 const negatable& v)          { return (negatable(u).data >= v.data); }
-    friend inline bool      operator>=(const long long& u,            const negatable& v)          { return (negatable(u).data >= v.data); }
-
-    friend inline bool      operator>=(const unsigned char& u,        const negatable& v)          { return (negatable(u).data >= v.data); }
-    friend inline bool      operator>=(const unsigned short& u,       const negatable& v)          { return (negatable(u).data >= v.data); }
-    friend inline bool      operator>=(const unsigned int& u,         const negatable& v)          { return (negatable(u).data >= v.data); }
-    friend inline bool      operator>=(const unsigned long& u,        const negatable& v)          { return (negatable(u).data >= v.data); }
-    friend inline bool      operator>=(const unsigned long long& u,   const negatable& v)          { return (negatable(u).data >= v.data); }
-
-    friend inline bool      operator>=(const float& u,                const negatable& v)          { return ((negatable(u).data >= v.data) && (!((negatable::is_quiet_nan(u)) && negatable::is_quiet_nan(v)))); }
-    friend inline bool      operator>=(const double& u,               const negatable& v)          { return ((negatable(u).data >= v.data) && (!((negatable::is_quiet_nan(u)) && negatable::is_quiet_nan(v)))); }
-    friend inline bool      operator>=(const double long& u,          const negatable& v)          { return ((negatable(u).data >= v.data) && (!((negatable::is_quiet_nan(u)) && negatable::is_quiet_nan(v)))); }
-
-    friend inline bool      operator<=(const negatable& u,            const negatable& v)          { return ((u.data <= v.data) || (negatable::is_quiet_nan(u) && negatable::is_quiet_nan(v))); }
-
-    friend inline bool      operator<=(const negatable& u,            const char& v)               { return (u.data <= negatable(v).data); }
-    friend inline bool      operator<=(const negatable& u,            const short& v)              { return (u.data <= negatable(v).data); }
-    friend inline bool      operator<=(const negatable& u,            const int& v)                { return (u.data <= negatable(v).data); }
-    friend inline bool      operator<=(const negatable& u,            const long& v)               { return (u.data <= negatable(v).data); }
-    friend inline bool      operator<=(const negatable& u,            const long long& v)          { return (u.data <= negatable(v).data); }
-
-    friend inline bool      operator<=(const negatable& u,            const unsigned char& v)      { return (u.data <= negatable(v).data); }
-    friend inline bool      operator<=(const negatable& u,            const unsigned short& v)     { return (u.data <= negatable(v).data); }
-    friend inline bool      operator<=(const negatable& u,            const unsigned int& v)       { return (u.data <= negatable(v).data); }
-    friend inline bool      operator<=(const negatable& u,            const unsigned long& v)      { return (u.data <= negatable(v).data); }
-    friend inline bool      operator<=(const negatable& u,            const unsigned long long& v) { return (u.data <= negatable(v).data); }
-
-    friend inline bool      operator<=(const negatable& u,            const float& v)              { return ((u.data <= negatable(v).data) || (negatable::is_quiet_nan(u) && (negatable::is_quiet_nan(v)))); }
-    friend inline bool      operator<=(const negatable& u,            const double& v)             { return ((u.data <= negatable(v).data) || (negatable::is_quiet_nan(u) && (negatable::is_quiet_nan(v)))); }
-    friend inline bool      operator<=(const negatable& u,            const long double& v)        { return ((u.data <= negatable(v).data) || (negatable::is_quiet_nan(u) && (negatable::is_quiet_nan(v)))); }
-
-    friend inline bool      operator<=(const char& u,                 const negatable& v)          { return (negatable(u).data <= v.data); }
-    friend inline bool      operator<=(const short& u,                const negatable& v)          { return (negatable(u).data <= v.data); }
-    friend inline bool      operator<=(const int& u,                  const negatable& v)          { return (negatable(u).data <= v.data); }
-    friend inline bool      operator<=(const long& u,                 const negatable& v)          { return (negatable(u).data <= v.data); }
-    friend inline bool      operator<=(const long long& u,            const negatable& v)          { return (negatable(u).data <= v.data); }
-
-    friend inline bool      operator<=(const unsigned char& u,        const negatable& v)          { return (negatable(u).data <= v.data); }
-    friend inline bool      operator<=(const unsigned short& u,       const negatable& v)          { return (negatable(u).data <= v.data); }
-    friend inline bool      operator<=(const unsigned int& u,         const negatable& v)          { return (negatable(u).data <= v.data); }
-    friend inline bool      operator<=(const unsigned long& u,        const negatable& v)          { return (negatable(u).data <= v.data); }
-    friend inline bool      operator<=(const unsigned long long& u,   const negatable& v)          { return (negatable(u).data <= v.data); }
-
-    friend inline bool      operator<=(const float& u,                const negatable& v)          { return ((negatable(u).data <= v.data) || ((negatable::is_quiet_nan(u)) && negatable::is_quiet_nan(v))); }
-    friend inline bool      operator<=(const double& u,               const negatable& v)          { return ((negatable(u).data <= v.data) || ((negatable::is_quiet_nan(u)) && negatable::is_quiet_nan(v))); }
-    friend inline bool      operator<=(const double long& u,          const negatable& v)          { return ((negatable(u).data <= v.data) || ((negatable::is_quiet_nan(u)) && negatable::is_quiet_nan(v))); }
-
-    friend inline negatable fabs(const negatable& x)
+    // Helper utilities for mathematical constants.
+    // TBD: We will need these later for transcendental functions.
+    template<const int bit_count,
+             typename enable_type = void>
+    struct constant_maker
     {
-      return ((x.data < value_type(0)) ? -x : x);
-    }
-
-    friend inline negatable floor(const negatable& x)
-    {
-      // TBD: implement floor().
-      return negatable(0);
-    }
-
-    friend inline negatable ceil(const negatable& x)
-    {
-      // TBD: implement ceil().
-      return negatable(0);
-    }
-
-    // TBD: implement frexp().
-    // TBD: implement ldexp().
-
-    friend inline negatable sqrt(const negatable& x)
-    {
-      if(negatable::is_quiet_nan(x))
+      static const negatable& pi()
       {
-        return negatable::value_quiet_nan();
+        static_assert(integral_range >= 3,
+                      "The constant pi can not be created with fewer than 3 binary signed integer digits");
+
+        static const negatable value_pi(boost::math::constants::pi<negatable>());
+        return value_pi;
       }
-      else if(x > 0)
+
+      static const negatable& ln_two()
       {
-        // TBD: This is horrible!
-        // TBD: Use a more efficient square root algorithm (if one can be found).
-        return exp(log(x) / 2);
+        static const negatable value_ln_two(boost::math::constants::ln_two<negatable>());
+        return value_ln_two;
       }
-      else if(x < 0)
+    };
+
+    template<const int bit_count>
+    struct constant_maker<bit_count,
+                          typename std::enable_if<(bit_count <= 8)>::type>
+    {
+      static const negatable& pi()
       {
-        return negatable::value_quiet_nan();
+        static_assert(integral_range >= 3,
+                      "The constant pi can not be created with fewer than 3 binary signed integer digits");
+
+        static const negatable value_pi(nothing(), value_type((UINT8_C(0x64) + ((UINT8_C(1) << (5 + decimal_resolution)) / 2U)) >> (5 + decimal_resolution)));
+        return value_pi;
       }
-      else
+
+      static const negatable& ln_two()
+      {
+        static const negatable value_ln_two(nothing(), value_type((UINT8_C(0x58) + ((UINT8_C(1) << (7 + decimal_resolution)) / 2U)) >> (7 + decimal_resolution)));
+        return value_ln_two;
+      }
+    };
+
+    template<const int bit_count>
+    struct constant_maker<bit_count,
+                          typename std::enable_if<(bit_count > 8) && (bit_count <= 16)>::type>
+    {
+      static const negatable& pi()
+      {
+        static_assert(integral_range >= 3,
+                      "The constant pi can not be created with fewer than 3 binary signed integer digits");
+
+        static const negatable value_pi(nothing(), value_type((UINT16_C(0x6487) + ((UINT16_C(1) << (13 + decimal_resolution)) / 2U)) >> (13 + decimal_resolution)));
+        return value_pi;
+      }
+
+      static const negatable& ln_two()
+      {
+        static const negatable value_ln_two(nothing(), value_type((UINT16_C(0x58B9) + ((UINT16_C(1) << (15 + decimal_resolution)) / 2U)) >> (15 + decimal_resolution)));
+        return value_ln_two;
+      }
+    };
+
+    template<const int bit_count>
+    struct constant_maker<bit_count,
+                          typename std::enable_if<(bit_count > 16) && (bit_count <= 32)>::type>
+    {
+      static const negatable& pi()
+      {
+        static_assert(integral_range >= 3,
+                      "The constant pi can not be created with fewer than 3 binary signed integer digits");
+
+        static const negatable value_pi(nothing(), value_type((UINT32_C(0x6487ED51) + ((UINT32_C(1) << (29 + decimal_resolution)) / 2U)) >> (29 + decimal_resolution)));
+        return value_pi;
+      }
+
+      static const negatable& ln_two()
+      {
+        static const negatable value_ln_two(nothing(), value_type((UINT32_C(0x58B90BfB) + ((UINT32_C(1) << (31 + decimal_resolution)) / 2U)) >> (31 + decimal_resolution)));
+        return value_ln_two;
+      }
+    };
+
+    template<const int bit_count>
+    struct constant_maker<bit_count,
+                          typename std::enable_if<(bit_count > 32) && (bit_count <= 64)>::type>
+    {
+      static const negatable& pi()
+      {
+        static_assert(integral_range >= 3,
+                      "The constant pi can not be created with fewer than 3 binary signed integer digits");
+
+        static const negatable value_pi(nothing(), value_type((UINT64_C(0x6487ED5110B4611A) + ((UINT64_C(1) << (61 + decimal_resolution)) / 2U)) >> (61 + decimal_resolution)));
+        return value_pi;
+      }
+
+      static const negatable& ln_two()
+      {
+        static const negatable value_ln_two(nothing(), value_type((UINT64_C(0x58B90BFBE8E7BCD6) + ((UINT64_C(1) << (63 + decimal_resolution)) / 2U)) >> (63 + decimal_resolution)));
+        return value_ln_two;
+      }
+    };
+
+    friend inline negatable frexp(negatable x, int* expptr)
+    {
+      *expptr = 0;
+
+      if(x.data == value_type(0))
       {
         return negatable(0);
       }
-    }
-
-    friend inline negatable exp(const negatable& x)
-    {
-      if(negatable::is_quiet_nan(x))
-      {
-        return negatable::value_quiet_nan();
-      }
-      else if(x > 0)
-      {
-        // TBD: Is plain int the right type for n here?
-        const int n = static_cast<int>(x / negatable(nothing(), make_unsigned_constant(11629079)));
-
-        const negatable alpha = x - (n * negatable(nothing(), make_unsigned_constant(11629079)));
-
-        // Obtained from Wolfram's Alpha or Mathematica(R) with the following command.
-        // The coefficientws have subsequently been *rationalized* for the <32,-24> split.
-        // Fit[N[Table[{x, Exp[x] - 1}, {x, -Log[2], Log[2], 1/180}], 50], {x, x^2, x^3, x^4, x^5, x^6}, x]
-        negatable sum  =   1
-                         + alpha * (negatable(nothing(), make_unsigned_constant(16777246))
-                         + alpha * (negatable(nothing(), make_unsigned_constant( 8388613))
-                         + alpha * (negatable(nothing(), make_unsigned_constant( 2795628))
-                         + alpha * (negatable(nothing(), make_unsigned_constant(  698971))
-                         + alpha * (negatable(nothing(), make_unsigned_constant(  142422))
-                         + alpha * (negatable(nothing(), make_unsigned_constant(   23635))))))));
-
-        return negatable(nothing(), sum.data << n);
-      }
-      else if(x < 0)
-      {
-        return 1 / exp(-x);
-      }
       else
       {
-        return negatable(1);
-      }
-    }
+        const bool is_neg = (x.data < value_type(0));
 
-    friend inline negatable log(const negatable& x)
-    {
-      if(negatable::is_quiet_nan(x))
-      {
-        return negatable::value_quiet_nan();
-      }
-      else if(x > 0)
-      {
-        if(x > 1)
+        unsigned_small_type mantissa_small = ((!is_neg) ? unsigned_small_type(x.data) : unsigned_small_type(-x.data));
+
+        if(mantissa_small <= radix_split_value<unsigned_small_type>() / 2U)
         {
-          negatable xx  = x;
+          while(mantissa_small < radix_split_value<unsigned_small_type>() / 2U)
+          {
+            // TBD: This is inefficient.
+            // TBD: We could use a binary search algorithm here to find
+            // the bit position of the highest set bit.
+            mantissa_small <<= 1;
 
-          // TBD: Is plain int the right type for n here?
-          const int n = static_cast<int>(xx / 2);
+            --(*expptr);
+          }
 
-          // TBD: Is argument scaling here correct, or would it be better to use a constant offset?
-          xx.data >>= n;
-
-          --xx;
-
-          // TBD: Should this approximation be improved?
-          negatable sum        = xx * (negatable(nothing(), + make_unsigned_constant(16768752))
-                               + xx * (negatable(nothing(), - make_unsigned_constant( 8252862))
-                               + xx * (negatable(nothing(), + make_unsigned_constant( 4856580))
-                               + xx * (negatable(nothing(), - make_unsigned_constant( 2282754))
-                               + xx * (negatable(nothing(), + make_unsigned_constant(  539529)))))));
-
-          return sum + (n * negatable(nothing(), make_unsigned_constant(11629079)));
+          return negatable(nothing(), value_type((!is_neg) ? value_type(mantissa_small) : -value_type(mantissa_small)));
         }
-        else if(x < 1)
+        else if(mantissa_small > radix_split_value<unsigned_small_type>())
         {
-          return -log(1 / x);
+          unsigned_large_type mantissa_large = ((!is_neg) ? unsigned_large_type(x.data) : unsigned_large_type(-x.data));
+
+          mantissa_large <<= std::numeric_limits<unsigned_small_type>::digits;
+
+          const unsigned_large_type radix_split_scaled = radix_split_value<unsigned_large_type>() << std::numeric_limits<unsigned_small_type>::digits;
+
+          while(mantissa_large > radix_split_scaled)
+          {
+            // TBD: This is inefficient.
+            // TBD: We could use a binary search algorithm here to find
+            // the bit position of the highest set bit.
+            mantissa_large >>= 1;
+
+            ++(*expptr);
+          }
+
+          return negatable(nothing(), value_type((!is_neg) ?  value_type(mantissa_large >> std::numeric_limits<unsigned_small_type>::digits)
+                                                           : -value_type(mantissa_large >> std::numeric_limits<unsigned_small_type>::digits)));
         }
         else
         {
-          return negatable(0);
+          return x;
         }
       }
-      else
-      {
-        return negatable::value_quiet_nan();
-      }
     }
 
-    friend inline negatable sin(const negatable& x)
+    friend inline negatable ldexp(negatable x, int exp)
     {
-      if(negatable::is_quiet_nan(x))
-      {
-        return negatable::value_quiet_nan();
-      }
-      else
-      {
-        return cos(x - negatable(nothing(), make_unsigned_constant(26353589)));
-      }
+      return negatable(nothing(), value_type(x.data << exp));
     }
 
-    friend inline negatable cos(const negatable& x)
+    friend inline negatable sqrt(negatable x)
     {
-      if(negatable::is_quiet_nan(x))
-      {
-        return negatable::value_quiet_nan();
-      }
-      else
-      {
-        negatable xx = x;
+      // TBD: This implementation of square root seems to fail for low digit counts.
+      // TBD: This implementation of square root is inefficient for low digit counts.
 
-        if(x < 0) { xx = -xx; }
-
-        // TBD: Is plain int the right type for n here?
-        const int n = static_cast<int>(x * negatable(nothing(), make_unsigned_constant(10680707)));
-
-        xx = xx - (n * negatable(nothing(), make_unsigned_constant(26353589)));
-
-        bool x_sym = true;
-        bool y_sym = true;
-
-        if((n % 2) == 0) { y_sym = false; }
-        if((n % 3) == 0) { x_sym = y_sym = false; }
-        if((n % 4) == 0) { x_sym = y_sym = false; }
-
-        if(y_sym) { xx = negatable(nothing(), make_unsigned_constant(26353589)) - xx; }
-
-        const negatable x2  = xx * xx;
-
-        const negatable sum =         1
-                              + x2 * (negatable(nothing(), - make_unsigned_constant(8388607))
-                              + x2 * (negatable(nothing(), + make_unsigned_constant( 699050))
-                              + x2 * (negatable(nothing(), - make_unsigned_constant(  23300))
-                              + x2 * (negatable(nothing(), + make_unsigned_constant(    415))
-                              + x2 * (negatable(nothing(), - make_unsigned_constant(      4)))))));
-
-        return ((x_sym) ? -sum : sum);
-      }
-    }
-
-    friend inline negatable tan(const negatable& x)
-    {
-      if(negatable::is_quiet_nan(x))
-      {
-        return negatable::value_quiet_nan();
-      }
-      else
-      {
-        return sin(x) / cos(x);
-      }
-    }
-
-    friend inline negatable asin(const negatable& x)
-    {
-      if(negatable::is_quiet_nan(x))
-      {
-        return negatable::value_quiet_nan();
-      }
-      else if(x > 0)
-      {
-        if(x > 1)
-        {
-          return negatable::value_quiet_nan();
-        }
-        else
-        {
-          const negatable sum =          negatable(nothing(), + make_unsigned_constant(26353588))
-                                  + x * (negatable(nothing(), - make_unsigned_constant( 3600370))
-                                  + x * (negatable(nothing(), + make_unsigned_constant( 1492819))
-                                  + x * (negatable(nothing(), - make_unsigned_constant(  841785))
-                                  + x * (negatable(nothing(), + make_unsigned_constant(  518279))
-                                  + x * (negatable(nothing(), - make_unsigned_constant(  286691))
-                                  + x * (negatable(nothing(), + make_unsigned_constant(  111905))
-                                  + x * (negatable(nothing(), - make_unsigned_constant(   21181)))))))));
-
-          return negatable(nothing(), + make_unsigned_constant(26353589)) - (sqrt(1 - x) * sum);
-        }
-      }
-      else
-      {
-        return -asin(-x);
-      }
-    }
-
-    friend inline negatable acos(const negatable& x)
-    {
-      if(negatable::is_quiet_nan(x))
-      {
-        return negatable::value_quiet_nan();
-      }
-      else
-      {
-        return negatable(nothing(), make_unsigned_constant(26353589)) - asin(x);
-      }
-    }
-
-    friend inline negatable atan(const negatable& x)
-    {
-      if(negatable::is_quiet_nan(x))
-      {
-        return negatable::value_quiet_nan();
-      }
-      else if(x < 0)
-      {
-        return -atan(-x);
-      }
-      else if(x > 0)
-      {
-        if(x > 1)
-        {
-          return negatable(nothing(), + make_unsigned_constant(26353589)) - atan(1 / x);
-        }
-        else
-        {
-          const negatable x2 = x * x;
-
-          return     x * (negatable(nothing(), + make_unsigned_constant(16774967))
-                  + x2 * (negatable(nothing(), - make_unsigned_constant( 5541506))
-                  + x2 * (negatable(nothing(), + make_unsigned_constant( 3022264))
-                  + x2 * (negatable(nothing(), - make_unsigned_constant( 1428294))
-                  + x2 * (negatable(nothing(), + make_unsigned_constant(  349554)))))));
-        }
-      }
-      else
+      if(x.data <= value_type(0))
       {
         return negatable(0);
       }
-    }
-
-    friend inline negatable sinh(const negatable& x)
-    {
-      if(negatable::is_quiet_nan(x))
+      else if(x.data < radix_split_value<value_type>())
       {
-        return negatable::value_quiet_nan();
+        return 1 / (sqrt(1 / x));
       }
       else
       {
-        // TBD: Use a small argument approximation for small arguments.
-        const negatable ep = exp(x);
-        const negatable em = 1 / ep;
+        // Get the initial estimate of the square root.
 
-        return (ep - em) / 2;
-      }
-    }
+        // TBD: Is there a more efficient way to do this?
+        // TBD: Is this initial guess accurate enough in all situations?
 
-    friend inline negatable cosh(const negatable& x)
-    {
-      if(negatable::is_quiet_nan(x))
-      {
-        return negatable::value_quiet_nan();
-      }
-      else
-      {
-        const negatable ep = exp(x);
-        const negatable em = 1 / ep;
+        int expptr;
+        negatable mantissa = frexp(x, &expptr);
 
-        return (ep + em) / 2;
-      }
-    }
+        if((expptr & 1) != 0)
+        {
+          mantissa.data <<= 1;
+          --expptr;
+        }
 
-    friend inline negatable tanh(const negatable& x)
-    {
-      if(negatable::is_quiet_nan(x))
-      {
-        return negatable::value_quiet_nan();
-      }
-      else
-      {
-        const negatable ep = exp(+x);
-        const negatable em = 1 / ep;
+        negatable result(ldexp(mantissa, expptr / 2));
 
-        return (ep - em) / (ep + em);
-      }
-    }
+        // Estimate 1.0 / (2.0 * x0) using simple manipulations.
+        negatable vi = 1 / (result * 2);
 
-    friend inline negatable asinh(const negatable& x)
-    {
-      if(negatable::is_quiet_nan(x))
-      {
-        return negatable::value_quiet_nan();
-      }
-      else
-      {
-        return log(x + exp(log((x * x) + 1) / 2));
-      }
-    }
+        // Compute the square root of x using coupled Newton iteration.
+        static const negatable tolerance = value_epsilon() * 2;
 
-    friend inline negatable acosh(const negatable& x)
-    {
-      if(negatable::is_quiet_nan(x))
-      {
-        return negatable::value_quiet_nan();
-      }
-      else
-      {
-        return log(x + exp(log((x * x) - 1) / 2));
-      }
-    }
+        for(int i = 2; i < total_digits2; i *= 2)
+        {
+          // Perform the next iteration of vi.
+          vi += vi * (-((result * vi) * 2) + 1);
 
-    friend inline negatable atanh(const negatable& x)
-    {
-      if(negatable::is_quiet_nan(x))
-      {
-        return negatable::value_quiet_nan();
-      }
-      else
-      {
-        return log((1 + x) / (1 - x)) / 2;
+          // Perform the next iteration of the result.
+          const negatable iteration_term(vi * (-((result) * (result)) + x));
+
+          result += iteration_term;
+        }
+
+        return result;
       }
     }
   };
+  } } // namespace boost::fixed_point
 
-  } } }
-  // namespace boost::math::fixed_point
+  using boost::fixed_point::frexp;
+  using boost::fixed_point::ldexp;
+  using boost::fixed_point::sqrt;
 
   namespace std
   {
     // Provide a specialization of std::numeric_limits<negatable>.
     template<const int integral_range,
              const int decimal_resolution,
-             const boost::math::fixed_point::round::round_type round_mode,
-             const boost::math::fixed_point::overflow::overflow_type overflow_mode>
-    class numeric_limits<boost::math::fixed_point::negatable<integral_range, decimal_resolution, round_mode, overflow_mode> >
+             typename round_mode,
+             const boost::fixed_point::overflow::overflow_type overflow_mode>
+    class numeric_limits<boost::fixed_point::negatable<integral_range,
+                                                       decimal_resolution,
+                                                       round_mode,
+                                                       overflow_mode>>
     {
     private:
-      typedef boost::math::fixed_point::negatable<integral_range,
-                                                  decimal_resolution,
-                                                  round_mode,
-                                                  overflow_mode> negatable_type;
-
-      static const int range      = integral_range - decimal_resolution;
-      static const int resolution = decimal_resolution;
+      typedef boost::fixed_point::negatable<integral_range,
+                                            decimal_resolution,
+                                            round_mode,
+                                            overflow_mode> negatable_type;
 
     public:
-      static const bool                    is_specialized    = true;
-      static const int                     digits            = std::numeric_limits<typename negatable_type::value_type>::digits;
-      static const int                     digits10          = std::numeric_limits<typename negatable_type::value_type>::digits;
-      static const int                     max_digits10      = std::numeric_limits<typename negatable_type::value_type>::max_digits10;
-      static const bool                    is_signed         = true;
-      static const bool                    is_integer        = false;
-      static const bool                    is_exact          = true;
-      static const int                     radix             = 2;
-      static const int                     min_exponent      = -negatable_type::radix_split;
-      static const int                     min_exponent10    = static_cast<int>((static_cast<long>(min_exponent) * 301L) / 1000L);
-      static const int                     max_exponent      = std::numeric_limits<typename negatable_type::value_type>::digits - negatable_type::radix_split;
-      static const int                     max_exponent10    = static_cast<int>((static_cast<long>(max_exponent) * 301L) / 1000L);
-      static const bool                    has_infinity      = true;
-      static const bool                    has_quiet_NaN     = true;
-      static const bool                    has_signaling_NaN = false;
-      static const std::float_denorm_style has_denorm        = std::denorm_absent;
-      static const bool                    has_denorm_loss   = false;
-      static const bool                    is_iec559         = false;
-      static const bool                    is_bounded        = true;
-      static const bool                    is_modulo         = false;
-      static const bool                    traps             = false;
-      static const bool                    tinyness_before   = false;
-      static const std::float_round_style  round_style       = std::round_toward_zero;
+      // TBD: Both digits10 as well as max_digits10 could benefit
+      // from a better theoretical calculation (consistent with Kahan?).
 
-      static negatable_type (min)() throw()                  { return negatable_type::value_min(); }
-      static negatable_type (max)() throw()                  { return negatable_type::value_max(); }
-      static negatable_type lowest() throw()                 { return -(max)(); }
-      static negatable_type epsilon() throw()                { return negatable_type::value_epsilon(); }
-      static negatable_type round_error() throw()            { return negatable_type(1) / 2; }
-      static negatable_type infinity() throw()               { return negatable_type::value_infinity(); }
-      static negatable_type quiet_NaN() throw()              { return negatable_type::value_quiet_nan(); }
+      // TBD: Rounding mode and rounding error, etc. need to use
+      // the rounding type of the underlyinf fixed-point class.
+      // Question: Do we need template specializations for these?
+
+      BOOST_STATIC_CONSTEXPR bool                    is_specialized    = true;
+      BOOST_STATIC_CONSTEXPR int                     digits            = negatable_type::total_digits2 - 1;
+      BOOST_STATIC_CONSTEXPR int                     digits10          = static_cast<int>((static_cast<long>(digits) * 301L) / 1000L);
+      BOOST_STATIC_CONSTEXPR int                     max_digits10      = digits10 + 1;
+      BOOST_STATIC_CONSTEXPR bool                    is_signed         = true;
+      BOOST_STATIC_CONSTEXPR bool                    is_integer        = false;
+      BOOST_STATIC_CONSTEXPR bool                    is_exact          = true;
+      BOOST_STATIC_CONSTEXPR int                     radix             = 2;
+      BOOST_STATIC_CONSTEXPR int                     min_exponent      = -negatable_type::radix_split;
+      BOOST_STATIC_CONSTEXPR int                     min_exponent10    = static_cast<int>((static_cast<long>(min_exponent) * 301L) / 1000L);
+      BOOST_STATIC_CONSTEXPR int                     max_exponent      = std::numeric_limits<typename negatable_type::value_type>::digits - negatable_type::radix_split;
+      BOOST_STATIC_CONSTEXPR int                     max_exponent10    = static_cast<int>((static_cast<long>(max_exponent) * 301L) / 1000L);
+      BOOST_STATIC_CONSTEXPR bool                    has_infinity      = false;
+      BOOST_STATIC_CONSTEXPR bool                    has_quiet_NaN     = false;
+      BOOST_STATIC_CONSTEXPR bool                    has_signaling_NaN = false;
+      BOOST_STATIC_CONSTEXPR std::float_denorm_style has_denorm        = std::denorm_absent;
+      BOOST_STATIC_CONSTEXPR bool                    has_denorm_loss   = false;
+      BOOST_STATIC_CONSTEXPR bool                    is_iec559         = false;
+      BOOST_STATIC_CONSTEXPR bool                    is_bounded        = true;
+      BOOST_STATIC_CONSTEXPR bool                    is_modulo         = false;
+      BOOST_STATIC_CONSTEXPR bool                    traps             = false;
+      BOOST_STATIC_CONSTEXPR bool                    tinyness_before   = false;
+      BOOST_STATIC_CONSTEXPR std::float_round_style  round_style       = std::round_toward_zero;
+
+      BOOST_STATIC_CONSTEXPR negatable_type (min)      () throw()      { return negatable_type::value_min(); }
+      BOOST_STATIC_CONSTEXPR negatable_type (max)      () throw()      { return negatable_type::value_max(); }
+      BOOST_STATIC_CONSTEXPR negatable_type lowest     () throw()      { return -(max)(); }
+      BOOST_STATIC_CONSTEXPR negatable_type epsilon    () throw()      { return negatable_type::value_epsilon(); }
+      BOOST_STATIC_CONSTEXPR negatable_type round_error() throw()      { return negatable_type(1) / 2; }
+      BOOST_STATIC_CONSTEXPR negatable_type infinity   () throw()      { return negatable_type(0); }
+      BOOST_STATIC_CONSTEXPR negatable_type quiet_NaN  () throw()      { return negatable_type(0); }
     };
-  }
-  // namespace std
+  } // namespace std
+
 
 #endif // FIXED_POINT_2015_03_06_HPP_
-
-/*
-///////////////////////////////////////////////////////////////////////////////
-//  Copyright Christopher Kormanyos 2015.
-//  Distributed under the Boost Software License,
-//  Version 1.0. (See accompanying file LICENSE_1_0.txt
-//  or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
-
-// Test the fixed_point class.
-
-#include <iomanip>
-#include <iostream>
-#include "fixed_point.hpp"
-
-typedef boost::math::fixed_point::negatable<32, -24> fixed_point_type;
-
-int main()
-{
-  fixed_point_type x = fixed_point_type(10) / 3;
-  float            f = 10.0F / 3.0F;
-
-  std::cout << std::setprecision(std::numeric_limits<fixed_point_type>::digits10)
-            << x
-            << std::endl;
-  std::cout << std::setprecision(std::numeric_limits<float>::digits10)
-            << std::fixed << f
-            << std::endl;
-
-  std::cout << std::setprecision(std::numeric_limits<fixed_point_type>::digits10)
-            << cosh(x)
-            << std::endl;
-  std::cout << std::setprecision(std::numeric_limits<float>::digits10)
-            << std::fixed << cosh(f)
-            << std::endl;
-
-  std::cout << std::setprecision(std::numeric_limits<fixed_point_type>::digits10)
-            << cos(x)
-            << std::endl;
-  std::cout << std::setprecision(std::numeric_limits<float>::digits10)
-            << std::fixed << cos(f)
-            << std::endl;
-
-  std::cout << std::setprecision(std::numeric_limits<fixed_point_type>::digits10)
-            << log(x)
-            << std::endl;
-  std::cout << std::setprecision(std::numeric_limits<float>::digits10)
-            << std::fixed << log(f)
-            << std::endl;
-}
-*/
