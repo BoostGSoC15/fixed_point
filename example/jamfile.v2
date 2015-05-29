@@ -4,50 +4,56 @@
 
 # Copyright 2014 John Maddock
 # Copyright Paul A. Bristow 2014.
-# Copyright Christpher Kormanyos 2014
+# Copyright Christopher Kormanyos 2014
 
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-# bring in the rules for testing.
+# bjam command lines:
+#                    >b2 -a  # Just msvc debug
+#                    >b2 -a toolset=gcc                     # just gcc debug
+#                    >b2 -a toolset=gcc release             # just gcc release
+#                    >b2 -a toolset=msvc debug release      # both variants for msvc.
+#                    >b2 -a toolset=gcc,msvc debug release  # Both toolset and both variants.
 
-path-constant BOOST_ROOT : i:\modular-boost ;
-
-import testing ;
-import modules ;
-import path ;
+# optional redirect output > example.log
 
 project
-    : requirements
-     <include>../include
-     <include>../../..
-      <toolset>gcc:<cxxflags>-Wno-missing-braces
-      <toolset>darwin:<cxxflags>-Wno-missing-braces
-      <toolset>acc:<cxxflags>+W2068,2461,2236,4070
-      <toolset>intel:<cxxflags>-Qwd264,239
-      <toolset>msvc:<runtime-link>static
-      <toolset>msvc:<link>static
-      <toolset>msvc:<warnings>all
-      <toolset>msvc:<asynch-exceptions>on
-      <toolset>msvc:<define>_CRT_SECURE_NO_DEPRECATE
-      <toolset>msvc:<define>_SCL_SECURE_NO_DEPRECATE
-      <toolset>msvc:<define>_SCL_SECURE_NO_WARNINGS
-      <toolset>msvc:<define>_CRT_SECURE_NO_WARNINGS
-      <toolset>msvc:<cxxflags>/wd4996
-      <toolset>msvc:<cxxflags>/wd4512
-      <toolset>msvc:<cxxflags>/wd4610
-      <toolset>msvc:<cxxflags>/wd4510
-      <toolset>msvc:<cxxflags>/wd4127
-      <toolset>msvc:<cxxflags>/wd4701
-      <toolset>msvc:<cxxflags>/wd4127
-      <toolset>msvc:<cxxflags>/wd4305
-    ;
+   : requirements
 
-run fixed_point_demo.cpp ;
+     <include>../include # fixed-point/include
+     <include>../../.. # modular-boost root
+     #toolset requirements.
+     # GCC requirements.
+    <toolset>gcc:<cxxflags>-std=gnu++11 # fixed-point requires C++11 library.
+    <toolset>gcc:<cxxflags>-Wno-unused-local-typedefs
+    <toolset>gcc:<cxxflags>-Wno-missing-braces
+    # Clang requirements.
+    <toolset>clang:<cxxflags>-std=c++11 # fixed-point requires C++11 library.
+    # Others:
+    <toolset>darwin:<cxxflags>-Wno-missing-braces
+    <toolset>acc:<cxxflags>+W2068,2461,2236,4070
+    <toolset>intel:<cxxflags>-Qwd264,239
+    # MSVC requirements.
+    <toolset>msvc:<runtime-link>static
+    <toolset>msvc:<link>static
+    <toolset>msvc:<warnings>all
+    <toolset>msvc:<asynch-exceptions>on
+    <toolset>msvc:<define>_CRT_SECURE_NO_DEPRECATE
+    <toolset>msvc:<define>_SCL_SECURE_NO_DEPRECATE
+    <toolset>msvc:<define>_SCL_SECURE_NO_WARNINGS
+    <toolset>msvc:<define>_CRT_SECURE_NO_WARNINGS
+    <toolset>msvc:<cxxflags>/wd4996
+    <toolset>msvc:<cxxflags>/wd4512
+    <toolset>msvc:<cxxflags>/wd4610
+    <toolset>msvc:<cxxflags>/wd4510
+    <toolset>msvc:<cxxflags>/wd4127
+    <toolset>msvc:<cxxflags>/wd4701
+    <toolset>msvc:<cxxflags>/wd4127
+    <toolset>msvc:<cxxflags>/wd4305
+  ;
 
-#run float128_snips.cpp quadmath : : : [ check-target-builds ../config//has_float128 : : <build>no ] ;
-#run numeric_limits_snips.cpp /boost//test_exec_monitor : : : [ requires cxx11_numeric_limits ]   ;
-#run random_snips.cpp gmp : : : [ check-target-builds ../config//has_gmp : : <build>no ] ;
+run fixed_point_demo_basic.cpp ;
 
 
 
