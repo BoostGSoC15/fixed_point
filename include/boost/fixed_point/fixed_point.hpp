@@ -50,9 +50,8 @@
       static BOOST_CONSTEXPR_OR_CONST std::float_round_style round_style = std::round_indeterminate;
 
       template<typename from, typename to>
-      static to round(from const& rhs, int from_resolution, int to_resolution)
+      static to round(from const& rhs, int from_resolution, int to_resolution, bool result_is_neg)
       {
-        // TBD: Right now same as round::negative.
 
         int shift_by = to_resolution - from_resolution;
 
@@ -76,11 +75,25 @@
       static BOOST_CONSTEXPR_OR_CONST std::float_round_style round_style = std::round_toward_neg_infinity;
 
       template <typename from, typename to>
-      static to round (from const& rhs, int from_resolution, int to_resolution)
+      static to round (from const& rhs, int from_resolution, int to_resolution, bool result_is_neg)
       {
+        /*!
+         * We will work with unsigned numbers only here
+         * since bitwise shift is undefined on signed numbers.
+         */
+
+        // TBD: Inspect why this static assert fails. 
+        //static_assert( std::is_unsigned<from>::value,
+                       //"Error: The first argument should be unsigned.");
+
         int shift_by = to_resolution - from_resolution;
 
         from rounded_value = rhs >> shift_by;
+
+        if(result_is_neg)
+        {
+          rounded_value += 1;
+        }
 
         return static_cast<to>(rounded_value);
       }
@@ -370,12 +383,19 @@
 
       unsigned_large_type result((!u_is_neg) ? data : -data);
 
+      /*!
+       * We will be doing unsigned multiplication for two reasons primarliy:
+       * Unsigned multiplication is often considered to be faster on hardware.
+       * More importantly, bitwise shift is undefined on signed numbers.
+       */
       result *= ((!v_is_neg) ? unsigned_large_type(v.data) : unsigned_large_type(-v.data));
 
-      // We need to make this conversion for round::negative to work correctly.
-      signed_round_type signed_result((!result_is_neg) ? signed_round_type(result) : -signed_round_type(result));
+      data = round_mode::template round<unsigned_large_type, value_type>(result, 2 * resolution, resolution, result_is_neg);
 
-      data = round_mode::template round<signed_round_type, value_type>(signed_result, 2 * resolution, resolution);
+      if(result_is_neg)
+      {
+        data = -data;
+      }
 
       return *this;
     }
