@@ -45,7 +45,7 @@
 
   template<const unsigned bit_count>
   struct integer_type_helper<bit_count,
-                              typename std::enable_if<(bit_count <= 8U)>::type>
+                             typename std::enable_if<(bit_count <= 8U)>::type>
   {
     typedef boost::int8_t  exact_signed_type;
     typedef boost::uint8_t exact_unsigned_type;
@@ -53,8 +53,8 @@
 
   template<const unsigned bit_count>
   struct integer_type_helper<bit_count,
-                              typename std::enable_if<   (bit_count >   8U)
-                                                      && (bit_count <= 16U)>::type>
+                             typename std::enable_if<   (bit_count >   8U)
+                                                     && (bit_count <= 16U)>::type>
   {
     typedef boost::int16_t  exact_signed_type;
     typedef boost::uint16_t exact_unsigned_type;
@@ -62,8 +62,8 @@
 
   template<const unsigned bit_count>
   struct integer_type_helper<bit_count,
-                              typename std::enable_if<   (bit_count >  16U)
-                                                      && (bit_count <= 32U)>::type>
+                             typename std::enable_if<   (bit_count >  16U)
+                                                     && (bit_count <= 32U)>::type>
   {
     typedef boost::int32_t  exact_signed_type;
     typedef boost::uint32_t exact_unsigned_type;
@@ -71,8 +71,8 @@
 
   template<const unsigned bit_count>
   struct integer_type_helper<bit_count,
-                              typename std::enable_if<   (bit_count >  32U)
-                                                      && (bit_count <= 64U)>::type>
+                             typename std::enable_if<   (bit_count >  32U)
+                                                     && (bit_count <= 64U)>::type>
   {
     typedef boost::int64_t  exact_signed_type;
     typedef boost::uint64_t exact_unsigned_type;
