@@ -26,12 +26,12 @@ BOOST_AUTO_TEST_CASE(fixed_point_multiply_negative_round)
   //! small range and resolution
   {
   	typedef boost::fixed_point::negatable<4, -2, boost::fixed_point::round::negative> fixed_point_type_negative_round;
-    fixed_point_type_negative_round x = fixed_point_type_negative_round (-1.25) * fixed_point_type_negative_round (1.5);
-    fixed_point_type_negative_round y = fixed_point_type_negative_round(-2);
+    fixed_point_type_negative_round x = fixed_point_type_negative_round (-1.33);
+    fixed_point_type_negative_round y = fixed_point_type_negative_round(-1.5);    
 
     BOOST_CHECK_EQUAL(x, y);
 
-    x = fixed_point_type_negative_round (1.25) * fixed_point_type_negative_round (1.5);
+    x = fixed_point_type_negative_round (1.98);
     y = fixed_point_type_negative_round (1.75);
 
     BOOST_CHECK_EQUAL(x, y);
@@ -39,13 +39,13 @@ BOOST_AUTO_TEST_CASE(fixed_point_multiply_negative_round)
 
   //! larger range and small resolution
   {
-  	typedef boost::fixed_point::negatable<400, -2, boost::fixed_point::round::negative> fixed_point_type_negative_round;
-    fixed_point_type_negative_round x = fixed_point_type_negative_round (-1.25) * fixed_point_type_negative_round (1.5);
-    fixed_point_type_negative_round y = fixed_point_type_negative_round(-2);
+    typedef boost::fixed_point::negatable<400, -2, boost::fixed_point::round::negative> fixed_point_type_negative_round;
+    fixed_point_type_negative_round x = fixed_point_type_negative_round (-1.33);
+    fixed_point_type_negative_round y = fixed_point_type_negative_round(-1.5);    
 
     BOOST_CHECK_EQUAL(x, y);
 
-    x = fixed_point_type_negative_round (1.25) * fixed_point_type_negative_round (1.5);
+    x = fixed_point_type_negative_round (1.98);
     y = fixed_point_type_negative_round (1.75);
 
     BOOST_CHECK_EQUAL(x, y);
@@ -54,12 +54,12 @@ BOOST_AUTO_TEST_CASE(fixed_point_multiply_negative_round)
   //! larger range and larger resolution
   {
   	typedef boost::fixed_point::negatable<87, -4, boost::fixed_point::round::negative> fixed_point_type_negative_round;
-    fixed_point_type_negative_round x = fixed_point_type_negative_round (800.4375) * fixed_point_type_negative_round (-7.5625);
+    fixed_point_type_negative_round x = fixed_point_type_negative_round (-6053.2777);
     fixed_point_type_negative_round y = fixed_point_type_negative_round(-6053.3125);
 
     BOOST_CHECK_EQUAL(x, y);
 
-    x = fixed_point_type_negative_round (800.4375) * fixed_point_type_negative_round (7.5625);
+    x = fixed_point_type_negative_round (6053.2777);
     y = fixed_point_type_negative_round (6053.25);
 
     BOOST_CHECK_EQUAL(x, y);
@@ -68,34 +68,34 @@ BOOST_AUTO_TEST_CASE(fixed_point_multiply_negative_round)
 
 BOOST_AUTO_TEST_CASE(fixed_point_multiply_fastest_round)
 {
-  //! small range and resolution	
+  //! small range and resolution
   {
   	typedef boost::fixed_point::negatable<4, -2, boost::fixed_point::round::fastest> fixed_point_type_fastest_round;
-    fixed_point_type_fastest_round x = fixed_point_type_fastest_round (-1.25) * fixed_point_type_fastest_round (1.5);
-    fixed_point_type_fastest_round y = fixed_point_type_fastest_round(-2);
-    fixed_point_type_fastest_round z = fixed_point_type_fastest_round(-1.75);
+    fixed_point_type_fastest_round x = fixed_point_type_fastest_round (-1.33);
+    fixed_point_type_fastest_round y = fixed_point_type_fastest_round(-1.25);
+    fixed_point_type_fastest_round z = fixed_point_type_fastest_round(-1.5);
 
     BOOST_CHECK_EQUAL(x == y || x == z, true);
 
-    x = fixed_point_type_fastest_round (1.25) * fixed_point_type_fastest_round (1.5);
-    y = fixed_point_type_fastest_round (1.75);
-    z = fixed_point_type_fastest_round (2);
+    x = fixed_point_type_fastest_round (1.33);
+    y = fixed_point_type_fastest_round (1.25);
+    z = fixed_point_type_fastest_round (1.5);
 
     BOOST_CHECK_EQUAL(x == y || x == z, true);
   }
 
   //! larger range and small resolution
   {
-  	typedef boost::fixed_point::negatable<400, -2, boost::fixed_point::round::fastest> fixed_point_type_fastest_round;
-    fixed_point_type_fastest_round x = fixed_point_type_fastest_round (-1.25) * fixed_point_type_fastest_round (1.5);
-    fixed_point_type_fastest_round y = fixed_point_type_fastest_round(-2);
-    fixed_point_type_fastest_round z = fixed_point_type_fastest_round(-1.75);
+    typedef boost::fixed_point::negatable<400, -2, boost::fixed_point::round::fastest> fixed_point_type_fastest_round;
+    fixed_point_type_fastest_round x = fixed_point_type_fastest_round (-1.33);
+    fixed_point_type_fastest_round y = fixed_point_type_fastest_round(-1.25);
+    fixed_point_type_fastest_round z = fixed_point_type_fastest_round(-1.5);
 
     BOOST_CHECK_EQUAL(x == y || x == z, true);
 
-    x = fixed_point_type_fastest_round (1.25) * fixed_point_type_fastest_round (1.5);
-    y = fixed_point_type_fastest_round (1.75);
-    z = fixed_point_type_fastest_round (2);
+    x = fixed_point_type_fastest_round (1.33);
+    y = fixed_point_type_fastest_round (1.25);
+    z = fixed_point_type_fastest_round (1.5);
 
     BOOST_CHECK_EQUAL(x == y || x == z, true);
   }
@@ -103,13 +103,13 @@ BOOST_AUTO_TEST_CASE(fixed_point_multiply_fastest_round)
   //! larger range and larger resolution
   {
   	typedef boost::fixed_point::negatable<87, -4, boost::fixed_point::round::fastest> fixed_point_type_fastest_round;
-    fixed_point_type_fastest_round x = fixed_point_type_fastest_round (800.4375) * fixed_point_type_fastest_round (-7.5625);
+    fixed_point_type_fastest_round x = fixed_point_type_fastest_round (-6053.2777);
     fixed_point_type_fastest_round y = fixed_point_type_fastest_round(-6053.3125);
     fixed_point_type_fastest_round z = fixed_point_type_fastest_round(-6053.25);
 
     BOOST_CHECK_EQUAL(x == y || x == z, true);
 
-    x = fixed_point_type_fastest_round (800.4375) * fixed_point_type_fastest_round (7.5625);
+    x = fixed_point_type_fastest_round (6053.2777);
     y = fixed_point_type_fastest_round (6053.3125);
     z = fixed_point_type_fastest_round (6053.25);
 
