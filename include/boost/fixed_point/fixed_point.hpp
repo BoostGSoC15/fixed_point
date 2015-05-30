@@ -52,7 +52,6 @@
       template<typename from, typename to>
       static to round(from const& rhs, int from_resolution, int to_resolution, bool result_is_neg)
       {
-        // TBD: Right now same as round::negative.
 
         int shift_by = to_resolution - from_resolution;
 

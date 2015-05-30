@@ -54,4 +54,6 @@ project checks
 test-suite "Fixed_point"
     :
       [ run test_fixed_point_basic.cpp boost_unit_test ]
+      [ run test_fixed_point_multiply.cpp fixed_point_multiply_negative_round ]
+      [ run test_fixed_point_multiply.cpp fixed_point_multiply_fastest_round ]
     ;
