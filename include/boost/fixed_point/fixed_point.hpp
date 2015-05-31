@@ -82,9 +82,8 @@
          * since bitwise shift is undefined on signed numbers.
          */
 
-        // TBD: Inspect why this static assert fails. 
-        //static_assert( std::is_unsigned<from>::value,
-                       //"Error: The first argument should be unsigned.");
+        static_assert( std::numeric_limits<from>::is_signed == false,
+                       "Error: The first argument should be unsigned.");
 
         int shift_by = to_resolution - from_resolution;
 
