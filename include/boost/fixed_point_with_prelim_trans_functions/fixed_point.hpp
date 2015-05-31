@@ -15,6 +15,7 @@
   #define FIXED_POINT_2015_03_06_HPP_
 
   #include <algorithm>
+  #include <array>
   #include <cmath>
   #include <iomanip>
   #include <istream>
@@ -86,7 +87,7 @@
       }
 
       template<typename initialize_type, typename underlying_type, int resolution>
-      static void round_construct (const initialize_type &value, underlying_type &data)
+      static void round_construct(const initialize_type &value, underlying_type &data)
       {
         // TBD: this works under the assumption that without any work,
         // the default behavior happens to be similar to round::truncated.
@@ -100,7 +101,7 @@
           // TBD: I don't really like dividing here,
           // not sure if there's a better way though.
 
-          initialize_type scale = value / fixed_point::detail::radix_split_maker<initialize_type, resolution>::value ();
+          initialize_type scale = value / fixed_point::detail::radix_split_maker<initialize_type, resolution>::value();
 
           // No rounding needed if perfectly divisible.
           // TBD: Is floor inefficient here and elsewhere in the program?
@@ -159,6 +160,31 @@
              typename round_mode,
              const overflow::overflow_type overflow_mode>
     class negatable;
+
+    // Forward declarations of elementary and transcendental functions.
+    template<const int integral_range,
+             const int decimal_resolution,
+             typename round_mode,
+             const overflow::overflow_type overflow_mode>
+    inline negatable<integral_range,
+                     decimal_resolution,
+                     round_mode,
+                     overflow_mode> abs(negatable<integral_range,
+                                                  decimal_resolution,
+                                                  round_mode,
+                                                  overflow_mode> x);
+
+    template<const int integral_range,
+             const int decimal_resolution,
+             typename round_mode,
+             const overflow::overflow_type overflow_mode>
+    inline negatable<integral_range,
+                     decimal_resolution,
+                     round_mode,
+                     overflow_mode> fabs(negatable<integral_range,
+                                                   decimal_resolution,
+                                                   round_mode,
+                                                   overflow_mode> x);
 
     template<const int integral_range,
              const int decimal_resolution,
@@ -228,10 +254,11 @@
     static_assert( resolution < 0,
                   "Error: The resolution of negatable must be fractional (negative).");
     static_assert(-resolution < total_digits2,
-                  "Error: The resolution of negatable exceeds its available total total range.");
+                  "Error: The resolution of negatable exceeds its available total range.");
     static_assert(range > 0,
-                  "Error: The range of negatable must be at least one (minimally to hold the sign bit).");
-    static_assert( std::is_same<round_mode, round::fastest>::value || std::is_same<round_mode, round::negative>::value,
+                  "Error: The range of negatable must be 1 or more (at least 1 for the sign bit).");
+    static_assert(   std::is_same<round_mode, round::fastest>::value
+                  || std::is_same<round_mode, round::negative>::value,
                   "Error: only negative and fastest round modes supported at the moment");
 
     #if defined(DEBUG_PRINT_IS_ENABLED)
@@ -324,8 +351,8 @@
                                             || std::is_same<integral_type, value_type>::value>::type* = nullptr) : data(value_type(n) * radix_split_value<value_type>())
     {
       #if defined(DEBUG_PRINT_IS_ENABLED)
-        std::cout << typeid(integral_type).name() <<"\n";
-        std::cout << sizeof(integral_type)        <<"\n";
+        std::cout << typeid(integral_type).name() << "\n";
+        std::cout << sizeof(integral_type)        << "\n";
 
         std::cout << typeid(value_type).name() << "\n";
         std::cout << sizeof(value_type)        << "\n";
@@ -341,9 +368,32 @@
 
     template<typename floating_point_type>
     negatable(const floating_point_type& f,
-              const typename std::enable_if<std::is_floating_point<floating_point_type>::value>::type* = nullptr) : data(value_type(f * radix_split_value<floating_point_type>()))
+              const typename std::enable_if<std::is_floating_point<floating_point_type>::value>::type* = nullptr)
     {
-      round_mode::template round_construct<floating_point_type, value_type, resolution> (f, data);
+      typedef
+      typename detail::integer_type_helper<unsigned(std::numeric_limits<floating_point_type>::digits)>::exact_signed_type
+      unsigned_integer_conversion_type;
+
+      const bool is_neg = (f < 0);
+
+      int exp;
+      const floating_point_type fp = std::frexp((!is_neg) ? f : -f, &exp);
+
+      const unsigned_integer_conversion_type u = static_cast<unsigned_integer_conversion_type>(std::ldexp(fp, std::numeric_limits<floating_point_type>::digits));
+
+      const int total_left_shift =   (radix_split + exp)
+                                   - std::numeric_limits<floating_point_type>::digits;
+
+      data = ((total_left_shift >= 0) ? value_type(unsigned_small_type(u) << +total_left_shift)
+                                      : value_type(unsigned_small_type(u) >> -total_left_shift));
+
+      if(is_neg)
+      {
+        data = -data;
+      }
+
+      // TBD: Re-establish the rounding.
+      //round_mode::template round_construct<floating_point_type, value_type, resolution>(f, data);
 
       #if defined(DEBUG_PRINT_IS_ENABLED)
         print_bits(data);
@@ -816,6 +866,9 @@
       }
     };
 
+    friend inline negatable  abs(negatable x) { return ((x.data < value_type(0)) ? -x : x); }
+    friend inline negatable fabs(negatable x) { return ((x.data < value_type(0)) ? -x : x); }
+
     friend inline negatable frexp(negatable x, int* expptr)
     {
       *expptr = 0;
@@ -874,13 +927,30 @@
 
     friend inline negatable ldexp(negatable x, int exp)
     {
-      return negatable(nothing(), value_type(x.data << exp));
+      if(exp > 0)
+      {
+        return negatable(nothing(), value_type(x.data << exp));
+      }
+      else if(exp < 0)
+      {
+        const bool is_neg = (x.data < value_type(0));
+
+        unsigned_small_type result((!is_neg) ? unsigned_small_type(x.data) : unsigned_small_type(-x.data));
+
+        result = result >> -exp;
+
+        return negatable(nothing(), value_type((!is_neg) ? value_type(result) : -value_type(result)));
+      }
+      else
+      {
+        return x;
+      }
     }
 
     friend inline negatable sqrt(negatable x)
     {
       // TBD: This implementation of square root seems to fail for low digit counts.
-      // TBD: This implementation of square root is inefficient for low digit counts.
+      // TBD: This implementation of square root is far too inefficient for low digit counts.
 
       if(x.data <= value_type(0))
       {
@@ -892,6 +962,15 @@
       }
       else
       {
+        static const std::array<value_type, 4U> initial_guess_table =
+        {{
+          // TBD: Compute some initial guesses and tabulate them as constant values.
+          value_type(),
+          value_type(),
+          value_type(),
+          value_type(),
+        }};
+
         // Get the initial estimate of the square root.
 
         // TBD: Is there a more efficient way to do this?
@@ -908,21 +987,18 @@
 
         negatable result(ldexp(mantissa, expptr / 2));
 
-        // Estimate 1.0 / (2.0 * x0) using simple manipulations.
+        // Estimate the zeroth term of the iteration = 1 / (2 * result).
         negatable vi = 1 / (result * 2);
 
         // Compute the square root of x using coupled Newton iteration.
-        static const negatable tolerance = value_epsilon() * 2;
 
-        for(int i = 2; i < total_digits2; i *= 2)
+        for(unsigned i = 1U; i < unsigned(total_digits2); i *= 2U)
         {
           // Perform the next iteration of vi.
           vi += vi * (-((result * vi) * 2) + 1);
 
           // Perform the next iteration of the result.
-          const negatable iteration_term(vi * (-((result) * (result)) + x));
-
-          result += iteration_term;
+          result += (vi * (-((result) * (result)) + x));
         }
 
         return result;
@@ -931,6 +1007,8 @@
   };
   } } // namespace boost::fixed_point
 
+  using boost::fixed_point::abs;
+  using boost::fixed_point::fabs;
   using boost::fixed_point::frexp;
   using boost::fixed_point::ldexp;
   using boost::fixed_point::sqrt;

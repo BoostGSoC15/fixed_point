@@ -300,8 +300,8 @@
                                             || std::is_same<integral_type, value_type>::value>::type* = nullptr) : data(value_type(n) * radix_split_value<value_type>())
     {
       #if defined(DEBUG_PRINT_IS_ENABLED)
-        std::cout << typeid(integral_type).name() <<"\n";
-        std::cout << sizeof(integral_type)        <<"\n";
+        std::cout << typeid(integral_type).name() << "\n";
+        std::cout << sizeof(integral_type)        << "\n";
 
         std::cout << typeid(value_type).name() << "\n";
         std::cout << sizeof(value_type)        << "\n";
@@ -432,6 +432,7 @@
     template<typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type> negatable& operator*=(T& n) { return (*this) *= negatable(n); }
     template<typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type> negatable& operator/=(T& n) { return (*this) /= negatable(n); }
 
+    // Cast operators for built-in integer types.
     operator char     () { return static_cast<char>     (data / radix_split_value<value_type>()); }
     operator short    () { return static_cast<short>    (data / radix_split_value<value_type>()); }
     operator int      () { return static_cast<int>      (data / radix_split_value<value_type>()); }
@@ -444,52 +445,10 @@
     operator unsigned long     () { return static_cast<unsigned long>     (unsigned_small_type(data) >> radix_split); }
     operator unsigned long long() { return static_cast<unsigned long long>(unsigned_small_type(data) >> radix_split); }
 
-    // Floating-point cast operators for float, double and long double.
-
-    // TBD: Can we make use of a private template member function
-    // in order to localize the conversion code to one spot.
-
-    operator float()
-    {
-      const bool is_neg = (data < static_cast<value_type>(0));
-
-      const unsigned_small_type x = static_cast<unsigned_small_type>((!is_neg) ? data : -data);
-
-      const unsigned_small_type integer_part = (x >> radix_split);
-      const unsigned_small_type decimal_part = x - (integer_part << radix_split);
-
-      const float f = static_cast<float>(integer_part) + (static_cast<float>(decimal_part) / radix_split_value<float>());
-
-      return ((!is_neg) ? f : -f);
-    }
-
-    operator double()
-    {
-      const bool is_neg = (data < static_cast<value_type>(0));
-
-      const unsigned_small_type x = static_cast<unsigned_small_type>((!is_neg) ? data : -data);
-
-      const unsigned_small_type integer_part = (x >> radix_split);
-      const unsigned_small_type decimal_part = x - (integer_part << radix_split);
-
-      const double f = static_cast<double>(integer_part) + (static_cast<double>(decimal_part) / radix_split_value<double>());
-
-      return ((!is_neg) ? f : -f);
-    }
-
-    operator long double()
-    {
-      const bool is_neg = (data < static_cast<value_type>(0));
-
-      const unsigned_small_type x = static_cast<unsigned_small_type>((!is_neg) ? data : -data);
-
-      const unsigned_small_type integer_part = (x >> radix_split);
-      const unsigned_small_type decimal_part = x - (integer_part << radix_split);
-
-      const long double f = static_cast<long double>(integer_part) + (static_cast<long double>(decimal_part) / radix_split_value<long double>());
-
-      return ((!is_neg) ? f : -f);
-    }
+    // Cast operators for built-in floating-point types.
+    operator float      () { return convert_to_floating_point_type<float>      (); }
+    operator double     () { return convert_to_floating_point_type<double>     (); }
+    operator long double() { return convert_to_floating_point_type<long double>(); }
 
   private:
     value_type data;
@@ -515,6 +474,22 @@
               const integral_type& n,
               const typename std::enable_if<   std::is_integral<integral_type>::value
                                             || std::is_same<value_type, integral_type>::value>::type* = nullptr) : data(n) { }
+
+    template<typename floating_point_type>
+    floating_point_type convert_to_floating_point_type() const
+    {
+      const bool is_neg = (data < static_cast<value_type>(0));
+
+      const unsigned_small_type x((!is_neg) ? data : -data);
+
+      const unsigned_small_type integer_part(x >> radix_split);
+      const unsigned_small_type decimal_part(x - (integer_part << radix_split));
+
+      const floating_point_type f =   floating_point_type(integer_part)
+                                    + floating_point_type(floating_point_type(decimal_part) / radix_split_value<floating_point_type>());
+
+      return ((!is_neg) ? f : -f);
+    }
 
     static const negatable& value_epsilon()
     {
