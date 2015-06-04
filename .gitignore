@@ -1,0 +1,5 @@
+# .gitignore for fixed-point, ignoring all generated docs and log files.
+#  Also ignore the results of Boost Inspect program that check for bad html links in documentation.
+/doc/html
+/doc/inspect.htm
+/**/*.log
