@@ -28,14 +28,14 @@ typedef boost::fixed_point::negatable<87, -2, boost::fixed_point::round::positiv
 
 BOOST_AUTO_TEST_CASE(fixed_point_basic)
 {
-  
+
   BOOST_TEST(true);
-  
+
   { // Plain fixed-point
     typedef boost::fixed_point::negatable<32, -16> fixed_point_type;
-  
+
     fixed_point_type x123 = fixed_point_type(-100) / 100;
-  
+
     std::cout << x123 << std::endl; // -1 with default ostream settings.
     std::ostringstream os;
     std::streamsize precision = os.precision(std::numeric_limits<fixed_point_type>::digits10);
@@ -44,17 +44,16 @@ BOOST_AUTO_TEST_CASE(fixed_point_basic)
     BOOST_TEST_CHECK(os.str() == "-1.0000000000000");
   }
   {// fastest round
-  
+
     fixed_point_type_fastest_round x = fixed_point_type_fastest_round(-1.26);
-    std::cout << x << std::endl; // 
-  
+    std::cout << x << std::endl; //
+
     std::ostringstream os;
     os.precision(std::numeric_limits<fixed_point_type_fastest_round>::digits10);
     os << x;
     BOOST_TEST_CHECK(os.str() == "-1.25");
   }
-  
-    
+
 }
 
 /*
