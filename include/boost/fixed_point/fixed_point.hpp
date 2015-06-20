@@ -20,146 +20,62 @@
   #include <istream>
   #include <limits>
   #include <ostream>
-  #include <sstream>
   #include <boost/fixed_point/fixed_point_detail.hpp>
   #include <boost/math/constants/constants.hpp>
 
-  //#define DEBUG_PRINT_IS_ENABLED
+  // TBD: Consider supporting certain options for fixed_point
+  // with preprocessor definitions. Some ideas include:
+
+  //#define BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
+  //#define BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH
+  //#define BOOST_FIXED_POINT_DISABLE_IOSTREAM
+  //#define BOOST_FIXED_POINT_DISABLE_CPP11
+
+  // TBD: With BOOST_FIXED_POINT_DISABLE_MULTIPRECISION,
+  // we would disable the use of Boost.Multiprecision
+  // for back-ends of the fixed-point classes.
+
+  // TBD: With BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH,
+  // we avoid using the unsigned_large_type. This option
+  // is intended for systems with limited integer widths
+  // such as bare-metal microcontrollers.
+  // When used in combination with BOOST_FIXED_POINT_DISABLE_MULTIPRECISION,
+  // the this option is intended to provide fixed-point representations
+  // with up to 64-bits (if 64-bit integral types are available)
+  // without requiring any of Boost.Multiprecision.
+
+  // TBD: With BOOST_FIXED_POINT_DISABLE_IOSTREAM, we would disable
+  // all I/O streaming and the inclusion of associated standard
+  // library headers. This is intended to eliminate I/O stream
+  // overhead in particular for bare-metal microcontroller projects.
+
+  // TBD: With BOOST_FIXED_POINT_DISABLE_CPP11, we would decide
+  // to support an optional back-port to C++03 and eliminate
+  // the use of all C++11 language elements. This might send the
+  // wrong message about language technology, but could potentially
+  // increase the range of potential target compilers (especially
+  // for embedded systems).
 
   namespace boost { namespace fixed_point {
 
   namespace round
   {
-    /*
-    typedef enum round_type
-    {
-      fastest,       // Speed is more important than the choice in value.
-      negative,      // Round towards negative infinity. This mode is useful in interval arithmetic.
-      truncated,     // Round towards zero. This mode is useful in implementing integral arithmetic.
-      positive,      // Round towards positive infinity. This mode is useful in interval arithmetic.
-      classic,       // Round towards the nearest value, but exactly-half values are rounded towards maximum magnitude. This mode is the standard school algorithm.
-      nearest_even,  // Round towards the nearest value, but exactly-half values are rounded towards even values. This mode has more balance than the classic mode.
-      nearest_odd,   // Round towards the nearest value, but exactly-half values are rounded towards odd values. This mode has as much balance as the near_even mode, but preserves more information.
-    }
-    round_type;
-    */
-
-    // Speed is more important than the choice in value.
-    struct fastest
-    {
-      static BOOST_CONSTEXPR_OR_CONST std::float_round_style round_style = std::round_indeterminate;
-
-      template<typename from, typename to>
-      static to round(from const& rhs, int from_resolution, int to_resolution, bool result_is_neg)
-      {
-
-        int shift_by = to_resolution - from_resolution;
-
-        from rounded_value = rhs >> shift_by;
-
-        return static_cast<to>(rounded_value);
-      }
-
-      template<typename initialize_type, typename underlying_type, int resolution>
-      static void round_construct(const initialize_type& value, underlying_type& data)
-      {
-        static_cast<void>(value);
-        static_cast<void>(data);
-      }
-    };
-
-    // Rounds toward negative infinity.
-    // This mode is useful in interval arithmetic.
-    struct negative
-    {
-      static BOOST_CONSTEXPR_OR_CONST std::float_round_style round_style = std::round_toward_neg_infinity;
-
-      template <typename from, typename to>
-      static to round (from const& rhs, int from_resolution, int to_resolution, bool result_is_neg)
-      {
-        /*!
-         * We will work with unsigned numbers only here
-         * since bitwise shift is undefined on signed numbers.
-         */
-
-        static_assert( std::numeric_limits<from>::is_signed == false,
-                       "Error: The first argument should be unsigned.");
-
-        int shift_by = to_resolution - from_resolution;
-
-        from rounded_value = rhs >> shift_by;
-
-        if(result_is_neg)
-        {
-          rounded_value += 1;
-        }
-
-        return static_cast<to>(rounded_value);
-      }
-
-      template<typename initialize_type, typename underlying_type, int resolution>
-      static void round_construct (const initialize_type &value, underlying_type &data)
-      {
-        // TBD: this works under the assumption that without any work,
-        // the default behavior happens to be similar to round::truncated.
-        // I'm not sure if this is machine specific though.
-
-        // Check if number is already perfectly representable;
-        // no need to round then.
-
-        if(resolution > 0)
-        {
-          // TBD: I don't really like dividing here,
-          // not sure if there's a better way though.
-
-          initialize_type scale = value / fixed_point::detail::radix_split_maker<initialize_type, resolution>::value ();
-
-          // No rounding needed if perfectly divisible.
-          // TBD: Is floor inefficient here and elsewhere in the program?
-          // Is there a better choice than using floor?
-
-          if(floor(scale) == scale)
-          {
-            return;
-          }
-        }
-
-        if(resolution < 0)
-        {
-          initialize_type scale = value * fixed_point::detail::radix_split_maker<initialize_type, -resolution>::value();
-
-          // No rounding needed if perfectly divisible.
-          if(floor(scale) == scale)
-          {
-            return;
-          }
-        }
-
-        // Since the default rounding behaviour is towards_zero/truncated,
-        // for values > 0, behaviour is same as towards_zero.
-        if(value < 0)
-        {
-          --data;
-        }
-      }
-    };
-
-    struct positive
-    {
-    };
+    struct fastest      { }; // Speed is more important than the choice in value.
+    struct negative     { }; // Round towards negative infinity. This mode is useful in interval arithmetic.
+    struct truncated    { }; // Round towards zero. This mode is useful in implementing integral arithmetic.
+    struct positive     { }; // Round towards positive infinity. This mode is useful in interval arithmetic.
+    struct classic      { }; // Round towards the nearest value, but exactly-half values are rounded towards maximum magnitude. This mode is the standard school algorithm.
+    struct nearest_even { }; // Round towards the nearest value, but exactly-half values are rounded towards even values. This mode has more balance than the classic mode.
+    struct nearest_odd  { }; // Round towards the nearest value, but exactly-half values are rounded towards odd values. This mode has as much balance as the near_even mode, but preserves more information.
   }
 
   namespace overflow
   {
-    typedef enum overflow_type
-    {
-      impossible, // Programmer analysis of the program has determined that overflow cannot occur. Uses of this mode should be accompanied by an argument supporting the conclusion.
-      undefined,  // Programmers are willing to accept undefined behavior in the event of an overflow.
-      modulus,    // The assigned value is the dynamic value mod the range of the variable. This mode makes sense only with unsigned numbers. It is useful for angular measures.
-      saturate,   // If the dynamic value exceeds the range of the variable, assign the nearest representable value.
-      exception   // If the dynamic value exceeds the range of the variable, throw an exeception of type std::overflow_error.
-    }
-    overflow_type;
+    struct impossible   { }; // Programmer analysis of the program has determined that overflow cannot occur. Uses of this mode should be accompanied by an argument supporting the conclusion.
+    struct undefined    { }; // Programmers are willing to accept undefined behavior in the event of an overflow.
+    struct modulus      { }; // The assigned value is the dynamic value mod the range of the variable. This mode makes sense only with unsigned numbers. It is useful for angular measures.
+    struct saturate     { }; // If the dynamic value exceeds the range of the variable, assign the nearest representable value.
+    struct exception    { }; // If the dynamic value exceeds the range of the variable, throw an exeception of type std::overflow_error.
   }
   } } // namespace boost::fixed_point
 
@@ -169,8 +85,75 @@
     template<const int integral_range,
              const int decimal_resolution,
              typename round_mode,
-             const overflow::overflow_type overflow_mode>
+             typename overflow_mode>
     class negatable;
+
+    // What follows are forward declarations of elementary transcendental functions.
+
+    // Forward declaration of abs.
+    template<const int integral_range,
+             const int decimal_resolution,
+             typename round_mode,
+             typename overflow_mode>
+    inline negatable<integral_range,
+                     decimal_resolution,
+                     round_mode,
+                     overflow_mode> abs(negatable<integral_range,
+                                                  decimal_resolution,
+                                                  round_mode,
+                                                  overflow_mode> x);
+
+    // Forward declaration of fabs.
+    template<const int integral_range,
+             const int decimal_resolution,
+             typename round_mode,
+             typename overflow_mode>
+    inline negatable<integral_range,
+                     decimal_resolution,
+                     round_mode,
+                     overflow_mode> fabs(negatable<integral_range,
+                                                   decimal_resolution,
+                                                   round_mode,
+                                                   overflow_mode> x);
+
+    // Forward declaration of frexp.
+    template<const int integral_range,
+             const int decimal_resolution,
+             typename round_mode,
+             typename overflow_mode>
+    inline negatable<integral_range,
+                     decimal_resolution,
+                     round_mode,
+                     overflow_mode> frexp(negatable<integral_range,
+                                                    decimal_resolution,
+                                                    round_mode,
+                                                    overflow_mode> x, int* expptr);
+
+    // Forward declaration of ldexp.
+    template<const int integral_range,
+             const int decimal_resolution,
+             typename round_mode,
+             typename overflow_mode>
+    inline negatable<integral_range,
+                     decimal_resolution,
+                     round_mode,
+                     overflow_mode> ldexp(negatable<integral_range,
+                                                    decimal_resolution,
+                                                    round_mode,
+                                                    overflow_mode> x, int exp);
+
+    // Forward declaration of sqrt.
+    template<const int integral_range,
+             const int decimal_resolution,
+             typename round_mode,
+             typename overflow_mode>
+    inline negatable<integral_range,
+                     decimal_resolution,
+                     round_mode,
+                     overflow_mode> sqrt(negatable<integral_range,
+                                                   decimal_resolution,
+                                                   round_mode,
+                                                   overflow_mode> x);
 
   } } // namespace boost::fixed_point
 
@@ -180,7 +163,7 @@
     template<const int integral_range,
              const int decimal_resolution,
              typename round_mode,
-             const boost::fixed_point::overflow::overflow_type overflow_mode>
+             typename overflow_mode>
     class numeric_limits<boost::fixed_point::negatable<integral_range,
                                                        decimal_resolution,
                                                        round_mode,
@@ -193,139 +176,83 @@
   template<const int integral_range,
            const int decimal_resolution,
            typename round_mode = round::fastest,
-           const overflow::overflow_type overflow_mode = overflow::undefined>
+           typename overflow_mode = overflow::undefined>
   class negatable
   {
   private:
-    static BOOST_CONSTEXPR_OR_CONST int total_digits2 = integral_range - decimal_resolution;
-    static BOOST_CONSTEXPR_OR_CONST int range         = integral_range;
-    static BOOST_CONSTEXPR_OR_CONST int resolution    = decimal_resolution;
+    static BOOST_CONSTEXPR_OR_CONST int digits_total =  integral_range - decimal_resolution;
+    static BOOST_CONSTEXPR_OR_CONST int range        =  integral_range;
+    static BOOST_CONSTEXPR_OR_CONST int resolution   =  decimal_resolution;
+    static BOOST_CONSTEXPR_OR_CONST int radix_split  = -decimal_resolution;
 
+    // TBD: Is this limitation correct?
+    // TBD: Or are pure integer instantiations of negatable allowed?
     static_assert( resolution < 0,
-                  "Error: The resolution of negatable must be fractional (negative).");
-    static_assert(-resolution < total_digits2,
-                  "Error: The resolution of negatable exceeds its available total total range.");
+                  "Error: The resolution of negatable must be negative and include at least 1 fractional bit.");
+
     static_assert(range > 0,
-                  "Error: The range of negatable must be at least one (minimally to hold the sign bit).");
-    static_assert( std::is_same<round_mode, round::fastest>::value || std::is_same<round_mode, round::negative>::value,
-                  "Error: only negative and fastest round modes supported at the moment");
+                  "Error: The range of negatable must be 1 or more (at least 1 for the sign bit).");
 
-    #if defined(DEBUG_PRINT_IS_ENABLED)
-      template<typename T>
-      void print_bits(T num)
-      {
-        std::string ans;
+    static_assert(   std::is_same<round_mode, round::fastest>::value
+                  || std::is_same<round_mode, round::nearest_even>::value,
+                  "Error: only fastest and nearest_even round modes supported at the moment.");
 
-        T mask(1);
-
-        for(int i = 0; i < total_digits2; i++)
-        {
-          if(num & mask)
-          {
-            ans += "1";
-          }
-
-          else ans += "0";
-
-          mask <<= 1;
-        }
-
-        std::reverse(ans.begin(), ans.end());
-
-        std::cout << ans << "\n";
-      }
-    #endif // DEBUG_PRINT_IS_ENABLED
-
-    // Round the value at the time of construction
-    // for example: negatable<2,-2, round::negative> a (-1.32);
-    // the value of a should be -1.5
-
-    /*
-    template<typename initialize_type, typename underlying_type>
-    void round_construct (const initialize_type &value, underlying_type &data)
-    {
-      // TBD: this works under the assumption that without any work,
-      // the default behavior happens to be similar to round::truncated.
-      // I'm not sure if this is machine specific though.
-
-      if(round_mode == round::negative)
-      {
-        // Check if number is already perfectly representable;
-        // no need to round then.
-
-        if(resolution > 0)
-        {
-          // TBD: I don't really like dividing here,
-          // not sure if there's a better way though.
-
-          initialize_type scale = value / fixed_point::detail::radix_split_maker<initialize_type, resolution>::value();
-
-          // No rounding needed if perfectly divisible.
-          if(floor (scale) == scale)
-          {
-            return;
-          }
-        }
-
-        if(resolution < 0)
-        {
-          initialize_type scale = value * fixed_point::detail::radix_split_maker<initialize_type, -resolution>::value();
-
-          // No rounding needed if perfectly divisible.
-          if(floor (scale) == scale)
-          {
-            return;
-          }
-        }
-
-        // Since the default rounding behaviour is towards_zero/truncated,
-        // for values > 0, behaviour is same as towards_zero.
-        if(value < 0)
-        {
-          --data;
-        }
-      }
-    }
-    */
+    static_assert(   std::is_same<overflow_mode, overflow::undefined>::value,
+                  "Error: only undefined overflow mode supported at the moment.");
 
   public:
-    typedef typename detail::integer_type_helper<total_digits2>::exact_signed_type value_type;
-    typedef typename detail::float_type_helper  <total_digits2>::exact_float_type  float_type;
+    // Here we declare two convenient class-local type definitions.
+    //
+    //   * value_type : is the signed integer representation of the fixed-point
+    //                  negatable number. For low digit counts, this will be
+    //                  a built-in type such as int8_t, int16_t, int32_t, etc.
+    //                  For larger digit counts, this will be a multiprecision
+    //                  signed integer type.
+    //   * float_type : is the floating-point type that is guaranteed to be wide
+    //                  enough to represent the fixed-point negatable number
+    //                  in its entirety. For low digit counts, this will be
+    //                  a built-in type such as float, double or long double.
+    //                  For larger digit counts, this will be a multiprecision
+    //                  floating point type.
+    //
 
+    typedef typename detail::integer_type_helper<negatable::digits_total>::exact_signed_type value_type;
+    typedef typename detail::float_type_helper  <negatable::digits_total>::exact_float_type  float_type;
+
+    // The public class constructors follow below.
+
+    // The class default constructor is implemented below.
+    // By design choice, the default constructor clears
+    // the data member.
     negatable() : data() { }
 
+    // Here are the class constructors from built-in unsigned integral types.
+    template<typename integral_type>
+    negatable(const integral_type& u,
+              const typename std::enable_if<(   std::is_integral<integral_type>::value
+                                             && std::is_unsigned<integral_type>::value)>::type* = nullptr)
+      : data(value_type(unsigned_small_type(u) << radix_split)) { }
+
+    // Here are the class constructors from both built-in signed integral
+    // types as well as from the internal value_type of the data member.
     template<typename integral_type>
     negatable(const integral_type& n,
-              const typename std::enable_if<   std::is_integral<integral_type>::value
-                                            || std::is_same<integral_type, value_type>::value>::type* = nullptr) : data(value_type(n) * radix_split_value<value_type>())
-    {
-      #if defined(DEBUG_PRINT_IS_ENABLED)
-        std::cout << typeid(integral_type).name() << "\n";
-        std::cout << sizeof(integral_type)        << "\n";
+              const typename std::enable_if<  (   std::is_integral<integral_type>::value
+                                               && std::is_signed  <integral_type>::value)
+                                            || std::is_same<integral_type, value_type>::value>::type* = nullptr)
+      : data((!(n < 0)) ? +value_type(unsigned_small_type(+n) << radix_split)
+                        : -value_type(unsigned_small_type(-n) << radix_split)) { }
 
-        std::cout << typeid(value_type).name() << "\n";
-        std::cout << sizeof(value_type)        << "\n";
-        std::cout << data                      << "\n";
-      #endif // DEBUG_PRINT_IS_ENABLED
-
-      round_mode::template round_construct<integral_type, value_type, resolution>(n, data);
-
-      #if defined(DEBUG_PRINT_IS_ENABLED)
-        print_bits(data);
-      #endif
-    }
-
+    // Here are the class constructors from built-in floating-point types.
     template<typename floating_point_type>
     negatable(const floating_point_type& f,
-              const typename std::enable_if<std::is_floating_point<floating_point_type>::value>::type* = nullptr) : data(value_type(f * radix_split_value<floating_point_type>()))
+              const typename std::enable_if<std::is_floating_point<floating_point_type>::value>::type* = nullptr)
+      : data()
     {
-      round_mode::template round_construct<floating_point_type, value_type, resolution> (f, data);
-
-      #if defined(DEBUG_PRINT_IS_ENABLED)
-        print_bits(data);
-      #endif
+      make_from_floating_point_type(f);
     }
 
+    // Here is the class copy constructor.
     negatable(const negatable& v) : data(v.data) { }
 
     ~negatable() { }
@@ -340,6 +267,7 @@
       return *this;
     }
 
+    // Equality operators for built-in integral types.
     negatable& operator=(const char& n)               { data = value_type(n) << radix_split; return *this; }
     negatable& operator=(const short& n)              { data = value_type(n) << radix_split; return *this; }
     negatable& operator=(const int& n)                { data = value_type(n) << radix_split; return *this; }
@@ -352,92 +280,138 @@
     negatable& operator=(const unsigned long& u)      { data = value_type(unsigned_small_type(u) << radix_split); return *this; }
     negatable& operator=(const unsigned long long& u) { data = value_type(unsigned_small_type(u) << radix_split); return *this; }
 
-    negatable& operator=(const float& f)              { data = value_type(f  * radix_split_value<float>      ()); return *this; }
-    negatable& operator=(const double& d)             { data = value_type(d  * radix_split_value<double>     ()); return *this; }
-    negatable& operator=(const long double& ld)       { data = value_type(ld * radix_split_value<long double>()); return *this; }
+    // Equality operators for built-in floating-point types.
+    negatable& operator=(const float& f)              { make_from_floating_point_type(f);  return *this; }
+    negatable& operator=(const double& d)             { make_from_floating_point_type(d);  return *this; }
+    negatable& operator=(const long double& ld)       { make_from_floating_point_type(ld); return *this; }
 
+    // Unary pre-increment and post-increment operators.
     negatable& operator++()   { data += value_type(unsigned_small_type(1) << radix_split); return *this; }
     negatable& operator--()   { data -= value_type(unsigned_small_type(1) << radix_split); return *this; }
 
     negatable operator++(int) { const negatable tmp(*this); data += value_type(unsigned_small_type(1) << radix_split); return tmp; }
     negatable operator--(int) { const negatable tmp(*this); data -= value_type(unsigned_small_type(1) << radix_split); return tmp; }
 
-    negatable& operator+=(const negatable& v)
-    {
-      data += v.data;
-      return *this;
-    }
+    // Unary operators add and subtract of negatable with negatable.
+    negatable& operator+=(const negatable& v) { data += v.data; return *this; }
+    negatable& operator-=(const negatable& v) { data -= v.data; return *this; }
 
-    negatable& operator-=(const negatable& v)
-    {
-      data -= v.data;
-      return *this;
-    }
-
+    // Unary operator multiply of negatable with negatable.
     negatable& operator*=(const negatable& v)
     {
-      const bool u_is_neg      = (  data < value_type(0));
-      const bool v_is_neg      = (v.data < value_type(0));
+      const bool u_is_neg      = (  data < 0);
+      const bool v_is_neg      = (v.data < 0);
       const bool result_is_neg = (u_is_neg != v_is_neg);
+
+      // Multiplication will be carried out using unsigned integers.
+
+      // Multiplication is carried out with a relatively lazy method
+      // that places the result in unsigned_large_type which is
+      // twice as wide as unsigned_small_type and the width
+      // of the fixed-point data field (including its sign bit).
 
       unsigned_large_type result((!u_is_neg) ? data : -data);
 
-      /*!
-       * We will be doing unsigned multiplication for two reasons primarliy:
-       * Unsigned multiplication is often considered to be faster on hardware.
-       * More importantly, bitwise shift is undefined on signed numbers.
-       */
-      result *= ((!v_is_neg) ? unsigned_large_type(v.data) : unsigned_large_type(-v.data));
+      result *= unsigned_large_type((!v_is_neg) ? unsigned_large_type(v.data) : unsigned_large_type(-v.data));
 
-      data = round_mode::template round<unsigned_large_type, value_type>(result, 2 * resolution, resolution, result_is_neg);
+      // Scale the result of the multiplication to fit once again
+      // in the fixed-point data field.
 
-      if(result_is_neg)
+      // Here, we use 1 extra binary digit for rounding.
+      // The rounding digit fits in the unsigned_small_type because the
+      // negatable class has a sign bit.
+
+      const int total_right_shift = radix_split - 1;
+
+      unsigned_small_type u_round((total_right_shift >= 0) ? static_cast<unsigned_small_type>(result >> +total_right_shift)
+                                                           : static_cast<unsigned_small_type>(result << -total_right_shift));
+
+      // Round the result of the multiplication.
+      const boost::int_fast8_t rounding_result = binary_round(u_round);
+
+      if(rounding_result != 0)
       {
-        data = -data;
+        // Add or subtract the result of the rounding (-1, 0, or +1).
+        u_round += rounding_result;
       }
+
+      // Load the fixed-point result and account for potentially signed values.
+      data = value_type((!result_is_neg) ? value_type(u_round) : -value_type(u_round));
 
       return *this;
     }
 
+    // Unary operator divide of negatable with negatable.
     negatable& operator/=(const negatable& v)
     {
-      const bool u_is_neg      = (  data < value_type(0));
-      const bool v_is_neg      = (v.data < value_type(0));
-      const bool result_is_neg = (u_is_neg != v_is_neg);
-
       if(v.data == 0)
       {
-        data = 0;
-        return *this;
+        data = value_type((std::numeric_limits<value_type>::max)());
       }
-
-      unsigned_large_type result((!u_is_neg) ? data : -data);
-
-      result <<= radix_split;
-
-      result /= ((!v_is_neg) ? unsigned_large_type(v.data) : unsigned_large_type(-v.data));
-
-      data = detail::convert_to<unsigned_large_type, value_type>(result);
-
-      if(result_is_neg)
+      else
       {
-        data = -data;
+        const bool u_is_neg      = (  data < 0);
+        const bool v_is_neg      = (v.data < 0);
+        const bool result_is_neg = (u_is_neg != v_is_neg);
+
+        // Division will be carried out using unsigned integers.
+
+        // Division is carried out with a relatively lazy method
+        // that places the result in unsigned_large_type which is
+        // twice as wide as unsigned_small_type and the width
+        // of the fixed-point data field (including its sign bit).
+
+        // Hereby, we scale the result of the division to a larger value
+        // so that integer division is straightforward and simple,
+        // although potentially costly for higher digit counts.
+
+        unsigned_large_type result((!u_is_neg) ? unsigned_large_type(data) : unsigned_large_type(-data));
+
+        // Here, we use 1 extra binary digit for rounding.
+        // The rounding digit fits in the unsigned_small_type because the
+        // negatable class has a sign bit.
+
+        result = (result << (radix_split + 1));
+
+        result /= unsigned_large_type((!v_is_neg) ? unsigned_large_type(v.data) : unsigned_large_type(-v.data));
+
+        unsigned_small_type u_round = static_cast<unsigned_small_type>(result);
+
+        // Round the result of the division.
+        const boost::int_fast8_t rounding_result = binary_round(u_round);
+
+        if(rounding_result != INT8_C(0))
+        {
+          // Add or subtract the result of the rounding (-1, 0, or +1).
+          u_round += rounding_result;
+        }
+
+        // Load the fixed-point result and account for potentially signed values.
+        data = value_type((!result_is_neg) ? value_type(u_round) : -value_type(u_round));
       }
 
       return *this;
     }
+
+    // Unary operators add, sub, mul, div of negatable with an arithmetic built-in type.
 
     template<typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type> negatable& operator+=(T& n) { return (*this) += negatable(n); }
     template<typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type> negatable& operator-=(T& n) { return (*this) -= negatable(n); }
     template<typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type> negatable& operator*=(T& n) { return (*this) *= negatable(n); }
     template<typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type> negatable& operator/=(T& n) { return (*this) /= negatable(n); }
 
-    // Cast operators for built-in integer types.
-    operator char     () { return static_cast<char>     (data / radix_split_value<value_type>()); }
-    operator short    () { return static_cast<short>    (data / radix_split_value<value_type>()); }
-    operator int      () { return static_cast<int>      (data / radix_split_value<value_type>()); }
-    operator long     () { return static_cast<long>     (data / radix_split_value<value_type>()); }
-    operator long long() { return static_cast<long long>(data / radix_split_value<value_type>()); }
+    // Here are the cast operators for built-in signed and unsigned integral types.
+
+    // Note: Cast from negatable to a built-in integral type truncates
+    // the fractional part without rounding. This is consistent with
+    // conversion from built-in floasting-point types to built-in
+    // integral types as described in ISO/IEC 14882:2011 paragraph 4.9.1.
+
+    operator char     () { return static_cast<char>     ((!(data < 0)) ? static_cast<char>     (unsigned_small_type(data) >> radix_split) : -static_cast<char>     (unsigned_small_type(-data) >> radix_split)); }
+    operator short    () { return static_cast<short>    ((!(data < 0)) ? static_cast<short>    (unsigned_small_type(data) >> radix_split) : -static_cast<short>    (unsigned_small_type(-data) >> radix_split)); }
+    operator int      () { return static_cast<int>      ((!(data < 0)) ? static_cast<int>      (unsigned_small_type(data) >> radix_split) : -static_cast<int>      (unsigned_small_type(-data) >> radix_split)); }
+    operator long     () { return static_cast<long>     ((!(data < 0)) ? static_cast<long>     (unsigned_small_type(data) >> radix_split) : -static_cast<long>     (unsigned_small_type(-data) >> radix_split)); }
+    operator long long() { return static_cast<long long>((!(data < 0)) ? static_cast<long long>(unsigned_small_type(data) >> radix_split) : -static_cast<long long>(unsigned_small_type(-data) >> radix_split)); }
 
     operator unsigned char     () { return static_cast<unsigned char>     (unsigned_small_type(data) >> radix_split); }
     operator unsigned short    () { return static_cast<unsigned short>    (unsigned_small_type(data) >> radix_split); }
@@ -453,19 +427,8 @@
   private:
     value_type data;
 
-    static BOOST_CONSTEXPR_OR_CONST int radix_split = -resolution;
-
-    typedef typename detail::integer_type_helper<total_digits2 * 1    >::exact_unsigned_type unsigned_small_type;
-    typedef typename detail::integer_type_helper<total_digits2 * 2    >::exact_unsigned_type unsigned_large_type;
-    typedef typename detail::integer_type_helper<total_digits2 * 2 + 1>::exact_signed_type     signed_round_type;
-
-    template<typename arithmetic_type>
-    static const arithmetic_type& radix_split_value()
-    {
-      static const arithmetic_type the_radix_split_value(detail::radix_split_maker<arithmetic_type, radix_split>::value());
-
-      return the_radix_split_value;
-    }
+    typedef typename detail::integer_type_helper<negatable::digits_total * 1>::exact_unsigned_type unsigned_small_type;
+    typedef typename detail::integer_type_helper<negatable::digits_total * 2>::exact_unsigned_type unsigned_large_type;
 
     struct nothing { };
 
@@ -475,23 +438,172 @@
               const typename std::enable_if<   std::is_integral<integral_type>::value
                                             || std::is_same<value_type, integral_type>::value>::type* = nullptr) : data(n) { }
 
+    template<typename local_round_mode = round_mode>
+    static boost::int_fast8_t
+      binary_round(unsigned_small_type& u_round,
+                   typename std::enable_if<std::is_same<local_round_mode, round::fastest>::value>::type* = nullptr)
+    {
+      // Here, u_round contains the value to be rounded whereby
+      // this value is left-shifted one binary digit larger than
+      // the final result will be.
+
+      // Perform the rounding algorithm for round::fastest.
+      // For round::fastest, there is simply no rounding at all.
+      // The value is truncated.
+
+      u_round = (u_round >> 1);
+
+      return INT8_C(0);
+    }
+
+    template<typename local_round_mode = round_mode>
+    static boost::int_fast8_t
+      binary_round(unsigned_small_type& u_round,
+                   typename std::enable_if<std::is_same<local_round_mode, round::nearest_even>::value>::type* = nullptr)
+    {
+      // Here, u_round contains the value to be rounded whereby
+      // this value is left-shifted one binary digit larger than
+      // the final result will be.
+
+      // Perform the rounding algorithm for round::nearest_even.
+      // For round::nearest_even, the value is rounded to larger
+      // absolute value when both 1/2-ULP as well as 1-ULP are 1,
+      // representing round odd 1-ULP to higher value.
+
+      const bool round_up =   ((boost::uint_fast8_t(u_round & UINT8_C(1)) == UINT8_C(1))
+                            && (boost::uint_fast8_t(u_round & UINT8_C(2)) == UINT8_C(2)));
+
+      u_round = (u_round >> 1);
+
+      return (round_up ? INT8_C(1) : INT8_C(0));
+    }
+
     template<typename floating_point_type>
     floating_point_type convert_to_floating_point_type() const
     {
       const bool is_neg = (data < static_cast<value_type>(0));
 
-      const unsigned_small_type x((!is_neg) ? data : -data);
+      floating_point_type f(0);
 
-      const unsigned_small_type integer_part(x >> radix_split);
-      const unsigned_small_type decimal_part(x - (integer_part << radix_split));
+      // Convert the fixed_point value to floating_point_type result.
+      // The fixed_point value is converted with brute force,
+      // using one bit at a time.
 
-      const floating_point_type f =   floating_point_type(integer_part)
-                                    + floating_point_type(floating_point_type(decimal_part) / radix_split_value<floating_point_type>());
+      // TBD: The conversion uses brute force with an inefficient loop.
+      // Can (should) this mechanism be optimized?
+
+      {
+        using std::ldexp;
+
+        unsigned_small_type u((!is_neg) ? data : -data);
+
+        BOOST_CONSTEXPR_OR_CONST int digits_unsigned_small_type = std::numeric_limits<unsigned_small_type>::digits;
+        BOOST_CONSTEXPR_OR_CONST int digits_floating_point_type = std::numeric_limits<floating_point_type>::digits;
+
+        BOOST_CONSTEXPR_OR_CONST int max_digits = ((digits_unsigned_small_type >= digits_floating_point_type)
+                                                     ? digits_unsigned_small_type
+                                                     : digits_floating_point_type);
+
+        boost::int_fast16_t digit_index;
+
+        for(digit_index = INT16_C(0); ((digit_index < max_digits) && (u != 0)); ++digit_index)
+        {
+          const boost::uint_fast8_t bit_test_value = static_cast<boost::uint_fast8_t>(u);
+
+          u = (u >> 1);
+
+          if(boost::uint_fast8_t(bit_test_value & UINT8_C(1)) != UINT8_C(0))
+          {
+            f += ldexp(floating_point_type(1), digit_index);
+          }
+        }
+
+        // Rounding needs to be done if the fixed_point type
+        // has more digits than the target floating_point_type
+        // of the result.
+
+        if(digit_index < boost::int_fast16_t(std::numeric_limits<unsigned_small_type>::digits))
+        {
+          // Check if the result of the conversion needs to be rounded.
+          const boost::int_fast8_t rounding_result = binary_round(u);
+
+          // Add or subtract the result of the rounding (-1, 0, or +1).
+          f += floating_point_type(rounding_result);
+        }
+
+        f = ldexp(f, -int(radix_split));
+      }
 
       return ((!is_neg) ? f : -f);
     }
 
-    static const negatable& value_epsilon()
+    template<typename floating_point_type>
+    void make_from_floating_point_type(const floating_point_type& f)
+    {
+      // Define a local_unsigned_small_type.
+
+      // This is an unsigned integral type that is guaranteed
+      // to hold the larger of:
+      // * the number of digits in floating_point_type
+      // * the number of digits in unsigned_small_type.
+
+      typedef
+      typename detail::integer_type_helper<
+        unsigned((std::numeric_limits<floating_point_type>::digits > std::numeric_limits<unsigned_small_type>::digits)
+                    ? std::numeric_limits<floating_point_type>::digits
+                    : std::numeric_limits<unsigned_small_type>::digits)>::exact_unsigned_type
+      local_unsigned_small_type;
+
+      const bool is_neg = (f < floating_point_type(0));
+
+      using std::frexp;
+      using std::ldexp;
+
+      // Extract the mantissa and exponent.
+      int exp;
+      const floating_point_type fp(frexp((!is_neg) ? f : -f, &exp));
+
+      // Here we scale the mantissa to an unsigned integer value
+      // that is large enough to contain all the binary digits
+      // of the floating_point_type representation.
+      local_unsigned_small_type u;
+
+      detail::conversion_helper<local_unsigned_small_type, floating_point_type>::convert_floating_point_to_unsigned_integer
+        (ldexp(fp, std::numeric_limits<floating_point_type>::digits + 1), u);
+
+      // Select the scale factor for the conversion to the fixed-point type.
+      // Here, we use 1 extra binary digit that will be used for rounding.
+      // The rounding digit fits in unsigned_small_type because the negatable
+      // class has a left-over sign bit that can be used for rounding after
+      // conversion to an unsigned type.
+
+      const boost::int_fast16_t total_left_shift =   boost::int_fast16_t(radix_split + exp)
+                                                   - boost::int_fast16_t(std::numeric_limits<floating_point_type>::digits);
+
+      const local_unsigned_small_type u_round_local((total_left_shift >= INT16_C(0)) ? (u << +total_left_shift)
+                                                                                     : (u >> -total_left_shift));
+
+      unsigned_small_type u_round = static_cast<unsigned_small_type>(u_round_local);
+
+      // Round the result of the construction from floating_point_type.
+      const boost::int_fast8_t rounding_result = binary_round(u_round);
+
+      // Add or subtract the result of the rounding (-1, 0, or +1).
+      u_round += rounding_result;
+
+      // Load the fixed-point result and account for potentially signed values.
+      data = value_type((!is_neg) ? value_type(u_round) : -value_type(u_round));
+    }
+
+    template<typename arithmetic_type>
+    static const arithmetic_type& radix_split_value()
+    {
+      static const arithmetic_type the_radix_split_value(detail::radix_split_maker<arithmetic_type, radix_split>::value());
+
+      return the_radix_split_value;
+    }
+
+    static const negatable& epsilon_maker()
     {
       static bool is_init = bool();
 
@@ -505,7 +617,7 @@
 
         if(r10 <= 10)
         {
-          local_epsilon = negatable(nothing(), 1);
+          local_epsilon = negatable(nothing(), UINT8_C(1));
         }
         else
         {
@@ -523,7 +635,7 @@
       return the_epsilon;
     }
 
-    static const negatable& value_min() { static const negatable the_value_min(nothing(), 1); return the_value_min; }
+    static const negatable& value_min() { static const negatable the_value_min(nothing(), 1U); return the_value_min; }
     static const negatable& value_max() { static const negatable the_value_max(nothing(), (std::numeric_limits<value_type>::max)()); return the_value_max; }
 
     friend class std::numeric_limits<negatable>;
@@ -534,35 +646,16 @@
                                      traits_type>& operator<<(std::basic_ostream<char_type, traits_type>& out,
                                                               const negatable& x)
     {
-      std::basic_ostringstream<char_type, traits_type> ostr;
+      // Send a fixed-point number to the output stream.
+      // Express the fixed-point number as a floating-point number.
 
-      const std::streamsize the_precision = out.precision();
+      std::basic_ostringstream<char_type, traits_type> ostr;
 
       ostr.flags    (out.flags());
       ostr.imbue    (out.getloc());
-      ostr.precision(the_precision);
+      ostr.precision(out.precision());
 
-      // Use a stringstream to convert the integer representation
-      // of the data to a string and then subsequently extract
-      // a floating-point representation from it.
-
-      // TBD: Is there a more efficient way to do this?
-      // TBD: Is there a more sensible way to do this?
-
-      const bool is_neg = (x.data < value_type(0));
-
-      std::stringstream ss;
-      ss << unsigned_large_type(((!is_neg) ? x.data : -x.data));
-
-      float_type v;
-      ss >> v;
-
-      if(is_neg)
-      {
-        v = -v;
-      }
-
-      ostr << (v / detail::radix_split_maker<float_type, radix_split>::value());
+      static_cast<void>(ostr << x.convert_to_floating_point_type<float_type>());
 
       return (out << ostr.str());
     }
@@ -573,53 +666,14 @@
                                      traits_type>& operator>>(std::basic_istream<char_type, traits_type>& in,
                                                               negatable& x)
     {
-      // Use string and stringstream manipulations in combination
-      // with a floating-point representation to extract the
-      // data field and subsequently insert it into the fixed-point
-      // object in its integral form.
+      // Receive a floating-point number from the input stream.
+      // Subsequently make a fixed-point object from it.
 
-      // TBD: Is there a more efficient way to do this?
-      // TBD: Or is there a more sensible way to do this?
+      float_type v;
 
-      std::string str;
-      float_type  v;
+      static_cast<void>(in >> v);
 
-      in >> str;
-
-      // TBD: Why does it *not work* to simply clear the stringstream
-      // in this subroutine with, for example, ss.str(std::string())?
-
-      {
-        std::stringstream ss(str);
-        ss >> v;
-        v *= detail::radix_split_maker<float_type, radix_split>::value();
-      }
-
-      // TBD: Is string manipulation really necessary here.
-      // Or is it possible to print the floating-point
-      // representation in a format without the decimal digits
-      // and a decimal point?
-
-      // TBD: Note: Using setprecision(0) for std::fixed does not
-      // work for cpp_bin_float, nor does it work for cpp_dec_float.
-
-      // TBD: We actually need to correct this in Boost.Multiprecision.
-      // Workaround is: Set the precision to one, and truncate
-      // the string.
-      {
-        std::stringstream ss;
-        ss << std::fixed << std::setprecision(1) << std::showpoint << v;
-        //ss << std::fixed << std::setprecision(0) << std::noshowpoint << v;
-
-        ss >> str;
-        str = str.substr(0U, str.length() - 2U);
-      }
-
-      {
-        std::stringstream ss;
-        ss << str;
-        ss >> x.data;
-      }
+      x.make_from_floating_point_type(v);
 
       return in;
     }
@@ -671,47 +725,274 @@
     template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>      friend inline bool operator< (const T& u, const negatable& v) { return (negatable(u).data <  v.data); }
     template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>      friend inline bool operator>=(const T& u, const negatable& v) { return (negatable(u).data >= v.data); }
     template<typename T, typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>      friend inline bool operator<=(const T& u, const negatable& v) { return (negatable(u).data <= v.data); }
+
+    // Helper utilities for mathematical constants.
+    // We need mathematical constants for transcendental functions.
+    template<const int bit_count,
+             typename enable_type = void>
+    struct constant_maker
+    {
+      static const negatable& pi()
+      {
+        static_assert(integral_range >= 3,
+                      "The constant pi can not be created with fewer than 3 binary signed integer digits");
+
+        static const negatable value_pi(boost::math::constants::pi<negatable>());
+        return value_pi;
+      }
+
+      static const negatable& ln_two()
+      {
+        static const negatable value_ln_two(boost::math::constants::ln_two<negatable>());
+        return value_ln_two;
+      }
+    };
+
+    template<const int bit_count>
+    struct constant_maker<bit_count,
+                          typename std::enable_if<(bit_count <= 8)>::type>
+    {
+      static const negatable& pi()
+      {
+        static_assert(integral_range >= 3,
+                      "The constant pi can not be created with fewer than 3 binary signed integer digits");
+
+        static const negatable value_pi(nothing(), value_type((UINT8_C(0x64) + ((UINT8_C(1) << (5 + decimal_resolution)) / 2U)) >> (5 + decimal_resolution)));
+        return value_pi;
+      }
+
+      static const negatable& ln_two()
+      {
+        static const negatable value_ln_two(nothing(), value_type((UINT8_C(0x58) + ((UINT8_C(1) << (7 + decimal_resolution)) / 2U)) >> (7 + decimal_resolution)));
+        return value_ln_two;
+      }
+    };
+
+    template<const int bit_count>
+    struct constant_maker<bit_count,
+                          typename std::enable_if<(bit_count > 8) && (bit_count <= 16)>::type>
+    {
+      static const negatable& pi()
+      {
+        static_assert(integral_range >= 3,
+                      "The constant pi can not be created with fewer than 3 binary signed integer digits");
+
+        static const negatable value_pi(nothing(), value_type((UINT16_C(0x6487) + ((UINT16_C(1) << (13 + decimal_resolution)) / 2U)) >> (13 + decimal_resolution)));
+        return value_pi;
+      }
+
+      static const negatable& ln_two()
+      {
+        static const negatable value_ln_two(nothing(), value_type((UINT16_C(0x58B9) + ((UINT16_C(1) << (15 + decimal_resolution)) / 2U)) >> (15 + decimal_resolution)));
+        return value_ln_two;
+      }
+    };
+
+    template<const int bit_count>
+    struct constant_maker<bit_count,
+                          typename std::enable_if<(bit_count > 16) && (bit_count <= 32)>::type>
+    {
+      static const negatable& pi()
+      {
+        static_assert(integral_range >= 3,
+                      "The constant pi can not be created with fewer than 3 binary signed integer digits");
+
+        static const negatable value_pi(nothing(), value_type((UINT32_C(0x6487ED51) + ((UINT32_C(1) << (29 + decimal_resolution)) / 2U)) >> (29 + decimal_resolution)));
+        return value_pi;
+      }
+
+      static const negatable& ln_two()
+      {
+        static const negatable value_ln_two(nothing(), value_type((UINT32_C(0x58B90BfB) + ((UINT32_C(1) << (31 + decimal_resolution)) / 2U)) >> (31 + decimal_resolution)));
+        return value_ln_two;
+      }
+    };
+
+    template<const int bit_count>
+    struct constant_maker<bit_count,
+                          typename std::enable_if<(bit_count > 32) && (bit_count <= 64)>::type>
+    {
+      static const negatable& pi()
+      {
+        static_assert(integral_range >= 3,
+                      "The constant pi can not be created with fewer than 3 binary signed integer digits");
+
+        static const negatable value_pi(nothing(), value_type((UINT64_C(0x6487ED5110B4611A) + ((UINT64_C(1) << (61 + decimal_resolution)) / 2U)) >> (61 + decimal_resolution)));
+        return value_pi;
+      }
+
+      static const negatable& ln_two()
+      {
+        static const negatable value_ln_two(nothing(), value_type((UINT64_C(0x58B90BFBE8E7BCD6) + ((UINT64_C(1) << (63 + decimal_resolution)) / 2U)) >> (63 + decimal_resolution)));
+        return value_ln_two;
+      }
+    };
+
+    friend inline negatable  abs(negatable x) { return ((x.data < 0) ? -x : x); }
+    friend inline negatable fabs(negatable x) { return ((x.data < 0) ? -x : x); }
+
+    friend inline negatable frexp(negatable x, int* expptr)
+    {
+      *expptr = 0;
+
+      if(x.data == 0)
+      {
+        return negatable(0);
+      }
+      else
+      {
+        const bool is_neg = (x.data < 0);
+
+        unsigned_small_type result((!is_neg) ? unsigned_small_type(x.data) : unsigned_small_type(-x.data));
+
+        while(result < detail::radix_split_maker<unsigned_small_type, radix_split - 1>::value())
+        {
+          result = (result << 1);
+
+          --(*expptr);
+        }
+
+        while(result >= radix_split_value<unsigned_small_type>())
+        {
+          result = (result >> 1);
+
+          ++(*expptr);
+        }
+
+        return negatable(nothing(), value_type((!is_neg) ?  value_type(result)
+                                                         : -value_type(result)));
+      }
+    }
+
+    friend inline negatable ldexp(negatable x, int exp)
+    {
+      if(exp > 0)
+      {
+        return negatable(nothing(), value_type(x.data << exp));
+      }
+      else if(exp < 0)
+      {
+        const bool is_neg = (x.data < 0);
+
+        unsigned_small_type result((!is_neg) ? unsigned_small_type(x.data) : unsigned_small_type(-x.data));
+
+        result = (result >> -exp);
+
+        return negatable(nothing(), value_type((!is_neg) ? value_type(result) : -value_type(result)));
+      }
+      else
+      {
+        return x;
+      }
+    }
+
+    friend inline negatable sqrt(negatable x)
+    {
+      // TBD: This implementation of square root seems to fail
+      // for low digit counts.
+
+      // TBD: This implementation of square root may be too inefficient
+      // for low digit counts such as 5...16 digits. Consider optimization
+      // for low digit counts.
+
+      if(x.data <= 0)
+      {
+        return negatable(0);
+      }
+      else if(x.data < radix_split_value<value_type>())
+      {
+        return 1U / (sqrt(1U / x));
+      }
+      else
+      {
+        // Get the initial estimate of the square root.
+
+        // TBD: Is there a more efficient way to do this?
+        // TBD: Is this initial guess accurate enough in all situations?
+        // TBD: Compute some initial guesses and tabulate them as constant values.
+
+        int exp_value;
+        negatable mantissa = frexp(x, &exp_value);
+
+        if((exp_value & 1) != 0)
+        {
+          mantissa.data <<= 1;
+          --exp_value;
+        }
+
+        negatable result(ldexp(mantissa, exp_value / 2));
+
+        // Estimate the zeroth term of the iteration = 1 / (2 * result).
+        negatable vi = 1U / (result * 2U);
+
+        // Compute the square root of x using coupled Newton iteration.
+
+        for(boost::uint_fast16_t i = UINT16_C(1); i <= boost::uint_fast16_t(negatable::digits_total); i *= UINT16_C(2))
+        {
+          // Perform the next iteration of vi.
+          vi += vi * (-((result * vi) * 2U) + 1U);
+
+          // Perform the next iteration of the result.
+          result += (vi * (-((result) * (result)) + x));
+        }
+
+        return result;
+      }
+    }
   };
+
+  template<const int integral_range, const int decimal_resolution, typename round_mode, typename overflow_mode>
+  BOOST_CONSTEXPR_OR_CONST int negatable<integral_range, decimal_resolution, round_mode, overflow_mode>::digits_total;
+  template<const int integral_range, const int decimal_resolution, typename round_mode, typename overflow_mode>
+  BOOST_CONSTEXPR_OR_CONST int negatable<integral_range, decimal_resolution, round_mode, overflow_mode>::range;
+  template<const int integral_range, const int decimal_resolution, typename round_mode, typename overflow_mode>
+  BOOST_CONSTEXPR_OR_CONST int negatable<integral_range, decimal_resolution, round_mode, overflow_mode>::resolution;
+  template<const int integral_range, const int decimal_resolution, typename round_mode, typename overflow_mode>
+  BOOST_CONSTEXPR_OR_CONST int negatable<integral_range, decimal_resolution, round_mode, overflow_mode>::radix_split;
+
   } } // namespace boost::fixed_point
+
+  using boost::fixed_point::abs;
+  using boost::fixed_point::fabs;
+  using boost::fixed_point::frexp;
+  using boost::fixed_point::ldexp;
+  using boost::fixed_point::sqrt;
 
   namespace std
   {
-    // Provide a specialization of std::numeric_limits<negatable>.
+    // Provide specializations of std::numeric_limits<negatable>.
+
+    // Note: Individual template specializations need to be provided
+    // for each different rounding mode and overflow mode.
+
+    // Here is the template specialization of std::numeric_limits<negatable>
+    // for round::fastest and overflow::undefined.
     template<const int integral_range,
-             const int decimal_resolution,
-             typename round_mode,
-             const boost::fixed_point::overflow::overflow_type overflow_mode>
+             const int decimal_resolution>
     class numeric_limits<boost::fixed_point::negatable<integral_range,
                                                        decimal_resolution,
-                                                       round_mode,
-                                                       overflow_mode>>
+                                                       boost::fixed_point::round::fastest,
+                                                       boost::fixed_point::overflow::undefined>>
     {
     private:
       typedef boost::fixed_point::negatable<integral_range,
                                             decimal_resolution,
-                                            round_mode,
-                                            overflow_mode> negatable_type;
+                                            boost::fixed_point::round::fastest,
+                                            boost::fixed_point::overflow::undefined> negatable_type;
 
     public:
-      // TBD: Both digits10 as well as max_digits10 could benefit
-      // from a better theoretical calculation (consistent with Kahan?).
-
-      // TBD: Rounding mode and rounding error, etc. need to use
-      // the rounding type of the underlyinf fixed-point class.
-      // Question: Do we need template specializations for these?
-
       BOOST_STATIC_CONSTEXPR bool                    is_specialized    = true;
-      BOOST_STATIC_CONSTEXPR int                     digits            = negatable_type::total_digits2 - 1;
-      BOOST_STATIC_CONSTEXPR int                     digits10          = static_cast<int>((static_cast<long>(digits) * 301L) / 1000L);
-      BOOST_STATIC_CONSTEXPR int                     max_digits10      = digits10 + 1;
+      BOOST_STATIC_CONSTEXPR int                     digits            = negatable_type::digits_total - 1;
+      BOOST_STATIC_CONSTEXPR int                     digits10          = static_cast<int>((static_cast<boost::uintmax_t>(digits - 1) * UINTMAX_C(3010)) / UINTMAX_C(10000));
+      BOOST_STATIC_CONSTEXPR int                     max_digits10      = static_cast<int>((static_cast<boost::uintmax_t>(digits - 0) * UINTMAX_C(3010)) / UINTMAX_C(10000)) + 2;
       BOOST_STATIC_CONSTEXPR bool                    is_signed         = true;
       BOOST_STATIC_CONSTEXPR bool                    is_integer        = false;
       BOOST_STATIC_CONSTEXPR bool                    is_exact          = true;
       BOOST_STATIC_CONSTEXPR int                     radix             = 2;
       BOOST_STATIC_CONSTEXPR int                     min_exponent      = -negatable_type::radix_split;
-      BOOST_STATIC_CONSTEXPR int                     min_exponent10    = static_cast<int>((static_cast<long>(min_exponent) * 301L) / 1000L);
-      BOOST_STATIC_CONSTEXPR int                     max_exponent      = std::numeric_limits<typename negatable_type::value_type>::digits - negatable_type::radix_split;
-      BOOST_STATIC_CONSTEXPR int                     max_exponent10    = static_cast<int>((static_cast<long>(max_exponent) * 301L) / 1000L);
+      BOOST_STATIC_CONSTEXPR int                     min_exponent10    = -static_cast<int>((static_cast<boost::uintmax_t>(-min_exponent) * UINTMAX_C(3010)) / UINTMAX_C(10000));
+      BOOST_STATIC_CONSTEXPR int                     max_exponent      = digits - negatable_type::radix_split;
+      BOOST_STATIC_CONSTEXPR int                     max_exponent10    = +static_cast<int>((static_cast<boost::uintmax_t>(+max_exponent) * UINTMAX_C(3010)) / UINTMAX_C(10000));
       BOOST_STATIC_CONSTEXPR bool                    has_infinity      = false;
       BOOST_STATIC_CONSTEXPR bool                    has_quiet_NaN     = false;
       BOOST_STATIC_CONSTEXPR bool                    has_signaling_NaN = false;
@@ -722,17 +1003,65 @@
       BOOST_STATIC_CONSTEXPR bool                    is_modulo         = false;
       BOOST_STATIC_CONSTEXPR bool                    traps             = false;
       BOOST_STATIC_CONSTEXPR bool                    tinyness_before   = false;
-      BOOST_STATIC_CONSTEXPR std::float_round_style  round_style       = std::round_toward_zero;
+      BOOST_STATIC_CONSTEXPR std::float_round_style  round_style       = std::round_indeterminate;
 
-      BOOST_STATIC_CONSTEXPR negatable_type (min)      () throw()      { return negatable_type::value_min(); }
-      BOOST_STATIC_CONSTEXPR negatable_type (max)      () throw()      { return negatable_type::value_max(); }
-      BOOST_STATIC_CONSTEXPR negatable_type lowest     () throw()      { return -(max)(); }
-      BOOST_STATIC_CONSTEXPR negatable_type epsilon    () throw()      { return negatable_type::value_epsilon(); }
-      BOOST_STATIC_CONSTEXPR negatable_type round_error() throw()      { return negatable_type(1) / 2; }
-      BOOST_STATIC_CONSTEXPR negatable_type infinity   () throw()      { return negatable_type(0); }
-      BOOST_STATIC_CONSTEXPR negatable_type quiet_NaN  () throw()      { return negatable_type(0); }
+      BOOST_STATIC_CONSTEXPR negatable_type (min)      () BOOST_NOEXCEPT { return negatable_type::value_min(); }
+      BOOST_STATIC_CONSTEXPR negatable_type (max)      () BOOST_NOEXCEPT { return negatable_type::value_max(); }
+      BOOST_STATIC_CONSTEXPR negatable_type lowest     () BOOST_NOEXCEPT { return -(max)(); }
+      BOOST_STATIC_CONSTEXPR negatable_type epsilon    () BOOST_NOEXCEPT { return negatable_type::epsilon_maker(); }
+      BOOST_STATIC_CONSTEXPR negatable_type round_error() BOOST_NOEXCEPT { return negatable_type(1) / 2; }
+      BOOST_STATIC_CONSTEXPR negatable_type infinity   () BOOST_NOEXCEPT { return negatable_type(0); }
+      BOOST_STATIC_CONSTEXPR negatable_type quiet_NaN  () BOOST_NOEXCEPT { return negatable_type(0); }
+    };
+
+    // Here is the template specialization of std::numeric_limits<negatable>
+    // for round::nearest_even and overflow::undefined.
+    template<const int integral_range,
+             const int decimal_resolution>
+    class numeric_limits<boost::fixed_point::negatable<integral_range,
+                                                       decimal_resolution,
+                                                       boost::fixed_point::round::nearest_even,
+                                                       boost::fixed_point::overflow::undefined>>
+    {
+    private:
+      typedef boost::fixed_point::negatable<integral_range,
+                                            decimal_resolution,
+                                            boost::fixed_point::round::nearest_even,
+                                            boost::fixed_point::overflow::undefined> negatable_type;
+
+    public:
+      BOOST_STATIC_CONSTEXPR bool                    is_specialized    = true;
+      BOOST_STATIC_CONSTEXPR int                     digits            = negatable_type::digits_total - 1;
+      BOOST_STATIC_CONSTEXPR int                     digits10          = static_cast<int>((static_cast<boost::uintmax_t>(digits - 1) * UINTMAX_C(3010)) / UINTMAX_C(10000));
+      BOOST_STATIC_CONSTEXPR int                     max_digits10      = static_cast<int>((static_cast<boost::uintmax_t>(digits - 0) * UINTMAX_C(3010)) / UINTMAX_C(10000)) + 2;
+      BOOST_STATIC_CONSTEXPR bool                    is_signed         = true;
+      BOOST_STATIC_CONSTEXPR bool                    is_integer        = false;
+      BOOST_STATIC_CONSTEXPR bool                    is_exact          = true;
+      BOOST_STATIC_CONSTEXPR int                     radix             = 2;
+      BOOST_STATIC_CONSTEXPR int                     min_exponent      = -negatable_type::radix_split;
+      BOOST_STATIC_CONSTEXPR int                     min_exponent10    = -static_cast<int>((static_cast<boost::uintmax_t>(-min_exponent) * UINTMAX_C(3010)) / UINTMAX_C(10000));
+      BOOST_STATIC_CONSTEXPR int                     max_exponent      = digits - negatable_type::radix_split;
+      BOOST_STATIC_CONSTEXPR int                     max_exponent10    = +static_cast<int>((static_cast<boost::uintmax_t>(+max_exponent) * UINTMAX_C(3010)) / UINTMAX_C(10000));
+      BOOST_STATIC_CONSTEXPR bool                    has_infinity      = false;
+      BOOST_STATIC_CONSTEXPR bool                    has_quiet_NaN     = false;
+      BOOST_STATIC_CONSTEXPR bool                    has_signaling_NaN = false;
+      BOOST_STATIC_CONSTEXPR std::float_denorm_style has_denorm        = std::denorm_absent;
+      BOOST_STATIC_CONSTEXPR bool                    has_denorm_loss   = false;
+      BOOST_STATIC_CONSTEXPR bool                    is_iec559         = false;
+      BOOST_STATIC_CONSTEXPR bool                    is_bounded        = true;
+      BOOST_STATIC_CONSTEXPR bool                    is_modulo         = false;
+      BOOST_STATIC_CONSTEXPR bool                    traps             = false;
+      BOOST_STATIC_CONSTEXPR bool                    tinyness_before   = false;
+      BOOST_STATIC_CONSTEXPR std::float_round_style  round_style       = std::round_to_nearest;
+
+      BOOST_STATIC_CONSTEXPR negatable_type (min)      () BOOST_NOEXCEPT { return negatable_type::value_min(); }
+      BOOST_STATIC_CONSTEXPR negatable_type (max)      () BOOST_NOEXCEPT { return negatable_type::value_max(); }
+      BOOST_STATIC_CONSTEXPR negatable_type lowest     () BOOST_NOEXCEPT { return -(max)(); }
+      BOOST_STATIC_CONSTEXPR negatable_type epsilon    () BOOST_NOEXCEPT { return negatable_type::epsilon_maker(); }
+      BOOST_STATIC_CONSTEXPR negatable_type round_error() BOOST_NOEXCEPT { return negatable_type(1) / 2; }
+      BOOST_STATIC_CONSTEXPR negatable_type infinity   () BOOST_NOEXCEPT { return negatable_type(0); }
+      BOOST_STATIC_CONSTEXPR negatable_type quiet_NaN  () BOOST_NOEXCEPT { return negatable_type(0); }
     };
   } // namespace std
-
 
 #endif // FIXED_POINT_2015_03_06_HPP_

@@ -45,7 +45,7 @@
 
   template<const unsigned bit_count>
   struct integer_type_helper<bit_count,
-                             typename std::enable_if<(bit_count <= 8U)>::type>
+                              typename std::enable_if<(bit_count <= 8U)>::type>
   {
     typedef boost::int8_t  exact_signed_type;
     typedef boost::uint8_t exact_unsigned_type;
@@ -53,8 +53,8 @@
 
   template<const unsigned bit_count>
   struct integer_type_helper<bit_count,
-                             typename std::enable_if<   (bit_count >   8U)
-                                                     && (bit_count <= 16U)>::type>
+                              typename std::enable_if<   (bit_count >   8U)
+                                                      && (bit_count <= 16U)>::type>
   {
     typedef boost::int16_t  exact_signed_type;
     typedef boost::uint16_t exact_unsigned_type;
@@ -62,8 +62,8 @@
 
   template<const unsigned bit_count>
   struct integer_type_helper<bit_count,
-                             typename std::enable_if<   (bit_count >  16U)
-                                                     && (bit_count <= 32U)>::type>
+                              typename std::enable_if<   (bit_count >  16U)
+                                                      && (bit_count <= 32U)>::type>
   {
     typedef boost::int32_t  exact_signed_type;
     typedef boost::uint32_t exact_unsigned_type;
@@ -71,8 +71,8 @@
 
   template<const unsigned bit_count>
   struct integer_type_helper<bit_count,
-                             typename std::enable_if<   (bit_count >  32U)
-                                                     && (bit_count <= 64U)>::type>
+                              typename std::enable_if<   (bit_count >  32U)
+                                                      && (bit_count <= 64U)>::type>
   {
     typedef boost::int64_t  exact_signed_type;
     typedef boost::uint64_t exact_unsigned_type;
@@ -235,15 +235,15 @@
 
   template<const unsigned bit_count>
   struct float_type_helper<bit_count,
-                            typename std::enable_if<(bit_count <= 24U)>::type>
+                           typename std::enable_if<(bit_count <= 24U)>::type>
   {
     typedef boost::float32_t exact_float_type;
   };
 
   template<const unsigned bit_count>
   struct float_type_helper<bit_count,
-                          typename std::enable_if<   (bit_count >  24U)
-                                                  && (bit_count <= 53U)>::type>
+                           typename std::enable_if<   (bit_count >  24U)
+                                                   && (bit_count <= 53U)>::type>
   {
     typedef boost::float64_t exact_float_type;
   };
@@ -260,17 +260,18 @@
            typename enable_type = void>
   struct radix_split_maker
   {
-    static arithmetic_type& value()
+    static const arithmetic_type& value()
     {
-      static bool            is_init    = bool();
-      static arithmetic_type the_result = arithmetic_type();
+      static bool is_init = bool();
+
+      arithmetic_type local_result = arithmetic_type();
 
       if(is_init == false)
       {
         is_init = true;
 
         // The variable xn stores the binary powers of x.
-        the_result = arithmetic_type(((radix_split % 2) != 0) ? arithmetic_type(2) : arithmetic_type(1));
+        local_result = arithmetic_type(((radix_split % 2) != 0) ? arithmetic_type(2) : arithmetic_type(1));
 
         arithmetic_type xn(2);
 
@@ -286,10 +287,12 @@
           if(has_binary_power)
           {
             // Multiply the result with each binary power contained in the exponent.
-            the_result *= xn;
+            local_result *= xn;
           }
         }
       }
+
+      static const arithmetic_type the_result(local_result);
 
       return the_result;
     }
@@ -351,6 +354,31 @@
     {
       static const arithmetic_type the_result(UINT64_C(1) << radix_split);
       return the_result;
+    }
+  };
+
+  template<typename unsigned_integral_type,
+           typename floating_point_type,
+           typename enable_type = void>
+  struct conversion_helper
+  {
+    static void convert_floating_point_to_unsigned_integer(const floating_point_type& floating_point_source,
+                                                           unsigned_integral_type& unsigned_destination)
+    {
+      unsigned_destination = floating_point_source.template convert_to<unsigned_integral_type>();
+    }
+  };
+
+  template<typename unsigned_integral_type,
+           typename floating_point_type>
+  struct conversion_helper<unsigned_integral_type,
+                           floating_point_type,
+                           typename std::enable_if<std::is_floating_point<floating_point_type>::value>::type>
+  {
+    static void convert_floating_point_to_unsigned_integer(const floating_point_type& floating_point_source,
+                                                           unsigned_integral_type& unsigned_destination)
+    {
+      unsigned_destination = static_cast<unsigned_integral_type>(floating_point_source);
     }
   };
   } } } // namespace boost::fixed_point::detail
