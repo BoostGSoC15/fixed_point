@@ -180,8 +180,8 @@
   class negatable
   {
   private:
-    static BOOST_CONSTEXPR_OR_CONST int digits_total =  integral_range - decimal_resolution;
-    static BOOST_CONSTEXPR_OR_CONST int range        =  integral_range;
+    static BOOST_CONSTEXPR_OR_CONST int digits_total =  integral_range + 1 - decimal_resolution;
+    static BOOST_CONSTEXPR_OR_CONST int range        =  integral_range + 1;
     static BOOST_CONSTEXPR_OR_CONST int resolution   =  decimal_resolution;
     static BOOST_CONSTEXPR_OR_CONST int radix_split  = -decimal_resolution;
 
@@ -734,7 +734,7 @@
     {
       static const negatable& pi()
       {
-        static_assert(integral_range >= 3,
+        static_assert(range >= 3,
                       "The constant pi can not be created with fewer than 3 binary signed integer digits");
 
         static const negatable value_pi(boost::math::constants::pi<negatable>());
@@ -754,7 +754,7 @@
     {
       static const negatable& pi()
       {
-        static_assert(integral_range >= 3,
+        static_assert(range >= 3,
                       "The constant pi can not be created with fewer than 3 binary signed integer digits");
 
         static const negatable value_pi(nothing(), value_type((UINT8_C(0x64) + ((UINT8_C(1) << (5 + decimal_resolution)) / 2U)) >> (5 + decimal_resolution)));
@@ -774,7 +774,7 @@
     {
       static const negatable& pi()
       {
-        static_assert(integral_range >= 3,
+        static_assert(range >= 3,
                       "The constant pi can not be created with fewer than 3 binary signed integer digits");
 
         static const negatable value_pi(nothing(), value_type((UINT16_C(0x6487) + ((UINT16_C(1) << (13 + decimal_resolution)) / 2U)) >> (13 + decimal_resolution)));
@@ -794,7 +794,7 @@
     {
       static const negatable& pi()
       {
-        static_assert(integral_range >= 3,
+        static_assert(range >= 3,
                       "The constant pi can not be created with fewer than 3 binary signed integer digits");
 
         static const negatable value_pi(nothing(), value_type((UINT32_C(0x6487ED51) + ((UINT32_C(1) << (29 + decimal_resolution)) / 2U)) >> (29 + decimal_resolution)));
@@ -814,7 +814,7 @@
     {
       static const negatable& pi()
       {
-        static_assert(integral_range >= 3,
+        static_assert(range >= 3,
                       "The constant pi can not be created with fewer than 3 binary signed integer digits");
 
         static const negatable value_pi(nothing(), value_type((UINT64_C(0x6487ED5110B4611A) + ((UINT64_C(1) << (61 + decimal_resolution)) / 2U)) >> (61 + decimal_resolution)));
