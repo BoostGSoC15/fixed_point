@@ -21,7 +21,7 @@
 
 #include "boost/fixed_point/fixed_point.hpp"
 
-BOOST_AUTO_TEST_CASE(fixed_point_multiply_negative_round)
+/*BOOST_AUTO_TEST_CASE(fixed_point_multiply_negative_round)
 {
   //! small range and resolution
   {
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(fixed_point_multiply_negative_round)
 
     BOOST_CHECK_EQUAL(x, y);
   }  
-}
+}*/
 
 BOOST_AUTO_TEST_CASE(fixed_point_multiply_fastest_round)
 {
