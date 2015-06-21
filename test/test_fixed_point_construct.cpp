@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_nearest_even_round)
   }  
 }
 
-BOOST_AUTO_TEST_CASE(fixed_point_consruct_fastest_round)
+BOOST_AUTO_TEST_CASE(fixed_point_construct_fastest_round)
 {
   //! small range and resolution
   {

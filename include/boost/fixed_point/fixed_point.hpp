@@ -424,6 +424,26 @@
     operator double     () { return convert_to_floating_point_type<double>     (); }
     operator long double() { return convert_to_floating_point_type<long double>(); }
 
+    // this function is used primarily for debugging and testing purposes
+    // tbd: should not be exposed to users
+    std::string bit_pattern()
+    {
+      value_type num = this->data;
+      std::string ans;
+      value_type mask(1);
+      for(int i = 0; i < digits_total; i++)
+      {
+        if(num & mask)
+        {
+          ans += "1";
+        }
+        else ans += "0";
+        mask <<= 1;
+      }
+      std::reverse(ans.begin(), ans.end());
+      return ans;
+    }
+
   private:
     value_type data;
 
