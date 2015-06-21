@@ -55,5 +55,5 @@ test-suite "Fixed_point"
     :
       [ run test_fixed_point_basic.cpp boost_unit_test ]
       [ run test_fixed_point_multiply.cpp boost_unit_test ]
-      [ run test_fixed_point_constuct.cpp boost_unit_test ]
+      [ run test_fixed_point_construct.cpp boost_unit_test ]
     ;
