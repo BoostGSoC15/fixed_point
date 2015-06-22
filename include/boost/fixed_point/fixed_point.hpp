@@ -180,10 +180,10 @@
   class negatable
   {
   private:
-    static BOOST_CONSTEXPR_OR_CONST int digits_total =  integral_range + 1 - decimal_resolution;
-    static BOOST_CONSTEXPR_OR_CONST int range        =  integral_range + 1;
-    static BOOST_CONSTEXPR_OR_CONST int resolution   =  decimal_resolution;
-    static BOOST_CONSTEXPR_OR_CONST int radix_split  = -decimal_resolution;
+    static BOOST_CONSTEXPR_OR_CONST int digits_total =  (integral_range + 1) - decimal_resolution;
+    static BOOST_CONSTEXPR_OR_CONST int range        =   integral_range + 1;
+    static BOOST_CONSTEXPR_OR_CONST int resolution   =   decimal_resolution;
+    static BOOST_CONSTEXPR_OR_CONST int radix_split  =  -decimal_resolution;
 
     // TBD: Is this limitation correct?
     // TBD: Or are pure integer instantiations of negatable allowed?
@@ -246,7 +246,8 @@
     // Here are the class constructors from built-in floating-point types.
     template<typename floating_point_type>
     negatable(const floating_point_type& f,
-              const typename std::enable_if<std::is_floating_point<floating_point_type>::value>::type* = nullptr)
+              const typename std::enable_if<   std::is_floating_point<floating_point_type>::value
+                                            || std::is_same<floating_point_type, float_type>::value>::type* = nullptr)
       : data()
     {
       make_from_floating_point_type(f);
@@ -407,22 +408,22 @@
     // conversion from built-in floasting-point types to built-in
     // integral types as described in ISO/IEC 14882:2011 paragraph 4.9.1.
 
-    operator char     () { return static_cast<char>     ((!(data < 0)) ? static_cast<char>     (unsigned_small_type(data) >> radix_split) : -static_cast<char>     (unsigned_small_type(-data) >> radix_split)); }
-    operator short    () { return static_cast<short>    ((!(data < 0)) ? static_cast<short>    (unsigned_small_type(data) >> radix_split) : -static_cast<short>    (unsigned_small_type(-data) >> radix_split)); }
-    operator int      () { return static_cast<int>      ((!(data < 0)) ? static_cast<int>      (unsigned_small_type(data) >> radix_split) : -static_cast<int>      (unsigned_small_type(-data) >> radix_split)); }
-    operator long     () { return static_cast<long>     ((!(data < 0)) ? static_cast<long>     (unsigned_small_type(data) >> radix_split) : -static_cast<long>     (unsigned_small_type(-data) >> radix_split)); }
-    operator long long() { return static_cast<long long>((!(data < 0)) ? static_cast<long long>(unsigned_small_type(data) >> radix_split) : -static_cast<long long>(unsigned_small_type(-data) >> radix_split)); }
+    operator char     () const { return static_cast<char>     ((!(data < 0)) ? static_cast<char>     (unsigned_small_type(data) >> radix_split) : -static_cast<char>     (unsigned_small_type(-data) >> radix_split)); }
+    operator short    () const { return static_cast<short>    ((!(data < 0)) ? static_cast<short>    (unsigned_small_type(data) >> radix_split) : -static_cast<short>    (unsigned_small_type(-data) >> radix_split)); }
+    operator int      () const { return static_cast<int>      ((!(data < 0)) ? static_cast<int>      (unsigned_small_type(data) >> radix_split) : -static_cast<int>      (unsigned_small_type(-data) >> radix_split)); }
+    operator long     () const { return static_cast<long>     ((!(data < 0)) ? static_cast<long>     (unsigned_small_type(data) >> radix_split) : -static_cast<long>     (unsigned_small_type(-data) >> radix_split)); }
+    operator long long() const { return static_cast<long long>((!(data < 0)) ? static_cast<long long>(unsigned_small_type(data) >> radix_split) : -static_cast<long long>(unsigned_small_type(-data) >> radix_split)); }
 
-    operator unsigned char     () { return static_cast<unsigned char>     (unsigned_small_type(data) >> radix_split); }
-    operator unsigned short    () { return static_cast<unsigned short>    (unsigned_small_type(data) >> radix_split); }
-    operator unsigned int      () { return static_cast<unsigned int>      (unsigned_small_type(data) >> radix_split); }
-    operator unsigned long     () { return static_cast<unsigned long>     (unsigned_small_type(data) >> radix_split); }
-    operator unsigned long long() { return static_cast<unsigned long long>(unsigned_small_type(data) >> radix_split); }
+    operator unsigned char     () const { return static_cast<unsigned char>     (unsigned_small_type(data) >> radix_split); }
+    operator unsigned short    () const { return static_cast<unsigned short>    (unsigned_small_type(data) >> radix_split); }
+    operator unsigned int      () const { return static_cast<unsigned int>      (unsigned_small_type(data) >> radix_split); }
+    operator unsigned long     () const { return static_cast<unsigned long>     (unsigned_small_type(data) >> radix_split); }
+    operator unsigned long long() const { return static_cast<unsigned long long>(unsigned_small_type(data) >> radix_split); }
 
     // Cast operators for built-in floating-point types.
-    operator float      () { return convert_to_floating_point_type<float>      (); }
-    operator double     () { return convert_to_floating_point_type<double>     (); }
-    operator long double() { return convert_to_floating_point_type<long double>(); }
+    operator float      () const { return convert_to_floating_point_type<float>      (); }
+    operator double     () const { return convert_to_floating_point_type<double>     (); }
+    operator long double() const { return convert_to_floating_point_type<long double>(); }
 
     // this function is used primarily for debugging and testing purposes
     // tbd: should not be exposed to users
@@ -564,13 +565,15 @@
 
       // This is an unsigned integral type that is guaranteed
       // to hold the larger of:
-      // * the number of digits in floating_point_type
+      // * the number of digits in floating_point_type plus 1 extra digit
       // * the number of digits in unsigned_small_type.
+
+      BOOST_CONSTEXPR_OR_CONST int fp_digits_plus_one = std::numeric_limits<floating_point_type>::digits + 1;
 
       typedef
       typename detail::integer_type_helper<
-        unsigned((std::numeric_limits<floating_point_type>::digits > std::numeric_limits<unsigned_small_type>::digits)
-                    ? std::numeric_limits<floating_point_type>::digits
+        unsigned((fp_digits_plus_one > std::numeric_limits<unsigned_small_type>::digits)
+                    ? fp_digits_plus_one
                     : std::numeric_limits<unsigned_small_type>::digits)>::exact_unsigned_type
       local_unsigned_small_type;
 
@@ -588,8 +591,10 @@
       // of the floating_point_type representation.
       local_unsigned_small_type u;
 
-      detail::conversion_helper<local_unsigned_small_type, floating_point_type>::convert_floating_point_to_unsigned_integer
-        (ldexp(fp, std::numeric_limits<floating_point_type>::digits + 1), u);
+      const floating_point_type fp_shifted = ldexp(fp, fp_digits_plus_one);
+
+      detail::conversion_helper<local_unsigned_small_type,
+                                floating_point_type>::convert_floating_point_to_unsigned_integer(fp_shifted, u);
 
       // Select the scale factor for the conversion to the fixed-point type.
       // Here, we use 1 extra binary digit that will be used for rounding.

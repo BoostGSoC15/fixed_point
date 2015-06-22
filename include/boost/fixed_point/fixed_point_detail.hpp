@@ -12,9 +12,11 @@
 #ifndef FIXED_POINT_DETAIL_2015_05_23_HPP_
   #define FIXED_POINT_DETAIL_2015_05_23_HPP_
 
+  #include <sstream>
   #include <type_traits>
   #include <boost/cstdfloat.hpp>
   #include <boost/cstdint.hpp>
+  #include <boost/lexical_cast.hpp>
   #include <boost/multiprecision/cpp_bin_float.hpp>
   #include <boost/multiprecision/cpp_int.hpp>
 
@@ -121,7 +123,7 @@
                                                      512U,
                                                      boost::multiprecision::unsigned_magnitude,
                                                      boost::multiprecision::unchecked,
-                                                    void>,
+                                                     void>,
               boost::multiprecision::et_off>
     exact_unsigned_type;
   };
@@ -366,6 +368,36 @@
                                                            unsigned_integral_type& unsigned_destination)
     {
       unsigned_destination = floating_point_source.template convert_to<unsigned_integral_type>();
+    }
+  };
+
+  template<typename floating_point_type>
+  struct conversion_helper<boost::uint64_t,
+                           floating_point_type,
+                           typename std::enable_if<std::is_floating_point<floating_point_type>::value == false>::type>
+  {
+    static void convert_floating_point_to_unsigned_integer(const floating_point_type& floating_point_source,
+                                                           boost::uint64_t& unsigned_destination)
+    {
+      // TBD: Here is a big workaround for the conversion of cpp_bin_float to uint64_t.
+      // TBD: It is for cases when the digits in cpp_bin_float are fewer than
+      // the digits in uint64_t.
+      // TBD: See the TODO in the comment at line 1113 of cpp_bin_float.hpp.
+
+      std::stringstream ss;
+
+      ss << std::fixed << floating_point_source;
+
+      std::string str(ss.str());
+
+      const std::string::size_type position_of_dot = str.find(".");
+
+      if(position_of_dot != std::string::npos)
+      {
+        str = str.substr(std::string::size_type(0U), position_of_dot);
+      }
+
+      unsigned_destination = boost::lexical_cast<boost::uint64_t>(str);
     }
   };
 
