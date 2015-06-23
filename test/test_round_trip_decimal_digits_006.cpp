@@ -11,7 +11,7 @@
 // "C++ binary fixed-point arithmetic" as specified in N3352.
 // See: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html
 
-#define BOOST_TEST_MODULE round_trip_decimal_digits_005
+#define BOOST_TEST_MODULE round_trip_decimal_digits_006
 #define BOOST_LIB_DIAGNOSTIC
 
 #include <iomanip>
