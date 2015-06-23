@@ -11,7 +11,6 @@
 // "C++ binary fixed-point arithmetic" as specified in N3352.
 // See: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html
 
-
 #define BOOST_TEST_MODULE round_trip_decimal_digits_003
 #define BOOST_LIB_DIAGNOSTIC
 
@@ -62,13 +61,13 @@ BOOST_AUTO_TEST_CASE(round_trip_decimal_digits_003)
   typedef local::fixed_point_type_decimal_digits_003 fixed_point_type;
   typedef fixed_point_type::float_type floating_point_type;
 
-  uint_fast32_t count;
+  uint_fast16_t count;
 
   bool b = true;
 
   // Test every single value with 3 decimal digits of precision
-  // The values range from 0.001, 0.002, 0.003, ... 0.500.
-  for(count = UINT32_C(1); ((count < UINT32_C(500)) && b); ++count)
+  // ranging from 0.001, 0.002, 0.003, ... 0.500.
+  for(count = UINT16_C(1); ((count < UINT16_C(500)) && b); ++count)
   {
     std::stringstream ss1;
 
@@ -76,7 +75,9 @@ BOOST_AUTO_TEST_CASE(round_trip_decimal_digits_003)
 
     std::string str(ss1.str());
 
-    str.insert(0U, 3U - str.length(), '0');
+    str.insert(std::string::size_type(0U),
+               std::string::size_type(3U) - str.length(),
+               char('0'));
 
     str = ("0." + str);
 
@@ -90,7 +91,7 @@ BOOST_AUTO_TEST_CASE(round_trip_decimal_digits_003)
     b = (b && next_test_result);
   }
 
-  BOOST_CHECK_EQUAL(count, UINT32_C(500));
+  BOOST_CHECK_EQUAL(count, UINT16_C(500));
 
   BOOST_CHECK_EQUAL(b, true);
 }

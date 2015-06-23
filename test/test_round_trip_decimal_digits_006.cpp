@@ -26,19 +26,19 @@
 
 namespace local
 {
-  // Define a binary fixed-point type with 5 decimal digits of precision.
+  // Define a binary fixed-point type with 6 decimal digits of precision.
   typedef
   boost::fixed_point::negatable<0,
-                                -18,
+                                -24,
                                 boost::fixed_point::round::nearest_even>
-  fixed_point_type_decimal_digits_005;
+  fixed_point_type_decimal_digits_006;
 
-  bool round_trip(const fixed_point_type_decimal_digits_005& x);
+  bool round_trip(const fixed_point_type_decimal_digits_006& x);
 }
 
-bool local::round_trip(const local::fixed_point_type_decimal_digits_005& x)
+bool local::round_trip(const local::fixed_point_type_decimal_digits_006& x)
 {
-  typedef local::fixed_point_type_decimal_digits_005 fixed_point_type;
+  typedef local::fixed_point_type_decimal_digits_006 fixed_point_type;
 
   std::stringstream ss1;
 
@@ -56,18 +56,18 @@ bool local::round_trip(const local::fixed_point_type_decimal_digits_005& x)
   return b;
 }
 
-BOOST_AUTO_TEST_CASE(round_trip_decimal_digits_005)
+BOOST_AUTO_TEST_CASE(round_trip_decimal_digits_006)
 {
-  typedef local::fixed_point_type_decimal_digits_005 fixed_point_type;
+  typedef local::fixed_point_type_decimal_digits_006 fixed_point_type;
   typedef fixed_point_type::float_type floating_point_type;
 
-  uint_fast16_t count;
+  uint_fast32_t count;
 
   bool b = true;
 
-  // Test every single value with 5 decimal digits of precision
-  // ranging from 0.00001, 0.00002, 0.00003, ... 0.50000.
-  for(count = UINT16_C(1); ((count < UINT16_C(50000)) && b); ++count)
+  // Test every single value with 6 decimal digits of precision
+  // ranging from 0.000001, 0.000002, 0.000003, ... 0.500000.
+  for(count = UINT32_C(1); ((count < UINT32_C(500000)) && b); ++count)
   {
     std::stringstream ss1;
 
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE(round_trip_decimal_digits_005)
     std::string str(ss1.str());
 
     str.insert(std::string::size_type(0U),
-               std::string::size_type(5U) - str.length(),
+               std::string::size_type(6U) - str.length(),
                char('0'));
 
     str = ("0." + str);
@@ -86,12 +86,12 @@ BOOST_AUTO_TEST_CASE(round_trip_decimal_digits_005)
     const fixed_point_type fx(x);
 
     const bool next_test_result =
-      local::round_trip(local::fixed_point_type_decimal_digits_005(fx));
+      local::round_trip(local::fixed_point_type_decimal_digits_006(fx));
 
     b = (b && next_test_result);
   }
 
-  BOOST_CHECK_EQUAL(count, UINT16_C(50000));
+  BOOST_CHECK_EQUAL(count, UINT32_C(500000));
 
   BOOST_CHECK_EQUAL(b, true);
 }

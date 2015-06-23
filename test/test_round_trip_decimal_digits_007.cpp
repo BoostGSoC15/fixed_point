@@ -11,7 +11,6 @@
 // "C++ binary fixed-point arithmetic" as specified in N3352.
 // See: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html
 
-
 #define BOOST_TEST_MODULE round_trip_decimal_digits_007
 #define BOOST_LIB_DIAGNOSTIC
 
@@ -67,7 +66,7 @@ BOOST_AUTO_TEST_CASE(round_trip_decimal_digits_007)
   bool b = true;
 
   // Test every single value with 5 decimal digits of precision
-  // The values range from 0.0000001, 0.0000002, 0.0000003, ... 0.5000000.
+  // ranging from 0.0000001, 0.0000002, 0.0000003, ... 0.5000000.
   for(count = UINT32_C(1); ((count < UINT32_C(5000000)) && b); ++count)
   {
     std::stringstream ss1;
@@ -76,7 +75,9 @@ BOOST_AUTO_TEST_CASE(round_trip_decimal_digits_007)
 
     std::string str(ss1.str());
 
-    str.insert(0U, 7U - str.length(), '0');
+    str.insert(std::string::size_type(0U),
+               std::string::size_type(7U) - str.length(),
+               char('0'));
 
     str = ("0." + str);
 
