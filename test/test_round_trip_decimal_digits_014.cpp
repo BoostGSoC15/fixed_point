@@ -77,13 +77,12 @@ BOOST_AUTO_TEST_CASE(round_trip_decimal_digits_014)
 
   bool b = true;
 
-  // Test random values with 14 decimal digits of precision within the
-  // range of 0.00000000000001, 0.00000000000002, ... 0.50000000000000.
+  // Test random values with 14 decimal digits of precision.
   for(count = UINT32_C(1); ((count < UINT32_C(1000000)) && b); ++count)
   {
-    std::stringstream ss1;
-
     const boost::uint64_t u = unsigned_integral_maker();
+
+    std::stringstream ss1;
 
     ss1 << u;
 

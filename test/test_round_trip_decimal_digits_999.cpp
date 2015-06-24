@@ -80,16 +80,21 @@ BOOST_AUTO_TEST_CASE(fixed_point_type_decimal_digits_999)
   // Test random values with 999 decimal digits of precision.
   for(count = UINT32_C(1); ((count < UINT32_C(10000)) && b); ++count)
   {
-    fixed_point_type::value_type v(0);
+    typedef
+    boost::fixed_point::detail::integer_type_helper
+      <std::numeric_limits<fixed_point_type>::digits + 1>::exact_unsigned_type
+    unsigned_integral_type;
+
+    unsigned_integral_type u(0);
 
     for(int i = 0; i < std::numeric_limits<fixed_point_type>::digits - 2; ++i)
     {
-      v |= fixed_point_type::value_type(radom_bit_maker()) << i;
+      u |= (unsigned_integral_type(radom_bit_maker()) << i);
     }
 
     std::stringstream ss1;
 
-    ss1 << v;
+    ss1 << u;
 
     std::string str(ss1.str());
 

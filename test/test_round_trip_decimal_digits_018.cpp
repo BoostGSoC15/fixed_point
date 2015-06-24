@@ -82,9 +82,9 @@ BOOST_AUTO_TEST_CASE(fixed_point_type_decimal_digits_018)
   // Test random values with 18 decimal digits of precision.
   for(count = UINT32_C(1); ((count < UINT32_C(1000000)) && b); ++count)
   {
-    std::stringstream ss1;
-
     const unsigned_integral_type u = unsigned_integral_maker();
+
+    std::stringstream ss1;
 
     ss1 << u;
 
