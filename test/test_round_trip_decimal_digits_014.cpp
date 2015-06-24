@@ -67,11 +67,11 @@ BOOST_AUTO_TEST_CASE(round_trip_decimal_digits_014)
 
   random_generator_type random_generator;
 
-  boost::uniform_int<boost::uint64_t> uniform_integer_range(UINT64_C(1), (UINT64_C(1) << 46));
+  boost::uniform_int<boost::uint64_t> uniform_bit_range(UINT64_C(1), (UINT64_C(1) << 46));
 
   boost::variate_generator<random_generator_type,
                            boost::uniform_int<boost::uint64_t>>
-  unsigned_integral_maker(random_generator, uniform_integer_range);
+  unsigned_integral_maker(random_generator, uniform_bit_range);
 
   uint_fast32_t count;
 

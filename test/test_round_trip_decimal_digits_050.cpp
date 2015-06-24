@@ -11,7 +11,7 @@
 // "C++ binary fixed-point arithmetic" as specified in N3352.
 // See: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html
 
-#define BOOST_TEST_MODULE round_trip_decimal_digits_018
+#define BOOST_TEST_MODULE round_trip_decimal_digits_050
 #define BOOST_LIB_DIAGNOSTIC
 
 #include <iomanip>
@@ -28,19 +28,19 @@
 
 namespace local
 {
-  // Define a binary fixed-point type with 18 decimal digits of precision.
+  // Define a binary fixed-point type with 50 decimal digits of precision.
   typedef
   boost::fixed_point::negatable<0,
-                                -61,
+                                -168,
                                 boost::fixed_point::round::nearest_even>
-  fixed_point_type_decimal_digits_018;
+  fixed_point_type_decimal_digits_050;
 
-  bool round_trip(const fixed_point_type_decimal_digits_018& x);
+  bool round_trip(const fixed_point_type_decimal_digits_050& x);
 }
 
-bool local::round_trip(const local::fixed_point_type_decimal_digits_018& x)
+bool local::round_trip(const local::fixed_point_type_decimal_digits_050& x)
 {
-  typedef local::fixed_point_type_decimal_digits_018 fixed_point_type;
+  typedef local::fixed_point_type_decimal_digits_050 fixed_point_type;
 
   std::stringstream ss1;
 
@@ -58,42 +58,45 @@ bool local::round_trip(const local::fixed_point_type_decimal_digits_018& x)
   return b;
 }
 
-BOOST_AUTO_TEST_CASE(fixed_point_type_decimal_digits_018)
+BOOST_AUTO_TEST_CASE(fixed_point_type_decimal_digits_050)
 {
-  typedef local::fixed_point_type_decimal_digits_018 fixed_point_type;
+  typedef local::fixed_point_type_decimal_digits_050 fixed_point_type;
   typedef fixed_point_type::float_type floating_point_type;
 
   typedef boost::mt19937 random_generator_type;
 
   random_generator_type random_generator;
 
-  typedef boost::uint64_t unsigned_integral_type;
-
-  boost::uniform_int<unsigned_integral_type> uniform_bit_range(unsigned_integral_type(1), (unsigned_integral_type(1) << 59));
+  boost::uniform_int<unsigned> uniform_bit_range(0U, 1U);
 
   boost::variate_generator<random_generator_type,
-                           boost::uniform_int<unsigned_integral_type>>
-  unsigned_integral_maker(random_generator, uniform_bit_range);
+                           boost::uniform_int<unsigned>>
+  radom_bit_maker(random_generator, uniform_bit_range);
 
   uint_fast32_t count;
 
   bool b = true;
 
-  // Test random values with 18 decimal digits of precision.
+  // Test random values with 50 decimal digits of precision.
   for(count = UINT32_C(1); ((count < UINT32_C(1000000)) && b); ++count)
   {
+    fixed_point_type::value_type v(0);
+
+    for(int i = 0; i < std::numeric_limits<fixed_point_type>::digits - 2; ++i)
+    {
+      v |= fixed_point_type::value_type(radom_bit_maker()) << i;
+    }
+
     std::stringstream ss1;
 
-    const unsigned_integral_type u = unsigned_integral_maker();
-
-    ss1 << u;
+    ss1 << v;
 
     std::string str(ss1.str());
 
-    if(str.length() < std::string::size_type(18U))
+    if(str.length() < std::string::size_type(50U))
     {
       str.insert(std::string::size_type(0U),
-                 std::string::size_type(18U) - str.length(),
+                 std::string::size_type(50U) - str.length(),
                  char('0'));
     }
 
@@ -104,7 +107,7 @@ BOOST_AUTO_TEST_CASE(fixed_point_type_decimal_digits_018)
     const fixed_point_type fx(x);
 
     const bool next_test_result =
-      local::round_trip(local::fixed_point_type_decimal_digits_018(fx));
+      local::round_trip(local::fixed_point_type_decimal_digits_050(fx));
 
     b = (b && next_test_result);
   }

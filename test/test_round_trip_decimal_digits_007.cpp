@@ -66,8 +66,8 @@ BOOST_AUTO_TEST_CASE(round_trip_decimal_digits_007)
   bool b = true;
 
   // Test every single value with 5 decimal digits of precision
-  // ranging from 0.0000001, 0.0000002, 0.0000003, ... 0.5000000.
-  for(count = UINT32_C(1); ((count < UINT32_C(5000000)) && b); ++count)
+  // ranging from 0.0000001, 0.0000002, 0.0000003, ... 0.9999999.
+  for(count = UINT32_C(1); ((count < UINT32_C(9999999)) && b); ++count)
   {
     std::stringstream ss1;
 
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE(round_trip_decimal_digits_007)
     b = (b && next_test_result);
   }
 
-  BOOST_CHECK_EQUAL(count, UINT32_C(5000000));
+  BOOST_CHECK_EQUAL(count, UINT32_C(9999999));
 
   BOOST_CHECK_EQUAL(b, true);
 }
