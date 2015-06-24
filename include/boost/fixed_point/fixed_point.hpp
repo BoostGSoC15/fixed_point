@@ -83,7 +83,7 @@
 
     // Forward declaration of the negatable class.
     template<const int integral_range,
-             const int decimal_resolution,
+             const int fractional_resolution,
              typename round_mode,
              typename overflow_mode>
     class negatable;
@@ -92,66 +92,66 @@
 
     // Forward declaration of abs.
     template<const int integral_range,
-             const int decimal_resolution,
+             const int fractional_resolution,
              typename round_mode,
              typename overflow_mode>
     inline negatable<integral_range,
-                     decimal_resolution,
+                     fractional_resolution,
                      round_mode,
                      overflow_mode> abs(negatable<integral_range,
-                                                  decimal_resolution,
+                                                  fractional_resolution,
                                                   round_mode,
                                                   overflow_mode> x);
 
     // Forward declaration of fabs.
     template<const int integral_range,
-             const int decimal_resolution,
+             const int fractional_resolution,
              typename round_mode,
              typename overflow_mode>
     inline negatable<integral_range,
-                     decimal_resolution,
+                     fractional_resolution,
                      round_mode,
                      overflow_mode> fabs(negatable<integral_range,
-                                                   decimal_resolution,
+                                                   fractional_resolution,
                                                    round_mode,
                                                    overflow_mode> x);
 
     // Forward declaration of frexp.
     template<const int integral_range,
-             const int decimal_resolution,
+             const int fractional_resolution,
              typename round_mode,
              typename overflow_mode>
     inline negatable<integral_range,
-                     decimal_resolution,
+                     fractional_resolution,
                      round_mode,
                      overflow_mode> frexp(negatable<integral_range,
-                                                    decimal_resolution,
+                                                    fractional_resolution,
                                                     round_mode,
                                                     overflow_mode> x, int* expptr);
 
     // Forward declaration of ldexp.
     template<const int integral_range,
-             const int decimal_resolution,
+             const int fractional_resolution,
              typename round_mode,
              typename overflow_mode>
     inline negatable<integral_range,
-                     decimal_resolution,
+                     fractional_resolution,
                      round_mode,
                      overflow_mode> ldexp(negatable<integral_range,
-                                                    decimal_resolution,
+                                                    fractional_resolution,
                                                     round_mode,
                                                     overflow_mode> x, int exp);
 
     // Forward declaration of sqrt.
     template<const int integral_range,
-             const int decimal_resolution,
+             const int fractional_resolution,
              typename round_mode,
              typename overflow_mode>
     inline negatable<integral_range,
-                     decimal_resolution,
+                     fractional_resolution,
                      round_mode,
                      overflow_mode> sqrt(negatable<integral_range,
-                                                   decimal_resolution,
+                                                   fractional_resolution,
                                                    round_mode,
                                                    overflow_mode> x);
 
@@ -161,11 +161,11 @@
   {
     // Forward declaration of the specialization of std::numeric_limits<negatable>.
     template<const int integral_range,
-             const int decimal_resolution,
+             const int fractional_resolution,
              typename round_mode,
              typename overflow_mode>
     class numeric_limits<boost::fixed_point::negatable<integral_range,
-                                                       decimal_resolution,
+                                                       fractional_resolution,
                                                        round_mode,
                                                        overflow_mode>>;
   }
@@ -174,31 +174,31 @@
 
   // We will now begin the implementation of the negatable class.
   template<const int integral_range,
-           const int decimal_resolution,
+           const int fractional_resolution,
            typename round_mode = round::fastest,
            typename overflow_mode = overflow::undefined>
   class negatable
   {
   private:
-    static BOOST_CONSTEXPR_OR_CONST int digits_total =  (integral_range + 1) - decimal_resolution;
-    static BOOST_CONSTEXPR_OR_CONST int range        =   integral_range + 1;
-    static BOOST_CONSTEXPR_OR_CONST int resolution   =   decimal_resolution;
-    static BOOST_CONSTEXPR_OR_CONST int radix_split  =  -decimal_resolution;
+    static BOOST_CONSTEXPR_OR_CONST int radix_split  = -fractional_resolution;
+    static BOOST_CONSTEXPR_OR_CONST int digits_total = (integral_range + 1) - fractional_resolution;
 
     // TBD: Is this limitation correct?
     // TBD: Or are pure integer instantiations of negatable allowed?
-    static_assert( resolution < 0,
-                  "Error: The resolution of negatable must be negative and include at least 1 fractional bit.");
+    static_assert(fractional_resolution < 0,
+                  "Error: The fractional resolution of negatable must be negative and include at least 1 fractional bit.");
 
-    static_assert(range > 0,
-                  "Error: The range of negatable must be 1 or more (at least 1 for the sign bit).");
+    // TBD: Is this limitation correct?
+    // TBD: Or can negatable have a negative integral range?
+    static_assert(integral_range >= 0,
+                  "Error: The integral range of negatable must be 0 or more.");
 
     static_assert(   std::is_same<round_mode, round::fastest>::value
                   || std::is_same<round_mode, round::nearest_even>::value,
-                  "Error: only fastest and nearest_even round modes supported at the moment.");
+                  "Error: Only fastest and nearest_even round modes are supported at the moment.");
 
     static_assert(   std::is_same<overflow_mode, overflow::undefined>::value,
-                  "Error: only undefined overflow mode supported at the moment.");
+                  "Error: Only undefined overflow mode is supported at the moment.");
 
   public:
     // Here we declare two convenient class-local type definitions.
@@ -216,8 +216,8 @@
     //                  floating point type.
     //
 
-    typedef typename detail::integer_type_helper<negatable::digits_total>::exact_signed_type value_type;
-    typedef typename detail::float_type_helper  <negatable::digits_total>::exact_float_type  float_type;
+    typedef typename detail::integer_type_helper<negatable::digits_total - 0>::exact_signed_type value_type;
+    typedef typename detail::float_type_helper  <negatable::digits_total - 1>::exact_float_type  float_type;
 
     // The public class constructors follow below.
 
@@ -231,7 +231,7 @@
     negatable(const integral_type& u,
               const typename std::enable_if<(   std::is_integral<integral_type>::value
                                              && std::is_unsigned<integral_type>::value)>::type* = nullptr)
-      : data(value_type(unsigned_small_type(u) << radix_split)) { }
+      : data(value_type(unsigned_small_type(unsigned_small_type(u) << radix_split) & unsigned_small_mask())) { }
 
     // Here are the class constructors from both built-in signed integral
     // types as well as from the internal value_type of the data member.
@@ -240,8 +240,8 @@
               const typename std::enable_if<  (   std::is_integral<integral_type>::value
                                                && std::is_signed  <integral_type>::value)
                                             || std::is_same<integral_type, value_type>::value>::type* = nullptr)
-      : data((!(n < 0)) ? +value_type(unsigned_small_type(+n) << radix_split)
-                        : -value_type(unsigned_small_type(-n) << radix_split)) { }
+      : data((!(n < 0)) ? +value_type(unsigned_small_type(unsigned_small_type(+n) << radix_split) & unsigned_small_mask())
+                        : -value_type(unsigned_small_type(unsigned_small_type(-n) << radix_split) & unsigned_small_mask())) { }
 
     // Here are the class constructors from built-in floating-point types.
     template<typename floating_point_type>
@@ -306,10 +306,9 @@
 
       // Multiplication will be carried out using unsigned integers.
 
-      // Multiplication is carried out with a relatively lazy method
-      // that places the result in unsigned_large_type which is
-      // twice as wide as unsigned_small_type and the width
-      // of the fixed-point data field (including its sign bit).
+      // Multiplication uses with a relatively lazy method.
+      // The result is first placed in unsigned_large_type,
+      // which is twice as wide as unsigned_small_type.
 
       unsigned_large_type result((!u_is_neg) ? data : -data);
 
@@ -319,8 +318,9 @@
       // in the fixed-point data field.
 
       // Here, we use 1 extra binary digit for rounding.
-      // The rounding digit fits in the unsigned_small_type because the
-      // negatable class has a sign bit.
+      // The extra rounding digit fits in unsigned_small_type
+      // because the value_type (even though just s wide as
+      // unsigned_small_type) reserves one bit for the sign.
 
       const int total_right_shift = radix_split - 1;
 
@@ -335,6 +335,8 @@
         // Add or subtract the result of the rounding (-1, 0, or +1).
         u_round += rounding_result;
       }
+
+      u_round = (u_round & unsigned_small_mask());
 
       // Load the fixed-point result and account for potentially signed values.
       data = value_type((!result_is_neg) ? value_type(u_round) : -value_type(u_round));
@@ -357,10 +359,9 @@
 
         // Division will be carried out using unsigned integers.
 
-        // Division is carried out with a relatively lazy method
-        // that places the result in unsigned_large_type which is
-        // twice as wide as unsigned_small_type and the width
-        // of the fixed-point data field (including its sign bit).
+        // Division uses with a relatively lazy method.
+        // The result is first placed in unsigned_large_type,
+        // which is twice as wide as unsigned_small_type.
 
         // Hereby, we scale the result of the division to a larger value
         // so that integer division is straightforward and simple,
@@ -369,8 +370,9 @@
         unsigned_large_type result((!u_is_neg) ? unsigned_large_type(data) : unsigned_large_type(-data));
 
         // Here, we use 1 extra binary digit for rounding.
-        // The rounding digit fits in the unsigned_small_type because the
-        // negatable class has a sign bit.
+        // The extra rounding digit fits in unsigned_small_type
+        // because the value_type (even though just s wide as
+        // unsigned_small_type) reserves one bit for the sign.
 
         result = (result << (radix_split + 1));
 
@@ -386,6 +388,8 @@
           // Add or subtract the result of the rounding (-1, 0, or +1).
           u_round += rounding_result;
         }
+
+        u_round = (u_round & unsigned_small_mask());
 
         // Load the fixed-point result and account for potentially signed values.
         data = value_type((!result_is_neg) ? value_type(u_round) : -value_type(u_round));
@@ -450,6 +454,13 @@
 
     typedef typename detail::integer_type_helper<negatable::digits_total * 1>::exact_unsigned_type unsigned_small_type;
     typedef typename detail::integer_type_helper<negatable::digits_total * 2>::exact_unsigned_type unsigned_large_type;
+
+    static unsigned_small_type unsigned_small_mask() BOOST_NOEXCEPT
+    {
+      return detail::bit_mask_helper<unsigned_small_type,
+                                     0U,
+                                     unsigned(integral_range - fractional_resolution)>::value();
+    }
 
     struct nothing { };
 
@@ -597,10 +608,11 @@
                                 floating_point_type>::convert_floating_point_to_unsigned_integer(fp_shifted, u);
 
       // Select the scale factor for the conversion to the fixed-point type.
-      // Here, we use 1 extra binary digit that will be used for rounding.
-      // The rounding digit fits in unsigned_small_type because the negatable
-      // class has a left-over sign bit that can be used for rounding after
-      // conversion to an unsigned type.
+
+      // Here, we use 1 extra binary digit for rounding.
+      // The extra rounding digit fits in unsigned_small_type
+      // because the value_type (even though just s wide as
+      // unsigned_small_type) reserves one bit for the sign.
 
       const boost::int_fast16_t total_left_shift =   boost::int_fast16_t(radix_split + exp)
                                                    - boost::int_fast16_t(std::numeric_limits<floating_point_type>::digits);
@@ -615,6 +627,8 @@
 
       // Add or subtract the result of the rounding (-1, 0, or +1).
       u_round += rounding_result;
+
+      u_round = (u_round & unsigned_small_mask());
 
       // Load the fixed-point result and account for potentially signed values.
       data = value_type((!is_neg) ? value_type(u_round) : -value_type(u_round));
@@ -661,7 +675,7 @@
     }
 
     static const negatable& value_min() { static const negatable the_value_min(nothing(), 1U); return the_value_min; }
-    static const negatable& value_max() { static const negatable the_value_max(nothing(), (std::numeric_limits<value_type>::max)()); return the_value_max; }
+    static const negatable& value_max() { static const negatable the_value_max(nothing(), value_type(unsigned_small_mask() >> 1)); return the_value_max; }
 
     friend class std::numeric_limits<negatable>;
 
@@ -759,8 +773,8 @@
     {
       static const negatable& pi()
       {
-        static_assert(range >= 3,
-                      "The constant pi can not be created with fewer than 3 binary signed integer digits");
+        static_assert(integral_range >= 2,
+                      "The constant pi can not be created with fewer than 2 binary integral range digits");
 
         static const negatable value_pi(boost::math::constants::pi<negatable>());
         return value_pi;
@@ -779,16 +793,16 @@
     {
       static const negatable& pi()
       {
-        static_assert(range >= 3,
-                      "The constant pi can not be created with fewer than 3 binary signed integer digits");
+        static_assert(integral_range >= 2,
+                      "The constant pi can not be created with fewer than 2 binary integral range digits");
 
-        static const negatable value_pi(nothing(), value_type((UINT8_C(0x64) + ((UINT8_C(1) << (5 + decimal_resolution)) / 2U)) >> (5 + decimal_resolution)));
+        static const negatable value_pi(nothing(), value_type((UINT8_C(0x64) + ((UINT8_C(1) << (5 + fractional_resolution)) / 2U)) >> (5 + fractional_resolution)));
         return value_pi;
       }
 
       static const negatable& ln_two()
       {
-        static const negatable value_ln_two(nothing(), value_type((UINT8_C(0x58) + ((UINT8_C(1) << (7 + decimal_resolution)) / 2U)) >> (7 + decimal_resolution)));
+        static const negatable value_ln_two(nothing(), value_type((UINT8_C(0x58) + ((UINT8_C(1) << (7 + fractional_resolution)) / 2U)) >> (7 + fractional_resolution)));
         return value_ln_two;
       }
     };
@@ -799,16 +813,16 @@
     {
       static const negatable& pi()
       {
-        static_assert(range >= 3,
-                      "The constant pi can not be created with fewer than 3 binary signed integer digits");
+        static_assert(integral_range >= 2,
+                      "The constant pi can not be created with fewer than 2 binary integral range digits");
 
-        static const negatable value_pi(nothing(), value_type((UINT16_C(0x6487) + ((UINT16_C(1) << (13 + decimal_resolution)) / 2U)) >> (13 + decimal_resolution)));
+        static const negatable value_pi(nothing(), value_type((UINT16_C(0x6487) + ((UINT16_C(1) << (13 + fractional_resolution)) / 2U)) >> (13 + fractional_resolution)));
         return value_pi;
       }
 
       static const negatable& ln_two()
       {
-        static const negatable value_ln_two(nothing(), value_type((UINT16_C(0x58B9) + ((UINT16_C(1) << (15 + decimal_resolution)) / 2U)) >> (15 + decimal_resolution)));
+        static const negatable value_ln_two(nothing(), value_type((UINT16_C(0x58B9) + ((UINT16_C(1) << (15 + fractional_resolution)) / 2U)) >> (15 + fractional_resolution)));
         return value_ln_two;
       }
     };
@@ -819,16 +833,16 @@
     {
       static const negatable& pi()
       {
-        static_assert(range >= 3,
-                      "The constant pi can not be created with fewer than 3 binary signed integer digits");
+        static_assert(integral_range >= 2,
+                      "The constant pi can not be created with fewer than 2 binary integral range digits");
 
-        static const negatable value_pi(nothing(), value_type((UINT32_C(0x6487ED51) + ((UINT32_C(1) << (29 + decimal_resolution)) / 2U)) >> (29 + decimal_resolution)));
+        static const negatable value_pi(nothing(), value_type((UINT32_C(0x6487ED51) + ((UINT32_C(1) << (29 + fractional_resolution)) / 2U)) >> (29 + fractional_resolution)));
         return value_pi;
       }
 
       static const negatable& ln_two()
       {
-        static const negatable value_ln_two(nothing(), value_type((UINT32_C(0x58B90BfB) + ((UINT32_C(1) << (31 + decimal_resolution)) / 2U)) >> (31 + decimal_resolution)));
+        static const negatable value_ln_two(nothing(), value_type((UINT32_C(0x58B90BfB) + ((UINT32_C(1) << (31 + fractional_resolution)) / 2U)) >> (31 + fractional_resolution)));
         return value_ln_two;
       }
     };
@@ -839,16 +853,16 @@
     {
       static const negatable& pi()
       {
-        static_assert(range >= 3,
-                      "The constant pi can not be created with fewer than 3 binary signed integer digits");
+        static_assert(integral_range >= 2,
+                      "The constant pi can not be created with fewer than 2 binary integral range digits");
 
-        static const negatable value_pi(nothing(), value_type((UINT64_C(0x6487ED5110B4611A) + ((UINT64_C(1) << (61 + decimal_resolution)) / 2U)) >> (61 + decimal_resolution)));
+        static const negatable value_pi(nothing(), value_type((UINT64_C(0x6487ED5110B4611A) + ((UINT64_C(1) << (61 + fractional_resolution)) / 2U)) >> (61 + fractional_resolution)));
         return value_pi;
       }
 
       static const negatable& ln_two()
       {
-        static const negatable value_ln_two(nothing(), value_type((UINT64_C(0x58B90BFBE8E7BCD6) + ((UINT64_C(1) << (63 + decimal_resolution)) / 2U)) >> (63 + decimal_resolution)));
+        static const negatable value_ln_two(nothing(), value_type((UINT64_C(0x58B90BFBE8E7BCD6) + ((UINT64_C(1) << (63 + fractional_resolution)) / 2U)) >> (63 + fractional_resolution)));
         return value_ln_two;
       }
     };
@@ -951,8 +965,15 @@
         negatable vi = 1U / (result * 2U);
 
         // Compute the square root of x using coupled Newton iteration.
+        // Here we use a conservative calculation of the digits of precision.
+        // We begin with an estimate of 1/2 digit of precision and double
+        // the number of digits with each iteration.
 
-        for(boost::uint_fast16_t i = UINT16_C(1); i <= boost::uint_fast16_t(negatable::digits_total); i *= UINT16_C(2))
+        // TBD: Improve the accuracy of the initial estimate of the
+        // square root and subsequently use a tighter tolerance
+        // on the number of iterations in the Newton-Raphson loop.
+
+        for(boost::uint_fast16_t i = UINT16_C(1); boost::uint_fast16_t(i / 2U) <= boost::uint_fast16_t(negatable::digits_total); i *= UINT16_C(2))
         {
           // Perform the next iteration of vi.
           vi += vi * (-((result * vi) * 2U) + 1U);
@@ -966,14 +987,8 @@
     }
   };
 
-  template<const int integral_range, const int decimal_resolution, typename round_mode, typename overflow_mode>
-  BOOST_CONSTEXPR_OR_CONST int negatable<integral_range, decimal_resolution, round_mode, overflow_mode>::digits_total;
-  template<const int integral_range, const int decimal_resolution, typename round_mode, typename overflow_mode>
-  BOOST_CONSTEXPR_OR_CONST int negatable<integral_range, decimal_resolution, round_mode, overflow_mode>::range;
-  template<const int integral_range, const int decimal_resolution, typename round_mode, typename overflow_mode>
-  BOOST_CONSTEXPR_OR_CONST int negatable<integral_range, decimal_resolution, round_mode, overflow_mode>::resolution;
-  template<const int integral_range, const int decimal_resolution, typename round_mode, typename overflow_mode>
-  BOOST_CONSTEXPR_OR_CONST int negatable<integral_range, decimal_resolution, round_mode, overflow_mode>::radix_split;
+  template<const int integral_range, const int fractional_resolution, typename round_mode, typename overflow_mode> BOOST_CONSTEXPR_OR_CONST int negatable<integral_range, fractional_resolution, round_mode, overflow_mode>::digits_total;
+  template<const int integral_range, const int fractional_resolution, typename round_mode, typename overflow_mode> BOOST_CONSTEXPR_OR_CONST int negatable<integral_range, fractional_resolution, round_mode, overflow_mode>::radix_split;
 
   } } // namespace boost::fixed_point
 
@@ -993,100 +1008,148 @@
     // Here is the template specialization of std::numeric_limits<negatable>
     // for round::fastest and overflow::undefined.
     template<const int integral_range,
-             const int decimal_resolution>
+             const int fractional_resolution>
     class numeric_limits<boost::fixed_point::negatable<integral_range,
-                                                       decimal_resolution,
+                                                       fractional_resolution,
                                                        boost::fixed_point::round::fastest,
                                                        boost::fixed_point::overflow::undefined>>
     {
     private:
       typedef boost::fixed_point::negatable<integral_range,
-                                            decimal_resolution,
+                                            fractional_resolution,
                                             boost::fixed_point::round::fastest,
                                             boost::fixed_point::overflow::undefined> negatable_type;
 
     public:
-      BOOST_STATIC_CONSTEXPR bool                    is_specialized    = true;
-      BOOST_STATIC_CONSTEXPR int                     digits            = negatable_type::digits_total - 1;
-      BOOST_STATIC_CONSTEXPR int                     digits10          = static_cast<int>((static_cast<boost::uintmax_t>(digits - 1) * UINTMAX_C(3010)) / UINTMAX_C(10000));
-      BOOST_STATIC_CONSTEXPR int                     max_digits10      = static_cast<int>((static_cast<boost::uintmax_t>(digits - 0) * UINTMAX_C(3010)) / UINTMAX_C(10000)) + 2;
-      BOOST_STATIC_CONSTEXPR bool                    is_signed         = true;
-      BOOST_STATIC_CONSTEXPR bool                    is_integer        = false;
-      BOOST_STATIC_CONSTEXPR bool                    is_exact          = true;
-      BOOST_STATIC_CONSTEXPR int                     radix             = 2;
-      BOOST_STATIC_CONSTEXPR int                     min_exponent      = -negatable_type::radix_split;
-      BOOST_STATIC_CONSTEXPR int                     min_exponent10    = -static_cast<int>((static_cast<boost::uintmax_t>(-min_exponent) * UINTMAX_C(3010)) / UINTMAX_C(10000));
-      BOOST_STATIC_CONSTEXPR int                     max_exponent      = digits - negatable_type::radix_split;
-      BOOST_STATIC_CONSTEXPR int                     max_exponent10    = +static_cast<int>((static_cast<boost::uintmax_t>(+max_exponent) * UINTMAX_C(3010)) / UINTMAX_C(10000));
-      BOOST_STATIC_CONSTEXPR bool                    has_infinity      = false;
-      BOOST_STATIC_CONSTEXPR bool                    has_quiet_NaN     = false;
-      BOOST_STATIC_CONSTEXPR bool                    has_signaling_NaN = false;
-      BOOST_STATIC_CONSTEXPR std::float_denorm_style has_denorm        = std::denorm_absent;
-      BOOST_STATIC_CONSTEXPR bool                    has_denorm_loss   = false;
-      BOOST_STATIC_CONSTEXPR bool                    is_iec559         = false;
-      BOOST_STATIC_CONSTEXPR bool                    is_bounded        = true;
-      BOOST_STATIC_CONSTEXPR bool                    is_modulo         = false;
-      BOOST_STATIC_CONSTEXPR bool                    traps             = false;
-      BOOST_STATIC_CONSTEXPR bool                    tinyness_before   = false;
-      BOOST_STATIC_CONSTEXPR std::float_round_style  round_style       = std::round_indeterminate;
+      static BOOST_CONSTEXPR_OR_CONST bool                    is_specialized    = true;
+      static BOOST_CONSTEXPR_OR_CONST int                     digits            = negatable_type::digits_total - 1;
+      static BOOST_CONSTEXPR_OR_CONST int                     digits10          = static_cast<int>((static_cast<boost::uintmax_t>(digits - 1) * UINTMAX_C(3010)) / UINTMAX_C(10000));
+      static BOOST_CONSTEXPR_OR_CONST int                     max_digits10      = static_cast<int>((static_cast<boost::uintmax_t>(digits - 0) * UINTMAX_C(3010)) / UINTMAX_C(10000)) + 2;
+      static BOOST_CONSTEXPR_OR_CONST bool                    is_signed         = true;
+      static BOOST_CONSTEXPR_OR_CONST bool                    is_integer        = false;
+      static BOOST_CONSTEXPR_OR_CONST bool                    is_exact          = true;
+      static BOOST_CONSTEXPR_OR_CONST int                     radix             = 2;
+      static BOOST_CONSTEXPR_OR_CONST int                     min_exponent      = -negatable_type::radix_split;
+      static BOOST_CONSTEXPR_OR_CONST int                     min_exponent10    = -static_cast<int>((static_cast<boost::uintmax_t>(-min_exponent) * UINTMAX_C(3010)) / UINTMAX_C(10000));
+      static BOOST_CONSTEXPR_OR_CONST int                     max_exponent      = digits - negatable_type::radix_split;
+      static BOOST_CONSTEXPR_OR_CONST int                     max_exponent10    = +static_cast<int>((static_cast<boost::uintmax_t>(+max_exponent) * UINTMAX_C(3010)) / UINTMAX_C(10000));
+      static BOOST_CONSTEXPR_OR_CONST bool                    has_infinity      = false;
+      static BOOST_CONSTEXPR_OR_CONST bool                    has_quiet_NaN     = false;
+      static BOOST_CONSTEXPR_OR_CONST bool                    has_signaling_NaN = false;
+      static BOOST_CONSTEXPR_OR_CONST std::float_denorm_style has_denorm        = std::denorm_absent;
+      static BOOST_CONSTEXPR_OR_CONST bool                    has_denorm_loss   = false;
+      static BOOST_CONSTEXPR_OR_CONST bool                    is_iec559         = false;
+      static BOOST_CONSTEXPR_OR_CONST bool                    is_bounded        = true;
+      static BOOST_CONSTEXPR_OR_CONST bool                    is_modulo         = false;
+      static BOOST_CONSTEXPR_OR_CONST bool                    traps             = false;
+      static BOOST_CONSTEXPR_OR_CONST bool                    tinyness_before   = false;
+      static BOOST_CONSTEXPR_OR_CONST std::float_round_style  round_style       = std::round_indeterminate;
 
-      BOOST_STATIC_CONSTEXPR negatable_type (min)      () BOOST_NOEXCEPT { return negatable_type::value_min(); }
-      BOOST_STATIC_CONSTEXPR negatable_type (max)      () BOOST_NOEXCEPT { return negatable_type::value_max(); }
-      BOOST_STATIC_CONSTEXPR negatable_type lowest     () BOOST_NOEXCEPT { return -(max)(); }
-      BOOST_STATIC_CONSTEXPR negatable_type epsilon    () BOOST_NOEXCEPT { return negatable_type::epsilon_maker(); }
-      BOOST_STATIC_CONSTEXPR negatable_type round_error() BOOST_NOEXCEPT { return negatable_type(1) / 2; }
-      BOOST_STATIC_CONSTEXPR negatable_type infinity   () BOOST_NOEXCEPT { return negatable_type(0); }
-      BOOST_STATIC_CONSTEXPR negatable_type quiet_NaN  () BOOST_NOEXCEPT { return negatable_type(0); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type (min)      () BOOST_NOEXCEPT { return negatable_type::value_min(); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type (max)      () BOOST_NOEXCEPT { return negatable_type::value_max(); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type lowest     () BOOST_NOEXCEPT { return -(max)(); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type epsilon    () BOOST_NOEXCEPT { return negatable_type::epsilon_maker(); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type round_error() BOOST_NOEXCEPT { return negatable_type(1) / 2; }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type infinity   () BOOST_NOEXCEPT { return negatable_type(0); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type quiet_NaN  () BOOST_NOEXCEPT { return negatable_type(0); }
     };
+
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_specialized;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::digits;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::digits10;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::max_digits10;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_signed;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_integer;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_exact;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::radix;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::min_exponent;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::min_exponent10;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::max_exponent;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::max_exponent10;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::has_infinity;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::has_quiet_NaN;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::has_signaling_NaN;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST std::float_denorm_style numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::has_denorm;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::has_denorm_loss;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_iec559;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_bounded;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_modulo;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::traps;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::tinyness_before;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST std::float_round_style  numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::round_style;
 
     // Here is the template specialization of std::numeric_limits<negatable>
     // for round::nearest_even and overflow::undefined.
     template<const int integral_range,
-             const int decimal_resolution>
+             const int fractional_resolution>
     class numeric_limits<boost::fixed_point::negatable<integral_range,
-                                                       decimal_resolution,
+                                                       fractional_resolution,
                                                        boost::fixed_point::round::nearest_even,
                                                        boost::fixed_point::overflow::undefined>>
     {
     private:
       typedef boost::fixed_point::negatable<integral_range,
-                                            decimal_resolution,
+                                            fractional_resolution,
                                             boost::fixed_point::round::nearest_even,
                                             boost::fixed_point::overflow::undefined> negatable_type;
 
     public:
-      BOOST_STATIC_CONSTEXPR bool                    is_specialized    = true;
-      BOOST_STATIC_CONSTEXPR int                     digits            = negatable_type::digits_total - 1;
-      BOOST_STATIC_CONSTEXPR int                     digits10          = static_cast<int>((static_cast<boost::uintmax_t>(digits - 1) * UINTMAX_C(3010)) / UINTMAX_C(10000));
-      BOOST_STATIC_CONSTEXPR int                     max_digits10      = static_cast<int>((static_cast<boost::uintmax_t>(digits - 0) * UINTMAX_C(3010)) / UINTMAX_C(10000)) + 2;
-      BOOST_STATIC_CONSTEXPR bool                    is_signed         = true;
-      BOOST_STATIC_CONSTEXPR bool                    is_integer        = false;
-      BOOST_STATIC_CONSTEXPR bool                    is_exact          = true;
-      BOOST_STATIC_CONSTEXPR int                     radix             = 2;
-      BOOST_STATIC_CONSTEXPR int                     min_exponent      = -negatable_type::radix_split;
-      BOOST_STATIC_CONSTEXPR int                     min_exponent10    = -static_cast<int>((static_cast<boost::uintmax_t>(-min_exponent) * UINTMAX_C(3010)) / UINTMAX_C(10000));
-      BOOST_STATIC_CONSTEXPR int                     max_exponent      = digits - negatable_type::radix_split;
-      BOOST_STATIC_CONSTEXPR int                     max_exponent10    = +static_cast<int>((static_cast<boost::uintmax_t>(+max_exponent) * UINTMAX_C(3010)) / UINTMAX_C(10000));
-      BOOST_STATIC_CONSTEXPR bool                    has_infinity      = false;
-      BOOST_STATIC_CONSTEXPR bool                    has_quiet_NaN     = false;
-      BOOST_STATIC_CONSTEXPR bool                    has_signaling_NaN = false;
-      BOOST_STATIC_CONSTEXPR std::float_denorm_style has_denorm        = std::denorm_absent;
-      BOOST_STATIC_CONSTEXPR bool                    has_denorm_loss   = false;
-      BOOST_STATIC_CONSTEXPR bool                    is_iec559         = false;
-      BOOST_STATIC_CONSTEXPR bool                    is_bounded        = true;
-      BOOST_STATIC_CONSTEXPR bool                    is_modulo         = false;
-      BOOST_STATIC_CONSTEXPR bool                    traps             = false;
-      BOOST_STATIC_CONSTEXPR bool                    tinyness_before   = false;
-      BOOST_STATIC_CONSTEXPR std::float_round_style  round_style       = std::round_to_nearest;
+      static BOOST_CONSTEXPR_OR_CONST bool                    is_specialized    = true;
+      static BOOST_CONSTEXPR_OR_CONST int                     digits            = negatable_type::digits_total - 1;
+      static BOOST_CONSTEXPR_OR_CONST int                     digits10          = static_cast<int>((static_cast<boost::uintmax_t>(digits - 1) * UINTMAX_C(3010)) / UINTMAX_C(10000));
+      static BOOST_CONSTEXPR_OR_CONST int                     max_digits10      = static_cast<int>((static_cast<boost::uintmax_t>(digits - 0) * UINTMAX_C(3010)) / UINTMAX_C(10000)) + 2;
+      static BOOST_CONSTEXPR_OR_CONST bool                    is_signed         = true;
+      static BOOST_CONSTEXPR_OR_CONST bool                    is_integer        = false;
+      static BOOST_CONSTEXPR_OR_CONST bool                    is_exact          = true;
+      static BOOST_CONSTEXPR_OR_CONST int                     radix             = 2;
+      static BOOST_CONSTEXPR_OR_CONST int                     min_exponent      = -negatable_type::radix_split;
+      static BOOST_CONSTEXPR_OR_CONST int                     min_exponent10    = -static_cast<int>((static_cast<boost::uintmax_t>(-min_exponent) * UINTMAX_C(3010)) / UINTMAX_C(10000));
+      static BOOST_CONSTEXPR_OR_CONST int                     max_exponent      = digits - negatable_type::radix_split;
+      static BOOST_CONSTEXPR_OR_CONST int                     max_exponent10    = +static_cast<int>((static_cast<boost::uintmax_t>(+max_exponent) * UINTMAX_C(3010)) / UINTMAX_C(10000));
+      static BOOST_CONSTEXPR_OR_CONST bool                    has_infinity      = false;
+      static BOOST_CONSTEXPR_OR_CONST bool                    has_quiet_NaN     = false;
+      static BOOST_CONSTEXPR_OR_CONST bool                    has_signaling_NaN = false;
+      static BOOST_CONSTEXPR_OR_CONST std::float_denorm_style has_denorm        = std::denorm_absent;
+      static BOOST_CONSTEXPR_OR_CONST bool                    has_denorm_loss   = false;
+      static BOOST_CONSTEXPR_OR_CONST bool                    is_iec559         = false;
+      static BOOST_CONSTEXPR_OR_CONST bool                    is_bounded        = true;
+      static BOOST_CONSTEXPR_OR_CONST bool                    is_modulo         = false;
+      static BOOST_CONSTEXPR_OR_CONST bool                    traps             = false;
+      static BOOST_CONSTEXPR_OR_CONST bool                    tinyness_before   = false;
+      static BOOST_CONSTEXPR_OR_CONST std::float_round_style  round_style       = std::round_to_nearest;
 
-      BOOST_STATIC_CONSTEXPR negatable_type (min)      () BOOST_NOEXCEPT { return negatable_type::value_min(); }
-      BOOST_STATIC_CONSTEXPR negatable_type (max)      () BOOST_NOEXCEPT { return negatable_type::value_max(); }
-      BOOST_STATIC_CONSTEXPR negatable_type lowest     () BOOST_NOEXCEPT { return -(max)(); }
-      BOOST_STATIC_CONSTEXPR negatable_type epsilon    () BOOST_NOEXCEPT { return negatable_type::epsilon_maker(); }
-      BOOST_STATIC_CONSTEXPR negatable_type round_error() BOOST_NOEXCEPT { return negatable_type(1) / 2; }
-      BOOST_STATIC_CONSTEXPR negatable_type infinity   () BOOST_NOEXCEPT { return negatable_type(0); }
-      BOOST_STATIC_CONSTEXPR negatable_type quiet_NaN  () BOOST_NOEXCEPT { return negatable_type(0); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type (min)      () BOOST_NOEXCEPT { return negatable_type::value_min(); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type (max)      () BOOST_NOEXCEPT { return negatable_type::value_max(); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type lowest     () BOOST_NOEXCEPT { return -(max)(); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type epsilon    () BOOST_NOEXCEPT { return negatable_type::epsilon_maker(); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type round_error() BOOST_NOEXCEPT { return negatable_type(1) / 2; }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type infinity   () BOOST_NOEXCEPT { return negatable_type(0); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type quiet_NaN  () BOOST_NOEXCEPT { return negatable_type(0); }
     };
+
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_specialized;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::digits;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::digits10;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::max_digits10;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_signed;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_integer;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_exact;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::radix;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::min_exponent;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::min_exponent10;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::max_exponent;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::max_exponent10;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::has_infinity;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::has_quiet_NaN;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::has_signaling_NaN;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST std::float_denorm_style numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::has_denorm;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::has_denorm_loss;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_iec559;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_bounded;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_modulo;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::traps;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::tinyness_before;
+    template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST std::float_round_style  numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::round_style;
   } // namespace std
 
 #endif // FIXED_POINT_2015_03_06_HPP_

@@ -22,27 +22,69 @@
 
   namespace boost { namespace fixed_point { namespace detail {
 
+  template<typename unsigned_integral_type,
+           const unsigned bit_pos,
+           const unsigned bit_cnt,
+           typename enable_type = void>
+  struct bit_mask_helper
+  {
+    // Ensure that the requested bit mask is in range.
+    static_assert((bit_pos + bit_cnt) <= unsigned(std::numeric_limits<unsigned_integral_type>::digits),
+                  "the requested bit_mask value exceeds the maximum value of the unsigned_integral_type");
+
+    static const unsigned_integral_type& value()
+    {
+      static const unsigned_integral_type the_bit_mask =
+        static_cast<unsigned_integral_type>(static_cast<unsigned_integral_type>(static_cast<unsigned_integral_type>(~static_cast<unsigned_integral_type>(0U)) >> (std::numeric_limits<unsigned_integral_type>::digits - bit_cnt)) << bit_pos);
+
+      return the_bit_mask;
+    }
+  };
+
+  template<typename unsigned_integral_type,
+           const unsigned bit_pos,
+           const unsigned bit_cnt>
+  struct bit_mask_helper<unsigned_integral_type,
+                         bit_pos,
+                         bit_cnt,
+                         typename std::enable_if<   std::is_integral<unsigned_integral_type>::value
+                                                 && std::is_unsigned<unsigned_integral_type>::value>::type>
+  {
+    // Ensure that the requested bit mask is in range.
+    static_assert((bit_pos + bit_cnt) <= unsigned(std::numeric_limits<unsigned_integral_type>::digits),
+                  "the requested bit_mask value exceeds the maximum value of the unsigned_integral_type");
+
+    static unsigned_integral_type value() BOOST_NOEXCEPT
+    {
+      return static_cast<unsigned_integral_type>(static_cast<unsigned_integral_type>(static_cast<unsigned_integral_type>(~static_cast<unsigned_integral_type>(0U)) >> (std::numeric_limits<unsigned_integral_type>::digits - bit_cnt)) << bit_pos);
+    }
+  };
+
   template<const unsigned bit_count,
             typename enable_type = void>
   struct integer_type_helper
   {
-    typedef boost::multiprecision::number<
-              boost::multiprecision::cpp_int_backend<bit_count,
-                                                     bit_count,
-                                                     boost::multiprecision::signed_magnitude,
-                                                     boost::multiprecision::unchecked,
-                                                     void>,
-              boost::multiprecision::et_off>
-    exact_signed_type;
+  private:
+    typedef boost::multiprecision::cpp_int_backend<bit_count,
+                                                   bit_count,
+                                                   boost::multiprecision::signed_magnitude,
+                                                   boost::multiprecision::unchecked,
+                                                   void>
+    signed_integral_backend_type;
 
-    typedef boost::multiprecision::number<
-              boost::multiprecision::cpp_int_backend<bit_count,
-                                                     bit_count,
-                                                     boost::multiprecision::unsigned_magnitude,
-                                                     boost::multiprecision::unchecked,
-                                                     void>,
-              boost::multiprecision::et_off>
-    exact_unsigned_type;
+    typedef boost::multiprecision::cpp_int_backend<bit_count,
+                                                   bit_count,
+                                                   boost::multiprecision::unsigned_magnitude,
+                                                   boost::multiprecision::unchecked,
+                                                   void>
+    unsigned_integral_backend_type;
+
+  public:
+    typedef boost::multiprecision::number<signed_integral_backend_type,
+                                          boost::multiprecision::et_off> exact_signed_type;
+
+    typedef boost::multiprecision::number<unsigned_integral_backend_type,
+                                          boost::multiprecision::et_off> exact_unsigned_type;
   };
 
   template<const unsigned bit_count>
@@ -85,23 +127,55 @@
                               typename std::enable_if<   (bit_count >   64U)
                                                       && (bit_count <= 128U)>::type>
   {
-    typedef boost::multiprecision::number<
-              boost::multiprecision::cpp_int_backend<128U,
-                                                     128U,
-                                                     boost::multiprecision::signed_magnitude,
-                                                     boost::multiprecision::unchecked,
-                                                     void>,
-              boost::multiprecision::et_off>
-    exact_signed_type;
+  private:
+    typedef boost::multiprecision::cpp_int_backend<128U,
+                                                   128U,
+                                                   boost::multiprecision::signed_magnitude,
+                                                   boost::multiprecision::unchecked,
+                                                   void>
+    signed_integral_backend_type;
 
-    typedef boost::multiprecision::number<
-              boost::multiprecision::cpp_int_backend<128U,
-                                                     128U,
-                                                     boost::multiprecision::unsigned_magnitude,
-                                                     boost::multiprecision::unchecked,
-                                                     void>,
-              boost::multiprecision::et_off>
-    exact_unsigned_type;
+    typedef boost::multiprecision::cpp_int_backend<128U,
+                                                   128U,
+                                                   boost::multiprecision::unsigned_magnitude,
+                                                   boost::multiprecision::unchecked,
+                                                   void>
+    unsigned_integral_backend_type;
+
+  public:
+    typedef boost::multiprecision::number<signed_integral_backend_type,
+                                          boost::multiprecision::et_off> exact_signed_type;
+
+    typedef boost::multiprecision::number<unsigned_integral_backend_type,
+                                          boost::multiprecision::et_off> exact_unsigned_type;
+  };
+
+  template<const unsigned bit_count>
+  struct integer_type_helper<bit_count,
+                              typename std::enable_if<   (bit_count >  128U)
+                                                      && (bit_count <= 256U)>::type>
+  {
+  private:
+    typedef boost::multiprecision::cpp_int_backend<256U,
+                                                   256U,
+                                                   boost::multiprecision::signed_magnitude,
+                                                   boost::multiprecision::unchecked,
+                                                   void>
+    signed_integral_backend_type;
+
+    typedef boost::multiprecision::cpp_int_backend<256U,
+                                                   256U,
+                                                   boost::multiprecision::unsigned_magnitude,
+                                                   boost::multiprecision::unchecked,
+                                                   void>
+    unsigned_integral_backend_type;
+
+  public:
+    typedef boost::multiprecision::number<signed_integral_backend_type,
+                                          boost::multiprecision::et_off> exact_signed_type;
+
+    typedef boost::multiprecision::number<unsigned_integral_backend_type,
+                                          boost::multiprecision::et_off> exact_unsigned_type;
   };
 
   template<const unsigned bit_count>
@@ -109,23 +183,27 @@
                               typename std::enable_if<   (bit_count >  256U)
                                                       && (bit_count <= 512U)>::type>
   {
-    typedef boost::multiprecision::number<
-              boost::multiprecision::cpp_int_backend<512U,
-                                                     512U,
-                                                     boost::multiprecision::signed_magnitude,
-                                                     boost::multiprecision::unchecked,
-                                                     void>,
-              boost::multiprecision::et_off>
-    exact_signed_type;
+  private:
+    typedef boost::multiprecision::cpp_int_backend<512U,
+                                                   512U,
+                                                   boost::multiprecision::signed_magnitude,
+                                                   boost::multiprecision::unchecked,
+                                                   void>
+    signed_integral_backend_type;
 
-    typedef boost::multiprecision::number<
-              boost::multiprecision::cpp_int_backend<512U,
-                                                     512U,
-                                                     boost::multiprecision::unsigned_magnitude,
-                                                     boost::multiprecision::unchecked,
-                                                     void>,
-              boost::multiprecision::et_off>
-    exact_unsigned_type;
+    typedef boost::multiprecision::cpp_int_backend<512U,
+                                                   512U,
+                                                   boost::multiprecision::unsigned_magnitude,
+                                                   boost::multiprecision::unchecked,
+                                                   void>
+    unsigned_integral_backend_type;
+
+  public:
+    typedef boost::multiprecision::number<signed_integral_backend_type,
+                                          boost::multiprecision::et_off> exact_signed_type;
+
+    typedef boost::multiprecision::number<unsigned_integral_backend_type,
+                                          boost::multiprecision::et_off> exact_unsigned_type;
   };
 
   template<const unsigned bit_count>
@@ -133,23 +211,27 @@
                               typename std::enable_if<   (bit_count >   512U)
                                                       && (bit_count <= 1024U)>::type>
   {
-    typedef boost::multiprecision::number<
-              boost::multiprecision::cpp_int_backend<1024U,
-                                                     1024U,
-                                                     boost::multiprecision::signed_magnitude,
-                                                     boost::multiprecision::unchecked,
-                                                     void>,
-              boost::multiprecision::et_off>
-    exact_signed_type;
+  private:
+    typedef boost::multiprecision::cpp_int_backend<1024U,
+                                                   1024U,
+                                                   boost::multiprecision::signed_magnitude,
+                                                   boost::multiprecision::unchecked,
+                                                   void>
+    signed_integral_backend_type;
 
-    typedef boost::multiprecision::number<
-              boost::multiprecision::cpp_int_backend<1024U,
-                                                     1024U,
-                                                     boost::multiprecision::unsigned_magnitude,
-                                                     boost::multiprecision::unchecked,
-                                                     void>,
-              boost::multiprecision::et_off>
-    exact_unsigned_type;
+    typedef boost::multiprecision::cpp_int_backend<1024U,
+                                                   1024U,
+                                                   boost::multiprecision::unsigned_magnitude,
+                                                   boost::multiprecision::unchecked,
+                                                   void>
+    unsigned_integral_backend_type;
+
+  public:
+    typedef boost::multiprecision::number<signed_integral_backend_type,
+                                          boost::multiprecision::et_off> exact_signed_type;
+
+    typedef boost::multiprecision::number<unsigned_integral_backend_type,
+                                          boost::multiprecision::et_off> exact_unsigned_type;
   };
 
   template<const unsigned bit_count>
@@ -157,23 +239,27 @@
                               typename std::enable_if<   (bit_count >  1024U)
                                                       && (bit_count <= 2048U)>::type>
   {
-    typedef boost::multiprecision::number<
-              boost::multiprecision::cpp_int_backend<2048U,
-                                                     2048U,
-                                                     boost::multiprecision::signed_magnitude,
-                                                     boost::multiprecision::unchecked,
-                                                     void>,
-              boost::multiprecision::et_off>
-    exact_signed_type;
+  private:
+    typedef boost::multiprecision::cpp_int_backend<2048U,
+                                                   2048U,
+                                                   boost::multiprecision::signed_magnitude,
+                                                   boost::multiprecision::unchecked,
+                                                   void>
+    signed_integral_backend_type;
 
-    typedef boost::multiprecision::number<
-              boost::multiprecision::cpp_int_backend<2048U,
-                                                     2048U,
-                                                     boost::multiprecision::unsigned_magnitude,
-                                                     boost::multiprecision::unchecked,
-                                                     void>,
-              boost::multiprecision::et_off>
-    exact_unsigned_type;
+    typedef boost::multiprecision::cpp_int_backend<2048U,
+                                                   2048U,
+                                                   boost::multiprecision::unsigned_magnitude,
+                                                   boost::multiprecision::unchecked,
+                                                   void>
+    unsigned_integral_backend_type;
+
+  public:
+    typedef boost::multiprecision::number<signed_integral_backend_type,
+                                          boost::multiprecision::et_off> exact_signed_type;
+
+    typedef boost::multiprecision::number<unsigned_integral_backend_type,
+                                          boost::multiprecision::et_off> exact_unsigned_type;
   };
 
   template<const unsigned bit_count>
@@ -181,23 +267,27 @@
                               typename std::enable_if<   (bit_count >  2048U)
                                                       && (bit_count <= 4096U)>::type>
   {
-    typedef boost::multiprecision::number<
-              boost::multiprecision::cpp_int_backend<4096U,
-                                                     4096U,
-                                                     boost::multiprecision::signed_magnitude,
-                                                     boost::multiprecision::unchecked,
-                                                     void>,
-              boost::multiprecision::et_off>
-    exact_signed_type;
+  private:
+    typedef boost::multiprecision::cpp_int_backend<4096U,
+                                                   4096U,
+                                                   boost::multiprecision::signed_magnitude,
+                                                   boost::multiprecision::unchecked,
+                                                   void>
+    signed_integral_backend_type;
 
-    typedef boost::multiprecision::number<
-              boost::multiprecision::cpp_int_backend<4096U,
-                                                     4096U,
-                                                     boost::multiprecision::unsigned_magnitude,
-                                                     boost::multiprecision::unchecked,
-                                                     void>,
-              boost::multiprecision::et_off>
-    exact_unsigned_type;
+    typedef boost::multiprecision::cpp_int_backend<4096U,
+                                                   4096U,
+                                                   boost::multiprecision::unsigned_magnitude,
+                                                   boost::multiprecision::unchecked,
+                                                   void>
+    unsigned_integral_backend_type;
+
+  public:
+    typedef boost::multiprecision::number<signed_integral_backend_type,
+                                          boost::multiprecision::et_off> exact_signed_type;
+
+    typedef boost::multiprecision::number<unsigned_integral_backend_type,
+                                          boost::multiprecision::et_off> exact_unsigned_type;
   };
 
   template<const unsigned bit_count>
@@ -205,23 +295,27 @@
                               typename std::enable_if<   (bit_count >  4096U)
                                                       && (bit_count <= 8192U)>::type>
   {
-    typedef boost::multiprecision::number<
-              boost::multiprecision::cpp_int_backend<8192U,
-                                                     8192U,
-                                                     boost::multiprecision::signed_magnitude,
-                                                     boost::multiprecision::unchecked,
-                                                     void>,
-              boost::multiprecision::et_off>
-    exact_signed_type;
+  private:
+    typedef boost::multiprecision::cpp_int_backend<8192U,
+                                                   8192U,
+                                                   boost::multiprecision::signed_magnitude,
+                                                   boost::multiprecision::unchecked,
+                                                   void>
+    signed_integral_backend_type;
 
-    typedef boost::multiprecision::number<
-              boost::multiprecision::cpp_int_backend<8192U,
-                                                     8192U,
-                                                     boost::multiprecision::unsigned_magnitude,
-                                                     boost::multiprecision::unchecked,
-                                                     void>,
-              boost::multiprecision::et_off>
-    exact_unsigned_type;
+    typedef boost::multiprecision::cpp_int_backend<8192U,
+                                                   8192U,
+                                                   boost::multiprecision::unsigned_magnitude,
+                                                   boost::multiprecision::unchecked,
+                                                   void>
+    unsigned_integral_backend_type;
+
+  public:
+    typedef boost::multiprecision::number<signed_integral_backend_type,
+                                          boost::multiprecision::et_off> exact_signed_type;
+
+    typedef boost::multiprecision::number<unsigned_integral_backend_type,
+                                          boost::multiprecision::et_off> exact_unsigned_type;
   };
 
   template<const unsigned bit_count,
@@ -249,13 +343,6 @@
   {
     typedef boost::float64_t exact_float_type;
   };
-
-  template<typename source_type,
-           typename destination_type>
-  destination_type convert_to(const source_type& source)
-  {
-    return static_cast<destination_type>(source);
-  }
 
   template<typename arithmetic_type,
            const int radix_split,
