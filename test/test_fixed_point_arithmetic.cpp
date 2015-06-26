@@ -168,114 +168,151 @@ void test ()
    BOOST_CHECK_EQUAL(ac ,  fixed_point_type(4497.767578125));
    BOOST_CHECK_EQUAL(ac ,  4497.767578125);
 
-   
-   /*ac = b;
+   b = 57.578125;
+   BOOST_CHECK_EQUAL (b, fixed_point_type(57.578125));
+
+   ac = b;
    ac = ac / a;
-   BOOST_CHECK_EQUAL(ac ,  64.125/8.375);
+   BOOST_CHECK_EQUAL(ac ,  57.578125/8.375);
+   BOOST_CHECK_EQUAL(ac ,  fixed_point_type(57.578125/8.375));
+   BOOST_CHECK_EQUAL(ac ,  6.875);
 
    ac = b;
    ac /= ac / a;
-   BOOST_CHECK_EQUAL(ac ,  64.125 / (64.125/8.375));
-   ac = a;
-   ac = b + ac * a;
-   BOOST_CHECK_EQUAL(ac ,  64.125 * 2);
-   ac = a;
-   ac = b - ac * a;
-   BOOST_CHECK_EQUAL(ac ,  0);
+   BOOST_CHECK_EQUAL(ac ,  57.578125 / (57.578125/8.375));
+   BOOST_CHECK_EQUAL(ac ,  a);
+
    ac = a;
    ac = b * (ac + a);
-   BOOST_CHECK_EQUAL(ac ,  64.125 * (16));
+   BOOST_CHECK_EQUAL(ac ,  57.578125 * (16.75));
+   BOOST_CHECK_EQUAL(ac ,  fixed_point_type(964.43359375));
+
    ac = a;
    ac = b / (ac * 1);
-   BOOST_CHECK_EQUAL(ac ,  64.125 / 8.375);
+   BOOST_CHECK_EQUAL(ac ,  57.578125 / 8.375);
+   BOOST_CHECK_EQUAL(ac, fixed_point_type(6.875));
+
+   
    ac = a;
    ac = ac + b;
-   BOOST_CHECK_EQUAL(ac ,  8.375 + 64.125);
+   BOOST_CHECK_EQUAL(ac ,  8.375 + 57.578125);
+
    ac = a;
    ac = a + ac;
-   BOOST_CHECK_EQUAL(ac ,  16);
+   BOOST_CHECK_EQUAL(ac ,  16.75);
+
    ac = a;
    ac = a - ac;
    BOOST_CHECK_EQUAL(ac ,  0);
+
    ac = a;
    ac += a + b;
-   BOOST_CHECK_EQUAL(ac ,  80);
+   BOOST_CHECK_EQUAL(ac ,  74.328125);
+
    ac = a;
    ac += b + a;
-   BOOST_CHECK_EQUAL(ac ,  80);
+   BOOST_CHECK_EQUAL(ac ,  fixed_point_type(57.578125 + 8.375*2));
+   BOOST_CHECK_EQUAL(ac ,  74.328125);
+
+
    ac = +a;
    BOOST_CHECK_EQUAL(ac ,  8.375);
+   BOOST_CHECK_EQUAL(ac ,  a);
+
+   ac = -a;
+   BOOST_CHECK_EQUAL(ac ,  -8.375);
+   BOOST_CHECK_EQUAL(ac ,  -1*a);
+
    ac = 8.375;
    ac = a * ac;
    BOOST_CHECK_EQUAL(ac ,  8.375*8.375);
-   ac = a;
+
    ac = a;
    ac += +a;
-   BOOST_CHECK_EQUAL(ac ,  16);
+   BOOST_CHECK_EQUAL(ac ,  16.75);
+
    ac = a;
-   ac += b - a;
-   BOOST_CHECK_EQUAL(ac ,  8.375 + 64.125-8.375);
-   ac = a;
-   ac += b*c;
-   BOOST_CHECK_EQUAL(ac ,  8.375 + 64.125 * 500.5);
-   ac = a;
+   ac += -a;
+   BOOST_CHECK_EQUAL(ac ,  0);
+
    ac = a;
    ac -= +a;
    BOOST_CHECK_EQUAL(ac ,  0);
+
    ac = a;
-   if(std::numeric_limits<Real>::is_signed || is_twos_complement_integer<Real>::value)
-   {
-      ac = a;
-      ac -= c - b;
-      BOOST_CHECK_EQUAL(ac ,  8.375 - (500.5-64.125));
-      ac = a;
-      ac -= b*c;
-      BOOST_CHECK_EQUAL(ac ,  8.375 - 500.5*64.125);
-   }
+   ac -= -a;
+   BOOST_CHECK_EQUAL(ac ,  16.75);
+
    ac = a;
-   ac += ac * b;
-   BOOST_CHECK_EQUAL(ac ,  8.375 + 8.375 * 64.125);
-   if(std::numeric_limits<Real>::is_signed || is_twos_complement_integer<Real>::value)
-   {
-      ac = a;
-      ac -= ac * b;
-      BOOST_CHECK_EQUAL(ac ,  8.375 - 8.375 * 64.125);
-   }
+   ac += b - a;
+   BOOST_CHECK_EQUAL(ac ,  8.375 + 57.578125-8.375);
+   BOOST_CHECK_EQUAL(ac ,  b);
+
+   ac = a;
+   ac += b*c;
+   BOOST_CHECK_EQUAL(ac ,  8.375 + 57.578125 * 500.5);
+   BOOST_CHECK_EQUAL(ac, fixed_point_type(28826.2265625));
+
+   ac = a;
+   ac -= c - b;
+   BOOST_CHECK_EQUAL(ac ,  8.375 - (500.5-57.578125));
+   BOOST_CHECK_EQUAL(ac , fixed_point_type(-434.546875));
+   
+   ac = a;
+   ac -= b*c;
+   BOOST_CHECK_EQUAL(ac ,  8.375 - 500.5*57.578125);
+   BOOST_CHECK_EQUAL(ac , fixed_point_type(-28809.4765625));
+
+   ac = a;
+   ac -= ac * b;
+   BOOST_CHECK_EQUAL(ac ,  8.375 - 8.375 * 57.578125);
+   BOOST_CHECK_EQUAL(ac , fixed_point_type(-473.841796875));
+
    ac = a * 8.375;
    ac *= +a;
-   BOOST_CHECK_EQUAL(ac ,  64.125 * 8.375);
+   BOOST_CHECK_EQUAL(ac ,  70.140625 * 8.375);
+   BOOST_CHECK_EQUAL(ac ,  fixed_point_type(587.427734375));
+  
    ac = a;
    ac *= b * c;
-   BOOST_CHECK_EQUAL(ac ,  8.375 * 64.125 * 500.5);
+   BOOST_CHECK_EQUAL(ac ,  241349.5068359375L);
+
    ac = a;
    ac *= b / a;
-   BOOST_CHECK_EQUAL(ac ,  8.375 * 64.125 / 8.375);
+   BOOST_CHECK_EQUAL(ac ,  8.375 * 57.578125 / 8.375);
+
    ac = a;
    ac *= b + c;
-   BOOST_CHECK_EQUAL(ac ,  8.375 * (64.125 + 500.5));
+   BOOST_CHECK_EQUAL(ac ,  8.375 * (57.578125 + 500.5));
+
    ac = b;
    ac /= +a;
-   BOOST_CHECK_EQUAL(ac ,  8.375);
+   BOOST_CHECK_EQUAL(ac ,  6.875);
+
    ac = b;
    ac /= b / a;
-   BOOST_CHECK_EQUAL(ac ,  64.125 / (64.125/8.375));
+   BOOST_CHECK_EQUAL(ac ,  57.578125 / (57.578125/8.375));
+
    ac = b;
-   ac /= a + Real(0);
-   BOOST_CHECK_EQUAL(ac ,  8.375);
+   ac /= a + fixed_point_type(0);
+   BOOST_CHECK_EQUAL(ac ,  6.875);
+
+   
    //
    // simple tests with immediate values, these calls can be optimised in many backends:
    //
    ac = a + b;
-   BOOST_CHECK_EQUAL(ac ,  72);
+   BOOST_CHECK_EQUAL(ac ,  65.953125);
    ac = a + +b;
-   BOOST_CHECK_EQUAL(ac ,  72);
+   BOOST_CHECK_EQUAL(ac ,  65.953125);
    ac = +a + b;
-   BOOST_CHECK_EQUAL(ac ,  72);
+   BOOST_CHECK_EQUAL(ac ,  65.953125);
    ac = +a + +b;
-   BOOST_CHECK_EQUAL(ac ,  72);
+   BOOST_CHECK_EQUAL(ac ,  65.953125);
    ac = a;
    ac = b / ac;
    BOOST_CHECK_EQUAL(ac ,  b / a);
+   
    //
    // Comparisons:
    //
@@ -319,160 +356,23 @@ void test ()
    BOOST_CHECK_EQUAL((800 > b+a) ,  true);
    BOOST_CHECK_EQUAL((800 <= b+a) ,  false);
    BOOST_CHECK_EQUAL((800 < b+a) ,  false);
-   BOOST_CHECK_EQUAL((72 == b+a) ,  true);
-   BOOST_CHECK_EQUAL((72 != b+a) ,  false);
-   BOOST_CHECK_EQUAL((72 <= b+a) ,  true);
-   BOOST_CHECK_EQUAL((72 < b+a) ,  false);
-   BOOST_CHECK_EQUAL((72 >= b+a) ,  true);
-   BOOST_CHECK_EQUAL((72 > b+a) ,  false);
-
-   test_members(a);
-   //
-   // Use in Boolean context:
-   //
-   a = 0;
-   if(a)
-   {
-      BOOST_ERROR("Unexpected non-zero result");
-   }
-   if(!a){}
-   else
-   {
-      BOOST_ERROR("Unexpected zero result");
-   }
-   b = 2;
-   if(!b)
-   {
-      BOOST_ERROR("Unexpected zero result");
-   }
-   if(b){}
-   else
-   {
-      BOOST_ERROR("Unexpected non-zero result");
-   }
-   if(a && b)
-   {
-      BOOST_ERROR("Unexpected zero result");
-   }
-   if(!(a || b))
-   {
-      BOOST_ERROR("Unexpected zero result");
-   }
-   if(a + b){}
-   else
-   {
-      BOOST_ERROR("Unexpected zero result");
-   }
-   if(b - 2)
-   {
-      BOOST_ERROR("Unexpected non-zero result");
-   }
-   //
-   // Test iostreams:
-   //
-   std::stringstream ss;
-   a = 20;
-   b = 2;
-   ss << a;
-   ss >> c;
-   BOOST_CHECK_EQUAL(a ,  c);
-   ss.clear();
-   ss << a + b;
-   ss >> c;
-   BOOST_CHECK_EQUAL(c ,  22);
-   BOOST_CHECK_EQUAL(c ,  a + b);
-   //
-   // More cases for complete code coverage:
-   //
-   a = 20;
-   b = 30;
-   swap(a, b);
-   BOOST_CHECK_EQUAL(a ,  30);
-   BOOST_CHECK_EQUAL(b ,  20);
-   a = 20;
-   b = 30;
-   std::swap(a, b);
-   BOOST_CHECK_EQUAL(a ,  30);
-   BOOST_CHECK_EQUAL(b ,  20);
-   a = 20;
-   b = 30;
-   a = a + b * 2;
-   BOOST_CHECK_EQUAL(a ,  20 + 30 * 2);
-   a = 100;
-   a = a - b * 2;
-   BOOST_CHECK_EQUAL(a ,  100 - 30 * 2);
-   a = 20;
-   a = a * (b + 2);
-   BOOST_CHECK_EQUAL(a ,  20 * (32));
-   a = 20;
-   a = (b + 2) * a;
-   BOOST_CHECK_EQUAL(a ,  20 * (32));
-   a = 90;
-   b = 2;
-   a = a / (b + 0);
-   BOOST_CHECK_EQUAL(a ,  45);
-   a = 20;
-   b = 30;
-   c = (a * b) + 22;
-   BOOST_CHECK_EQUAL(c ,  20 * 30 + 22);
-   c = 22 + (a * b);
-   BOOST_CHECK_EQUAL(c ,  20 * 30 + 22);
-   c = 10;
-   ac = a + b * c;
-   BOOST_CHECK_EQUAL(ac ,  20 + 30 * 10);
-   ac = b * c + a;
-   BOOST_CHECK_EQUAL(ac ,  20 + 30 * 10);
-   a = a + b * c;
-   BOOST_CHECK_EQUAL(a ,  20 + 30 * 10);
-   a = 20;
-   b = a + b * c;
-   BOOST_CHECK_EQUAL(b ,  20 + 30 * 10);
-   b = 30;
-   c = a + b * c;
-   BOOST_CHECK_EQUAL(c ,  20 + 30 * 10);
-   c = 10;
-   c = a + b / c;
-   BOOST_CHECK_EQUAL(c ,  20 + 30 / 10);
-
-   //
-   // Test conditionals:
-   //
-   a = 20;
-   test_conditional(a, +a);
-   test_conditional(a, (a + 0));
-
-   test_signed_ops<Real>(boost::mpl::bool_<std::numeric_limits<Real>::is_signed>());
-   //
-   // Test move:
-   //
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
-   Real m(static_cast<Real&&>(a));
-   BOOST_CHECK_EQUAL(m, 20);
-   // Move from already moved from object:
-   Real m2(static_cast<Real&&>(a));
-   // assign from moved from object 
-   // (may result in "a" being left in valid state as implementation artifact):
-   c = static_cast<Real&&>(a);
-   // assignment to moved-from objects:
-   c = static_cast<Real&&>(m);
-   BOOST_CHECK_EQUAL(c, 20);
-   m2 = c;
-   BOOST_CHECK_EQUAL(c, 20);
-   // Destructor of "a" checks destruction of moved-from-object...
-   Real m3(static_cast<Real&&>(a));
-#endif
-}*/
+   BOOST_CHECK_EQUAL((65.953125 == b+a) ,  true);
+   BOOST_CHECK_EQUAL((65.953125 != b+a) ,  false);
+   BOOST_CHECK_EQUAL((65.953125 <= b+a) ,  true);
+   BOOST_CHECK_EQUAL((65.953125 < b+a) ,  false);
+   BOOST_CHECK_EQUAL((65.953125 >= b+a) ,  true);
+   BOOST_CHECK_EQUAL((65.953125 > b+a) ,  false);
 }
 
 BOOST_AUTO_TEST_CASE(fixed_point_arithmetic)
 {
-	test<boost::fixed_point::negatable<10, -10, boost::fixed_point::round::fastest> >();
+	test<boost::fixed_point::negatable<20, -10, boost::fixed_point::round::fastest> >();
 	test<boost::fixed_point::negatable<100, -10, boost::fixed_point::round::fastest> >();
-	test<boost::fixed_point::negatable<10, -100, boost::fixed_point::round::fastest> >();
+	test<boost::fixed_point::negatable<20, -100, boost::fixed_point::round::fastest> >();
 	test<boost::fixed_point::negatable<100, -100, boost::fixed_point::round::fastest> >();
 
-	test<boost::fixed_point::negatable<10, -10, boost::fixed_point::round::nearest_even> >();
+	test<boost::fixed_point::negatable<20, -10, boost::fixed_point::round::nearest_even> >();
 	test<boost::fixed_point::negatable<100, -10, boost::fixed_point::round::nearest_even> >();
-	test<boost::fixed_point::negatable<10, -100, boost::fixed_point::round::nearest_even> >();
+	test<boost::fixed_point::negatable<20, -100, boost::fixed_point::round::nearest_even> >();
 	test<boost::fixed_point::negatable<100, -100, boost::fixed_point::round::nearest_even> >();
 }
