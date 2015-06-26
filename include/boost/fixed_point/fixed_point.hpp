@@ -675,7 +675,7 @@
     }
 
     static const negatable& value_min() { static const negatable the_value_min(nothing(), 1U); return the_value_min; }
-    static const negatable& value_max() { static const negatable the_value_max(nothing(), value_type(unsigned_small_mask() )); return the_value_max; }
+    static const negatable& value_max() { static const negatable the_value_max(nothing(), value_type(unsigned_small_mask() + 0)); return the_value_max; }
 
     friend class std::numeric_limits<negatable>;
 
