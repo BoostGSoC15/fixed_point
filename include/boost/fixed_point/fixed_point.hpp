@@ -201,6 +201,7 @@
                   "Error: Only undefined overflow mode is supported at the moment.");
 
   public:
+
     // Here we declare two convenient class-local type definitions.
     //
     //   * value_type : is the signed integer representation of the fixed-point
@@ -218,6 +219,10 @@
 
     typedef typename detail::integer_type_helper<negatable::digits_total - 0>::exact_signed_type value_type;
     typedef typename detail::float_type_helper  <negatable::digits_total - 1>::exact_float_type  float_type;
+
+    /*getter function for data to be used by mixed constructors*/
+    // tbd: Is there a better way to expose 'data' to mixed constructors and ONLY to mixed constructors?
+    const value_type& get_data () const {return data;}
 
     // The public class constructors follow below.
 
@@ -255,6 +260,52 @@
 
     // Here is the class copy constructor.
     negatable(const negatable& v) : data(v.data) { }
+
+
+    /** Mixed constructors **/
+    /**
+     *  Constructor from a negatable with larger range AND resolution
+     */
+
+    template<int m_range, int m_resolution, typename m_round, typename m_overflow,
+             typename std::enable_if< std::is_same<m_round, round_mode>::value
+                                              && std::is_same<m_overflow, overflow_mode>::value
+                                              && m_range <= integral_range
+                                              //Since resolution in negatable will always be negative
+                                              && m_resolution >= fractional_resolution
+                                              >::type* = nullptr>
+    negatable(const negatable<m_range, m_resolution, m_round, m_overflow>& rhs): data (rhs.get_data())
+    {
+      data = data << (m_resolution - fractional_resolution);
+    }
+
+    template<int m_range, int m_resolution, typename m_round, typename m_overflow,
+             typename std::enable_if< !(std::is_same<m_round, round_mode>::value
+                                              && std::is_same<m_overflow, overflow_mode>::value
+                                              && m_range <= integral_range
+                                              //Since resolution in negatable will always be negative
+                                              && m_resolution >= fractional_resolution)
+                                              >::type* = nullptr>                                          
+    negatable(const negatable<m_range, m_resolution, m_round, m_overflow>& rhs): data (rhs.get_data())
+    {
+      //static_assert(false, "The range and resolution of target should be greater than source");
+      std::cout<<"more"<<std::endl;
+    }
+
+    /*template<int m_range, int m_resolution, typename m_round, typename m_overflow>                                          
+    negatable(const negatable<m_range, m_resolution, m_round, m_overflow>& rhs)
+    {
+      //static_assert(false, "The range and resolution BOTH should be less");
+    }*/
+
+    /*template<int ran1, int res1, typename rou1, typename ove1, int ran2, int res2, typename rou2, typename ove2>
+    bool is_constructible(const negatable<ran1,res1,rou1,ove1> &from, const negatable<ran2, res2, rou2, ove2> &to) const
+    {
+      return std::is_same<ove1, ove2>::value
+          && std::is_same<rou1, rou2>::value
+         && ran1 <= ran2
+         && res1 >= res2;
+    }*/
 
     ~negatable() { }
 
