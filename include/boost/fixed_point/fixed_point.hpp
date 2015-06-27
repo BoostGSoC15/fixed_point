@@ -506,11 +506,14 @@
     typedef typename detail::integer_type_helper<negatable::digits_total * 1>::exact_unsigned_type unsigned_small_type;
     typedef typename detail::integer_type_helper<negatable::digits_total * 2>::exact_unsigned_type unsigned_large_type;
 
-    static unsigned_small_type unsigned_small_mask() BOOST_NOEXCEPT
+    static const unsigned_small_type& unsigned_small_mask() BOOST_NOEXCEPT
     {
-      return detail::bit_mask_helper<unsigned_small_type,
-                                     0U,
-                                     unsigned(integral_range - fractional_resolution)>::value();
+      static const unsigned_small_type the_value =
+        detail::bit_mask_helper<unsigned_small_type,
+                                0U,
+                                unsigned(integral_range - fractional_resolution)>::value();
+
+      return the_value;
     }
 
     struct nothing { };
@@ -519,7 +522,8 @@
     negatable(const nothing&,
               const integral_type& n,
               const typename std::enable_if<   std::is_integral<integral_type>::value
-                                            || std::is_same<value_type, integral_type>::value>::type* = nullptr) : data(n) { }
+                                            || std::is_same<typename negatable::value_type, integral_type>::value
+                                            || std::is_same<typename negatable::unsigned_small_type, integral_type>::value>::type* = nullptr) : data(n) { }
 
     template<typename local_round_mode = round_mode>
     static boost::int_fast8_t
@@ -726,7 +730,7 @@
     }
 
     static const negatable& value_min() { static const negatable the_value_min(nothing(), 1U); return the_value_min; }
-    static const negatable& value_max() { static const negatable the_value_max(nothing(), value_type(unsigned_small_mask() + 0)); return the_value_max; }
+    static const negatable& value_max() { static const negatable the_value_max(nothing(), unsigned_small_mask()); return the_value_max; }
 
     friend class std::numeric_limits<negatable>;
 
