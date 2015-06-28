@@ -697,7 +697,7 @@
       return the_radix_split_value;
     }
 
-    static const negatable& epsilon_maker()
+    static const negatable& epsilon_maker() BOOST_NOEXCEPT
     {
       static bool is_init = bool();
 
@@ -729,8 +729,8 @@
       return the_epsilon;
     }
 
-    static const negatable& value_min() { static const negatable the_value_min(nothing(), 1U); return the_value_min; }
-    static const negatable& value_max() { static const negatable the_value_max(nothing(), unsigned_small_mask()); return the_value_max; }
+    static const negatable& value_min() BOOST_NOEXCEPT { static const negatable the_value_min(nothing(), 1U); return the_value_min; }
+    static const negatable& value_max() BOOST_NOEXCEPT { static const negatable the_value_max(nothing(), unsigned_small_mask()); return the_value_max; }
 
     friend class std::numeric_limits<negatable>;
 
@@ -1104,7 +1104,7 @@
       static BOOST_CONSTEXPR_OR_CONST negatable_type (max)      () BOOST_NOEXCEPT { return negatable_type::value_max(); }
       static BOOST_CONSTEXPR_OR_CONST negatable_type lowest     () BOOST_NOEXCEPT { return -(max)(); }
       static BOOST_CONSTEXPR_OR_CONST negatable_type epsilon    () BOOST_NOEXCEPT { return negatable_type::epsilon_maker(); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type round_error() BOOST_NOEXCEPT { return negatable_type(1) / 2; }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type round_error() BOOST_NOEXCEPT { return negatable_type(1); }
       static BOOST_CONSTEXPR_OR_CONST negatable_type infinity   () BOOST_NOEXCEPT { return negatable_type(0); }
       static BOOST_CONSTEXPR_OR_CONST negatable_type quiet_NaN  () BOOST_NOEXCEPT { return negatable_type(0); }
     };
