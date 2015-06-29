@@ -73,12 +73,14 @@ BOOST_AUTO_TEST_CASE(round_trip_decimal_digits_014)
                            boost::uniform_int<boost::uint64_t>>
   unsigned_integral_maker(random_generator, uniform_bit_range);
 
-  uint_fast32_t count;
+  boost::uint_fast32_t count;
+
+  BOOST_CONSTEXPR_OR_CONST boost::uint_fast32_t number_of_test_cases = UINT32_C(1000000);
 
   bool b = true;
 
   // Test random values with 14 decimal digits of precision.
-  for(count = UINT32_C(1); ((count < UINT32_C(1000000)) && b); ++count)
+  for(count = UINT32_C(1); ((count < number_of_test_cases) && b); ++count)
   {
     const boost::uint64_t u = unsigned_integral_maker();
 
@@ -97,17 +99,14 @@ BOOST_AUTO_TEST_CASE(round_trip_decimal_digits_014)
 
     str = ("0." + str);
 
-    const floating_point_type x = boost::lexical_cast<floating_point_type>(str);
+    const fixed_point_type x(boost::lexical_cast<floating_point_type>(str));
 
-    const fixed_point_type fx(x);
-
-    const bool next_test_result =
-      local::round_trip(local::fixed_point_type_decimal_digits_014(fx));
+    const bool next_test_result = local::round_trip(local::fixed_point_type_decimal_digits_014(x));
 
     b = (b && next_test_result);
   }
 
-  BOOST_CHECK_EQUAL(count, UINT32_C(1000000));
+  BOOST_CHECK_EQUAL(count, number_of_test_cases);
 
   BOOST_CHECK_EQUAL(b, true);
 }

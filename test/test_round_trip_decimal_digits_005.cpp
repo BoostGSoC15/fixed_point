@@ -61,13 +61,15 @@ BOOST_AUTO_TEST_CASE(round_trip_decimal_digits_005)
   typedef local::fixed_point_type_decimal_digits_005 fixed_point_type;
   typedef fixed_point_type::float_type floating_point_type;
 
-  uint_fast16_t count;
+  boost::uint_fast32_t count;
+
+  BOOST_CONSTEXPR_OR_CONST boost::uint_fast32_t number_of_test_cases = UINT32_C(99999);
 
   bool b = true;
 
   // Test every single value with 5 decimal digits of precision
   // ranging from 0.00001, 0.00002, 0.00003, ... 0.99999.
-  for(count = UINT16_C(1); ((count < UINT16_C(99999)) && b); ++count)
+  for(count = UINT32_C(1); ((count < number_of_test_cases) && b); ++count)
   {
     std::stringstream ss1;
 
@@ -81,17 +83,14 @@ BOOST_AUTO_TEST_CASE(round_trip_decimal_digits_005)
 
     str = ("0." + str);
 
-    const floating_point_type x = boost::lexical_cast<floating_point_type>(str);
+    const fixed_point_type x(boost::lexical_cast<floating_point_type>(str));
 
-    const fixed_point_type fx(x);
-
-    const bool next_test_result =
-      local::round_trip(local::fixed_point_type_decimal_digits_005(fx));
+    const bool next_test_result = local::round_trip(local::fixed_point_type_decimal_digits_005(x));
 
     b = (b && next_test_result);
   }
 
-  BOOST_CHECK_EQUAL(count, UINT16_C(99999));
+  BOOST_CHECK_EQUAL(count, number_of_test_cases);
 
   BOOST_CHECK_EQUAL(b, true);
 }
