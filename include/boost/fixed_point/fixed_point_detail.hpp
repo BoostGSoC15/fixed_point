@@ -20,6 +20,13 @@
   #include <boost/multiprecision/cpp_bin_float.hpp>
   #include <boost/multiprecision/cpp_int.hpp>
 
+  // Do not produce Doxygen indexing of items in namespace detail unless specifically required.
+  // The section between \cond and \endcond can be included by adding its section label DETAIL
+  // to the ENABLED_SECTIONS configuration option. 
+  // If the section label is omitted, the section will be excluded from processing unconditionally.
+
+  //! \cond DETAIL
+
   namespace boost { namespace fixed_point { namespace detail {
 
   template<typename unsigned_integral_type,
@@ -501,5 +508,6 @@
     }
   };
   } } } // namespace boost::fixed_point::detail
+  //! \endcond // DETAIL
 
 #endif // FIXED_POINT_DETAIL_2015_05_23_HPP_

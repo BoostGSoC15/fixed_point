@@ -12,7 +12,6 @@
 [article Boost.Fixed-point
     [quickbook 1.7]
     [copyright 2013 Christopher Kormanyos]
-    [purpose Fixed-point Number library]
     [license
          Distributed under the Boost Software License, Version 1.0.
          (See accompanying file LICENSE_1_0.txt or copy at
@@ -38,7 +37,13 @@
 </imageobject>
 </inlinemediaobject>''']
 
-[def __cpp_int [link boost_fixed_point.ints.cpp_int cpp_int]]
+[def __boost [@http://www.boost.org/ Boost]]
+[def __boostroot [@boost: Boost root ./modular-boost]]
+[def __boost_license [@http://www.boost.org/LICENSE_1_0.txt Boost License]]
+
+[def __cpp_int [@http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/tut/ints/cpp_int.html cpp_int]]
+
+[/def __cpp_int [link boost_fixed_point.ints.cpp_int cpp_int]]
 
 [section:intro Introduction]
 The Fixed-point Library provides fixed-point types in C++ that have different
@@ -81,8 +86,8 @@ such as the decimal and binary multiprecision types provided here.  More informa
 
 Based on the information above, one can see that different kinds of numbers can be
 differentiated based on the information stored in `std::numeric_limits`.  This is
-in addition to the traits class [link boost_multiprecision.ref.number.traits_class_support
-number_category] provided by this library.
+in addition to the traits class
+[link boost_multiprecision.ref.number.traits_class_support number_category] provided by this library.
 
 [endsect] [/section:how_to_tell How to Determine the Kind of a Number From `std::numeric_limits`]
 

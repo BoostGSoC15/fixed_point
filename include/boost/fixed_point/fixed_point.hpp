@@ -60,10 +60,10 @@
 
   namespace round
   {
-    struct fastest      { }; // Speed is more important than the choice in value.
-    struct negative     { }; // Round towards negative infinity. This mode is useful in interval arithmetic.
-    struct truncated    { }; // Round towards zero. This mode is useful in implementing integral arithmetic.
-    struct positive     { }; // Round towards positive infinity. This mode is useful in interval arithmetic.
+    struct fastest      { }; //!< Speed is more important than the choice in value.
+    struct negative     { }; //!< Round towards negative infinity. This mode is useful in interval arithmetic.
+    struct truncated    { }; //!< Round towards zero. This mode is useful in implementing integral arithmetic.
+    struct positive     { }; //!< Round towards positive infinity. This mode is useful in interval arithmetic.
     struct classic      { }; // Round towards the nearest value, but exactly-half values are rounded towards maximum magnitude. This mode is the standard school algorithm.
     struct nearest_even { }; // Round towards the nearest value, but exactly-half values are rounded towards even values. This mode has more balance than the classic mode.
     struct nearest_odd  { }; // Round towards the nearest value, but exactly-half values are rounded towards odd values. This mode has as much balance as the near_even mode, but preserves more information.
@@ -518,8 +518,12 @@
 
     struct nothing { };
 
+    /*! \tparam integral_type Integer type on which the fixed-point type is based, typically the native unsigned integer type unsigned int, 
+    but can be a smaller fundamental type like short int, or a much longer type like boost::multiprecision::cpp_int.
+    \sa http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/tut/ints/cpp_int.html
+    */
     template<typename integral_type>
-    negatable(const nothing&,
+    negatable(const nothing&,  
               const integral_type& n,
               const typename std::enable_if<   std::is_integral<integral_type>::value
                                             || std::is_same<typename negatable::value_type, integral_type>::value
@@ -530,13 +534,14 @@
       binary_round(unsigned_small_type& u_round,
                    typename std::enable_if<std::is_same<local_round_mode, round::fastest>::value>::type* = nullptr)
     {
-      // Here, u_round contains the value to be rounded whereby
-      // this value is left-shifted one binary digit larger than
-      // the final result will be.
+      /*! Here, u_round contains the value to be rounded whereby
+       this value is left-shifted one binary digit larger than
+       the final result will be.
 
-      // Perform the rounding algorithm for round::fastest.
-      // For round::fastest, there is simply no rounding at all.
-      // The value is truncated.
+       Perform the rounding algorithm for round::fastest.
+       For round::fastest, there is simply no rounding at all.
+       The value is truncated.
+     */
 
       u_round = (u_round >> 1);
 
@@ -548,14 +553,15 @@
       binary_round(unsigned_small_type& u_round,
                    typename std::enable_if<std::is_same<local_round_mode, round::nearest_even>::value>::type* = nullptr)
     {
-      // Here, u_round contains the value to be rounded whereby
-      // this value is left-shifted one binary digit larger than
-      // the final result will be.
+      /*! Here, u_round contains the value to be rounded whereby
+       this value is left-shifted one binary digit larger than
+       the final result will be.
 
-      // Perform the rounding algorithm for round::nearest_even.
-      // For round::nearest_even, the value is rounded to larger
-      // absolute value when both 1/2-ULP as well as 1-ULP are 1,
-      // representing round odd 1-ULP to higher value.
+       Perform the rounding algorithm for round::nearest_even.
+       For round::nearest_even, the value is rounded to larger
+       absolute value when both 1/2-ULP as well as 1-ULP are 1,
+       representing round odd 1-ULP to higher value.
+     */
 
       const bool round_up =   ((boost::uint_fast8_t(u_round & UINT8_C(1)) == UINT8_C(1))
                             && (boost::uint_fast8_t(u_round & UINT8_C(2)) == UINT8_C(2)));
@@ -1057,7 +1063,7 @@
   {
     // Provide specializations of std::numeric_limits<negatable>.
 
-    // Note: Individual template specializations need to be provided
+    //! \note Individual template specializations need to be provided
     // for each different rounding mode and overflow mode.
 
     // Here is the template specialization of std::numeric_limits<negatable>
