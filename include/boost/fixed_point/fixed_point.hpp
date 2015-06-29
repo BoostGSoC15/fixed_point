@@ -201,6 +201,7 @@
                   "Error: Only undefined overflow mode is supported at the moment.");
 
   public:
+
     // Here we declare two convenient class-local type definitions.
     //
     //   * value_type : is the signed integer representation of the fixed-point
@@ -218,6 +219,10 @@
 
     typedef typename detail::integer_type_helper<negatable::digits_total - 0>::exact_signed_type value_type;
     typedef typename detail::float_type_helper  <negatable::digits_total - 1>::exact_float_type  float_type;
+
+    /*getter function for data to be used by mixed constructors*/
+    // tbd: Is there a better way to expose 'data' to mixed constructors and ONLY to mixed constructors?
+    const value_type& get_data () const {return data;}
 
     // The public class constructors follow below.
 
@@ -255,6 +260,52 @@
 
     // Here is the class copy constructor.
     negatable(const negatable& v) : data(v.data) { }
+
+
+    /** Mixed constructors **/
+    /**
+     *  Constructor from a negatable with larger range AND resolution
+     */
+
+    template<int m_range, int m_resolution, typename m_round, typename m_overflow,
+             typename std::enable_if< std::is_same<m_round, round_mode>::value
+                                              && std::is_same<m_overflow, overflow_mode>::value
+                                              && m_range <= integral_range
+                                              //Since resolution in negatable will always be negative
+                                              && m_resolution >= fractional_resolution
+                                              >::type* = nullptr>
+    negatable(const negatable<m_range, m_resolution, m_round, m_overflow>& rhs): data (rhs.get_data())
+    {
+      data = data << (m_resolution - fractional_resolution);
+    }
+
+    template<int m_range, int m_resolution, typename m_round, typename m_overflow,
+             typename std::enable_if< !(std::is_same<m_round, round_mode>::value
+                                              && std::is_same<m_overflow, overflow_mode>::value
+                                              && m_range <= integral_range
+                                              //Since resolution in negatable will always be negative
+                                              && m_resolution >= fractional_resolution)
+                                              >::type* = nullptr>                                          
+    negatable(const negatable<m_range, m_resolution, m_round, m_overflow>& rhs): data (rhs.get_data())
+    {
+      //static_assert(false, "The range and resolution of target should be greater than source");
+      std::cout<<"more"<<std::endl;
+    }
+
+    /*template<int m_range, int m_resolution, typename m_round, typename m_overflow>                                          
+    negatable(const negatable<m_range, m_resolution, m_round, m_overflow>& rhs)
+    {
+      //static_assert(false, "The range and resolution BOTH should be less");
+    }*/
+
+    /*template<int ran1, int res1, typename rou1, typename ove1, int ran2, int res2, typename rou2, typename ove2>
+    bool is_constructible(const negatable<ran1,res1,rou1,ove1> &from, const negatable<ran2, res2, rou2, ove2> &to) const
+    {
+      return std::is_same<ove1, ove2>::value
+          && std::is_same<rou1, rou2>::value
+         && ran1 <= ran2
+         && res1 >= res2;
+    }*/
 
     ~negatable() { }
 
@@ -455,11 +506,14 @@
     typedef typename detail::integer_type_helper<negatable::digits_total * 1>::exact_unsigned_type unsigned_small_type;
     typedef typename detail::integer_type_helper<negatable::digits_total * 2>::exact_unsigned_type unsigned_large_type;
 
-    static unsigned_small_type unsigned_small_mask() BOOST_NOEXCEPT
+    static const unsigned_small_type& unsigned_small_mask() BOOST_NOEXCEPT
     {
-      return detail::bit_mask_helper<unsigned_small_type,
-                                     0U,
-                                     unsigned(integral_range - fractional_resolution)>::value();
+      static const unsigned_small_type the_value =
+        detail::bit_mask_helper<unsigned_small_type,
+                                0U,
+                                unsigned(integral_range - fractional_resolution)>::value();
+
+      return the_value;
     }
 
     struct nothing { };
@@ -468,7 +522,8 @@
     negatable(const nothing&,
               const integral_type& n,
               const typename std::enable_if<   std::is_integral<integral_type>::value
-                                            || std::is_same<value_type, integral_type>::value>::type* = nullptr) : data(n) { }
+                                            || std::is_same<typename negatable::value_type, integral_type>::value
+                                            || std::is_same<typename negatable::unsigned_small_type, integral_type>::value>::type* = nullptr) : data(n) { }
 
     template<typename local_round_mode = round_mode>
     static boost::int_fast8_t
@@ -642,7 +697,7 @@
       return the_radix_split_value;
     }
 
-    static const negatable& epsilon_maker()
+    static const negatable& epsilon_maker() BOOST_NOEXCEPT
     {
       static bool is_init = bool();
 
@@ -674,8 +729,8 @@
       return the_epsilon;
     }
 
-    static const negatable& value_min() { static const negatable the_value_min(nothing(), 1U); return the_value_min; }
-    static const negatable& value_max() { static const negatable the_value_max(nothing(), value_type(unsigned_small_mask() + 0)); return the_value_max; }
+    static const negatable& value_min() BOOST_NOEXCEPT { static const negatable the_value_min(nothing(), 1U); return the_value_min; }
+    static const negatable& value_max() BOOST_NOEXCEPT { static const negatable the_value_max(nothing(), unsigned_small_mask()); return the_value_max; }
 
     friend class std::numeric_limits<negatable>;
 
@@ -1049,7 +1104,7 @@
       static BOOST_CONSTEXPR_OR_CONST negatable_type (max)      () BOOST_NOEXCEPT { return negatable_type::value_max(); }
       static BOOST_CONSTEXPR_OR_CONST negatable_type lowest     () BOOST_NOEXCEPT { return -(max)(); }
       static BOOST_CONSTEXPR_OR_CONST negatable_type epsilon    () BOOST_NOEXCEPT { return negatable_type::epsilon_maker(); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type round_error() BOOST_NOEXCEPT { return negatable_type(1) / 2; }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type round_error() BOOST_NOEXCEPT { return negatable_type(1); }
       static BOOST_CONSTEXPR_OR_CONST negatable_type infinity   () BOOST_NOEXCEPT { return negatable_type(0); }
       static BOOST_CONSTEXPR_OR_CONST negatable_type quiet_NaN  () BOOST_NOEXCEPT { return negatable_type(0); }
     };
