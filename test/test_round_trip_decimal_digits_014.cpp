@@ -90,12 +90,9 @@ BOOST_AUTO_TEST_CASE(round_trip_decimal_digits_014)
 
     std::string str(ss1.str());
 
-    if(str.length() < std::string::size_type(14U))
-    {
-      str.insert(std::string::size_type(0U),
-                 std::string::size_type(14U) - str.length(),
-                 char('0'));
-    }
+    str.insert(std::string::size_type( 0U),
+               std::string::size_type(14U) - str.length(),
+               char('0'));
 
     str = ("0." + str);
 
