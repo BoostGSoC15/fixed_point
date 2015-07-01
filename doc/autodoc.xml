@@ -3,16 +3,20 @@
 <namespace name="boost">
 <namespace name="fixed_point">
 <class name="negatable"><template>
-      <template-nontype-parameter name="integral_range"><type>const int</type></template-nontype-parameter>
-      <template-nontype-parameter name="fractional_resolution"><type>const int</type></template-nontype-parameter>
-      <template-type-parameter name="round_mode"><default><classname alt="boost::fixed_point::round::fastest">round::fastest</classname></default></template-type-parameter>
-      <template-type-parameter name="overflow_mode"><default><classname alt="boost::fixed_point::overflow::undefined">overflow::undefined</classname></default></template-type-parameter>
-    </template><struct name="constant_maker"><template>
-      <template-nontype-parameter name="bit_count"><type>const int</type></template-nontype-parameter>
-      <template-type-parameter name="enable_type"><default>void</default></template-type-parameter>
-    </template><method-group name="public static functions">
-<method name="pi" specifiers="static"><type>const <classname>negatable</classname> &amp;</type></method>
-<method name="ln_two" specifiers="static"><type>const <classname>negatable</classname> &amp;</type></method>
+      <template-nontype-parameter name="integral_range"><type>const int</type><purpose><para>Integer g &gt;= 0 defines a range of sign number n that is 2^-g &lt; n &lt; 2^g. </para></purpose></template-nontype-parameter>
+      <template-nontype-parameter name="fractional_resolution"><type>const int</type><purpose><para>Integer s &lt;= -1 defines resolution. The resolution of a fractional number is 2^s. </para></purpose></template-nontype-parameter>
+      <template-type-parameter name="round_mode"><default><classname alt="boost::fixed_point::round::fastest">round::fastest</classname></default><purpose><para>struct defining the rounding behaviour, default <classname alt="boost::fixed_point::round::fastest">round::fastest</classname>. </para></purpose></template-type-parameter>
+      <template-type-parameter name="overflow_mode"><default><classname alt="boost::fixed_point::overflow::undefined">overflow::undefined</classname></default><purpose><para>struct defining the behaviour from rounding, default <classname alt="boost::fixed_point::overflow::undefined">overflow::undefined</classname>. </para></purpose></template-type-parameter>
+    </template><purpose>Fixed_point class used for signed fractional arithmetic. </purpose><description><para>TODO some examples here? 
+</para></description><struct name="constant_maker"><template>
+      <template-nontype-parameter name="bit_count"><type>const int</type><purpose><para>Precision in bits to create </para></purpose></template-nontype-parameter>
+      <template-type-parameter name="enable_type"><default>void</default><purpose><para>Used internally to enable suitable version for value of bit_count. </para></purpose></template-type-parameter>
+    </template><description><para>Construct a constant of type negatable using values of constants from boost::math::constants. 
+</para></description><method-group name="public static functions">
+<method name="pi" specifiers="static"><type>const <classname>negatable</classname> &amp;</type><description><para>pi function using values of constants from boost::math::constants. 
+</para></description><returns><para>3.14159265358979323846264338327950288419716939937510 to the precision specified by bit_count. </para></returns></method>
+<method name="ln_two" specifiers="static"><type>const <classname>negatable</classname> &amp;</type><description><para>loge(2) function using values of constants from boost::math::constants. 
+</para></description><returns><para>ln(2) 0.693147180559945309417232121458. </para></returns></method>
 </method-group>
 </struct><struct-specialization name="constant_maker"><template>
       <template-nontype-parameter name="bit_count"><type>const int</type></template-nontype-parameter>
@@ -35,6 +39,7 @@
 </struct-specialization><struct name="nothing"/><typedef name="value_type"><type><emphasis>unspecified</emphasis></type></typedef>
 <typedef name="float_type"><type><emphasis>unspecified</emphasis></type></typedef>
 <method-group name="public member functions">
+<method name="get_data" cv="const"><type>const value_type &amp;</type></method>
 <method name="operator++"><type><classname>negatable</classname> &amp;</type></method>
 <method name="operator--"><type><classname>negatable</classname> &amp;</type></method>
 <method name="operator++"><type><classname>negatable</classname></type><parameter name=""><paramtype>int</paramtype></parameter></method>
@@ -85,6 +90,20 @@
           <template-type-parameter name="floating_point_type"/>
         </template><parameter name="f"><paramtype>const floating_point_type &amp;</paramtype></parameter><parameter name=""><paramtype>const typename std::enable_if&lt; std::is_floating_point&lt; floating_point_type &gt;::value||std::is_same&lt; floating_point_type, float_type &gt;::value &gt;::type *</paramtype><default>nullptr</default></parameter></constructor>
 <constructor><parameter name="v"><paramtype>const <classname>negatable</classname> &amp;</paramtype></parameter></constructor>
+<constructor><template>
+          <template-nontype-parameter name="m_range"><type>int</type></template-nontype-parameter>
+          <template-nontype-parameter name="m_resolution"><type>int</type></template-nontype-parameter>
+          <template-type-parameter name="m_round"/>
+          <template-type-parameter name="m_overflow"/>
+          <template-type-parameter name="std::enable_if&lt; std::is_same&lt; m_round, round_mode &gt;::value &amp;&amp;std::is_same&lt; m_overflow, overflow_mode &gt;::value &amp;&amp;m_range&lt;=integral_range &amp;&amp;m_resolution &gt;=fractional_resolution &gt;::type *"><default>nullptr</default></template-type-parameter>
+        </template><parameter name="rhs"><paramtype>const <classname>negatable</classname>&lt; m_range, m_resolution, m_round, m_overflow &gt; &amp;</paramtype></parameter><description><para>Mixed constructors Constructor from a negatable with larger range AND resolution </para></description></constructor>
+<constructor><template>
+          <template-nontype-parameter name="m_range"><type>int</type></template-nontype-parameter>
+          <template-nontype-parameter name="m_resolution"><type>int</type></template-nontype-parameter>
+          <template-type-parameter name="m_round"/>
+          <template-type-parameter name="m_overflow"/>
+          <template-type-parameter name="std::enable_if&lt; !(std::is_same&lt; m_round, round_mode &gt;::value &amp;&amp;std::is_same&lt; m_overflow, overflow_mode &gt;::value &amp;&amp;m_range&lt;=integral_range &amp;&amp;m_resolution &gt;=fractional_resolution) &gt;::type *"><default>nullptr</default></template-type-parameter>
+        </template><parameter name="rhs"><paramtype>const <classname>negatable</classname>&lt; m_range, m_resolution, m_round, m_overflow &gt; &amp;</paramtype></parameter></constructor>
 <destructor/>
 <copy-assignment><type><classname>negatable</classname> &amp;</type><parameter name="v"><paramtype>const <classname>negatable</classname> &amp;</paramtype></parameter></copy-assignment>
 <copy-assignment><type><classname>negatable</classname> &amp;</type><parameter name="n"><paramtype>const char &amp;</paramtype></parameter></copy-assignment>
@@ -101,7 +120,7 @@
 <copy-assignment><type><classname>negatable</classname> &amp;</type><parameter name="d"><paramtype>const double &amp;</paramtype></parameter></copy-assignment>
 <copy-assignment><type><classname>negatable</classname> &amp;</type><parameter name="ld"><paramtype>const long double &amp;</paramtype></parameter></copy-assignment>
 <method-group name="private static functions">
-<method name="unsigned_small_mask" cv="noexcept" specifiers="static"><type>unsigned_small_type</type></method>
+<method name="unsigned_small_mask" cv="noexcept" specifiers="static"><type>const unsigned_small_type &amp;</type></method>
 <method name="binary_round" specifiers="static"><type>boost::int_fast8_t</type><template>
           <template-type-parameter name="local_round_mode"><default>round_mode</default></template-type-parameter>
         </template><parameter name="u_round"><paramtype>unsigned_small_type &amp;</paramtype></parameter><parameter name=""><paramtype>typename std::enable_if&lt; std::is_same&lt; local_round_mode, <classname>round::fastest</classname> &gt;::value &gt;::type *</paramtype><default>nullptr</default></parameter><description><para>Here, u_round contains the value to be rounded whereby this value is left-shifted one binary digit larger than the final result will be.</para><para>Perform the rounding algorithm for <classname alt="boost::fixed_point::round::fastest">round::fastest</classname>. For <classname alt="boost::fixed_point::round::fastest">round::fastest</classname>, there is simply no rounding at all. The value is truncated.</para></description></method>
@@ -111,10 +130,10 @@
 <method name="radix_split_value" specifiers="static"><type>const arithmetic_type &amp;</type><template>
           <template-type-parameter name="arithmetic_type"/>
         </template></method>
-<method name="epsilon_maker" specifiers="static"><type>const <classname>negatable</classname> &amp;</type></method>
-<method name="value_min" specifiers="static"><type>const <classname>negatable</classname> &amp;</type></method>
-<method name="value_max" specifiers="static"><type>const <classname>negatable</classname> &amp;</type></method>
-<method name="value_pi" specifiers="static"><type>const <classname>negatable</classname></type><parameter name=""><paramtype>nothing()</paramtype></parameter><parameter name=""><paramtype>value_type((UINT8_C(0x64)+((UINT8_C(1)&lt;&lt; (5+fractional_resolution))/2U)) &gt;&gt;(5+fractional_resolution))</paramtype></parameter></method>
+<method name="epsilon_maker" cv="noexcept" specifiers="static"><type>const <classname>negatable</classname> &amp;</type></method>
+<method name="value_min" cv="noexcept" specifiers="static"><type>const <classname>negatable</classname> &amp;</type></method>
+<method name="value_max" cv="noexcept" specifiers="static"><type>const <classname>negatable</classname> &amp;</type></method>
+<method name="value_pi" specifiers="static"><type>const <classname>negatable</classname></type><parameter name=""><paramtype><classname>nothing</classname>()</paramtype></parameter><parameter name=""><paramtype>value_type((UINT8_C(0x64)+((UINT8_C(1)&lt;&lt; (5+fractional_resolution))/2U)) &gt;&gt;(5+fractional_resolution))</paramtype></parameter></method>
 <method name="ln_two" specifiers="static"><type>const <classname>negatable</classname> &amp;</type></method>
 </method-group>
 <method-group name="private member functions">
@@ -127,13 +146,25 @@
 </method-group>
 <constructor><template>
           <template-type-parameter name="integral_type"><purpose><para>Integer type on which the fixed-point type is based, typically the native unsigned integer type unsigned int, but can be a smaller fundamental type like short int, or a much longer type like boost::multiprecision::cpp_int. </para></purpose></template-type-parameter>
-        </template><parameter name=""><paramtype>const nothing &amp;</paramtype></parameter><parameter name="n"><paramtype>const integral_type &amp;</paramtype></parameter><parameter name=""><paramtype>const typename std::enable_if&lt; std::is_integral&lt; integral_type &gt;::value||std::is_same&lt; value_type, integral_type &gt;::value &gt;::type *</paramtype><default>nullptr</default></parameter><description><para>
+        </template><parameter name=""><paramtype>const <classname>nothing</classname> &amp;</paramtype></parameter><parameter name="n"><paramtype>const integral_type &amp;</paramtype></parameter><parameter name=""><paramtype>const typename std::enable_if&lt; std::is_integral&lt; integral_type &gt;::value||std::is_same&lt; typename negatable::value_type, integral_type &gt;::value||std::is_same&lt; typename negatable::unsigned_small_type, integral_type &gt;::value &gt;::type *</paramtype><default>nullptr</default></parameter><description><para>
 <para><emphasis role="bold">See Also:</emphasis><para><ulink url="http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/tut/ints/cpp_int.html">http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/tut/ints/cpp_int.html</ulink> </para></para>
 </para></description></constructor>
 </class><namespace name="overflow">
-<struct name="exception"/><struct name="impossible"/><struct name="modulus"/><struct name="saturate"/><struct name="undefined"/></namespace>
+<struct name="exception"><purpose>Template parameter for fixed_point negatable.<sbr/>
+ If the dynamic value exceeds the range of the variable, throw an exeception of type <computeroutput>std::overflow_error</computeroutput>. </purpose></struct><struct name="impossible"><purpose>Template parameter for fixed_point negatable.<sbr/>
+ Programmer analysis of the program has determined that overflow cannot occur. Uses of this mode should be accompanied by an argument supporting the conclusion. </purpose></struct><struct name="modulus"><purpose>Template parameter for fixed_point negatable.<sbr/>
+ The assigned value is the dynamic value mod the range of the variable. This mode makes sense only with unsigned numbers. It is useful for angular measures. </purpose></struct><struct name="saturate"><purpose>Template parameter for fixed_point negatable.<sbr/>
+ If the dynamic value exceeds the range of the variable, assign the nearest representable value. </purpose></struct><struct name="undefined"><purpose>Template parameter for fixed_point negatable.<sbr/>
+ Programmers are willing to accept undefined behavior in the event of an overflow. </purpose></struct></namespace>
 <namespace name="round">
-<struct name="classic"/><struct name="fastest"><purpose>Speed is more important than the choice in value. </purpose></struct><struct name="nearest_even"/><struct name="nearest_odd"/><struct name="negative"><purpose>Round towards negative infinity. This mode is useful in interval arithmetic. </purpose></struct><struct name="positive"><purpose>Round towards positive infinity. This mode is useful in interval arithmetic. </purpose></struct><struct name="truncated"><purpose>Round towards zero. This mode is useful in implementing integral arithmetic. </purpose></struct></namespace>
+<struct name="classic"><purpose>Template parameter for fixed_point negatable.<sbr/>
+ Template parameter for fixed_point negatableRound towards the nearest value, but exactly-half values are rounded towards maximum magnitude. This mode is the standard school algorithm. </purpose></struct><struct name="fastest"><purpose>Template parameter for fixed_point negatable.<sbr/>
+ Speed is more important than the choice in value. </purpose></struct><struct name="nearest_even"><purpose>Template parameter for fixed_point negatable.<sbr/>
+ Round towards the nearest value, but exactly-half values are rounded towards even values. This mode has more balance than the classic mode. </purpose></struct><struct name="nearest_odd"><purpose>Template parameter for fixed_point negatable.<sbr/>
+ Round towards the nearest value, but exactly-half values are rounded towards odd values. This mode has as much balance as the near_even mode, but preserves more information. </purpose></struct><struct name="negative"><purpose>Template parameter for fixed_point negatable.<sbr/>
+ Round towards negative infinity. This mode is useful in interval arithmetic. </purpose></struct><struct name="positive"><purpose>Template parameter for fixed_point negatable.<sbr/>
+ Round towards positive infinity. This mode is useful in interval arithmetic. </purpose></struct><struct name="truncated"><purpose>Template parameter for fixed_point negatable.<sbr/>
+ Template parameter for fixed_point negatableRound towards zero. This mode is useful in implementing integral arithmetic. </purpose></struct></namespace>
 <function name="abs"><type><classname>negatable</classname>&lt; integral_range, fractional_resolution, round_mode, overflow_mode &gt;</type><template>
           <template-nontype-parameter name="integral_range"><type>const int</type></template-nontype-parameter>
           <template-nontype-parameter name="fractional_resolution"><type>const int</type></template-nontype-parameter>
@@ -170,7 +201,7 @@
 <class-specialization name="numeric_limits"><template>
       <template-nontype-parameter name="integral_range"><type>const int</type></template-nontype-parameter>
       <template-nontype-parameter name="fractional_resolution"><type>const int</type></template-nontype-parameter>
-    </template><specialization><template-arg>boost::fixed_point::negatable&lt; integral_range</template-arg><template-arg>fractional_resolution</template-arg><template-arg>boost::fixed_point::round::fastest</template-arg><template-arg>boost::fixed_point::overflow::undefined &gt;</template-arg></specialization><description><para><note><para>Individual template specializations need to be provided </para></note>
+    </template><specialization><template-arg>boost::fixed_point::negatable&lt; integral_range</template-arg><template-arg>fractional_resolution</template-arg><template-arg>boost::fixed_point::round::fastest</template-arg><template-arg>boost::fixed_point::overflow::undefined &gt;</template-arg></specialization><description><para><note><para>Individual template specializations need to be provided for each different rounding mode and overflow mode. This might be 7 rounding * 5 overflow, a total of 35 specializations! </para></note>
 </para></description><data-member name="is_specialized" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST bool</type></data-member>
 <data-member name="digits" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST int</type></data-member>
 <data-member name="digits10" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST int</type></data-member>
@@ -195,13 +226,13 @@
 <data-member name="tinyness_before" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST bool</type></data-member>
 <data-member name="round_style" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST std::float_round_style</type></data-member>
 <method-group name="public static functions">
-<method name="min" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST <classname>negatable_type</classname>()</type></method>
-<method name="max" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST <classname>negatable_type</classname>()</type></method>
-<method name="lowest" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST <classname>negatable_type</classname></type></method>
-<method name="epsilon" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST <classname>negatable_type</classname></type></method>
-<method name="round_error" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST <classname>negatable_type</classname></type></method>
-<method name="infinity" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST <classname>negatable_type</classname></type></method>
-<method name="quiet_NaN" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST <classname>negatable_type</classname></type></method>
+<method name="min" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST negatable_type()</type></method>
+<method name="max" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST negatable_type()</type></method>
+<method name="lowest" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST negatable_type</type></method>
+<method name="epsilon" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST negatable_type</type></method>
+<method name="round_error" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST negatable_type</type></method>
+<method name="infinity" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST negatable_type</type></method>
+<method name="quiet_NaN" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST negatable_type</type></method>
 </method-group>
 </class-specialization><class-specialization name="numeric_limits"><template>
       <template-nontype-parameter name="integral_range"><type>const int</type></template-nontype-parameter>
@@ -230,13 +261,13 @@
 <data-member name="tinyness_before" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST bool</type></data-member>
 <data-member name="round_style" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST std::float_round_style</type></data-member>
 <method-group name="public static functions">
-<method name="min" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST <classname>negatable_type</classname>()</type></method>
-<method name="max" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST <classname>negatable_type</classname>()</type></method>
-<method name="lowest" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST <classname>negatable_type</classname></type></method>
-<method name="epsilon" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST <classname>negatable_type</classname></type></method>
-<method name="round_error" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST <classname>negatable_type</classname></type></method>
-<method name="infinity" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST <classname>negatable_type</classname></type></method>
-<method name="quiet_NaN" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST <classname>negatable_type</classname></type></method>
+<method name="min" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST negatable_type()</type></method>
+<method name="max" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST negatable_type()</type></method>
+<method name="lowest" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST negatable_type</type></method>
+<method name="epsilon" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST negatable_type</type></method>
+<method name="round_error" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST negatable_type</type></method>
+<method name="infinity" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST negatable_type</type></method>
+<method name="quiet_NaN" cv="noexcept" specifiers="static"><type>BOOST_CONSTEXPR_OR_CONST negatable_type</type></method>
 </method-group>
 </class-specialization></namespace>
 </header>

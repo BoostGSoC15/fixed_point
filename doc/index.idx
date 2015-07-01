@@ -16,7 +16,7 @@
 # Might be useful to Doxygen document everything for maintainance?
 #!scan "../include/boost/detail/" "*.hpp" true
 
-!scan ../example/fixed_point_demo.cpp
+!scan ../example/fixed_point_demo_basic.cpp
 
 base \<\w*\base\w*\>
 boolalpha \<\w*boolalpha\w*\>

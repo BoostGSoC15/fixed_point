@@ -2,7 +2,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
 <title>Boost.Fixed-point</title>
-<link rel="stylesheet" href="../../../../doc/src/boostbook.css" type="text/css">
+<link rel="stylesheet" href="fixed_point.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
 <link rel="home" href="index.html" title="Boost.Fixed-point">
 <link rel="next" href="boost_fixed_point/intro.html" title="Introduction">
@@ -37,7 +37,7 @@
 <span class="firstname">Paul A.</span> <span class="surname">Bristow</span>
 </h3></div>
 </div></div>
-<div><p class="copyright">Copyright &#169; 2013 Christopher Kormanyos</p></div>
+<div><p class="copyright">Copyright &#169; 2013, 2015 Christopher Kormanyos</p></div>
 <div><div class="legalnotice">
 <a name="boost_fixed_point.legal"></a><p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
@@ -51,18 +51,34 @@
 <p><b>Table of Contents</b></p>
 <dl>
 <dt><span class="section"><a href="boost_fixed_point/intro.html">Introduction</a></span></dt>
+<dt><span class="section"><a href="boost_fixed_point/examples.html">Examples</a></span></dt>
+<dd><dl><dt><span class="section"><a href="boost_fixed_point/examples/numeric_limits.html">Example of
+      a fixed_point type and its numeric_limits</a></span></dt></dl></dd>
 <dt><span class="section"><a href="boost_fixed_point/conversions.html">Constructing and Interconverting
     Between Number Types</a></span></dt>
 <dt><span class="section"><a href="boost_fixed_point/mixed.html">Mixed Precision Arithmetic</a></span></dt>
+<dt><span class="section"><a href="boost_fixed_point/constants.html">Constants</a></span></dt>
 <dt><span class="section"><a href="boost_fixed_point/how_to_tell.html">How to Determine the Kind
     of a Number From <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span></code></a></span></dt>
 <dt><span class="section"><a href="boost_fixed_point/limits32.html">Numeric limits for 32-bit platform</a></span></dt>
 <dt><span class="section"><a href="boost_fixed_point/headers.html">Header File Structure</a></span></dt>
+<dt><span class="section"><a href="boost_fixed_point/design.html">Design, Implementation and Rationale</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="boost_fixed_point/design/layout.html">Layout</a></span></dt>
+<dt><span class="section"><a href="boost_fixed_point/design/limits.html">Numeric Limits</a></span></dt>
+<dt><span class="section"><a href="boost_fixed_point/design/rounding.html">Rounding</a></span></dt>
+<dt><span class="section"><a href="boost_fixed_point/design/overflow.html">Over and Underflow</a></span></dt>
+<dt><span class="section"><a href="boost_fixed_point/design/infinity.html">Infinity and NotANumber
+      (NaN)</a></span></dt>
+<dt><span class="section"><a href="boost_fixed_point/design/testing.html">Testing</a></span></dt>
+</dl></dd>
+<dt><span class="section"><a href="boost_fixed_point/faq.html">Frequently Asked Questions FAQ</a></span></dt>
 <dt><span class="section"><a href="boost_fixed_point/perf.html">Performance Comparison</a></span></dt>
 <dt><span class="section"><a href="boost_fixed_point/map.html">Roadmap</a></span></dt>
 <dt><span class="section"><a href="boost_fixed_point/todo.html">TODO</a></span></dt>
-<dt><span class="section"><a href="boost_fixed_point/faq.html">FAQ</a></span></dt>
-<dt><span class="section"><a href="boost_fixed_point/ack.html">Acknowledgements</a></span></dt>
+<dt><span class="section"><a href="boost_fixed_point/ack.html">Acknowledgements, Thanks and Credits</a></span></dt>
+<dt><span class="section"><a href="boost_fixed_point/references.html">References</a></span></dt>
+<dt><span class="section"><a href="boost_fixed_point/conventions.html">Document Conventions</a></span></dt>
 <dt><span class="section"><a href="boost_fixed_point_c___reference.html">Boost.Fixed_point C++ Reference</a></span></dt>
 <dd><dl>
 <dt><span class="section"><a href="header/boost/fixed_point/fixed_point_hpp.html">Header &lt;boost/fixed_point/fixed_point.hpp&gt;</a></span></dt>
@@ -71,9 +87,28 @@
 <dt><span class="section"><a href="boost_fixed_point/indexes.html">Indexes</a></span></dt>
 </dl>
 </div>
+<div class="warning"><table border="0" summary="Warning">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Warning]" src="../../../../doc/src/images/warning.png"></td>
+<th align="left">Warning</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+      This is NOT yet a Boost library and is subject to change and development.
+    </p></td></tr>
+</table></div>
+<div class="caution"><table border="0" summary="Caution">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Caution]" src="../../../../doc/src/images/caution.png"></td>
+<th align="left">Caution</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+      This documentation is in a very rudimentary state and contains many errers
+      and ommisions!
+    </p></td></tr>
+</table></div>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
-<td align="left"><p><small>Last revised: June 28, 2015 at 17:05:22 GMT</small></p></td>
+<td align="left"><p><small>Last revised: July 01, 2015 at 16:40:00 GMT</small></p></td>
 <td align="right"><div class="copyright-footer"></div></td>
 </tr></table>
 <hr>

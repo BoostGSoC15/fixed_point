@@ -13,8 +13,9 @@ using quickbook ;
 using auto-index ;
 using doxygen ;  # Required if you want to use Doxygen.
 
-path-constant images_location : html ;
-path-constant here : . ; # /fixed_point/doc
+path-constant images_location : html ; # libs/fixed_point/doc
+path-constant here : . ; # libs/fixed_point/doc
+path-constant parent : .. ;  # libs.fixed_point
 path-constant boost-images : ../../../doc/src/images ;
 path-constant images_location : ./doc ; # location of SVG and PNG images referenced by Quickbook.
 # http://docbook.sourceforge.net/release/xsl/1.77.1/doc/html/img.src.path.html
@@ -62,9 +63,9 @@ doxygen autodoc
     <doxygen:param>RECURSIVE=NO
     <doxygen:param>ENABLE_PREPROCESSING=YES
     <doxygen:param>EXPAND_ONLY_PREDEF=YES
-    <doxygen:param>EXTRACT_ALL=NO
-    <doxygen:param>EXTRACT_PRIVATE=NO
-    <doxygen:param>HIDE_UNDOC_MEMBERS=YES
+    <doxygen:param>EXTRACT_ALL=YES
+    <doxygen:param>EXTRACT_PRIVATE=YES
+    <doxygen:param>HIDE_UNDOC_MEMBERS=NO
     <doxygen:param>MACRO_EXPANSION=YES
     <doxygen:param>SORT_MEMBER_DOCS=NO
     <doxygen:param>SHOW_INCLUDE_FILES=NO
@@ -102,7 +103,10 @@ boostbook standalone
         # Some general style settings:
         <xsl:param>table.footnote.number.format=1
         <xsl:param>footnote.number.format=1
+        # For 'standard Boost syntax coloring.
         #<xsl:param>html.stylesheet=../../../../doc/src/boostbook.css
+        # Use local preference for syntax coloring.
+        <xsl:param>html.stylesheet=fixed_point.css
 
         # HTML options first:
         # Use graphics not text for navigation:
@@ -145,10 +149,13 @@ boostbook standalone
         <format>pdf:<xsl:param>preferred.mediaobject.role=print
         <format>pdf:<xsl:param>img.src.path=$(images_location)/
         <format>pdf:<xsl:param>draft.mode="no"
-        <format>pdf:<xsl:param>boost.url.prefix=http://www.boost.org/doc/libs/release/libs/math/doc/sf_and_dist/html
+        <format>pdf:<xsl:param>boost.url.prefix=http://www.boost.org/doc/libs/release/libs/fixed_point/doc/html
+
         # Index generation conditionally defined above.
 
    ;
+
+# TODO install boostbook.css and fixed_point.css from doc/ to doc/html/
 
 install pdfinstall : standalone : <location>. <install-type>PDF <name>fixed_point.pdf ;
 

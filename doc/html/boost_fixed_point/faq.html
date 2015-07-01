@@ -1,13 +1,13 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
-<title>FAQ</title>
-<link rel="stylesheet" href="../../../../../doc/src/boostbook.css" type="text/css">
+<title>Frequently Asked Questions FAQ</title>
+<link rel="stylesheet" href="../fixed_point.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
 <link rel="home" href="../index.html" title="Boost.Fixed-point">
 <link rel="up" href="../index.html" title="Boost.Fixed-point">
-<link rel="prev" href="todo.html" title="TODO">
-<link rel="next" href="ack.html" title="Acknowledgements">
+<link rel="prev" href="design/testing.html" title="Testing">
+<link rel="next" href="perf.html" title="Performance Comparison">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <table cellpadding="2" width="100%"><tr>
@@ -20,12 +20,32 @@
 </tr></table>
 <hr>
 <div class="spirit-nav">
-<a accesskey="p" href="todo.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="ack.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>
+<a accesskey="p" href="design/testing.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="perf.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="boost_fixed_point.faq"></a><a class="link" href="faq.html" title="FAQ">FAQ</a>
+<a name="boost_fixed_point.faq"></a><a class="link" href="faq.html" title="Frequently Asked Questions FAQ">Frequently Asked Questions FAQ</a>
 </h2></div></div></div>
+<div class="orderedlist"><ol class="orderedlist" type="1">
+<li class="listitem">
+          <span class="emphasis"><em>When should I consider using a fixed-point type?</em></span>
+          <br> Fixed-point allows you to provide a lower or higher range and/or
+          a lower or higher precision.
+        </li>
+<li class="listitem">
+          <span class="emphasis"><em>Will a fixed-point type use less memory?</em></span> <br> If
+          you base the fixed-point type a small underlying integer type, then it
+          will be more efficient.
+        </li>
+<li class="listitem">
+          <span class="emphasis"><em>Will a fixed-point type run faster than floating-point type?</em></span>
+          <br> If there is no hardware floating-point, then is very likely to run
+          much faster. If you require a very high range or precision that would require
+          <a href="../../../../../libs/multiprecision/doc/html/index.html" target="_top">Boost.Multiprecision</a>
+          or similar high or arbitrary precision type, then for the same precision
+          or range, it will probably be quicker, possibly much quicker.
+        </li>
+</ol></div>
 <div class="variablelist">
 <p class="title"><b></b></p>
 <dl class="variablelist">
@@ -43,7 +63,7 @@
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>
-<td align="right"><div class="copyright-footer">Copyright &#169; 2013 Christopher Kormanyos<p>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2013, 2015 Christopher Kormanyos<p>
         Distributed under the Boost Software License, Version 1.0. (See accompanying
         file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
       </p>
@@ -51,7 +71,7 @@
 </tr></table>
 <hr>
 <div class="spirit-nav">
-<a accesskey="p" href="todo.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="ack.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>
+<a accesskey="p" href="design/testing.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="perf.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>
 </div>
 </body>
 </html>

@@ -2,16 +2,16 @@
   Copyright 2013 Christopher Kormanyos.
   Copyright 2015 John Maddock.
   Copyright 2015 Paul A. Bristow.
-  Copyright 2015Nikhar Agrawal.
+  Copyright 2015 Nikhar Agrawal.
 
   Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt or copy at
-  http://www.boost.org/LICENSE_1_0.txt).
+  (See accompanying file LICENSE_1_0.txt
+  or copy at http://www.boost.org/LICENSE_1_0.txt).
 ]
 
 [article Boost.Fixed-point
     [quickbook 1.7]
-    [copyright 2013 Christopher Kormanyos]
+    [copyright 2013, 2015 Christopher Kormanyos]
     [license
          Distributed under the Boost Software License, Version 1.0.
          (See accompanying file LICENSE_1_0.txt or copy at
@@ -19,11 +19,18 @@
     ]
     [authors [Kormanyos, Christopher], [Maddock, John], [Agrawal, Nikhar], [Bristow, Paul A.]]
     [/last-revision $Date: 2011-07-08 18:51:46 +0100 (Fri, 08 Jul 2011) $]
-]
+] [/article Boost.Fixed-point]
+
+[warning This is NOT yet a Boost library and is subject to change and development.]
+
+[caution This documentation is in a very rudimentary state and contains many errers and ommisions!]
+
+[import ../../../tools/auto_index/include/auto_index_helpers.qbk]
+[/ auto_index_helpers.qbk MUST be FIRST included file!]
 
 [import html4_symbols.qbk]
 
-[/import ../example/fixed_point_snips.cpp]
+[/import ../example/fixed_point_snips.cpp -see example and other sections]
 
 [template super[x]'''<superscript>'''[x]'''</superscript>''']
 [template sub[x]'''<subscript>'''[x]'''</subscript>''']
@@ -37,13 +44,83 @@
 </imageobject>
 </inlinemediaobject>''']
 
+[def __cpp_standard [@http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4382.pdf C++ draft standard]]
 [def __boost [@http://www.boost.org/ Boost]]
 [def __boostroot [@boost: Boost root ./modular-boost]]
 [def __boost_license [@http://www.boost.org/LICENSE_1_0.txt Boost License]]
-
+[def __multiprecision [@boost:/libs/multiprecision/doc/html/index.html Boost.Multiprecision]]
+[def __serialization [@http://www.boost.org/doc/libs/1_58_0/libs/serialization/doc/index.html Boost.Serialization]]
 [def __cpp_int [@http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/tut/ints/cpp_int.html cpp_int]]
+[def __cpp_dec_float [@boost:/libs/multiprecision/doc/html/boost_multiprecision/tut/floats/cpp_dec_float.html cpp_dec_float]]
+[def __cpp_bin_float [@boost:/libs/multiprecision/doc/html/boost_multiprecision/tut/floats/cpp_bin_float.html cpp_bin_float]]
+[def __boost_test [@boost:/libs/test/doc/html/index.html Boost.Test]]
+[def __boost_timer [@boost:/libs/timer/doc/index.html Boost.Timer]]
+[def __boost_test_fp [@boost:/libs/test/doc/html/boost_test/users_guide/testing_tools/testing_floating_points.html Boost.Test floating-point comparison]]
+[def __boost_math_fp [link math_toolkit.float_comparison Boost.Math floating-point utilities]]
+[def __boost_math_constants [@http://www.boost.org/doc/libs/release/libs/math/doc/html/math_toolkit/constants.html Boost.Math constants]]
 
-[/def __cpp_int [link boost_fixed_point.ints.cpp_int cpp_int]]
+[def __float_distance [@boost:/libs/math/doc/html/math_toolkit/next_float/float_distance.html Boost.Math float_distance]]
+[def __ulp [@http://en.wikipedia.org/wiki/Unit_in_the_last_place  Unit in the last place (ULP)]]
+[def __SSE2 [@http://en.wikipedia.org/wiki/SSE2 SSE2 instructions]]
+[def __WolframAlpha [@http://www.wolframalpha.com/ Wolfram Alpha]]
+[def __floating_point  [@http://en.wikipedia.org/wiki/Floating_point Floating point]]
+[def __epsilon [@http://en.wikipedia.org/wiki/Machine_epsilon machine epsilon]]
+[def __ADL [@http://en.cppreference.com/w/cpp/language/adl Argument Dependent Lookup (ADL)]]
+[def __function_template_instantiation [@http://en.cppreference.com/w/cpp/language/function_template Function template instantiation]]
+[def __fundamental_types [@http://en.cppreference.com/w/cpp/language/types fundamental types]]
+[def __guard_digits [@http://en.wikipedia.org/wiki/Guard_digit guard digits]]
+[def __representable [@http://en.wikipedia.org/wiki/Floating_point#Representable_numbers.2C_conversion_and_rounding representable]]
+
+[def __n3352 [@http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html C++ Binary Fixed-Point Arithmetic N3352]]
+[def __NaN [@https://en.wikipedia.org/wiki/NaN NaN]]
+[def __nan [@http://www.cplusplus.com/reference/cmath/nan-function/ C++ nan function]]
+[def __infinity [@http://www.cplusplus.com/reference/cmath/INFINITY/?kw=INFINITY  infinity]]
+[def __isnan [@http://www.cplusplus.com/reference/cmath/isnan/?kw=isnan  isnan function]]
+[def __isinf [@http://www.cplusplus.com/reference/cmath/isinf/  isinf function]]
+[def __numeric_limits [@http://www.cplusplus.com/reference/limits/numeric_limits/ numeric_limits]]
+[def __edge [@https://en.wikipedia.org/wiki/Edge_case edge case]]
+[def __corner [@https://en.wikipedia.org/wiki/Corner_case corner case]]
+[def __boundary [@https://en.wikipedia.org/wiki/Boundary_case boundary case]]
+[def __significand [@https://en.wikipedia.org/wiki/Significand significand]]
+[def __C_math [@http://en.cppreference.com/w/cpp/numeric/math C math]]
+[def __IEEE754 [@  IEEE754 floating-point specification]]
+[def __is_fundamental [@http://en.cppreference.com/w/cpp/types/is_fundamental std::is_fundamental]]
+[def __is_arithmetic [@http://en.cppreference.com/w/cpp/types/is_arithmetic std::is_arithmetic]]
+[def __is_floating_point[@http://en.cppreference.com/w/cpp/types/is_floating_point std::is_floating_point]]
+[def __is_iec559 [@http://en.cppreference.com/w/cpp/types/numeric_limits/is_iec559 std::numeric_limits::is_iec559]]
+
+[/Links to classes etc]
+
+[def __negatable [classref boost::fixed_point::negatable  negatable]]
+
+[/Unclear how to get a link to the tempate parameters??? So link to class negatable for now.]
+[def __range [classref boost::fixed_point::negatable  integral_range]]
+[def __resolution [classref boost::fixed_point::negatable  fractional_resolution]]
+
+[/def __range [classref boost::fixed_point::negatable::integral_range  integral_range]]
+[/def __resolution [memberref boost::fixed_point::negatable::fractional_resolution  fractional_resolution]]
+[/def __round [memberref boost::fixed_point::negatable  round_mode]]
+[/def __overflow [memberref boost::fixed_point::negatable  overflow_mode]]
+
+[def __round_fastest [classref boost::fixed_point::round::fastest  round::fastest]]
+[def __round_negative [classref boost::fixed_point::round::mode  round::negative]]
+[def __round_truncated [classref boost::fixed_point::round::fastest  round::truncated]]
+[def __round_positive [classref boost::fixed_point::round::fastest  round::positive]]
+[def __round_classic [classref boost::fixed_point::round::fastest  round::classic]]
+[def __round_nearest_even [classref boost::fixed_point::round::fastest  round::nearest_even]]
+[def __round_nearest_odd [classref boost::fixed_point::round::fastest  round::nearest_odd]]
+
+[/ overflow template parameter options]
+[def __overflow_undefined [classref boost::fixed_point::overflow::undefined overflow::undefined]]
+[def __overflow_impossible [classref boost::fixed_point::overflow::undefined overflow::impossible]]
+[def __overflow_modulus [classref boost::fixed_point::overflow::undefined overflow::modulus]]
+[def __overflow_saturate [classref boost::fixed_point::overflow::undefined overflow::saturate]]
+[def __overflow_exception [classref boost::fixed_point::overflow::undefined overflow::exception ]]
+[def __pi [memberref boost::fixed_point::negatable::constant_maker::pi pi()]]
+[def __ln_two [memberref boost::fixed_point::negatable::constant_maker::ln_two]]
+
+
+
 
 [section:intro Introduction]
 The Fixed-point Library provides fixed-point types in C++ that have different
@@ -55,6 +132,58 @@ kinds of mathematical calculations involving integer,
 rational and floating-point types requiring extended
 range and precision.
 [endsect] [/section:intro Introduction]
+
+[section:examples Examples]
+
+[section:numeric_limits Example of a fixed_point type and its numeric_limits]
+
+[import ../example/fixed_point_demo_basic.cpp]
+
+In order to use the fixed_point library, we first need an include:
+
+[fixed_point_include_1]
+
+Then it is convenient (because we are likely to reuse the type name often)
+to define a `typedef` for our chosen fixed-point type
+
+[fixed_point_typedef_1]
+
+This example uses the fixed-point class __negatable
+(the analog of a signed floating-point) defined to have
+a template parameter __resolution of 15
+and a template parameter __range of -16.
+
+(For simplicity, we use the defaults for the other template parameters,
+`round_mode` = __round_fastest and `overflow_mode` = __overflow_undefined).
+
+This means that 15 bits are used for the __significand of fraction part and
+16 for the binary exponent.
+
+We can show the __numeric_limits for this type thus:
+
+[show_numeric_limits_1]
+
+and the output is:
+
+[numeric_limits_output_1]
+
+Next we can use this defined fixed-point type, constructing from two integer values to avoid
+any conversion from a floating-point value whose value is probably not be exactly __representable.
+This ensures no loss of precision or double rounding during construction.
+
+[fixed_example_1]
+
+We can inspect the __significand or fraction(also called  mantissa but this is now deprecated)
+and the exponent parts using the using __C_math function `frexp`, and alter the exponent using `ldexp`.
+
+Of course, other __C_math functions (`#include <cmath>`) are available.
+
+[warning Some __C_math functions are not applicable to `fixed_point` values;
+others may not yet be implemented.]
+
+[endsect] [/section:numeric_limits Example of a fixed_point type and its numeric_limits]
+
+[endsect] [/section:examples Examples]
 
 [section:conversions Constructing and Interconverting Between Number Types]
 All of the number types that are based on `number` have certain conversion rules in common.
@@ -82,12 +211,25 @@ such as the decimal and binary multiprecision types provided here.  More informa
 
 [endsect] [/section:mixed Mixed Precision Arithmetic]
 
+[section:constants Constants]
+
+Constants can be constructed using members of the  [classref boost::fixed_point::negatable::constant_maker constant_maker] class.
+[memberref boost::fixed_point::negatable::constant_maker::pi pi]
+[memberref boost::fixed_point::negatable::constant_maker::ln_two ln(2)]
+
+The underlying values are from __boost_math_constants and are used to construct fixed_point types with a suitable precision.
+
+
+[endsect] [/section:constants Constants]
+
+
 [section:how_to_tell How to Determine the Kind of a Number From `std::numeric_limits`]
 
 Based on the information above, one can see that different kinds of numbers can be
 differentiated based on the information stored in `std::numeric_limits`.  This is
-in addition to the traits class
-[link boost_multiprecision.ref.number.traits_class_support number_category] provided by this library.
+in addition to the `traits class`
+[@http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/ref/number.html#boost_multiprecision.ref.number.traits_class_support traits class support]
+provided by this library.
 
 [endsect] [/section:how_to_tell How to Determine the Kind of a Number From `std::numeric_limits`]
 
@@ -107,33 +249,92 @@ in addition to the traits class
 
 [endsect] [/section:headers Header File Structure]
 
-[section:perf Performance Comparison]
+[section:design Design, Implementation and Rationale]
 
-[endsect] [/section:perf Performance Comparison]
+[section:layout Layout]
 
-[section:map Roadmap]
+There is a (most significant) bit used for sign, zero if positive, one if negative.
 
-[/section:history History]
+There is [*no] implicit bit as found in most floating-point formats.
 
-[h4 1.?]
+[endsect] [/section:layout Layout]
 
-* First Release.
+[section:limits Numeric Limits]
 
-[h4 Post review changes]
+[@http://www.exploringbinary.com/ Exploring Binary]
 
-[h4 Pre-review history]
+[import  ../example/fixed_point_limits.cpp]
 
-* 2013, Christopher Kormanyos develops the all C++ arithmetic fixed point code.
 
-[endsect] [/section:map Roadmap]
+[endsect] [/section:limits Numeric Limits]
 
-[section:todo TODO]
 
-[h4 Pre-Review Comments]
+[section:rounding Rounding]
 
-[endsect] [/section:todo TODO]
+[endsect] [/section:rounding Rounding]
 
-[section:faq FAQ]
+[section:overflow Over and Underflow]
+
+[endsect] [/section:overflow Over and Underflow]
+
+[section:infinity Infinity and NotANumber (NaN)]
+
+Unlike floating-point types, the fixed-point types (may)
+occupy the entire underlying integer type,
+and no bit patterns are reserved for __NaN or __infinity.
+The `bool std::numeric_limits<T>::has_infinity`
+and `bool std::numeric_limits<T>::has_quiet_NaN` both
+return `false` for all fixed-point types.
+
+Lack of an encoding for infinity or NaN means that
+overflow or underflow must be signalled differently.
+A template parameter is provided to control this.
+
+[endsect] [/section:infinity Infinity and NotANumber (NaN)]
+
+[section:testing Testing]
+
+Our testing is necessarily focussed on typical use cases and __boundary __edge and __corner cases.
+
+We have performed round-trip testing.
+
+This involves constructing a fixed_point type from decimal digits strings like '0.001, 0.002 ...'
+This fixed-point representation is output to a stringstream and then read back into another
+fixed-point variable, and the two checked for equality,
+
+This test can be performed for all possible values of small bit-count fixed-point types,
+but this would take unfeasible test times for more than about 32-bit,
+so roughly random values covering the entire range of possible binary patterns
+are used for test values instead.
+
+[note History Random testing was used to track bugs in Microsoft Visual Studio stream
+input from decimal digit strings.
+A fault was originally discovered by a user of __serialization when he found (after much debugging)
+a single value of  de-serialized data that was 1-bit different from that originally written.
+Random value testing then revealed that a small range of values could not be round-tripped in this way,
+and a third of the values in this range were 1-bit different.
+The __cpp_standard does not (yet) ['require] input from decimal digit strings to the nearest __representable value,
+but while other [@http://www.exploringbinary.com/visual-c-plus-plus-strtod-still-broken/#more-565 examples]
+were also found in all compilers, most are now achieve correct conversion for all values.
+]
+
+[endsect] [/section:testing Testing]
+
+
+
+[endsect] [/section:design Design, Implementation and Rationale]
+
+[section:faq Frequently Asked Questions FAQ]
+
+#['When should I consider using a fixed-point type?] [br]
+Fixed-point allows you to provide a lower or higher range and/or a lower or higher precision.
+#['Will a fixed-point type use less memory?] [br]
+If you base the fixed-point type a small underlying integer type, then it will be more efficient.
+#['Will a fixed-point type run faster than floating-point type?]  [br]
+If there is no hardware floating-point, then is very likely to run much faster.
+If you require a very high range or precision that would require __multiprecision or similar
+high or arbitrary precision type, then for the same precision or range, it will probably be quicker,
+possibly much quicker.
 
 [variablelist
 [  [Why do I get compiler errors when passing a `number` to a template function?]
@@ -144,9 +345,38 @@ in addition to the traits class
  ]
 ]
 
-[endsect] [/section:faq FAQ]
+[endsect] [/section:main_faq Frequently Asked Questions FAQ]
 
-[section:ack Acknowledgements]
+[section:perf Performance Comparison]
+
+TODO
+
+[endsect] [/section:perf Performance Comparison]
+
+[section:map Roadmap]
+
+[h4 1.?]
+
+* First Release.
+[h4 Post review changes]
+
+[h4 Pre-review history]
+
+[h4 Pre-Review Comments]
+
+* 2015 Christopher Kormanyos  refines the code with the aid of GSoC student Nikhar Agrawal.
+
+* 2013, Christopher Kormanyos develops the all C++ arithmetic fixed point code.
+
+[endsect] [/section:map Roadmap]
+
+[section:todo TODO]
+
+Implementation of all rounding modes and overflows. TODO
+
+[endsect] [/section:todo TODO]
+
+[section:ack Acknowledgements, Thanks and Credits]
 
 This library would not have happened without:
 
@@ -156,7 +386,49 @@ This library would not have happened without:
 Donald E. Knuth, Volume 2: Seminumerical Algorithms, Third Edition
 (Reading, Massachusetts: Addison-Wesley, 1997), xiv+762pp. ISBN 0-201-89684-2
 
+We are grateful for Google for support of Nikhar Agrawal for support through the
+[@http://code.google.com/soc/2007/ Google Summer of Code (2015) program].
+
+[@http://lists.boost.org/Archives/boost/2012/04/191987.php Vicente Botet Escriba ] posed a lots of questions about a design.
+As a result of reading Lawrence Crowl's proposal __N3352,
+Vicente Botet Escriba prototyped a [@http://svn.boost.org/svn/boost/sandbox/fixed_point fixed-point library] in 2013.
+
+[@http://2015.cppnow.org/participant/vicente-j-botet-escriba/ Phil Endecott reviewed past discussions on fixed-point.]
+
 [endsect] [/section:ack Acknowledgements]
+
+[section:references References]
+
+#__n3352
+
+#[@http://lists.boost.org/Archives/boost/2012/04/192165.php Boost archive]
+
+# [@http://www.exploringbinary.com/ Exploring Binary]  Rick Regan,
+
+
+[endsect] [/section:ack References]
+
+[section:conventions Document Conventions]
+
+This documentation aims to use of the following naming and formatting conventions:
+
+* C++ Code is in `fixed width font` and is syntax-highlighted in color, for example `double`.
+* Other code is in block [^teletype fixed-width font].
+* Replaceable text that [*you will need to supply] is in [~italics].
+* If a name refers to a free function, it is specified like this:
+  `free_function()`; that is, it is in [~code font] and its name is followed by `()`
+  to indicate that it is a free function.
+* If a name refers to a class template, it is specified like this:
+  `class_template<>`; that is, it is in code font and its name is followed by `<>`
+  to indicate that it is a class template.
+* If a name refers to a function-like macro, it is specified like this: `MACRO()`;
+  that is, it is uppercase in code font and its name is followed by `()` to
+  indicate that it is a function-like macro. Object-like macros appear without the
+  trailing `()`.
+* Names that refer to ['concepts] in the generic programming sense
+(like template parameter names) are specified in CamelCase.
+
+[endsect] [/section:conventions Document Conventions]
 
 [xinclude autodoc.xml] [/ Using Doxygen reference documentation.]
 

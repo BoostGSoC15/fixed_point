@@ -59,23 +59,23 @@
   namespace boost { namespace fixed_point {
 
   namespace round
-  {
-    struct fastest      { }; //!< Speed is more important than the choice in value.
-    struct negative     { }; //!< Round towards negative infinity. This mode is useful in interval arithmetic.
-    struct truncated    { }; //!< Round towards zero. This mode is useful in implementing integral arithmetic.
-    struct positive     { }; //!< Round towards positive infinity. This mode is useful in interval arithmetic.
-    struct classic      { }; // Round towards the nearest value, but exactly-half values are rounded towards maximum magnitude. This mode is the standard school algorithm.
-    struct nearest_even { }; // Round towards the nearest value, but exactly-half values are rounded towards even values. This mode has more balance than the classic mode.
-    struct nearest_odd  { }; // Round towards the nearest value, but exactly-half values are rounded towards odd values. This mode has as much balance as the near_even mode, but preserves more information.
+  { // Care - Doxygen is really picky about layout here - don't try to tidy it up!
+    struct fastest      { }; //!< Template parameter for fixed_point negatable.\n Speed is more important than the choice in value.
+    struct negative     { }; //!< Template parameter for fixed_point negatable.\n Round towards negative infinity. This mode is useful in interval arithmetic.
+    struct truncated    { }; //!< Template parameter for fixed_point negatable.\n Template parameter for fixed_point negatableRound towards zero. This mode is useful in implementing integral arithmetic.
+    struct positive     { }; //!< Template parameter for fixed_point negatable.\n Round towards positive infinity. This mode is useful in interval arithmetic.
+    struct classic      { }; //!< Template parameter for fixed_point negatable.\n Template parameter for fixed_point negatableRound towards the nearest value, but exactly-half values are rounded towards maximum magnitude. This mode is the standard school algorithm.
+    struct nearest_even { }; //!< Template parameter for fixed_point negatable.\n Round towards the nearest value, but exactly-half values are rounded towards even values. This mode has more balance than the classic mode.
+    struct nearest_odd  { }; //!< Template parameter for fixed_point negatable.\n Round towards the nearest value, but exactly-half values are rounded towards odd values. This mode has as much balance as the near_even mode, but preserves more information.
   }
 
   namespace overflow
   {
-    struct impossible   { }; // Programmer analysis of the program has determined that overflow cannot occur. Uses of this mode should be accompanied by an argument supporting the conclusion.
-    struct undefined    { }; // Programmers are willing to accept undefined behavior in the event of an overflow.
-    struct modulus      { }; // The assigned value is the dynamic value mod the range of the variable. This mode makes sense only with unsigned numbers. It is useful for angular measures.
-    struct saturate     { }; // If the dynamic value exceeds the range of the variable, assign the nearest representable value.
-    struct exception    { }; // If the dynamic value exceeds the range of the variable, throw an exeception of type std::overflow_error.
+    struct impossible   { }; //!< Template parameter for fixed_point negatable.\n Programmer analysis of the program has determined that overflow cannot occur. Uses of this mode should be accompanied by an argument supporting the conclusion.
+    struct undefined    { }; //!< Template parameter for fixed_point negatable.\n Programmers are willing to accept undefined behavior in the event of an overflow.
+    struct modulus      { }; //!< Template parameter for fixed_point negatable.\n The assigned value is the dynamic value mod the range of the variable. This mode makes sense only with unsigned numbers. It is useful for angular measures.
+    struct saturate     { }; //!< Template parameter for fixed_point negatable.\n If the dynamic value exceeds the range of the variable, assign the nearest representable value.
+    struct exception    { }; //!< Template parameter for fixed_point negatable.\n If the dynamic value exceeds the range of the variable, throw an exeception of type `std::overflow_error`.
   }
   } } // namespace boost::fixed_point
 
@@ -159,7 +159,7 @@
 
   namespace std
   {
-    // Forward declaration of the specialization of std::numeric_limits<negatable>.
+    // Forward declaration of specialization of std::numeric_limits<negatable>.
     template<const int integral_range,
              const int fractional_resolution,
              typename round_mode,
@@ -173,6 +173,15 @@
   namespace boost { namespace fixed_point {
 
   // We will now begin the implementation of the negatable class.
+  /*!
+    \brief Fixed_point class used for signed fractional arithmetic.
+    \details TODO  some examples here?
+    \tparam integral_range  Integer g  >= 0 defines a range of sign number n that is 2^-g < n < 2^g.
+    \tparam fractional_resolution Integer s <= -1 defines resolution. The resolution of a fractional number is 2^s.
+    \tparam round_mode struct defining the rounding behaviour, default round::fastest.
+    \tparam overflow_mode struct defining the behaviour from rounding, default overflow::undefined.
+  */
+
   template<const int integral_range,
            const int fractional_resolution,
            typename round_mode = round::fastest,
@@ -285,14 +294,14 @@
                                               && m_range <= integral_range
                                               //Since resolution in negatable will always be negative
                                               && m_resolution >= fractional_resolution)
-                                              >::type* = nullptr>                                          
+                                              >::type* = nullptr>
     negatable(const negatable<m_range, m_resolution, m_round, m_overflow>& rhs): data (rhs.get_data())
     {
       //static_assert(false, "The range and resolution of target should be greater than source");
       std::cout<<"more"<<std::endl;
     }
 
-    /*template<int m_range, int m_resolution, typename m_round, typename m_overflow>                                          
+    /*template<int m_range, int m_resolution, typename m_round, typename m_overflow>
     negatable(const negatable<m_range, m_resolution, m_round, m_overflow>& rhs)
     {
       //static_assert(false, "The range and resolution BOTH should be less");
@@ -518,12 +527,12 @@
 
     struct nothing { };
 
-    /*! \tparam integral_type Integer type on which the fixed-point type is based, typically the native unsigned integer type unsigned int, 
+    /*! \tparam integral_type Integer type on which the fixed-point type is based, typically the native unsigned integer type unsigned int,
     but can be a smaller fundamental type like short int, or a much longer type like boost::multiprecision::cpp_int.
     \sa http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/tut/ints/cpp_int.html
     */
     template<typename integral_type>
-    negatable(const nothing&,  
+    negatable(const nothing&,
               const integral_type& n,
               const typename std::enable_if<   std::is_integral<integral_type>::value
                                             || std::is_same<typename negatable::value_type, integral_type>::value
@@ -828,10 +837,21 @@
 
     // Helper utilities for mathematical constants.
     // We need mathematical constants for transcendental functions.
+
+
+    /*!
+      Construct a constant of type negatable using values of constants from boost::math::constants.
+      \tparam bit_count Precision in bits to create
+      \tparam enable_type Used internally to enable suitable version for value of bit_count.
+      */
     template<const int bit_count,
              typename enable_type = void>
     struct constant_maker
     {
+      /*!
+        pi function using values of constants from boost::math::constants.
+        \returns 3.14159265358979323846264338327950288419716939937510 to the precision specified by bit_count.
+      */
       static const negatable& pi()
       {
         static_assert(integral_range >= 2,
@@ -840,6 +860,10 @@
         static const negatable value_pi(boost::math::constants::pi<negatable>());
         return value_pi;
       }
+      /*!
+      loge(2) function  using values of constants from boost::math::constants.
+      \returns ln(2) 0.693147180559945309417232121458.
+      */
 
       static const negatable& ln_two()
       {
@@ -1053,6 +1077,7 @@
 
   } } // namespace boost::fixed_point
 
+  // Why are these defined here?  Shouldn't the user provide them if necessary?
   using boost::fixed_point::abs;
   using boost::fixed_point::fabs;
   using boost::fixed_point::frexp;
@@ -1063,8 +1088,10 @@
   {
     // Provide specializations of std::numeric_limits<negatable>.
 
-    //! \note Individual template specializations need to be provided
-    // for each different rounding mode and overflow mode.
+    /*! \note Individual template specializations need to be provided
+     for each different rounding mode and overflow mode.
+     This might be 7 rounding * 5 overflow, a total of 35 specializations!
+    */
 
     // Here is the template specialization of std::numeric_limits<negatable>
     // for round::fastest and overflow::undefined.
