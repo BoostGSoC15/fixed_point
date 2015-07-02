@@ -27,6 +27,9 @@
 
 [import ../../../tools/auto_index/include/auto_index_helpers.qbk]
 [/ auto_index_helpers.qbk MUST be FIRST included file!]
+[/If index enabled on the command line fixed_point\doc>b2 --enable-index --hash]
+[/If enable index, then  --hash option is essential because names become to long.]
+[/The message is entirely inscrutable!]
 
 [import html4_symbols.qbk]
 
@@ -46,6 +49,7 @@
 
 [def __cpp_standard [@http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4382.pdf C++ draft standard]]
 [def __boost [@http://www.boost.org/ Boost]]
+[def __boost_archives [@http://lists.boost.org/Archives/boost/ Boost archives]]
 [def __boostroot [@boost: Boost root ./modular-boost]]
 [def __boost_license [@http://www.boost.org/LICENSE_1_0.txt Boost License]]
 [def __multiprecision [@boost:/libs/multiprecision/doc/html/index.html Boost.Multiprecision]]
@@ -88,6 +92,7 @@
 [def __is_arithmetic [@http://en.cppreference.com/w/cpp/types/is_arithmetic std::is_arithmetic]]
 [def __is_floating_point[@http://en.cppreference.com/w/cpp/types/is_floating_point std::is_floating_point]]
 [def __is_iec559 [@http://en.cppreference.com/w/cpp/types/numeric_limits/is_iec559 std::numeric_limits::is_iec559]]
+[def __cardinal [@https://en.wikipedia.org/wiki/Cardinal_number  cardinal]]
 
 [/Links to classes etc]
 
@@ -118,9 +123,6 @@
 [def __overflow_exception [classref boost::fixed_point::overflow::undefined overflow::exception ]]
 [def __pi [memberref boost::fixed_point::negatable::constant_maker::pi pi()]]
 [def __ln_two [memberref boost::fixed_point::negatable::constant_maker::ln_two]]
-
-
-
 
 [section:intro Introduction]
 The Fixed-point Library provides fixed-point types in C++ that have different
@@ -173,10 +175,16 @@ This ensures no loss of precision or double rounding during construction.
 
 [fixed_example_1]
 
-We can inspect the __significand or fraction(also called  mantissa but this is now deprecated)
+We can inspect the __significand or fraction (also called  mantissa but this term is now deprecated)
 and the exponent parts using the using __C_math function `frexp`, and alter the exponent using `ldexp`.
 
 Of course, other __C_math functions (`#include <cmath>`) are available.
+
+The user can simply call `sqrt(negatable)` without requiring any namespace decoration.
+
+TODO Examples snippet needed here.
+
+(See rationale for more details on this).
 
 [warning Some __C_math functions are not applicable to `fixed_point` values;
 others may not yet be implemented.]
@@ -212,13 +220,35 @@ such as the decimal and binary multiprecision types provided here.  More informa
 [endsect] [/section:mixed Mixed Precision Arithmetic]
 
 [section:constants Constants]
+[import ../example/fixed_point_constants.cpp]
 
-Constants can be constructed using members of the  [classref boost::fixed_point::negatable::constant_maker constant_maker] class.
-[memberref boost::fixed_point::negatable::constant_maker::pi pi]
-[memberref boost::fixed_point::negatable::constant_maker::ln_two ln(2)]
+Constants (as far as they are yet implemented) are easily used.
 
-The underlying values are from __boost_math_constants and are used to construct fixed_point types with a suitable precision.
+The underlying values are from __boost_math_constants and are used to construct fixed_point types
+with a suitable precision for the number of bits in the significand.
 
+To start, we can generate a 'reference' value using __multiprecision, say with 50 decimal digits precision.
+
+[bin_float_50_pi]
+
+Note how we ensure that only significand digits ['for the type] are shown by using
+
+  std::setprecision(std::numeric_limits<cpp_bin_float_50>::digits10)
+
+Then we can generate using a typical fixed_point type that will use a 64-bit integer as its underlying representation.
+
+[fixed_point__constant]
+
+Then a tiny (and so rather imprecise) fixed_point type that will fit into a single byte.
+
+The result would almost meet the requirements of the
+[@https://en.wikipedia.org/wiki/Indiana_Pi_Bill Indiana pi bill]!
+
+Finally a much more precise fixed_point type that will fit into 128-bit 16-byte.
+
+[fixed_point_precise_constant]
+
+The full code is at [@../../example/fixed_point_constants.cpp  fixed_point_constants.cpp].
 
 [endsect] [/section:constants Constants]
 
@@ -251,6 +281,116 @@ provided by this library.
 
 [section:design Design, Implementation and Rationale]
 
+[section:history Historial discussions]
+
+In response to Lawrance Crowl proposal __n3352, there are a thread on the
+
+__boost discussion list. See this thread on
+[@http://lists.boost.org/Archives/boost/2012/04/191987.php]
+on the __boost_archives.
+
+Vicente Botet Escriba produced a prototype at
+[@http://svn.boost.org/svn/boost/sandbox/fixed_point]
+asked a number if questions,
+and replies from the current author Christopher Kormanyos
+(that provided the basis for the implementation here) were:
+
+First up, one might want to consider some top-level requirements.
+* How might fixed-point fit with an extended complex class?
+- If Boost.Multiprecision or a multiprecision type is ever
+specified, how might fixed-point fit with it.
+- If a multiprecision integer type ever gets specified, should
+the representation of fixed-point be allowed to use it for
+mantissa and decimal parts?
+
+* Should integers and reals be represented by separated classes?
+I don't see the need for integers in the first place.
+I'm wondering if the library will be simpler as the operations are not
+the same. If we have only one class, enable_if should be used to make
+the difference.
+
+* Should signed and unsigned be represented by separated classes?
+Yes, in my opinion.
+I guess, perhaps, the separate sign information might be a necessity.
+But I'm not sure.
+I think that when a single word is enough to represent the fixed-point
+2's complement is the bets choice. When more than a word is needed,
+having the sing on all the word is a lost of space, and as you say
+whether it is represented represented by left-most word/limb or as a
+separated data should be an internal decision. In this case using more
+space seems IMO to be a minor issue.
+
+
+* Should the library use a specific representation for signed numbers (separated sign, 2-complement? Let the user choose?
+Very good question. A separate bool flag for sign slows down the library and increases
+storage requirements. The sign of the left-most limb could be the sign. But this
+breaks down for all-fractional types. I guess, perhaps, the separate sign information
+might be a necessity. But I'm not sure.
+
+* Should the library provide arbitrary range and resolution and allocators?
+Unfortunately, the allocator seems necessary for high digit counts.
+But perhaps a hybrid container with compile-time width for low limb-count
+and allocation for a (specifiable, zero allowed) higher limb count could be used here.
+But be sure to make fixed-point fast for low digit counts, possibly
+using template specialization when the fixed-point can be represented
+by a built-in integer type (in assiciation with "get my int type" compile-time helper templates).
+This is what I have done in the past. Low digit counts is the key range for fixed.
+
+* Should the library be open to overflow and rounding or just implement some of the possible policies? and in this case which ones?
+Where do you start, where do you stop?
+This is like the sign bit. Do you want extra information
+for the sub-normals or use some magic values?
+
+* Should fixed_point be convertible to/from integer/float/double?
+Yes, absolutely, in my opinion. Implicit or explicit conversion?
+
+* Could the result of an arithmetic operation have more range and resolution than his arguments?
+No. But copy construction and copy assign maybe, whereby the LHS
+dictates the digit count.
+
+* Is there a need for a specific I/O?
+Yes.
+
+* is there a need for radix other than 2 (binary)?
+Coming from a guy who has written [*a lot] of specialized number classes...
+I have always been haunted by radix-10. Never again for me.
+Radix-2 and don't look back (my opinion).
+I prefer also to concentrate on Radix-2 and leave Radix-10 for another library.
+
+* Should the library implement the basic functions, or should it imperatively implement the C++11 math functions? Could a first version just forward to the c++11 math functions?
+It should fit in with Boost.Multiprecision, if there ever is such a thing.
+Users like me who need a tiny set of trig functions for, say, an
+8-bit controller can roll-their-own via template specialization.
+Don't even get started with cordic, Chebyshev, polynomial expansion,
+Pade, Taylor, Newton-Raphson, FFT multiplication, AGM, etc., etc., etc. and the rest.
+Just make the numbers! We will be happy for that because it's really a lot.
+C++ should have the templated math functions and an extended complex type
+elsewhere. You just need to make the number types.
+
+* Should the library support just one of the know ways to name a fixed-point, a U(a,b), nQm, ...? Provide some ways to move from one to another?
+
+* Could expect the same/better performances respect to hand written code?
+It's implementation-dependent. But if your 7.8 and 15.16 signed splits are
+slower than single-precision float on an 8-bit core, you will get flack for it.
+
+* What should be the size used by a fixed_point instance? _fast? _least? Should the user be able to decide which approach is better for his needs?
+It's implementation defined. For small digit counts, I would try to fit it in
+a built-in type. For medium digit counts, a fixed, optionally fixed-hybrid container
+of std::uint_fast32_t. For very high counts, use an established fast integer
+representation with its own fast-multiply (like a potential Boost.Multiprecision).
+
+* Which should be the namespace? boost? boost/fixed_point? boost/binary_fixed_point? boost/bfp?
+For me, boost/fixed_point.
+
+Phil Endecott observed on overflow:
+
+"Some people conflate fixed point with features like saturation, which
+I would prefer to decouple. Fixed-point arithmetic without saturation
+is useful, as is integer arithmetic with saturation. So I'd prefer to
+make them orthogonal, but compatible, concepts. "
+
+[endsect] [/section:history Historial discussions]
+
 [section:layout Layout]
 
 There is a (most significant) bit used for sign, zero if positive, one if negative.
@@ -265,11 +405,73 @@ There is [*no] implicit bit as found in most floating-point formats.
 
 [import  ../example/fixed_point_limits.cpp]
 
-
 [endsect] [/section:limits Numeric Limits]
 
+[section:macros  Preprocessor Options to disable some features]
+
+Some macros are becoming available to disable some features
+that may like the usefulness of fixed_point in certain applications.
+
+* BOOST_FIXED_POINT_DISABLE_MULTIPRECISION,
+defined to disable the use of Boost.Multiprecision
+for back-ends of the fixed-point classes.
+(not yet implemented).
+
+* BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH,
+defined to avoid using the unsigned_large_type. This option
+is intended for systems with limited integer widths
+such as bare-metal microcontrollers.[br]
+When used in combination with BOOST_FIXED_POINT_DISABLE_MULTIPRECISION,
+the this option is intended to provide fixed-point representations
+with up to 64-bits (if 64-bit integral types are available)
+without requiring any of Boost.Multiprecision.
+(not yet implemented).
+
+* BOOST_FIXED_POINT_DISABLE_IOSTREAM defined to disable
+all I/O streaming and the inclusion of associated standard
+library headers.[br]
+This is intended to eliminate I/O stream
+overhead, in particular for bare-metal microcontroller projects.
+(implemented but not tested).
+
+[/TODO needs a compile-fail test for this macro?]
+
+For an example, see	[@../../example/fixed_point_no_io.cpp fixed_point_no_io.cpp].
+
+* BOOST_FIXED_POINT_DISABLE_CPP11 would decide
+to support an optional back-port to C++03 and eliminate
+the use of all C++11 language elements. This might send the
+wrong message about language technology, but could potentially
+increase the range of potential target compilers (especially
+for embedded systems). (not yet implemented).
+
+[endsect] [/section:macros  Preprocessor Options to disable some features]
 
 [section:rounding Rounding]
+
+Round has emerged as the most contentious and difficult area.
+
+[#combinatorial_explosion]
+Our starting point has been __n3352 that specifies seven rounding modes.
+All have some uses and some logic for their inclusion.
+
+Five overflow modes are also specified and this leads to combinatorial explosion,
+for example potentially requiring 35 specializations of __limits for each fixed_point type.
+So far, only the __negatable class has been implemented, but __n3352 also
+describes  nonegative unsigned versions
+(as well as integer-only arithmetic __cardinal and signed integral),
+potentially at least doubling the code required.
+
+Other libraries are tackling the problem of overflow (and underflow) with integral types in so-called
+'safe' integers.
+
+
+For the rounding mode nearest_even, if the 1/2 __ULP bit 1,
+then the result of any operation that leads to a result in the range ['\[x, x+ 1/2 ULP\]]
+would round to x and in the range ['(x+1/2ULP, x+1)] would round to x+1.
+
+If the 1/2 __ULP bit is 0, however, then any operation that leads to an intermediate value in the range ['\[x, x+1)] would round to x.
+
 
 [endsect] [/section:rounding Rounding]
 
@@ -291,6 +493,28 @@ overflow or underflow must be signalled differently.
 A template parameter is provided to control this.
 
 [endsect] [/section:infinity Infinity and NotANumber (NaN)]
+
+[section:cmath C math functions injected into global namespace]
+
+All implemented __C_math functions are injected into the global namespace
+using statements like
+
+  using boost::fixed_point::sqrt;
+
+This is very convenient as it allows the user to simply call `sqrt(negatable)` without
+requiring any namespace decoration. In this way, the `<cmath>`
+functions of the negatable class work just like those for
+built-in types in the C-language header `<math.h>`.
+
+So the user can just write:
+
+  fixed_point_type x(42);
+  sqrt(x);
+
+(The same strategy  is used in __multiprecision so that types like __cpp_bin_float can use math functions freely).
+
+[endsect] [/section:cmath C math functions injected into global namespace]
+
 
 [section:testing Testing]
 
@@ -320,8 +544,6 @@ were also found in all compilers, most are now achieve correct conversion for al
 
 [endsect] [/section:testing Testing]
 
-
-
 [endsect] [/section:design Design, Implementation and Rationale]
 
 [section:faq Frequently Asked Questions FAQ]
@@ -335,15 +557,8 @@ If there is no hardware floating-point, then is very likely to run much faster.
 If you require a very high range or precision that would require __multiprecision or similar
 high or arbitrary precision type, then for the same precision or range, it will probably be quicker,
 possibly much quicker.
-
-[variablelist
-[  [Why do I get compiler errors when passing a `number` to a template function?]
-   [Most likely you are actually passing an expression template type to the function and
-   template-argument-deduction deduces the "wrong" type.  Try casting the arguments
-   involving expressions to the actual number type, or as a last resort turning off
-   expression template support in the number type you are using.]
- ]
-]
+#['How can I avoid using iostream on a bare-metal microcontroller without any peripherals?] [br]
+`#define BOOST_FIXED_POINT_DISABLE_IOSTREAM`.
 
 [endsect] [/section:main_faq Frequently Asked Questions FAQ]
 
@@ -403,8 +618,9 @@ Vicente Botet Escriba prototyped a [@http://svn.boost.org/svn/boost/sandbox/fixe
 
 #[@http://lists.boost.org/Archives/boost/2012/04/192165.php Boost archive]
 
-# [@http://www.exploringbinary.com/ Exploring Binary]  Rick Regan,
+# [@http://www.exploringbinary.com/ Exploring Binary]  Blog by Rick Regan, 2015.
 
+[/todo Need more background references?]
 
 [endsect] [/section:ack References]
 
@@ -412,7 +628,7 @@ Vicente Botet Escriba prototyped a [@http://svn.boost.org/svn/boost/sandbox/fixe
 
 This documentation aims to use of the following naming and formatting conventions:
 
-* C++ Code is in `fixed width font` and is syntax-highlighted in color, for example `double`.
+* C++ code is in `fixed width font` and is syntax-highlighted in color, for example `double` in blue.
 * Other code is in block [^teletype fixed-width font].
 * Replaceable text that [*you will need to supply] is in [~italics].
 * If a name refers to a free function, it is specified like this:
@@ -426,30 +642,26 @@ This documentation aims to use of the following naming and formatting convention
   indicate that it is a function-like macro. Object-like macros appear without the
   trailing `()`.
 * Names that refer to ['concepts] in the generic programming sense
-(like template parameter names) are specified in CamelCase.
+(like template parameter names) are specified in CamelCase, for example [^IntegralRange].
 
 [endsect] [/section:conventions Document Conventions]
 
 [xinclude autodoc.xml] [/ Using Doxygen reference documentation.]
 
+[/Only want this if index enabled on the command line like fixed_point\doc>b2 --enable-index --hash]
 [section:indexes Indexes]
 
-'''
-<index type="function_name">
-<title>Function Index</title>
-</index>
+[/Complete index]
+[/'''<index/>''' can now be written as ]
+[index]
 
-<index type="class_name">
-<title>Class Index</title>
-</index>
-
-<index type="typedef_name">
-<title>Typedef Index</title>
-</index>
-
-<index/>
-'''
-
+[/Separate type indexes]
+[//modular-boost/tools/auto_index/doc/html/index.html Boost autoindex ]
+[/named_index type title] [/see modular-boost/tools/auto_index/doc/html/boost_autoindex/qbk.html]
+[named_index function_name Function Index]
+[named_index class_name Class Index]
+[named_index typedef_name Typedef Index]
+[named_index macro_name Macro Index]  [/NO entries in this yet????]
 [endsect] [/section:indexes Indexes]
 
 

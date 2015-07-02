@@ -33,6 +33,7 @@ if --enable-index in  [ modules.peek : ARGV ]
              <format>html:<auto-index-internal>on
              <format>html:<xsl:param>generate.index=0
              <format>pdf:<auto-index-internal>on
+             # See note in http://www.boost.org/doc/libs/master/tools/auto_index/doc/html/boost_autoindex/tut/add_indexes.html
              <format>pdf:<xsl:param>index.on.type=1
              <quickbook-define>enable_index ;
 }

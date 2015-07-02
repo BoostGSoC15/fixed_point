@@ -9,34 +9,11 @@
       <template-type-parameter name="overflow_mode"><default><classname alt="boost::fixed_point::overflow::undefined">overflow::undefined</classname></default><purpose><para>struct defining the behaviour from rounding, default <classname alt="boost::fixed_point::overflow::undefined">overflow::undefined</classname>. </para></purpose></template-type-parameter>
     </template><purpose>Fixed_point class used for signed fractional arithmetic. </purpose><description><para>TODO some examples here? 
 </para></description><struct name="constant_maker"><template>
-      <template-nontype-parameter name="bit_count"><type>const int</type><purpose><para>Precision in bits to create </para></purpose></template-nontype-parameter>
-      <template-type-parameter name="enable_type"><default>void</default><purpose><para>Used internally to enable suitable version for value of bit_count. </para></purpose></template-type-parameter>
-    </template><description><para>Construct a constant of type negatable using values of constants from boost::math::constants. 
-</para></description><method-group name="public static functions">
-<method name="pi" specifiers="static"><type>const <classname>negatable</classname> &amp;</type><description><para>pi function using values of constants from boost::math::constants. 
-</para></description><returns><para>3.14159265358979323846264338327950288419716939937510 to the precision specified by bit_count. </para></returns></method>
-<method name="ln_two" specifiers="static"><type>const <classname>negatable</classname> &amp;</type><description><para>loge(2) function using values of constants from boost::math::constants. 
-</para></description><returns><para>ln(2) 0.693147180559945309417232121458. </para></returns></method>
-</method-group>
-</struct><struct-specialization name="constant_maker"><template>
-      <template-nontype-parameter name="bit_count"><type>const int</type></template-nontype-parameter>
-    </template><specialization><template-arg>bit_count</template-arg><template-arg>typename std::enable_if&lt;(bit_count &gt; 16)&amp;&amp;(bit_count&lt;=32)&gt;::type</template-arg></specialization><method-group name="public static functions">
-<method name="pi" specifiers="static"><type>const <classname>negatable</classname> &amp;</type></method>
-<method name="ln_two" specifiers="static"><type>const <classname>negatable</classname> &amp;</type></method>
-</method-group>
-</struct-specialization><struct-specialization name="constant_maker"><template>
-      <template-nontype-parameter name="bit_count"><type>const int</type></template-nontype-parameter>
-    </template><specialization><template-arg>bit_count</template-arg><template-arg>typename std::enable_if&lt;(bit_count &gt; 32)&amp;&amp;(bit_count&lt;=64)&gt;::type</template-arg></specialization><method-group name="public static functions">
-<method name="pi" specifiers="static"><type>const <classname>negatable</classname> &amp;</type></method>
-<method name="ln_two" specifiers="static"><type>const <classname>negatable</classname> &amp;</type></method>
-</method-group>
-</struct-specialization><struct-specialization name="constant_maker"><template>
-      <template-nontype-parameter name="bit_count"><type>const int</type></template-nontype-parameter>
-    </template><specialization><template-arg>bit_count</template-arg><template-arg>typename std::enable_if&lt;(bit_count &gt; 8)&amp;&amp;(bit_count&lt;=16)&gt;::type</template-arg></specialization><method-group name="public static functions">
-<method name="pi" specifiers="static"><type>const <classname>negatable</classname> &amp;</type></method>
-<method name="ln_two" specifiers="static"><type>const <classname>negatable</classname> &amp;</type></method>
-</method-group>
-</struct-specialization><struct name="nothing"/><typedef name="value_type"><type><emphasis>unspecified</emphasis></type></typedef>
+      <template-nontype-parameter name="bit_count"><type>const int</type><purpose><para>Precision in bits to create. </para></purpose></template-nontype-parameter>
+      <template-type-parameter name="enable_type"><purpose><para>Used internally to enable the most suitable version for the value of bit_count. </para></purpose></template-type-parameter>
+    </template><description><para>Construct a constant of type negatable using values of constants from <ulink url="http://www.boost.org/doc/libs/release/libs/math/doc/html/math_toolkit/constants.html">boost::math::constants</ulink><sbr/>
+It is a private member of class negatable because it is not normally needed by users who just want to <emphasis role="bold">call</emphasis> a function. It <emphasis role="bold">is</emphasis> required to add new constants. 
+</para></description></struct><struct name="nothing"/><typedef name="value_type"><type><emphasis>unspecified</emphasis></type></typedef>
 <typedef name="float_type"><type><emphasis>unspecified</emphasis></type></typedef>
 <method-group name="public member functions">
 <method name="get_data" cv="const"><type>const value_type &amp;</type></method>
@@ -133,8 +110,6 @@
 <method name="epsilon_maker" cv="noexcept" specifiers="static"><type>const <classname>negatable</classname> &amp;</type></method>
 <method name="value_min" cv="noexcept" specifiers="static"><type>const <classname>negatable</classname> &amp;</type></method>
 <method name="value_max" cv="noexcept" specifiers="static"><type>const <classname>negatable</classname> &amp;</type></method>
-<method name="value_pi" specifiers="static"><type>const <classname>negatable</classname></type><parameter name=""><paramtype><classname>nothing</classname>()</paramtype></parameter><parameter name=""><paramtype>value_type((UINT8_C(0x64)+((UINT8_C(1)&lt;&lt; (5+fractional_resolution))/2U)) &gt;&gt;(5+fractional_resolution))</paramtype></parameter></method>
-<method name="ln_two" specifiers="static"><type>const <classname>negatable</classname> &amp;</type></method>
 </method-group>
 <method-group name="private member functions">
 <method name="convert_to_floating_point_type" cv="const"><type>floating_point_type</type><template>

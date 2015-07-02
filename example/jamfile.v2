@@ -15,6 +15,7 @@
 #                    >b2 -a toolset=gcc release             # just gcc release
 #                    >b2 -a toolset=msvc debug release      # both variants for msvc.
 #                    >b2 -a toolset=gcc,msvc debug release  # Both toolset and both variants.
+#                    >b2 -a toolset=gcc-5.1.0 release       # just specific version of gcc release.
 
 # optional redirect output > example.log
 
@@ -54,6 +55,9 @@ project
   ;
 
 run fixed_point_demo_basic.cpp ;
+run fixed_point_limits.cpp ;
+run fixed_point_constants.cpp ;
+
 
 
 

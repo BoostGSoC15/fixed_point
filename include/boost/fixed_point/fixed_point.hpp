@@ -16,10 +16,15 @@
 
   #include <algorithm>
   #include <cmath>
+#ifndef BOOST_FIXED_POINT_DISABLE_IOSTREAM
   #include <iomanip>
   #include <istream>
-  #include <limits>
   #include <ostream>
+#else
+// Exclude iostream for bare-metal microcontroller projects.
+#endif
+  #include <limits>
+
   #include <boost/fixed_point/fixed_point_detail.hpp>
   #include <boost/math/constants/constants.hpp>
 
@@ -280,7 +285,7 @@
              typename std::enable_if< std::is_same<m_round, round_mode>::value
                                               && std::is_same<m_overflow, overflow_mode>::value
                                               && m_range <= integral_range
-                                              //Since resolution in negatable will always be negative
+                                              // Since resolution in negatable will always be negative.
                                               && m_resolution >= fractional_resolution
                                               >::type* = nullptr>
     negatable(const negatable<m_range, m_resolution, m_round, m_overflow>& rhs): data (rhs.get_data())
@@ -292,7 +297,7 @@
              typename std::enable_if< !(std::is_same<m_round, round_mode>::value
                                               && std::is_same<m_overflow, overflow_mode>::value
                                               && m_range <= integral_range
-                                              //Since resolution in negatable will always be negative
+                                              // Since resolution in negatable will always be negative.
                                               && m_resolution >= fractional_resolution)
                                               >::type* = nullptr>
     negatable(const negatable<m_range, m_resolution, m_round, m_overflow>& rhs): data (rhs.get_data())
@@ -379,7 +384,7 @@
 
       // Here, we use 1 extra binary digit for rounding.
       // The extra rounding digit fits in unsigned_small_type
-      // because the value_type (even though just s wide as
+      // because the value_type (even though just as wide as
       // unsigned_small_type) reserves one bit for the sign.
 
       const int total_right_shift = radix_split - 1;
@@ -747,6 +752,12 @@
     static const negatable& value_min() BOOST_NOEXCEPT { static const negatable the_value_min(nothing(), 1U); return the_value_min; }
     static const negatable& value_max() BOOST_NOEXCEPT { static const negatable the_value_max(nothing(), unsigned_small_mask()); return the_value_max; }
 
+// Disable all I/O streaming and the inclusion of associated standard
+// library headers. This is intended to eliminate I/O stream
+// overhead in particular for bare-metal microcontroller projects.
+#ifndef BOOST_FIXED_POINT_DISABLE_IOSTREAM
+      
+
     friend class std::numeric_limits<negatable>;
 
     template<typename char_type,
@@ -786,6 +797,7 @@
 
       return in;
     }
+#endif // BOOST_FIXED_POINT_DISABLE_IOSTREAM
 
     // Implementations of global unary plus and minus.
     friend inline negatable operator+(const negatable& self) { return negatable(self); }
@@ -838,12 +850,20 @@
     // Helper utilities for mathematical constants.
     // We need mathematical constants for transcendental functions.
 
-
     /*!
-      Construct a constant of type negatable using values of constants from boost::math::constants.
-      \tparam bit_count Precision in bits to create
-      \tparam enable_type Used internally to enable suitable version for value of bit_count.
-      */
+      Construct a constant of type negatable using values of constants from 
+      <a href="http://www.boost.org/doc/libs/release/libs/math/doc/html/math_toolkit/constants.html">boost::math::constants</a>\n
+      It is a private member of class negatable 
+      because it is not normally needed by users who just want to @b call a function.
+      It @b is required to add new constants.
+      \tparam bit_count Precision in bits to create.
+      \tparam enable_type Used internally to enable the most suitable version for the value of bit_count.
+    */
+
+    // Forward declaration (so that the above comments appear in Doxygen listing).
+    template<const int bit_count, typename enable_type> struct constant_maker;
+
+//! \cond DETAIL
     template<const int bit_count,
              typename enable_type = void>
     struct constant_maker
@@ -951,6 +971,8 @@
         return value_ln_two;
       }
     };
+
+//! \endcond  // DETAIL
 
     friend inline negatable  abs(negatable x) { return ((x.data < 0) ? -x : x); }
     friend inline negatable fabs(negatable x) { return ((x.data < 0) ? -x : x); }
@@ -1077,12 +1099,16 @@
 
   } } // namespace boost::fixed_point
 
-  // Why are these defined here?  Shouldn't the user provide them if necessary?
+  // Effectively inject all defined cmath functions into the global namespace.
+  // So users can write sqrt(negatable) without requiring any namespace decoration.
+
   using boost::fixed_point::abs;
   using boost::fixed_point::fabs;
   using boost::fixed_point::frexp;
   using boost::fixed_point::ldexp;
   using boost::fixed_point::sqrt;
+
+  // TODO Ensure that added functions are also listed in this section.
 
   namespace std
   {

@@ -45,21 +45,12 @@
           or similar high or arbitrary precision type, then for the same precision
           or range, it will probably be quicker, possibly much quicker.
         </li>
+<li class="listitem">
+          <span class="emphasis"><em>How can I avoid using iostream on a bare-metal microcontroller
+          without any peripherals?</em></span> <br> <code class="computeroutput"><span class="preprocessor">#define</span>
+          <span class="identifier">BOOST_FIXED_POINT_DISABLE_IOSTREAM</span></code>.
+        </li>
 </ol></div>
-<div class="variablelist">
-<p class="title"><b></b></p>
-<dl class="variablelist">
-<dt><span class="term">Why do I get compiler errors when passing a <code class="computeroutput"><span class="identifier">number</span></code>
-        to a template function?</span></dt>
-<dd><p>
-            Most likely you are actually passing an expression template type to the
-            function and template-argument-deduction deduces the "wrong"
-            type. Try casting the arguments involving expressions to the actual number
-            type, or as a last resort turning off expression template support in
-            the number type you are using.
-          </p></dd>
-</dl>
-</div>
 </div>
 <table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
 <td align="left"></td>

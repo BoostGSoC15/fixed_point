@@ -6,6 +6,7 @@
 
 // Copyright Paul A. Bristow 2015.
 // Copyright Christopher Kormanyos 2015.
+// Copyright Nikhar Agrawal 2015.
 
 // This file is written to be included from a Quickbook .qbk document.
 // It can be compiled by the C++ compiler, and run. Any output can
@@ -18,8 +19,7 @@
 
 //! \file
 
-// Below are snippets of code that can be included into a Quickbook program.
-
+// Below are snippets of code that can be included into a Quickbook file.
 
 #include <iostream>
 #include <iomanip>
@@ -121,13 +121,6 @@ int main()
     std::cout << "sqrt(y) = " << sqrt(y) << std::endl; //  = 0.213516235
 
 //] [/fixed_example_functions]
-
-//[fixed_constants
-   boost::fixed_point::negatable::constant_maker<15>pi();
-    fixed_point_type p = p.constant_maker<15>pi();
-
-    std::cout << p << std::endl;
-//] [/fixed_constants]
 
   }
   catch (std::exception ex)
