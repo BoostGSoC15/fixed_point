@@ -74,6 +74,22 @@
     struct nearest_odd  { }; //!< Template parameter for fixed_point negatable.\n Round towards the nearest value, but exactly-half values are rounded towards odd values. This mode has as much balance as the near_even mode, but preserves more information.
   }
 
+  // See also ISO/IEC 14882:2011 Paragraph 18.3.2.5.
+
+  // 18.3.2.5 Type float_round_style
+  //
+  // namespace std
+  // {
+  //   enum float_round_style
+  //   {
+  //     round_indeterminate       = -1, : Potential interpretation: fastest
+  //     round_toward_zero         =  0, : Potential interpretation: truncated (Is this the same as fastest?)
+  //     round_to_nearest          =  1, : Potential interpretation: nearest_even
+  //     round_toward_infinity     =  2, : Potential interpretation: positive (toward positive infinity)
+  //     round_toward_neg_infinity =  3  : Potential interpretation: negative (toward negative infinity)
+  //   };
+  // }
+
   namespace overflow
   {
     struct impossible   { }; //!< Template parameter for fixed_point negatable.\n Programmer analysis of the program has determined that overflow cannot occur. Uses of this mode should be accompanied by an argument supporting the conclusion.
@@ -164,7 +180,7 @@
 
   namespace std
   {
-    // Forward declaration of specialization of std::numeric_limits<negatable>.
+    // Forward declaration of the specialization of std::numeric_limits<negatable>.
     template<const int integral_range,
              const int fractional_resolution,
              typename round_mode,
@@ -1159,13 +1175,15 @@
       static BOOST_CONSTEXPR_OR_CONST bool                    tinyness_before   = false;
       static BOOST_CONSTEXPR_OR_CONST std::float_round_style  round_style       = std::round_indeterminate;
 
-      static BOOST_CONSTEXPR_OR_CONST negatable_type (min)      () BOOST_NOEXCEPT { return negatable_type::value_min(); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type (max)      () BOOST_NOEXCEPT { return negatable_type::value_max(); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type lowest     () BOOST_NOEXCEPT { return -(max)(); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type epsilon    () BOOST_NOEXCEPT { return negatable_type::epsilon_maker(); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type round_error() BOOST_NOEXCEPT { return negatable_type(1); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type infinity   () BOOST_NOEXCEPT { return negatable_type(0); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type quiet_NaN  () BOOST_NOEXCEPT { return negatable_type(0); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type (min)        () BOOST_NOEXCEPT { return negatable_type::value_min(); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type (max)        () BOOST_NOEXCEPT { return negatable_type::value_max(); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type lowest       () BOOST_NOEXCEPT { return -(max)(); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type epsilon      () BOOST_NOEXCEPT { return negatable_type::epsilon_maker(); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type round_error  () BOOST_NOEXCEPT { return negatable_type(1); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type infinity     () BOOST_NOEXCEPT { return negatable_type(0); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type quiet_NaN    () BOOST_NOEXCEPT { return negatable_type(0); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type signaling_NaN() BOOST_NOEXCEPT { return negatable_type(0); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type denorm_min   () BOOST_NOEXCEPT { return (min)(); }
     };
 
     template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_specialized;
@@ -1232,13 +1250,15 @@
       static BOOST_CONSTEXPR_OR_CONST bool                    tinyness_before   = false;
       static BOOST_CONSTEXPR_OR_CONST std::float_round_style  round_style       = std::round_to_nearest;
 
-      static BOOST_CONSTEXPR_OR_CONST negatable_type (min)      () BOOST_NOEXCEPT { return negatable_type::value_min(); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type (max)      () BOOST_NOEXCEPT { return negatable_type::value_max(); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type lowest     () BOOST_NOEXCEPT { return -(max)(); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type epsilon    () BOOST_NOEXCEPT { return negatable_type::epsilon_maker(); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type round_error() BOOST_NOEXCEPT { return negatable_type(1) / 2; }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type infinity   () BOOST_NOEXCEPT { return negatable_type(0); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type quiet_NaN  () BOOST_NOEXCEPT { return negatable_type(0); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type (min)        () BOOST_NOEXCEPT { return negatable_type::value_min(); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type (max)        () BOOST_NOEXCEPT { return negatable_type::value_max(); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type lowest       () BOOST_NOEXCEPT { return -(max)(); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type epsilon      () BOOST_NOEXCEPT { return negatable_type::epsilon_maker(); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type round_error  () BOOST_NOEXCEPT { return negatable_type(1) / 2; }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type infinity     () BOOST_NOEXCEPT { return negatable_type(0); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type quiet_NaN    () BOOST_NOEXCEPT { return negatable_type(0); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type signaling_NaN() BOOST_NOEXCEPT { return negatable_type(0); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type denorm_min   () BOOST_NOEXCEPT { return (min)(); }
     };
 
     template<const int integral_range, const int fractional_resolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<integral_range, fractional_resolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_specialized;

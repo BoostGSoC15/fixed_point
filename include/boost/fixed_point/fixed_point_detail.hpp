@@ -476,7 +476,7 @@
     {
       // TBD: Here is a big workaround for the conversion of cpp_bin_float to uint64_t.
       // TBD: It is for cases when the digits in cpp_bin_float are fewer than
-      // the digits in uint64_t.
+      // the digits in uint64_t, but larger than the digits in float64_t.
       // TBD: See the TODO in the comment at line 1113 of cpp_bin_float.hpp.
 
       std::stringstream ss;
