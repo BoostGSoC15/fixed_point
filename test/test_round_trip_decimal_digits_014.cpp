@@ -14,6 +14,7 @@
 #define BOOST_TEST_MODULE round_trip_decimal_digits_014
 #define BOOST_LIB_DIAGNOSTIC
 
+#include <algorithm>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -65,13 +66,11 @@ BOOST_AUTO_TEST_CASE(round_trip_decimal_digits_014)
 
   typedef boost::mt19937 random_generator_type;
 
-  random_generator_type random_generator;
-
   boost::uniform_int<boost::uint64_t> uniform_bit_range(UINT64_C(1), (UINT64_C(1) << 46));
 
   boost::variate_generator<random_generator_type,
                            boost::uniform_int<boost::uint64_t>>
-  unsigned_integral_maker(random_generator, uniform_bit_range);
+  unsigned_integral_maker(random_generator_type(), uniform_bit_range);
 
   boost::uint_fast32_t count;
 
@@ -80,7 +79,7 @@ BOOST_AUTO_TEST_CASE(round_trip_decimal_digits_014)
   bool b = true;
 
   // Test random values with 14 decimal digits of precision.
-  for(count = UINT32_C(1); ((count < number_of_test_cases) && b); ++count)
+  for(count = UINT32_C(0); ((count < number_of_test_cases) && b); ++count)
   {
     const boost::uint64_t u = unsigned_integral_maker();
 
@@ -91,12 +90,10 @@ BOOST_AUTO_TEST_CASE(round_trip_decimal_digits_014)
     std::string str(ss1.str());
 
     str.insert(std::string::size_type( 0U),
-               std::string::size_type(14U) - str.length(),
+               std::string::size_type(14U) - ((std::min)(std::string::size_type(14U), str.length())),
                char('0'));
 
-    str = ("0." + str);
-
-    const fixed_point_type x(boost::lexical_cast<floating_point_type>(str));
+    const fixed_point_type x(boost::lexical_cast<floating_point_type>(str.insert(std::string::size_type(0U), "0.")));
 
     const bool next_test_result = local::round_trip(local::fixed_point_type_decimal_digits_014(x));
 

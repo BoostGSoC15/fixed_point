@@ -14,6 +14,7 @@
 #define BOOST_TEST_MODULE round_trip_decimal_digits_003
 #define BOOST_LIB_DIAGNOSTIC
 
+#include <algorithm>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -78,12 +79,10 @@ BOOST_AUTO_TEST_CASE(round_trip_decimal_digits_003)
     std::string str(ss1.str());
 
     str.insert(std::string::size_type(0U),
-               std::string::size_type(3U) - str.length(),
+               std::string::size_type(3U) - ((std::min)(std::string::size_type(3U), str.length())),
                char('0'));
 
-    str = ("0." + str);
-
-    const fixed_point_type x(boost::lexical_cast<floating_point_type>(str));
+    const fixed_point_type x(boost::lexical_cast<floating_point_type>(str.insert(std::string::size_type(0U), "0.")));
 
     const bool next_test_result = local::round_trip(local::fixed_point_type_decimal_digits_003(x));
 
