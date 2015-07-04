@@ -511,7 +511,6 @@
     operator long double() const { return convert_to_floating_point_type<long double>(); }
 
     // this function is used primarily for debugging and testing purposes
-    // tbd: should not be exposed to users
     std::string bit_pattern()
     {
       value_type num = this->data;
@@ -528,6 +527,18 @@
       }
       std::reverse(ans.begin(), ans.end());
       return ans;
+    }
+
+    // Return range to the user
+    static int get_range ()
+    {
+      return integral_range;
+    }
+
+    // Return resolution to the user
+    static int get_resolution ()
+    {
+      return fractional_resolution;
     }
 
   private:
