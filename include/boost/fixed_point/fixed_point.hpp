@@ -112,7 +112,7 @@
 
   #include <boost/fixed_point/fixed_point_detail.hpp>
 
-  static_assert(std::numeric_limits<boost::uint8_t>::digits  ==  8, "Configuration error: the size of boost::uint8_t  must be 8  bits");
+  static_assert(std::numeric_limits<boost::uint8_t >::digits ==  8, "Configuration error: the size of boost::uint8_t  must be 8  bits");
   static_assert(std::numeric_limits<boost::uint16_t>::digits == 16, "Configuration error: the size of boost::uint16_t must be 16 bits");
   static_assert(std::numeric_limits<boost::uint32_t>::digits == 32, "Configuration error: the size of boost::uint32_t must be 32 bits");
   static_assert(std::numeric_limits<boost::uint64_t>::digits == 64, "Configuration error: the size of boost::uint64_t must be 64 bits");
@@ -512,8 +512,9 @@
                                          RoundMode,
                                          OverflowMode>& other)
     {
-      // Here, we are equating to another negatable type with different
-      // range and/or resolution paramters than *this.
+      // Here, we are equating *this to another negatable type
+      // having different range and/or resolution paramters
+      // than *this.
 
       // Use a relatively lazy method that creates an intermediate
       // temporary object. This temporary object is subsequently used
@@ -1068,7 +1069,7 @@
                                                                       RoundMode,
                                                                       OverflowMode>& v)
     {
-      typedef negatable<( IntegralRange        >  OtherIntegralRange)        ? IntegralRange : OtherIntegralRange,
+      typedef negatable<( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange,
                         (-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution,
                         RoundMode,
                         OverflowMode> supra_fixed_point_type;
@@ -1088,7 +1089,7 @@
                                                                       RoundMode,
                                                                       OverflowMode>& v)
     {
-      typedef negatable<( IntegralRange        >  OtherIntegralRange)        ? IntegralRange : OtherIntegralRange,
+      typedef negatable<( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange,
                         (-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution,
                         RoundMode,
                         OverflowMode> supra_fixed_point_type;
@@ -1119,7 +1120,7 @@
                                                                      RoundMode,
                                                                      OverflowMode>& v)
     {
-      typedef negatable<( IntegralRange        >  OtherIntegralRange)        ? IntegralRange : OtherIntegralRange,
+      typedef negatable<( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange,
                         (-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution,
                         RoundMode,
                         OverflowMode> supra_fixed_point_type;
@@ -1134,7 +1135,7 @@
                                                                      RoundMode,
                                                                      OverflowMode>& v)
     {
-      typedef negatable<( IntegralRange        >  OtherIntegralRange)        ? IntegralRange : OtherIntegralRange,
+      typedef negatable<( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange,
                         (-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution,
                         RoundMode,
                         OverflowMode> supra_fixed_point_type;
@@ -1149,7 +1150,7 @@
                                                                       RoundMode,
                                                                       OverflowMode>& v)
     {
-      typedef negatable<( IntegralRange        >  OtherIntegralRange)        ? IntegralRange : OtherIntegralRange,
+      typedef negatable<( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange,
                         (-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution,
                         RoundMode,
                         OverflowMode> supra_fixed_point_type;
@@ -1164,7 +1165,7 @@
                                                                       RoundMode,
                                                                       OverflowMode>& v)
     {
-      typedef negatable<( IntegralRange        >  OtherIntegralRange)        ? IntegralRange : OtherIntegralRange,
+      typedef negatable<( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange,
                         (-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution,
                         RoundMode,
                         OverflowMode> supra_fixed_point_type;
@@ -1207,7 +1208,7 @@
         #if !defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM) && !defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
           static const negatable value_pi(boost::math::constants::pi<negatable>());
         #else
-          static const negatable value_pi(3.14159265358979323846264338327950288419716939937510L);
+          static const negatable value_pi(3.1415926535897932384626433832795028841971694L);
         #endif
 
         return value_pi;
@@ -1222,7 +1223,7 @@
         #if !defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM) && !defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
           static const negatable value_ln_two(boost::math::constants::ln_two<negatable>());
         #else
-          static const negatable value_ln_two(0.693147180559945309417232121458L);
+          static const negatable value_ln_two(0.69314718055994530941723212145817656807550013L);
         #endif
 
         return value_ln_two;
