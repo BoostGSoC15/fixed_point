@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
+//  Copyright Christopher Kormanyos 2013 - 2015.
 //  Copyright Nikhar Agrawal 2015.
 //  Copyright Paul Bristow 2015.
-//  Copyright Christopher Kormanyos 2014 - 2015.
 //  Distributed under the Boost Software License,
 //  Version 1.0. (See accompanying file LICENSE_1_0.txt
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -31,24 +31,26 @@
   // of multiprecision.
 
   // With BOOST_FIXED_POINT_DISABLE_MULTIPRECISION,
-  // we disable the use of Boost.Multiprecision
-  // for back-ends of the fixed-point classes.
+  // the use of Boost.Multiprecision for back-ends
+  // of the fixed-point classes is disabled.
 
   // With BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH,
-  // we avoid using the unsigned_large_type. This option
-  // is intended for systems with limited integer widths
-  // such as bare-metal microcontrollers.
+  // fixed_point avoids using the unsigned_large_type.
+  // This option is intended for systems with limited
+  // integer widths such as bare-metal microcontrollers.
   // When used in combination with BOOST_FIXED_POINT_DISABLE_MULTIPRECISION,
   // the this option is intended to provide fixed-point representations
   // with up to 64-bits (if 64-bit integral types are available)
   // without requiring any of Boost.Multiprecision.
+  // Otherwise, 32-bit internal representations would
+  // have the largest possible widths.
 
-  // With BOOST_FIXED_POINT_DISABLE_CPP11, we support
-  // an optional back-port to C++03 and eliminate
-  // the use of all C++11 language elements. This might send the
-  // wrong message about language technology, but could potentially
-  // increase the range of potential target compilers (especially
-  // for embedded systems).
+  // With BOOST_FIXED_POINT_DISABLE_CPP11, an optional
+  // back-port to C++03 is supported. This eliminates
+  // the use of all C++11 language elements. This might send
+  // the wrong message about language technology, but could
+  // increase the range of potential target compilers
+  // (especially for embedded systems).
 
   #if defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
 
@@ -250,6 +252,7 @@
   namespace boost { namespace fixed_point {
 
   // We will now begin the implementation of the negatable class.
+
   /*!
     \brief Fixed_point class used for signed fractional arithmetic.
     \details TODO  some examples here?
@@ -374,7 +377,7 @@
     // 4) larger  : larger  -->    ( OtherIntegralRange         >   IntegralRange)
     //                          && (|OtherFractionalResolution| >  |FractionalResolution|)
 
-    // Here is the mixed class constructor for case 1).
+    // Here is the mixed-math class constructor for case 1).
     // There is less range and less resolution in the other type.
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution,
@@ -406,7 +409,7 @@
       data = ((!is_neg) ? value_type(u) : -value_type(u));
     }
 
-    // Here is the mixed class constructor for case 2).
+    // Here is the mixed-math class constructor for case 2).
     // There is more range and less resolution in the other type.
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution,
@@ -440,7 +443,7 @@
       data = ((!is_neg) ? value_type(u_round) : -value_type(u_round));
     }
 
-    // Here is the mixed class constructor for case 3).
+    // Here is the mixed-math class constructor for case 3).
     // There is less range and more resolution in the other type.
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution,
@@ -479,7 +482,7 @@
       data = ((!is_neg) ? value_type(u_round) : -value_type(u_round));
     }
 
-    // Here is the mixed class constructor for case 4).
+    // Here is the mixed-math class constructor for case 4).
     // There is more range and more resolution in the other type.
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution,
@@ -662,9 +665,9 @@
     // Here are the cast operators for built-in signed and unsigned integral types.
 
     // Note: Cast from negatable to a built-in integral type truncates
-    // the fractional part without rounding. This is consistent with
-    // conversion from built-in floasting-point types to built-in
-    // integral types as described in ISO/IEC 14882:2011 paragraph 4.9.1.
+    // the fractional part regardless of the rounding mode. This is
+    // consistent with the conversion from built-in floating-point types
+    // to built-in integral types (see ISO/IEC 14882:2011 paragraph 4.9.1).
 
     operator char     () const { return static_cast<char>     ((!(data < 0)) ? static_cast<char>     (unsigned_small_type(data) >> radix_split) : -static_cast<char>     (unsigned_small_type(-data) >> radix_split)); }
     operator short    () const { return static_cast<short>    ((!(data < 0)) ? static_cast<short>    (unsigned_small_type(data) >> radix_split) : -static_cast<short>    (unsigned_small_type(-data) >> radix_split)); }
