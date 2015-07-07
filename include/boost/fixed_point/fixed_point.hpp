@@ -23,8 +23,8 @@
   //#define BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH
   //#define BOOST_FIXED_POINT_DISABLE_CPP11
 
-  // With BOOST_FIXED_POINT_DISABLE_IOSTREAM, we disable
-  // all I/O streaming and the inclusion of associated standard
+  // With BOOST_FIXED_POINT_DISABLE_IOSTREAM, all I/O streaming
+  // is disabled, as is the inclusion of associated standard
   // library headers. This is intended to eliminate I/O stream
   // overhead in particular for bare-metal microcontroller projects.
   // Disabling I/O streaming requires simultaneous disabling
@@ -38,8 +38,8 @@
   // fixed_point avoids using the unsigned_large_type.
   // This option is intended for systems with limited
   // integer widths such as bare-metal microcontrollers.
-  // When used in combination with BOOST_FIXED_POINT_DISABLE_MULTIPRECISION,
-  // the this option is intended to provide fixed-point representations
+  // When used in combination with BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
+  // this option is intended to provide fixed-point representations
   // with up to 64-bits (if 64-bit integral types are available)
   // without requiring any of Boost.Multiprecision.
   // Otherwise, 32-bit internal representations would
@@ -381,8 +381,12 @@
     // There is less range and less resolution in the other type.
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution,
-             typename std::enable_if<   ( OtherIntegralRange        <=  IntegralRange)
-                                     && (-OtherFractionalResolution <= -FractionalResolution)>::type* = nullptr>
+             typename std::enable_if<   (   ( OtherIntegralRange        <   IntegralRange)
+                                         && (-OtherFractionalResolution <  -FractionalResolution))
+                                     || (   ( OtherIntegralRange        <=  IntegralRange)
+                                         && (-OtherFractionalResolution <  -FractionalResolution))
+                                     || (   ( OtherIntegralRange        <   IntegralRange)
+                                         && (-OtherFractionalResolution <= -FractionalResolution))>::type* = nullptr>
     negatable(const negatable<OtherIntegralRange,
                               OtherFractionalResolution,
                               RoundMode,
@@ -404,17 +408,17 @@
 
       u_superior = (u_superior << total_left_shift);
 
-      const unsigned_small_type u(u_superior);
+      unsigned_small_type u_round = static_cast<unsigned_small_type>(u_superior);
 
-      data = ((!is_neg) ? value_type(u) : -value_type(u));
+      data = ((!is_neg) ? value_type(u_round) : -value_type(u_round));
     }
 
     // Here is the mixed-math class constructor for case 2).
     // There is more range and less resolution in the other type.
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution,
-             typename std::enable_if<   ( OtherIntegralRange        >   IntegralRange)
-                                     && (-OtherFractionalResolution <= -FractionalResolution)>::type* = nullptr>
+             typename std::enable_if<   ( OtherIntegralRange        >  IntegralRange)
+                                     && (-OtherFractionalResolution < -FractionalResolution)>::type* = nullptr>
     negatable(const negatable<OtherIntegralRange,
                               OtherFractionalResolution,
                               RoundMode,
@@ -436,9 +440,9 @@
 
       u_superior = (u_superior << total_left_shift);
 
-      u_superior = (u_superior & superior_unsigned_small_type(unsigned_small_mask()));
-
       unsigned_small_type u_round = static_cast<unsigned_small_type>(u_superior);
+
+      u_round = (u_round & unsigned_small_mask());
 
       data = ((!is_neg) ? value_type(u_round) : -value_type(u_round));
     }
@@ -447,7 +451,7 @@
     // There is less range and more resolution in the other type.
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution,
-             typename std::enable_if<   ( OtherIntegralRange        <=  IntegralRange)
+             typename std::enable_if<   ( OtherIntegralRange        <   IntegralRange)
                                      && (-OtherFractionalResolution >  -FractionalResolution)>::type* = nullptr>
     negatable(const negatable<OtherIntegralRange,
                               OtherFractionalResolution,
@@ -486,14 +490,45 @@
     // There is more range and more resolution in the other type.
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution,
-             typename std::enable_if<   ( OtherIntegralRange        >  IntegralRange)
-                                     && (-OtherFractionalResolution > -FractionalResolution)>::type* = nullptr>
+             typename std::enable_if<   (   ( OtherIntegralRange        >   IntegralRange)
+                                         && (-OtherFractionalResolution >  -FractionalResolution))
+                                     || (   ( OtherIntegralRange        >=  IntegralRange)
+                                         && (-OtherFractionalResolution >  -FractionalResolution))
+                                     || (   ( OtherIntegralRange        >   IntegralRange)
+                                         && (-OtherFractionalResolution >= -FractionalResolution))>::type* = nullptr>
     negatable(const negatable<OtherIntegralRange,
                               OtherFractionalResolution,
                               RoundMode,
                               OverflowMode>& other) : data()
     {
-      // TBD: The contents of this constructor need to be written.
+      typedef negatable<OtherIntegralRange,
+                        OtherFractionalResolution,
+                        RoundMode,
+                        OverflowMode> other_negatable_type;
+
+      typedef typename other_negatable_type::unsigned_small_type superior_unsigned_small_type;
+
+      const bool is_neg = (other.data < 0);
+
+      superior_unsigned_small_type u_superior((!is_neg) ? superior_unsigned_small_type(+other.data)
+                                                        : superior_unsigned_small_type(-other.data));
+
+      BOOST_CONSTEXPR_OR_CONST int total_right_shift = (other_negatable_type::radix_split - radix_split) - 1;
+
+      u_superior = detail::right_shift_helper(u_superior, total_right_shift);
+
+      unsigned_small_type u_round = static_cast<unsigned_small_type>(u_superior);
+
+      // Round the result of the construction.
+      const boost::int_fast8_t rounding_result = binary_round(u_round);
+
+      u_round = (u_round & unsigned_small_mask());
+
+      // Add or subtract the result of the rounding (-1, 0, or +1).
+      if     (rounding_result == INT8_C(+1)) { ++u_round; }
+      else if(rounding_result == INT8_C(-1)) { --u_round; }
+
+      data = ((!is_neg) ? value_type(u_round) : -value_type(u_round));
     }
 
     ~negatable() { }
@@ -708,17 +743,9 @@
       }
     #endif // !BOOST_FIXED_POINT_DISABLE_IOSTREAM
 
-    /*! Total number of bits (IntegralRange + 1) - FractionalResolution used by a negatable type.    
-    */    
-    static BOOST_CONSTEXPR_OR_CONST int all_bits = (IntegralRange + 1) - FractionalResolution;    
-        
-    /*! template parameter IntegralRange from a negatable type declaration.   
-    */    
-    static BOOST_CONSTEXPR_OR_CONST int range = IntegralRange;    
-        
-    /*! template parameter FractionalResolution from a negatable type declaration.    
-    */    
-    static BOOST_CONSTEXPR_OR_CONST int resolution = FractionalResolution;
+    // Return range and resolution to the user.
+    static int get_range     () { return IntegralRange; }
+    static int get_resolution() { return FractionalResolution; }
 
   private:
     value_type data;
@@ -1443,12 +1470,8 @@
     }
   };
 
-
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::digits_total;
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::radix_split;
-  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::all_bits;
-  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::range;
-  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::resolution;
 
   } } // namespace boost::fixed_point
 
