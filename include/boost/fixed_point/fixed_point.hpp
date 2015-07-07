@@ -1057,42 +1057,78 @@
     // Implementations of global binary add, sub, mul, div of [lhs(negatable)] operator [rhs(other_negatable)].
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution>
-    friend inline negatable operator+(const negatable& u, const negatable<OtherIntegralRange,
-                                                                          OtherFractionalResolution,
-                                                                          RoundMode,
-                                                                          OverflowMode>& v)
+    friend inline negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
+                            ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
+                             RoundMode,
+                             OverflowMode>
+    operator+(const negatable& u, const negatable<OtherIntegralRange,
+                                                  OtherFractionalResolution,
+                                                  RoundMode,
+                                                  OverflowMode>& v)
     {
-      return negatable(u) += v;
+      typedef negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
+                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
+                        RoundMode,
+                        OverflowMode> higher_resolution_fixed_point_type;
+
+      return higher_resolution_fixed_point_type(u) += higher_resolution_fixed_point_type(v);
     }
 
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution>
-    friend inline negatable operator-(const negatable& u, const negatable<OtherIntegralRange,
-                                                                          OtherFractionalResolution,
-                                                                          RoundMode,
-                                                                          OverflowMode>& v)
+    friend inline negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
+                            ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
+                             RoundMode,
+                             OverflowMode>
+    operator-(const negatable& u, const negatable<OtherIntegralRange,
+                                                  OtherFractionalResolution,
+                                                  RoundMode,
+                                                  OverflowMode>& v)
     {
-      return negatable(u) -= v;
+      typedef negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
+                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
+                        RoundMode,
+                        OverflowMode> higher_resolution_fixed_point_type;
+
+      return higher_resolution_fixed_point_type(u) -= higher_resolution_fixed_point_type(v);
     }
 
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution>
-    friend inline negatable operator*(const negatable& u, const negatable<OtherIntegralRange,
-                                                                          OtherFractionalResolution,
-                                                                          RoundMode,
-                                                                          OverflowMode>& v)
+    friend inline negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
+                            ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
+                             RoundMode,
+                             OverflowMode>
+    operator*(const negatable& u, const negatable<OtherIntegralRange,
+                                                  OtherFractionalResolution,
+                                                  RoundMode,
+                                                  OverflowMode>& v)
     {
-      return negatable(u) *= v;
+      typedef negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
+                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
+                        RoundMode,
+                        OverflowMode> higher_resolution_fixed_point_type;
+
+      return higher_resolution_fixed_point_type(u) *= higher_resolution_fixed_point_type(v);
     }
 
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution>
-    friend inline negatable operator/(const negatable& u, const negatable<OtherIntegralRange,
-                                                                          OtherFractionalResolution,
-                                                                          RoundMode,
-                                                                          OverflowMode>& v)
+    friend inline negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
+                            ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
+                             RoundMode,
+                             OverflowMode>
+    operator/(const negatable& u, const negatable<OtherIntegralRange,
+                                                  OtherFractionalResolution,
+                                                  RoundMode,
+                                                  OverflowMode>& v)
     {
-      return negatable(u) /= v;
+      typedef negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
+                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
+                        RoundMode,
+                        OverflowMode> higher_resolution_fixed_point_type;
+
+      return higher_resolution_fixed_point_type(u) /= higher_resolution_fixed_point_type(v);
     }
 
     // Implementations of global equality.
