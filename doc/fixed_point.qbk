@@ -436,7 +436,7 @@ There is [*no] implicit bit as found in most floating-point formats.
 [section:macros  Preprocessor Options to disable some features]
 
 Some macros are becoming available to disable some features
-that may like the usefulness of fixed_point in certain applications.
+that may improve the usefulness of fixed_point in certain applications.
 
 * BOOST_FIXED_POINT_DISABLE_MULTIPRECISION,
 defined to disable the use of Boost.Multiprecision
@@ -498,10 +498,42 @@ would round to x and in the range ['(x+1/2ULP, x+1)] would round to x+1.
 
 If the 1/2 __ULP bit is 0, however, then any operation that leads to an intermediate value in the range ['\[x, x+1)] would round to x.
 
-
 [endsect] [/section:rounding Rounding]
 
 [section:overflow Over and Underflow]
+
+[section:mixed_mode Mixed-mode]
+
+Mixed math  are operations using fixed-point types of [*different range and/or precision].
+
+The minimal set of  needs:
+
+* mixed-math ctors.
+* mixed math copy ctor.
+* mixed-math global operators add, sub, mul, and div.
+* mixed-math comparison operators.
+
+Desing choices were made that the result of ['(a + b)] has the type of ['a].
+
+This might be controversial,
+as some might argue that the result of ['(a + b)] should
+have the highest precision. It's easy to implement either
+way, just a design choice.
+
+For mixed-math comparison, the supra-negatable type
+is created from the [*maximum of both range and resolution].
+A comparison is then made.
+
+This results in such things like
+
+  negatable<4, -8>(1) / 3 != negatable<3, -11>(1) / 3
+
+And the result is symmetric. Otherwise, we might
+end up with (a == b) and (b != a). It's another
+design choice.
+
+[endsect] [/section:mixed_mode Mixed-mode]
+
 
 [endsect] [/section:overflow Over and Underflow]
 
