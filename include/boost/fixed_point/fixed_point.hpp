@@ -708,9 +708,17 @@
       }
     #endif // !BOOST_FIXED_POINT_DISABLE_IOSTREAM
 
-    // Return range and resolution to the user.
-    static int get_range     () { return IntegralRange; }
-    static int get_resolution() { return FractionalResolution; }
+    /*! Total number of bits (IntegralRange + 1) - FractionalResolution used by a negatable type.    
+    */    
+    static BOOST_CONSTEXPR_OR_CONST int all_bits = (IntegralRange + 1) - FractionalResolution;    
+        
+    /*! template parameter IntegralRange from a negatable type declaration.   
+    */    
+    static BOOST_CONSTEXPR_OR_CONST int range = IntegralRange;    
+        
+    /*! template parameter FractionalResolution from a negatable type declaration.    
+    */    
+    static BOOST_CONSTEXPR_OR_CONST int resolution = FractionalResolution;
 
   private:
     value_type data;
@@ -1438,6 +1446,9 @@
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::digits_total;
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::radix_split;
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::all_bits;
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::range;
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::resolution;
 
   } } // namespace boost::fixed_point
 

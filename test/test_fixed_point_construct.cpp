@@ -35,6 +35,13 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_nearest_even_round)
     y = fixed_point_type_nearest_even_round (1.5);
 
     BOOST_CHECK_EQUAL(x, y);
+
+    BOOST_CHECK_EQUAL(fixed_point_type_nearest_even_round::all_bits, 7);
+    BOOST_CHECK_EQUAL(fixed_point_type_nearest_even_round::range, 4);
+    BOOST_CHECK_EQUAL(fixed_point_type_nearest_even_round::resolution, -2);
+    BOOST_CHECK_EQUAL(x.all_bits, 7);
+    BOOST_CHECK_EQUAL(y.range, 4);
+    BOOST_CHECK_EQUAL(x.resolution, -2);
   }
 
   //! larger range and small resolution
@@ -49,6 +56,10 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_nearest_even_round)
     y = fixed_point_type_nearest_even_round (1.5);
 
     BOOST_CHECK_EQUAL(x, y);
+
+    BOOST_CHECK_EQUAL(fixed_point_type_nearest_even_round::all_bits, 403);
+    BOOST_CHECK_EQUAL(fixed_point_type_nearest_even_round::range, 400);
+    BOOST_CHECK_EQUAL(fixed_point_type_nearest_even_round::resolution, -2);
   }
 
   //! larger range and larger resolution
@@ -63,6 +74,10 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_nearest_even_round)
     y = fixed_point_type_nearest_even_round (605.25);
 
     BOOST_CHECK_EQUAL(x, y);
+
+    BOOST_CHECK_EQUAL(fixed_point_type_nearest_even_round::all_bits, 92);
+    BOOST_CHECK_EQUAL(fixed_point_type_nearest_even_round::range, 87);
+    BOOST_CHECK_EQUAL(fixed_point_type_nearest_even_round::resolution, -4);
   }  
 }
 
