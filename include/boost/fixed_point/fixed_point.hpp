@@ -57,7 +57,7 @@
     // When I/O streaming is disabled:
     //   * We must eliminate Boost.Multiprecision.
     //   * We must eliminate Boost.Math.Constants (because these require istreaming).
-    //   * We must eliminate the parts of Boost.Cstdfloat that require I/O streams.
+    //   * We must eliminate the parts of <boost/cstdfloat.hpp> that require I/O streams.
 
     #if !defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
       #error Error: BOOST_FIXED_POINT_DISABLE_IOSTREAM can not be set without also setting BOOST_FIXED_POINT_DISABLE_MULTIPRECISION.
@@ -114,10 +114,10 @@
 
   #include <boost/fixed_point/fixed_point_detail.hpp>
 
-  static_assert(std::numeric_limits<boost::uint8_t >::digits ==  8, "Configuration error: the size of boost::uint8_t  must be 8  bits");
-  static_assert(std::numeric_limits<boost::uint16_t>::digits == 16, "Configuration error: the size of boost::uint16_t must be 16 bits");
-  static_assert(std::numeric_limits<boost::uint32_t>::digits == 32, "Configuration error: the size of boost::uint32_t must be 32 bits");
-  static_assert(std::numeric_limits<boost::uint64_t>::digits == 64, "Configuration error: the size of boost::uint64_t must be 64 bits");
+  static_assert(std::numeric_limits<boost::uint8_t >::digits ==  8, "Configuration error: the size of boost::uint8_t  must be 8  bits!");
+  static_assert(std::numeric_limits<boost::uint16_t>::digits == 16, "Configuration error: the size of boost::uint16_t must be 16 bits!");
+  static_assert(std::numeric_limits<boost::uint32_t>::digits == 32, "Configuration error: the size of boost::uint32_t must be 32 bits!");
+  static_assert(std::numeric_limits<boost::uint64_t>::digits == 64, "Configuration error: the size of boost::uint64_t must be 64 bits!");
 
   namespace boost { namespace fixed_point {
 
@@ -603,7 +603,7 @@
 
       // Multiplication will be carried out using unsigned integers.
 
-      // Multiplication uses with a relatively lazy method.
+      // Multiplication uses a relatively lazy method.
       // The result is first placed in unsigned_large_type,
       // which is twice as wide as unsigned_small_type.
 
@@ -653,7 +653,7 @@
 
         // Division will be carried out using unsigned integers.
 
-        // Division uses with a relatively lazy method.
+        // Division uses a relatively lazy method.
         // The result is first placed in unsigned_large_type,
         // which is twice as wide as unsigned_small_type.
 
