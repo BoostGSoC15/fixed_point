@@ -1,6 +1,10 @@
 # .gitignore for fixed-point, ignoring all generated docs and log files.
 * Ignore all log files in any folder in the sub-module.
 /**/*.log
+doc/html/boost
+doc/html/boost_fixed_point
+doc/html/header
+doc/html/std
 doc/html/standalone_HTML.manifest
 doc/html/*.html
 doc/doxygen/*.html
