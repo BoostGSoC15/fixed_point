@@ -6,7 +6,7 @@ boost_fixed_point/conversions.html
 boost_fixed_point/mixed.html
 boost_fixed_point/constants.html
 boost_fixed_point/how_to_tell.html
-boost_fixed_point/limits32.html
+boost_fixed_point/fixed_versus_float.html
 boost_fixed_point/headers.html
 boost_fixed_point/design.html
 boost_fixed_point/design/history.html
@@ -42,8 +42,8 @@ boost/fixed_point/round/truncated.html
 boost/fixed_point/negatable.html
 boost/fixed_point/negatable/constant_maker.html
 boost/fixed_point/negatable/nothing.html
-std/numeric_limits_bo_id253767.html
-std/numeric_limits_bo_id254017.html
+std/numeric_limits_bo_id265408.html
+std/numeric_limits_bo_id265654.html
 boost_fixed_point/indexes.html
 boost_fixed_point/indexes/s01.html
 boost_fixed_point/indexes/s02.html

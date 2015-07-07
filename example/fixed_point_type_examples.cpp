@@ -41,27 +41,52 @@ typedef boost::fixed_point::negatable<15, -16> fixed_point_type;
 //typedef boost::fixed_point::negatable<5, -2> fixed_point_type;
 //typedef boost::fixed_point::negatable<15, -15> fixed_point_type;
 
+/*
+! Show numeric_limits values for a type.
+\tparam T floating-point, fixed-point type.
+
+*/
 template <typename T>
 void show_fixed_point()
 {
-  std::cout.precision(std::numeric_limits<T>::max_digits10);
+  using boost::fixed_point::negatable;
+
+  std::cout.precision(std::numeric_limits<T>::digits10);
 
   std::cout << "Numeric_limits of type:"
     << typeid(fixed_point_type).name()
-    << "\n radix = " << std::numeric_limits<T>::digits
+
+    << "\n range " << T::range
+    << "  resolution " << T::resolution
+    << "\n radix = " << std::numeric_limits<T>::radix // Always 2 for fixed-point.
+    << "\n digits = " << std::numeric_limits<T>::digits // Does not include any sign bit.
+    << "\n total bits = " << T::all_bits // DOES include sign bit.
     << "\n epsilon = " << std::numeric_limits<T>::epsilon()
     << "\n lowest = " << std::numeric_limits<fixed_point_type>::lowest()
-    << "\n min = " << std::numeric_limits<T>::min()
-    << "\n max = " << std::numeric_limits<T>::max()
-    << "\n digits10 = " << std::numeric_limits<T>::digits10
-    << "\n max_digits10 = " << std::numeric_limits<T>::max_digits10
+    << " min = " << std::numeric_limits<T>::min()
+    << " max = " << std::numeric_limits<T>::max()
+    << "\n max_exponent = " << std::numeric_limits<fixed_point_type>::max_exponent
+    << " min_exponent = " << std::numeric_limits<fixed_point_type>::min_exponent
 
-    ;
+    << "\n digits10 = " << std::numeric_limits<T>::digits10
+    //<< "\n max_digits10 = " << std::numeric_limits<T>::max_digits10
+    << std::endl;
   // TODO add resolution and range to report.
   std::cout << std::endl;
 
 } // template <typename T> void show_fixed_point
 
+
+using namespace boost::fixed_point;
+
+typedef boost::fixed_point::negatable<11, -20> fixed_point_type_11m20;
+
+negatable<11, -20> x = 0;
+
+
+typedef boost::fixed_point::negatable<0, -30> fixed_point_type_0m30;
+
+typedef boost::fixed_point::negatable<29, -2> fixed_point_type_29m2;
 
 int main()
 {
@@ -72,13 +97,22 @@ int main()
 
     using boost::fixed_point::negatable;
 
+    int r = negatable<11, -20>::range;
+    
+
 //[fixed_example_1
 
 
     // Show all the significant digits for this particular floating-point type.
-    std::cout.precision(std::numeric_limits<fixed_point_type>::digits10);
 
-    show_fixed_point<negatable<15, -15> >();
+    //show_fixed_point<float>();
+    // digits 24 (leaving 8 for decimal exponent).
+    // epsilon 1.2e-7 
+
+
+    show_fixed_point<negatable<15, -16> >();
+    show_fixed_point<negatable<11, -20> >();
+    show_fixed_point<negatable<29, -2> >();
 
     //std::cout << "fixed_point_type(123) / 100 = "
     //  << x // 1.22999573 is the nearest representation of decimal digit string 1.23.

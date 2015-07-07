@@ -686,10 +686,20 @@
     operator double     () const { return convert_to_floating_point_type<double>     (); }
     operator long double() const { return convert_to_floating_point_type<long double>(); }
 
+<<<<<<< Updated upstream
     #if !defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
       // This function is used primarily for debugging and testing purposes
       // TBD: Perhaps this function should not be exposed to users?
       std::string bit_pattern()
+=======
+    // This function is used primarily for debugging and testing purposes.
+    std::string bit_pattern()
+    {
+      value_type num = this->data;
+      std::string ans;
+      value_type mask(1);
+      for(int i = 0; i < digits_total; i++)
+>>>>>>> Stashed changes
       {
         value_type num = this->data;
         std::string ans;
@@ -706,11 +716,29 @@
         std::reverse(ans.begin(), ans.end());
         return ans;
       }
+<<<<<<< Updated upstream
     #endif // !BOOST_FIXED_POINT_DISABLE_IOSTREAM
 
     // Return range and resolution to the user.
     static int get_range     () { return IntegralRange; }
     static int get_resolution() { return FractionalResolution; }
+=======
+      std::reverse(ans.begin(), ans.end());
+      return ans;
+    }
+
+    /*! Total number of bits (IntegralRange + 1) - FractionalResolution used by a negatable type.
+     */
+    static BOOST_CONSTEXPR_OR_CONST int all_bits = (IntegralRange + 1) - FractionalResolution;
+
+    /*! template parameter IntegralRange from a negatable type declaration.
+    */
+    static BOOST_CONSTEXPR_OR_CONST int range = IntegralRange;
+
+    /*! template parameter FractionalResolution from a negatable type declaration.
+     */
+    static BOOST_CONSTEXPR_OR_CONST int resolution = FractionalResolution;
+>>>>>>> Stashed changes
 
   private:
     value_type data;
@@ -1434,6 +1462,7 @@
       }
     }
   };
+
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::digits_total;
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::radix_split;

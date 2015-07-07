@@ -23,7 +23,7 @@
 
 [warning This is NOT yet a Boost library and is subject to change and development.]
 
-[caution This documentation is in a very rudimentary state and contains many errers and ommisions!]
+[caution This documentation is in a very rudementary state and contains many errers and ommisions!]
 
 [import ../../../tools/auto_index/include/auto_index_helpers.qbk]
 [/ auto_index_helpers.qbk MUST be FIRST included file!]
@@ -74,7 +74,10 @@
 [def __fundamental_types [@http://en.cppreference.com/w/cpp/language/types fundamental types]]
 [def __guard_digits [@http://en.wikipedia.org/wiki/Guard_digit guard digits]]
 [def __representable [@http://en.wikipedia.org/wiki/Floating_point#Representable_numbers.2C_conversion_and_rounding representable]]
-
+[def __IEEE754 [@https://en.wikipedia.org/wiki/IEEE_floating_point IEEE floating-point]]
+[def __float_format [@https://en.wikipedia.org/wiki/Single-precision_floating-point_format 32-bit float format]]
+[def __double_format [@https://en.wikipedia.org/wiki/Double-precision_floating-point_format 64-bit double format]]
+[def __quad_format [@https://en.wikipedia.org/wiki/Quadruple-precision_floating-point_format 128-bit quad format]]
 [def __n3352 [@http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html C++ Binary Fixed-Point Arithmetic N3352]]
 [def __NaN [@https://en.wikipedia.org/wiki/NaN NaN]]
 [def __nan [@http://www.cplusplus.com/reference/cmath/nan-function/ C++ nan function]]
@@ -87,12 +90,12 @@
 [def __boundary [@https://en.wikipedia.org/wiki/Boundary_case boundary case]]
 [def __significand [@https://en.wikipedia.org/wiki/Significand significand]]
 [def __C_math [@http://en.cppreference.com/w/cpp/numeric/math C math]]
-[def __IEEE754 [@  IEEE754 floating-point specification]]
 [def __is_fundamental [@http://en.cppreference.com/w/cpp/types/is_fundamental std::is_fundamental]]
 [def __is_arithmetic [@http://en.cppreference.com/w/cpp/types/is_arithmetic std::is_arithmetic]]
 [def __is_floating_point[@http://en.cppreference.com/w/cpp/types/is_floating_point std::is_floating_point]]
 [def __is_iec559 [@http://en.cppreference.com/w/cpp/types/numeric_limits/is_iec559 std::numeric_limits::is_iec559]]
 [def __cardinal [@https://en.wikipedia.org/wiki/Cardinal_number  cardinal]]
+[def __raidx [@https://en.wikipedia.org/wiki/Radix  radix]]
 
 [/Links to classes etc]
 
@@ -199,16 +202,12 @@ In particular:
 [endsect] [/section:conversions Constructing and Interconverting Between Number Types]
 
 [section:mixed Mixed Precision Arithmetic]
-Mixed precision arithmetic is fully supported by the library.
+Mixed precision arithmetic is fully supported by the library.  ?????
 
 There are two different forms:
 
 * Where the operands are of different precision.
 * Where the operands are of the same precision, but yield a higher precision result.
-
-specialization as it would be impossible to define all the members at compile time.  In contrast
-the precision of a type such as `mpfr_float_50` is known at compile time, and so it ['does] have a
-`numeric_limits` specialization.
 
 Note that not all the `std::numeric_limits` member constants and functions are meaningful for all user-defined types (UDT),
 such as the decimal and binary multiprecision types provided here.  More information on this is given in the sections below.
@@ -252,7 +251,6 @@ The full code is at [@../../example/fixed_point_constants.cpp  fixed_point_const
 
 [endsect] [/section:constants Constants]
 
-
 [section:how_to_tell How to Determine the Kind of a Number From `std::numeric_limits`]
 
 Based on the information above, one can see that different kinds of numbers can be
@@ -263,9 +261,37 @@ provided by this library.
 
 [endsect] [/section:how_to_tell How to Determine the Kind of a Number From `std::numeric_limits`]
 
-[include numeric_limits_32_tables.qbk]
+[section:fixed_versus_float Comparison of Fixed-point and Floating-point Formats]
 
-[/J:\Cpp\big_number\numeric_limits_32_tables\numeric_limits_32_tables.qbk]
+We can compare the ubiquitous __IEEE754 types
+
+* __float_format  1 sign bit, 8 exponent bits, 23 stored bits  (+1 implicit not stored bit)
+
+* __double_format 1 sign bit, 11 exponent bits, and 52 stored bits (+1 implicit not stored bit)
+
+and the extended precision type (usually implemented in software, and thus much slower)
+
+* __quad_format 1 sign bit, 15 exponent bits, 112 stored bits (+1 implicit not stored bit)
+
+Using fixed_point, we can chose make quite different splits between exponent (range) and significand (resolution).
+
+For example, to match the range of `double` using only 32-bit, we can define
+
+  typedef boost::fixed_point::negatable<11, -20> fixed_point_type;
+
+or we can use all 31 bits for resolution (sign still needs one for signed type `negatable`)
+
+  typedef boost::fixed_point::negatable<0, -30> fixed_point_type;
+
+or we can use nearly all bits for range with
+
+  typedef boost::fixed_point::negatable<29, -2> fixed_point_type;
+
+[/See for example J:\Cpp\big_number\numeric_limits_32_tables\numeric_limits_32_tables.qbk]
+
+
+[endsect] [/section:fixed_versus_float Comparison of Fixed-point and Floating-point Formats]
+
 
 [section:headers Header File Structure]
 
