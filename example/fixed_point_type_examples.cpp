@@ -44,23 +44,27 @@ typedef boost::fixed_point::negatable<15, -16> fixed_point_type;
 /*
 ! Show numeric_limits values for a type.
 \tparam T floating-point, fixed-point type.
+\param os std::ostream, default @c std::cout
 
 */
 template <typename T>
-void show_fixed_point()
+void show_fixed_point(std::ostream& os = std::cout)
 {
   using boost::fixed_point::negatable;
 
-  std::cout.precision(std::numeric_limits<T>::digits10);
+  os.precision(std::numeric_limits<T>::digits10);
 
-  std::cout << "Numeric_limits of type:"
-    << typeid(fixed_point_type).name()
-
-    << "\n range " << T::range
-    << "  resolution " << T::resolution
-    << "\n radix = " << std::numeric_limits<T>::radix // Always 2 for fixed-point.
+  os << "Numeric_limits of type:"
+    << typeid(fixed_point_type).name() << std::endl;
+    if ((std::is_floating_point<T>::value == false) & (std::is_integral<T>::value == false))
+    { // Assume is fixed_point, so can output range and resolution template parameters.
+      os << "\n range " << T::range
+        << "  resolution " << T::resolution;
+      // << " rounding " << T::rounding << ", overflow 2 << T::overflow
+      << "\n total bits = " << T::all_bits // DOES include sign bit.
+    }
+    os << "\n radix = " << std::numeric_limits<T>::radix // Always 2 for fixed-point.
     << "\n digits = " << std::numeric_limits<T>::digits // Does not include any sign bit.
-    << "\n total bits = " << T::all_bits // DOES include sign bit.
     << "\n epsilon = " << std::numeric_limits<T>::epsilon()
     << "\n lowest = " << std::numeric_limits<fixed_point_type>::lowest()
     << " min = " << std::numeric_limits<T>::min()
@@ -105,12 +109,16 @@ int main()
 
     // Show all the significant digits for this particular floating-point type.
 
-    //show_fixed_point<float>();
+    show_fixed_point<float>();
     // digits 24 (leaving 8 for decimal exponent).
     // epsilon 1.2e-7 
 
+//] [/fixed_example_1]
 
+//[fixed_point_15m16
     show_fixed_point<negatable<15, -16> >();
+    // digits = 31 total bits = 32, epsilon = 0.0001
+    //  lowest = -32768.0000 min = 1.52581e-5 max = 32768.0000
     show_fixed_point<negatable<11, -20> >();
     show_fixed_point<negatable<29, -2> >();
 
@@ -119,7 +127,6 @@ int main()
     //  << std::endl;
 
 
-//] [/fixed_example_1]
 
   }
   catch (std::exception ex)
