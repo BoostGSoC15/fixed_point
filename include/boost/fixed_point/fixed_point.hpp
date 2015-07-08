@@ -976,9 +976,9 @@
         }
         else
         {
-          while(r10 > 10)
+          while(r10 > 9)
           {
-            r10 = (r10 + 9) / 10;
+            r10 = (r10 + 5) / 10;
           }
 
           local_epsilon = negatable(nothing(), r10);
