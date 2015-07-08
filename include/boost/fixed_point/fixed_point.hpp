@@ -665,7 +665,7 @@
 
         // Here, we use 1 extra binary digit for rounding.
         // The extra rounding digit fits in unsigned_small_type
-        // because the value_type (even though just s wide as
+        // because the value_type (even though just as wide as
         // unsigned_small_type) reserves one bit for the sign.
 
         result = (result << (radix_split + 1));
@@ -1151,8 +1151,8 @@
                                                                       RoundMode,
                                                                       OverflowMode>& v)
     {
-      typedef negatable<( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange,
-                        (-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution,
+      typedef negatable<(( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange),
+                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
                         RoundMode,
                         OverflowMode> supra_fixed_point_type;
 
@@ -1171,8 +1171,8 @@
                                                                       RoundMode,
                                                                       OverflowMode>& v)
     {
-      typedef negatable<( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange,
-                        (-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution,
+      typedef negatable<(( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange),
+                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
                         RoundMode,
                         OverflowMode> supra_fixed_point_type;
 
@@ -1202,8 +1202,8 @@
                                                                      RoundMode,
                                                                      OverflowMode>& v)
     {
-      typedef negatable<( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange,
-                        (-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution,
+      typedef negatable<(( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange),
+                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
                         RoundMode,
                         OverflowMode> supra_fixed_point_type;
 
@@ -1217,8 +1217,8 @@
                                                                      RoundMode,
                                                                      OverflowMode>& v)
     {
-      typedef negatable<( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange,
-                        (-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution,
+      typedef negatable<(( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange),
+                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
                         RoundMode,
                         OverflowMode> supra_fixed_point_type;
 
@@ -1232,8 +1232,8 @@
                                                                       RoundMode,
                                                                       OverflowMode>& v)
     {
-      typedef negatable<( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange,
-                        (-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution,
+      typedef negatable<(( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange),
+                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
                         RoundMode,
                         OverflowMode> supra_fixed_point_type;
 
@@ -1247,8 +1247,8 @@
                                                                       RoundMode,
                                                                       OverflowMode>& v)
     {
-      typedef negatable<( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange,
-                        (-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution,
+      typedef negatable<(( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange),
+                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
                         RoundMode,
                         OverflowMode> supra_fixed_point_type;
 
