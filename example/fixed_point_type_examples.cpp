@@ -1,4 +1,3 @@
-
 // Use, modification and distribution are subject to the
 // Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt
@@ -47,6 +46,39 @@ typedef boost::fixed_point::negatable<15, -16> fixed_point_type;
 \param os std::ostream, default @c std::cout
 
 */
+
+template <typename NumericalType,
+          typename EnableType = void>
+struct numerical_details
+{
+  static int get_range     () { return 0; }
+  static int get_resolution() { return 0; }
+};
+
+template <typename NumericalType>
+struct numerical_details<NumericalType,
+                         typename std::enable_if<std::is_arithmetic<NumericalType>::value == false>::type>
+{
+  static int get_range     () { return NumericalType::range; }
+  static int get_resolution() { return NumericalType::resolution; }
+};
+
+template <typename NumericalType>
+struct numerical_details<NumericalType,
+                         typename std::enable_if<std::is_floating_point<NumericalType>::value>::type>
+{
+  static int get_range     () { return 0; }
+  static int get_resolution() { return std::numeric_limits<NumericalType>::digits; }
+};
+
+template <typename NumericalType>
+struct numerical_details<NumericalType,
+                         typename std::enable_if<std::is_integral<NumericalType>::value>::type>
+{
+  static int get_range     () { return std::numeric_limits<NumericalType>::digits; }
+  static int get_resolution() { return 0; }
+};
+
 template <typename T>
 void show_fixed_point(std::ostream& os = std::cout)
 {
@@ -55,29 +87,20 @@ void show_fixed_point(std::ostream& os = std::cout)
   os.precision(std::numeric_limits<T>::digits10);
 
   os << "Numeric_limits of type:"
-    << typeid(fixed_point_type).name() << std::endl;
-    if ((std::is_floating_point<T>::value == false) & (std::is_integral<T>::value == false))
-    { // Assume is fixed_point, so can output range and resolution template parameters.
-      os << "\n range " << T::range
-        << "  resolution " << T::resolution;
-      // << " rounding " << T::rounding << ", overflow 2 << T::overflow
-      << "\n total bits = " << T::all_bits // DOES include sign bit.
-    }
-    os << "\n radix = " << std::numeric_limits<T>::radix // Always 2 for fixed-point.
-    << "\n digits = " << std::numeric_limits<T>::digits // Does not include any sign bit.
-    << "\n epsilon = " << std::numeric_limits<T>::epsilon()
-    << "\n lowest = " << std::numeric_limits<fixed_point_type>::lowest()
-    << " min = " << std::numeric_limits<T>::min()
-    << " max = " << std::numeric_limits<T>::max()
-    << "\n max_exponent = " << std::numeric_limits<fixed_point_type>::max_exponent
-    << " min_exponent = " << std::numeric_limits<fixed_point_type>::min_exponent
-
-    << "\n digits10 = " << std::numeric_limits<T>::digits10
-    //<< "\n max_digits10 = " << std::numeric_limits<T>::max_digits10
-    << std::endl;
-  // TODO add resolution and range to report.
-  std::cout << std::endl;
-
+     << typeid(fixed_point_type).name() << std::endl
+     << "\n range "          << numerical_details<T>::get_range()
+     << "  resolution "      << numerical_details<T>::get_resolution()
+     << "\n radix = "        << std::numeric_limits<T>::radix // Always 2 for fixed-point.
+     << "\n digits = "       << std::numeric_limits<T>::digits // Does not include any sign bit.
+     << "\n epsilon = "      << std::numeric_limits<T>::epsilon()
+     << "\n lowest = "       << std::numeric_limits<fixed_point_type>::lowest()
+     << " min = "            << std::numeric_limits<T>::min()
+     << " max = "            << std::numeric_limits<T>::max()
+     << "\n max_exponent = " << std::numeric_limits<fixed_point_type>::max_exponent
+     << " min_exponent = "   << std::numeric_limits<fixed_point_type>::min_exponent
+     << "\n digits10 = "     << std::numeric_limits<T>::digits10
+     << "\n max_digits10 = " << std::numeric_limits<T>::max_digits10
+     << std::endl;
 } // template <typename T> void show_fixed_point
 
 
@@ -102,7 +125,6 @@ int main()
     using boost::fixed_point::negatable;
 
     int r = negatable<11, -20>::range;
-    
 
 //[fixed_example_1
 
@@ -125,9 +147,6 @@ int main()
     //std::cout << "fixed_point_type(123) / 100 = "
     //  << x // 1.22999573 is the nearest representation of decimal digit string 1.23.
     //  << std::endl;
-
-
-
   }
   catch (std::exception ex)
   {
@@ -135,13 +154,9 @@ int main()
   }
 }
 
-
-
 /*
 //[fixed_point_type_examples_output_1
 
 
 //] [/fixed_point_type_examples_output_1]
-
-
 */
