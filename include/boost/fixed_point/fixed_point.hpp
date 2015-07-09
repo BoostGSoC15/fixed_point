@@ -595,7 +595,7 @@
     negatable operator++(int) { const negatable tmp(*this); data += value_type(unsigned_small_type(1) << radix_split); return tmp; }
     negatable operator--(int) { const negatable tmp(*this); data -= value_type(unsigned_small_type(1) << radix_split); return tmp; }
 
-    // Unary operators add and subtract of negatable with negatable.
+    // Unary operator add of negatable with negatable.
     negatable& operator+=(const negatable& v)
     {
       data += v.data;
@@ -611,6 +611,7 @@
       return *this;
     }
 
+    // Unary operator subtract of negatable with negatable.
     negatable& operator-=(const negatable& v)
     {
       data -= v.data;
@@ -740,12 +741,115 @@
       return *this;
     }
 
-    // Unary operators add, sub, mul, div of negatable with an arithmetic built-in type.
+    // Unary operators add, sub, mul of negatable with an arithmetic built-in type.
+    template<typename ArithmeticType, typename = typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type> negatable& operator+=(const ArithmeticType& v) { return (*this) += negatable(v); }
+    template<typename ArithmeticType, typename = typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type> negatable& operator-=(const ArithmeticType& v) { return (*this) -= negatable(v); }
+    template<typename ArithmeticType, typename = typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type> negatable& operator*=(const ArithmeticType& v) { return (*this) *= negatable(v); }
 
-    template<typename ArithmeticType, typename = typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type> negatable& operator+=(ArithmeticType& n) { return (*this) += negatable(n); }
-    template<typename ArithmeticType, typename = typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type> negatable& operator-=(ArithmeticType& n) { return (*this) -= negatable(n); }
-    template<typename ArithmeticType, typename = typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type> negatable& operator*=(ArithmeticType& n) { return (*this) *= negatable(n); }
-    template<typename ArithmeticType, typename = typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type> negatable& operator/=(ArithmeticType& n) { return (*this) /= negatable(n); }
+    // Unary operator div of negatable with a floating-point built-in type.
+    negatable& operator/=(const float       v) { return (*this) /= negatable(v); }
+    negatable& operator/=(const double      v) { return (*this) /= negatable(v); }
+    negatable& operator/=(const long double v) { return (*this) /= negatable(v); }
+
+    // Unary operator div of negatable with long and long long.
+    negatable& operator/=(const long      v) { return (*this) /= negatable(v); }
+    negatable& operator/=(const long long v) { return (*this) /= negatable(v); }
+
+    // Unary operator div of negatable with unsigned long and unsigned long long.
+    negatable& operator/=(const unsigned long      v) { return (*this) /= negatable(v); }
+    negatable& operator/=(const unsigned long long v) { return (*this) /= negatable(v); }
+
+    // Optimized unary operator div of negatable with int.
+    negatable& operator/=(const int v)
+    {
+      if(v == 0)
+      {
+        data = value_type((std::numeric_limits<value_type>::max)());
+      }
+      else
+      {
+        const bool u_is_neg      = (data < 0);
+        const bool v_is_neg      = (v    < 0);
+        const bool result_is_neg = (u_is_neg != v_is_neg);
+
+        // Division will be carried out using unsigned integers.
+
+        unsigned_small_type result((!u_is_neg) ? unsigned_small_type(data) : unsigned_small_type(-data));
+
+        // Here, we use 1 extra binary digit for rounding.
+        // The extra rounding digit fits in unsigned_small_type
+        // because the value_type (even though just as wide as
+        // unsigned_small_type) reserves one bit for the sign.
+
+        result = (result << 1);
+
+        result /= unsigned((!v_is_neg) ? unsigned(v) : unsigned(-v));
+
+        unsigned_small_type u_round = static_cast<unsigned_small_type>(result);
+
+        // Round the result of the division.
+        const boost::int_fast8_t rounding_result = binary_round(u_round);
+
+        // Add or subtract the result of the rounding (-1, 0, or +1).
+        if     (rounding_result == INT8_C(+1)) { ++u_round; }
+        else if(rounding_result == INT8_C(-1)) { --u_round; }
+
+        u_round = (u_round & unsigned_small_mask());
+
+        // Load the fixed-point result (and account for potentially signed values).
+        data = value_type((!result_is_neg) ? value_type(u_round) : -value_type(u_round));
+      }
+
+      return (*this);
+    }
+
+    // Optimized unary operator div of negatable with unsigned int.
+    negatable& operator/=(const unsigned int v)
+    {
+      if(v == 0U)
+      {
+        data = value_type((std::numeric_limits<value_type>::max)());
+      }
+      else
+      {
+        const bool is_neg = (data < 0);
+
+        // Division will be carried out using unsigned integers.
+
+        unsigned_small_type result((!is_neg) ? unsigned_small_type(data) : unsigned_small_type(-data));
+
+        // Here, we use 1 extra binary digit for rounding.
+        // The extra rounding digit fits in unsigned_small_type
+        // because the value_type (even though just as wide as
+        // unsigned_small_type) reserves one bit for the sign.
+
+        result = (result << 1);
+
+        result /= v;
+
+        unsigned_small_type u_round = static_cast<unsigned_small_type>(result);
+
+        // Round the result of the division.
+        const boost::int_fast8_t rounding_result = binary_round(u_round);
+
+        // Add or subtract the result of the rounding (-1, 0, or +1).
+        if     (rounding_result == INT8_C(+1)) { ++u_round; }
+        else if(rounding_result == INT8_C(-1)) { --u_round; }
+
+        u_round = (u_round & unsigned_small_mask());
+
+        // Load the fixed-point result (and account for potentially signed values).
+        data = value_type((!is_neg) ? value_type(u_round) : -value_type(u_round));
+      }
+
+      return (*this);
+    }
+
+    // Optimized unary operator div of negatable with signed and unsigned char and short.
+    negatable& operator/=(const char           v) { return operator/=(static_cast<int>(v)); }
+    negatable& operator/=(const short          v) { return operator/=(static_cast<int>(v)); }
+    negatable& operator/=(const unsigned char  v) { return operator/=(static_cast<unsigned int>(v)); }
+    negatable& operator/=(const unsigned short v) { return operator/=(static_cast<unsigned int>(v)); }
 
     // Here are the cast operators for built-in signed and unsigned integral types.
 
@@ -796,11 +900,13 @@
 
         BOOST_CONSTEXPR_OR_CONST std::string::size_type bit_count = std::numeric_limits<unsigned_small_type>::digits;
 
-        // Allocate a string initialized with all '0'.
+        // Allocate a string of the proper length with all characters
+        // initialized to '0'.
         std::string answer(bit_count, char('0'));
 
         // Extract all bits and place them in the string.
-        // Use reverse the order for proper bit representation.
+        // Use reverse iteration in order to obtain the
+        // proper bit representation.
         std::for_each(answer.rbegin(),
                       answer.rend(),
                       [&number](char& c)
@@ -1260,11 +1366,11 @@
                         OverflowMode> supra_fixed_point_type;
 
       #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
-      static_assert(std::numeric_limits<supra_fixed_point_type>::digits + 1 <= 32, "Error: the width of the supra fixed_point for comparison operations can not exceed 32 bits when multiprecision is disabled.");
+        static_assert(std::numeric_limits<supra_fixed_point_type>::digits + 1 <= 32, "Error: the width of the supra fixed_point for comparison operations can not exceed 32 bits when multiprecision is disabled.");
       #endif
 
       #if !defined(BOOST_FLOAT64_C)
-      static_assert(std::numeric_limits<supra_fixed_point_type>::digits + 1 <= 24, "Error: the width of the supra fixed_point for comparison operations can not exceed 24 bits when float64_t is unavailable.");
+        static_assert(std::numeric_limits<supra_fixed_point_type>::digits + 1 <= 24, "Error: the width of the supra fixed_point for comparison operations can not exceed 24 bits when float64_t is unavailable.");
       #endif
 
       return (supra_fixed_point_type(u) == supra_fixed_point_type(v));
