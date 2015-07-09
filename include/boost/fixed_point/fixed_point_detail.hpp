@@ -458,6 +458,7 @@
     static const ArithmeticType& value()
     {
       static const ArithmeticType& the_result(UINT8_C(1) << RadixSplit);
+
       return the_result;
     }
   };
@@ -473,6 +474,7 @@
     static const ArithmeticType& value()
     {
       static const ArithmeticType the_result(UINT16_C(1) << RadixSplit);
+
       return the_result;
     }
   };
@@ -488,6 +490,7 @@
     static const ArithmeticType& value()
     {
       static const ArithmeticType the_result(UINT32_C(1) << RadixSplit);
+
       return the_result;
     }
   };
@@ -503,6 +506,7 @@
     static const ArithmeticType& value()
     {
       static const ArithmeticType the_result(UINT64_C(1) << RadixSplit);
+
       return the_result;
     }
   };
