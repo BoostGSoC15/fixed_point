@@ -1,3 +1,4 @@
+
 // Use, modification and distribution are subject to the
 // Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt
@@ -30,10 +31,6 @@
 #include <boost/fixed_point/fixed_point.hpp>
 //] [/fixed_point_include_1]
 
-//[fixed_point_typedef_1
-typedef boost::fixed_point::negatable<15, -16> fixed_point_type;
-//] [/fixed_point_typedef_1]
-
 /*
 ! Show numeric_limits values for a type.
 \tparam T floating-point, fixed-point type.
@@ -50,7 +47,8 @@ struct numerical_details
 
 template <typename NumericalType>
 struct numerical_details<NumericalType,
-                         typename std::enable_if<std::is_arithmetic<NumericalType>::value == false>::type>
+                         typename std::enable_if<   (std::is_arithmetic<NumericalType>::value == false)
+                                                 && (std::is_class<NumericalType>::value      == true)>::type>
 {
   static int get_range     () { return NumericalType::range; }
   static int get_resolution() { return NumericalType::resolution; }
@@ -80,17 +78,17 @@ void show_fixed_point(std::ostream& os = std::cout)
   os.precision(std::numeric_limits<T>::digits10);
 
   os << "Numeric_limits of type:"
-     << typeid(fixed_point_type).name() << std::endl
+     << typeid(T).name() << std::endl
      << "\n range "          << numerical_details<T>::get_range()
      << "  resolution "      << numerical_details<T>::get_resolution()
      << "\n radix = "        << std::numeric_limits<T>::radix  // Always 2 for fixed-point.
      << "\n digits = "       << std::numeric_limits<T>::digits // Does not include any sign bit.
      << "\n epsilon = "      << std::numeric_limits<T>::epsilon()
-     << "\n lowest = "       << std::numeric_limits<fixed_point_type>::lowest()
+     << "\n lowest = "       << std::numeric_limits<T>::lowest()
      << " min = "            << std::numeric_limits<T>::min()
      << " max = "            << std::numeric_limits<T>::max()
-     << "\n max_exponent = " << std::numeric_limits<fixed_point_type>::max_exponent
-     << " min_exponent = "   << std::numeric_limits<fixed_point_type>::min_exponent
+     << "\n max_exponent = " << std::numeric_limits<T>::max_exponent
+     << " min_exponent = "   << std::numeric_limits<T>::min_exponent
      << "\n digits10 = "     << std::numeric_limits<T>::digits10
      << "\n max_digits10 = " << std::numeric_limits<T>::max_digits10
      << std::endl;
@@ -126,6 +124,7 @@ int main()
     show_fixed_point<fixed_point_type_11m20>();
     show_fixed_point<fixed_point_type_0m30> ();
     show_fixed_point<fixed_point_type_29m2> ();
+    show_fixed_point<bool>                  ();
 
     //std::cout << "fixed_point_type(123) / 100 = "
     //  << x // 1.22999573 is the nearest representation of decimal digit string 1.23.
