@@ -75,22 +75,23 @@ void show_fixed_point(std::ostream& os = std::cout)
 {
   using boost::fixed_point::negatable;
 
-  os.precision(std::numeric_limits<T>::digits10);
+  os.precision(std::numeric_limits<T>::max_digits10);
 
-  os << "Numeric_limits of type:"
-     << typeid(T).name() << std::endl
-     << "\n range "          << numerical_details<T>::get_range()
-     << "  resolution "      << numerical_details<T>::get_resolution()
-     << "\n radix = "        << std::numeric_limits<T>::radix  // Always 2 for fixed-point.
-     << "\n digits = "       << std::numeric_limits<T>::digits // Does not include any sign bit.
-     << "\n epsilon = "      << std::numeric_limits<T>::epsilon()
-     << "\n lowest = "       << std::numeric_limits<T>::lowest()
-     << " min = "            << std::numeric_limits<T>::min()
-     << " max = "            << std::numeric_limits<T>::max()
+  os << "Numeric_limits of type: "
+     << typeid(T).name()
+     << "\n range        = " << numerical_details<T>::get_range()
+     << "\n resolution   = " << numerical_details<T>::get_resolution()
+     << "\n radix        = " << std::numeric_limits<T>::radix  // Always 2 for fixed-point.
+     << "\n digits       = " << std::numeric_limits<T>::digits // Does not include any sign bit.
+     << "\n epsilon      = " << std::numeric_limits<T>::epsilon()
+     << "\n lowest       = " << std::numeric_limits<T>::lowest()
+     << "\n min          = " << std::numeric_limits<T>::min()
+     << "\n max          = " << std::numeric_limits<T>::max()
      << "\n max_exponent = " << std::numeric_limits<T>::max_exponent
-     << " min_exponent = "   << std::numeric_limits<T>::min_exponent
-     << "\n digits10 = "     << std::numeric_limits<T>::digits10
+     << "\n min_exponent = " << std::numeric_limits<T>::min_exponent
+     << "\n digits10     = " << std::numeric_limits<T>::digits10
      << "\n max_digits10 = " << std::numeric_limits<T>::max_digits10
+     << "\n"
      << std::endl;
 } // template <typename T> void show_fixed_point
 
@@ -98,10 +99,11 @@ int main()
 {
   using boost::fixed_point::negatable;
 
-  typedef negatable<15, -16> fixed_point_type_15m16;
-  typedef negatable<11, -20> fixed_point_type_11m20;
-  typedef negatable< 0, -30> fixed_point_type_0m30;
-  typedef negatable<29,  -2> fixed_point_type_29m2;
+  typedef negatable<15,  -16> fixed_point_type_15m16;
+  typedef negatable<11,  -20> fixed_point_type_11m20;
+  typedef negatable< 0,  -30> fixed_point_type_0m30;
+  typedef negatable<29,   -2> fixed_point_type_29m2;
+  typedef negatable<0,  -168> fixed_point_type_0m168;
 
   try
   {
@@ -124,6 +126,7 @@ int main()
     show_fixed_point<fixed_point_type_11m20>();
     show_fixed_point<fixed_point_type_0m30> ();
     show_fixed_point<fixed_point_type_29m2> ();
+    show_fixed_point<fixed_point_type_0m168>();
     show_fixed_point<bool>                  ();
 
     //std::cout << "fixed_point_type(123) / 100 = "
