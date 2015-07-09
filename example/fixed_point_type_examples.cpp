@@ -104,6 +104,7 @@ int main()
   typedef negatable< 0,  -30> fixed_point_type_0m30;
   typedef negatable<29,   -2> fixed_point_type_29m2;
   typedef negatable<0,  -168> fixed_point_type_0m168;
+  typedef negatable<20, -148> fixed_point_type_20m148;
 
   try
   {
@@ -117,17 +118,22 @@ int main()
 
     show_fixed_point<float>();
     // digits 24 (leaving 8 for decimal exponent).
-    // epsilon 1.2e-7 
+    // epsilon 1.2e-7.
+
+    show_fixed_point<double>();
+    // digits 53 (leaving 10 for decimal exponent).
+    // epsilon 2.2e-16.
 
 //] [/fixed_example_1]
 
 //[fixed_point_15m16
-    show_fixed_point<fixed_point_type_15m16>();
-    show_fixed_point<fixed_point_type_11m20>();
-    show_fixed_point<fixed_point_type_0m30> ();
-    show_fixed_point<fixed_point_type_29m2> ();
-    show_fixed_point<fixed_point_type_0m168>();
-    show_fixed_point<bool>                  ();
+    show_fixed_point<fixed_point_type_15m16> ();
+    show_fixed_point<fixed_point_type_11m20> ();
+    show_fixed_point<fixed_point_type_0m30>  ();
+    show_fixed_point<fixed_point_type_29m2>  ();
+    show_fixed_point<fixed_point_type_0m168> ();
+    show_fixed_point<fixed_point_type_20m148>();
+    show_fixed_point<bool>                   ();
 
     //std::cout << "fixed_point_type(123) / 100 = "
     //  << x // 1.22999573 is the nearest representation of decimal digit string 1.23.
