@@ -1,11 +1,4 @@
-/* If using the standard boostbook.css
-*/
 @import url('../../../../doc/src/boostbook.css');
-
-/*If using a custom boostbook.css, copied from doc/ to doc/html,
-used to change syntax colors to something more tasteful.
-*/
-@import url('boostbook.css');
 
 /*=============================================================================
 Copyright (c) 2004 Joel de Guzman

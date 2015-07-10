@@ -18,13 +18,14 @@
 
 //! \file
 
+//! \brief Example program showing use of math constants.
+
 // Below are snippets of code that can be included into a Quickbook file.
 
 #include <boost/fixed_point/fixed_point.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/multiprecision/cpp_bin_float.hpp>
 // http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/tut/floats/cpp_bin_float.html
-
 
 #include <iomanip>
 #include <iostream>
@@ -43,7 +44,7 @@ int main()
     << std::endl;
 //] //[/bin_float_50_pi]
 
-  // Use a fixed_point that will use a 64-bit integer as its underlying representation.
+  // Use a rather precise fixed_point that will use a 64-bit integer as its underlying representation.
 //[fixed_point__constant
   typedef boost::fixed_point::negatable<3, -60> fixed_point_type;
 
@@ -54,7 +55,7 @@ int main()
     << std::endl;
 //] [/fixed_point__constant]
 
-  // Use a tiny (and so imprecise) fixed_point type that will fit into a single byte.
+  // Use a tiny (and so very imprecise) fixed_point type that will fit into a single byte.
 //[fixed_point_imprecise_constant
   typedef boost::fixed_point::negatable<2, -5> tiny_fixed_point_type;
 

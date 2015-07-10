@@ -1,4 +1,3 @@
-
 // Use, modification and distribution are subject to the
 // Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt
@@ -37,6 +36,10 @@
 \param os std::ostream, default @c std::cout
 */
 
+// static int Functions to access template parameters for fixed_point 
+// that are missing for fundamental integral and floating-point types.
+// Version selected on whether is not arithmetic, is floating_point or is integral.
+
 template <typename NumericalType,
           typename EnableType = void>
 struct numerical_details
@@ -45,6 +48,8 @@ struct numerical_details
   static int get_resolution() { return 0; }
 };
 
+/*! Deduce fixed-point if @c std::is_class (so exclude @c bool, @c int...) and not arithmetic (exclude @c float, @c double...).
+*/
 template <typename NumericalType>
 struct numerical_details<NumericalType,
                          typename std::enable_if<   (std::is_arithmetic<NumericalType>::value == false)
@@ -54,6 +59,9 @@ struct numerical_details<NumericalType,
   static int get_resolution() { return NumericalType::resolution; }
 };
 
+/*! Deduce fundamental floating-point type @c float, @c double or @c long double. 
+*/
+
 template <typename NumericalType>
 struct numerical_details<NumericalType,
                          typename std::enable_if<std::is_floating_point<NumericalType>::value>::type>
@@ -62,6 +70,8 @@ struct numerical_details<NumericalType,
   static int get_resolution() { return std::numeric_limits<NumericalType>::digits; }
 };
 
+/*! Deduce fundamental integral type.
+*/
 template <typename NumericalType>
 struct numerical_details<NumericalType,
                          typename std::enable_if<std::is_integral<NumericalType>::value>::type>
@@ -78,16 +88,45 @@ void show_fixed_point(std::ostream& os = std::cout)
   os.precision(std::numeric_limits<T>::max_digits10);
 
   os << "Numeric_limits of type: "
-     << typeid(T).name()
-     << "\n range        = " << numerical_details<T>::get_range()
-     << "\n resolution   = " << numerical_details<T>::get_resolution()
-     << "\n radix        = " << std::numeric_limits<T>::radix  // Always 2 for fixed-point.
-     << "\n digits       = " << std::numeric_limits<T>::digits // Does not include any sign bit.
-     << "\n epsilon      = " << std::numeric_limits<T>::epsilon()
-     << "\n lowest       = " << std::numeric_limits<T>::lowest()
-     << "\n min          = " << std::numeric_limits<T>::min()
-     << "\n max          = " << std::numeric_limits<T>::max()
-     << "\n max_exponent = " << std::numeric_limits<T>::max_exponent
+    << typeid(T).name()
+    << "\n range        = " << numerical_details<T>::get_range() // 
+    << "\n resolution   = " << numerical_details<T>::get_resolution()
+    << "\n radix        = " << std::numeric_limits<T>::radix  // Always 2 for fixed-point.
+    << "\n digits       = " << std::numeric_limits<T>::digits; // Does not include any sign bit.
+  if (std::is_signed<T>::value == true)
+  {
+    os << "\n signed "
+     << "\n total bits = " << std::numeric_limits<T>::digits + 1; // DOES include sign bit.
+  }
+  if (std::numeric_limits<T>::is_exact == false)
+  { // epsilon has meaning.
+    os << "\n epsilon      = " << std::numeric_limits<T>::epsilon();
+  }
+  else
+  {
+    os << "\n exact";
+  }
+  // Avoid char values showing as a character or squiggle.
+  os << "\n lowest       = " 
+    << ((std::is_same<T, signed char>::value 
+    || std::is_same<T, unsigned char>::value
+    || std::is_same<T, char16_t>::value
+    || std::is_same<T, char32_t>::value
+    )
+    ?
+     static_cast<int>(std::numeric_limits<T>::lowest())
+    : std::numeric_limits<T>::lowest());
+
+  os  << "\n min          = " 
+    << ((std::is_same<T, signed char>::value || std::is_same<T, unsigned char>::value) ?
+    static_cast<int>(std::numeric_limits<T>::min())
+    : std::numeric_limits<T>::min());
+  os << "\n max          = "
+    << ((std::is_same<T, signed char>::value || std::is_same<T, unsigned char>::value) ?
+    static_cast<int>(std::numeric_limits<T>::max())
+    : std::numeric_limits<T>::max());
+
+  os << "\n max_exponent = " << std::numeric_limits<T>::max_exponent
      << "\n min_exponent = " << std::numeric_limits<T>::min_exponent
      << "\n digits10     = " << std::numeric_limits<T>::digits10
      << "\n max_digits10 = " << std::numeric_limits<T>::max_digits10
@@ -114,8 +153,20 @@ int main()
 //[fixed_example_1
 
 
-    // Show all the significant digits for this particular floating-point type.
+    // Show all the significant digits for this particular type.
 
+    // Fundamental (built-in) integral types.
+    show_fixed_point<bool>                   ();
+    show_fixed_point<signed char>();
+    show_fixed_point<unsigned char>();
+    show_fixed_point<char16_t>(); // Shows as type unsigned short.
+    show_fixed_point<char32_t>(); // Shows as type unsigned int.
+    show_fixed_point<short int>();
+    show_fixed_point<unsigned short int>();
+    show_fixed_point<int>();
+    show_fixed_point<unsigned int>();
+
+   // Fundamental (built-in) floating-point types.
     show_fixed_point<float>();
     // digits 24 (leaving 8 for decimal exponent).
     // epsilon 1.2e-7.
@@ -123,17 +174,24 @@ int main()
     show_fixed_point<double>();
     // digits 53 (leaving 10 for decimal exponent).
     // epsilon 2.2e-16.
+    show_fixed_point<long double>();
+    // Varies with compiler
+    // Using MSVC double == long double
 
 //] [/fixed_example_1]
 
+
+// Some fiexed_point types using only a single 8-bit byte (signed char).
+
 //[fixed_point_15m16
-    show_fixed_point<fixed_point_type_15m16> ();
-    show_fixed_point<fixed_point_type_11m20> ();
-    show_fixed_point<fixed_point_type_0m30>  ();
-    show_fixed_point<fixed_point_type_29m2>  ();
+
+    // Some fixed_point types using 32 bits.
+    show_fixed_point<fixed_point_type_15m16> (); // Even split bits between range and resolution. 
+    show_fixed_point<fixed_point_type_11m20>();  // More resolution than range.
+    show_fixed_point<fixed_point_type_0m30>();   // All bits used for resolution.
+    show_fixed_point<fixed_point_type_29m2>  (); // Most bits used for range.
     show_fixed_point<fixed_point_type_0m168> ();
     show_fixed_point<fixed_point_type_20m148>();
-    show_fixed_point<bool>                   ();
 
     //std::cout << "fixed_point_type(123) / 100 = "
     //  << x // 1.22999573 is the nearest representation of decimal digit string 1.23.

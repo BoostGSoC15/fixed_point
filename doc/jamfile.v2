@@ -106,7 +106,8 @@ boostbook standalone
         <xsl:param>footnote.number.format=1
         # For 'standard Boost syntax coloring.
         #<xsl:param>html.stylesheet=../../../../doc/src/boostbook.css
-        # Use local preference for syntax coloring.
+        # Use local preference fixed_point.css for syntax coloring,
+        # that calls boostbook.css for most items.
         <xsl:param>html.stylesheet=fixed_point.css
 
         # HTML options first:
@@ -153,14 +154,18 @@ boostbook standalone
         <format>pdf:<xsl:param>boost.url.prefix=http://www.boost.org/doc/libs/release/libs/fixed_point/doc/html
 
         # Index generation conditionally defined above.
-
    ;
 
-# TODO install boostbook.css and fixed_point.css from doc/ to doc/html/
+   # Copy boostbook.css and custom colors fixed_point.css from doc/ to doc/html/
+   install boostbook-cssinstall : ../../../doc/src/boostbook.css : <location>./html ;
+   # Install local version of boostbook.css with different syntax colors etc.
+   install fixed_point-cssinstall : fixed_point.css : <location>./html ;
 
+# Copy and rename to fixed_point.pdf the generated pdf called fixed_point.auto_index.pdf
+# from \modular-boost\bin.v2\libs\fixed_point\doc\455e2f403de9f0fcee2d24dc44229719
 install pdfinstall : standalone : <location>. <install-type>PDF <name>fixed_point.pdf ;
-
-
+# Only copy pdf if called with b2 pdf (not the default html).
+explicit pdfinstall ;
 
 
 
