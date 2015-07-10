@@ -741,7 +741,7 @@
       return *this;
     }
 
-    // Unary operators add, sub, mul of negatable with an arithmetic built-in type.
+    // Unary operators add, sub, and mul of negatable with an arithmetic built-in type.
     template<typename ArithmeticType, typename = typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type> negatable& operator+=(const ArithmeticType& v) { return (*this) += negatable(v); }
     template<typename ArithmeticType, typename = typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type> negatable& operator-=(const ArithmeticType& v) { return (*this) -= negatable(v); }
     template<typename ArithmeticType, typename = typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type> negatable& operator*=(const ArithmeticType& v) { return (*this) *= negatable(v); }
@@ -900,13 +900,12 @@
 
         BOOST_CONSTEXPR_OR_CONST std::string::size_type bit_count = std::numeric_limits<unsigned_small_type>::digits;
 
-        // Allocate a string of the proper length with all characters
-        // initialized to '0'.
+        // Allocate a string of the proper length with all of the
+        // characters initialized to '0'.
         std::string answer(bit_count, char('0'));
 
-        // Extract all bits and place them in the string.
-        // Use reverse iteration in order to obtain the
-        // proper bit representation.
+        // Extract all of the bits from *this and place them in the string.
+        // Use reverse iteration in order to obtain the proper bit representation.
         std::for_each(answer.rbegin(),
                       answer.rend(),
                       [&number](char& c)
