@@ -7,7 +7,7 @@
 
 // Configure Boost.Fixed_point for a bare-metal system.
 
-#define BOOST_FIXED_POINT_DISABLE_MULTIPRECISION // Do not use multiprecision.
+#define BOOST_FIXED_POINT_DISABLE_MULTIPRECISION // Do not use Boost.Multiprecision.
 #define BOOST_FIXED_POINT_DISABLE_IOSTREAM       // Do not use I/O streaming.
 
 #include <boost/fixed_point/fixed_point.hpp>
@@ -21,21 +21,21 @@ namespace local
                              real_function_type real_function)
   {
     // Compute the first derivative of the input function
-    // using a three-point central difference rule of O(dx^6).
+    // using a three-point central-difference rule of O(dx^6).
 
     const real_value_type dx2(dx  + dx);
     const real_value_type dx3(dx2 + dx);
 
     const real_value_type m1((  real_function(x + dx)
-                              - real_function(x - dx))  / 2);
+                              - real_function(x - dx))  / 2U);
     const real_value_type m2((  real_function(x + dx2)
-                              - real_function(x - dx2)) / 4);
+                              - real_function(x - dx2)) / 4U);
     const real_value_type m3((  real_function(x + dx3)
-                              - real_function(x - dx3)) / 6);
+                              - real_function(x - dx3)) / 6U);
 
-    const real_value_type fifteen_m1(m1 * 15);
-    const real_value_type six_m2    (m2 *  6);
-    const real_value_type ten_dx    (dx * 10);
+    const real_value_type fifteen_m1(m1 * 15U);
+    const real_value_type six_m2    (m2 *  6U);
+    const real_value_type ten_dx    (dx * 10U);
 
     return ((fifteen_m1 - six_m2) + m3) / ten_dx;
   }
@@ -47,7 +47,7 @@ namespace mcal { namespace wdg {
 
 void trigger()
 {
-  // Simulate a fake watchdog triggermechanism.
+  // Simulate a fake watchdog trigger mechanism.
 }
 
 } } // namespace mcal::wdg
@@ -62,7 +62,8 @@ extern "C" int main()
 
   // Compute the approximate derivative of (a * x^2) + (b * x) + c
   // evaluated at 1/2, where the approximate values of the coefficients
-  // are a = 1.2, b = 3.4, and c = 5.6.
+  // are a = 1.2, b = 3.4, and c = 5.6. The numerical tolerance is set
+  // to a value of approximately 1/8.
 
   const fixed_point_type d =
     local::derivative(fixed_point_type(1) / 2,
