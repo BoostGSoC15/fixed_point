@@ -5,80 +5,86 @@
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-// Configure Boost.Fixed_point for a bare-metal system
-// Do not use multiprecision and do not use I/O streaming.
+// Configure Boost.Fixed_point for a bare-metal system.
 
-#define BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
-#define BOOST_FIXED_POINT_DISABLE_IOSTREAM
+#define BOOST_FIXED_POINT_DISABLE_MULTIPRECISION // Do not use multiprecision.
+#define BOOST_FIXED_POINT_DISABLE_IOSTREAM       // Do not use I/O streaming.
 
 #include <boost/fixed_point/fixed_point.hpp>
 
-namespace local {
-
-template<typename real_value_type,
-         typename real_function_type>
-real_value_type derivative(const real_value_type& x,
-                           const real_value_type& dx,
-                           real_function_type real_function)
+namespace local
 {
-  // Compute the first derivative of the input function
-  // using a three-point central difference rule of O(dx^6).
+  template<typename real_value_type,
+           typename real_function_type>
+  real_value_type derivative(const real_value_type& x,
+                             const real_value_type& dx,
+                             real_function_type real_function)
+  {
+    // Compute the first derivative of the input function
+    // using a three-point central difference rule of O(dx^6).
 
-  const real_value_type dx2(dx  + dx);
-  const real_value_type dx3(dx2 + dx);
+    const real_value_type dx2(dx  + dx);
+    const real_value_type dx3(dx2 + dx);
 
-  const real_value_type m1((  real_function(x + dx)
-                            - real_function(x - dx))  / 2);
-  const real_value_type m2((  real_function(x + dx2)
-                            - real_function(x - dx2)) / 4);
-  const real_value_type m3((  real_function(x + dx3)
-                            - real_function(x - dx3)) / 6);
+    const real_value_type m1((  real_function(x + dx)
+                              - real_function(x - dx))  / 2);
+    const real_value_type m2((  real_function(x + dx2)
+                              - real_function(x - dx2)) / 4);
+    const real_value_type m3((  real_function(x + dx3)
+                              - real_function(x - dx3)) / 6);
 
-  const real_value_type fifteen_m1(m1 * 15);
-  const real_value_type six_m2    (m2 *  6);
-  const real_value_type ten_dx    (dx * 10);
+    const real_value_type fifteen_m1(m1 * 15);
+    const real_value_type six_m2    (m2 *  6);
+    const real_value_type ten_dx    (dx * 10);
 
-  return ((fifteen_m1 - six_m2) + m3) / ten_dx;
-}
-
-template<typename arithmetic_type>
-arithmetic_type compute_quadratic_derivative()
-{
-  const arithmetic_type a = arithmetic_type(12) / 10;
-  const arithmetic_type b = arithmetic_type(34) / 10;
-  const arithmetic_type c = arithmetic_type(56) / 10;
-
-  // Compute the approximate derivative of (a * x^2) + (b * x) + c
-  // evaluated at 1/2, where the approximate values of the coefficients
-  // are a = 1.2, b = 3.4 and c = 5.6.
-
-  // The expected answer is 4.6 (exact).
-
-  return derivative(arithmetic_type(1) / 2,
-                    arithmetic_type(1) / 8,
-                    [&a, &b, &c](const arithmetic_type& x) -> arithmetic_type
-                    {
-                      return (((a * x) + b) * x) + c;
-                    });
-}
+    return ((fifteen_m1 - six_m2) + m3) / ten_dx;
+  }
 } // namespace local
 
 bool global_result_is_ok;
+
+namespace mcal { namespace wdg {
+
+void trigger()
+{
+  // Simulate a fake watchdog triggermechanism.
+}
+
+} } // namespace mcal::wdg
 
 extern "C" int main()
 {
   typedef boost::fixed_point::negatable<6, -9> fixed_point_type;
 
-  const fixed_point_type d = local::compute_quadratic_derivative<fixed_point_type>();
+  const fixed_point_type a = fixed_point_type(12) / 10;
+  const fixed_point_type b = fixed_point_type(34) / 10;
+  const fixed_point_type c = fixed_point_type(56) / 10;
 
+  // Compute the approximate derivative of (a * x^2) + (b * x) + c
+  // evaluated at 1/2, where the approximate values of the coefficients
+  // are a = 1.2, b = 3.4, and c = 5.6.
+
+  const fixed_point_type d =
+    local::derivative(fixed_point_type(1) / 2,
+                      fixed_point_type(1) / 8,
+                      [&a, &b, &c](const fixed_point_type& x) -> fixed_point_type
+                      {
+                        return (((a * x) + b) * x) + c;
+                      });
+
+  // The expected result is (2 * a) + b = 2.4 + 3.4 = 4.6 (exact).
+  // We obtain a fixed-point result of approximately 4.5938.
+
+  // Verify that the result lies within (4.5 < result < 4.7).
+  // The expected result is 4.6, so this is a wide tolerance.
   global_result_is_ok = ((d > (fixed_point_type(45) / 10)) && (d < (fixed_point_type(47) / 10)));
 
-  // The expected result is 4.6 (exact).
-  // We obtain a fixed-point result of 4.5938.
+  // We can not print the fixed-point number to the output stream
+  // because I/O-streaming is disabled for fixed-point in this
+  // Boost configuration.
 
-  // We can not print the fixed-point number to the
-  // output stream because output streaming is
-  // disabled in the Boost configuration.
+  // But if we could print to the output stream, it might look
+  // similar to the line below.
 
   //std::cout << std::setprecision(4) << std::fixed << d << std::endl;
 
@@ -86,5 +92,15 @@ extern "C" int main()
   if(global_result_is_ok)
   {
     // The result is OK.
+
+    // Here we could take some action in the microcontroller
+    // such as toggle a digital output port to high, indicating
+    // success of the test case.
+  }
+
+  // Do not return from main() in this bare-metal OS-less system.
+  for(;;)
+  {
+    mcal::wdg::trigger();
   }
 }
