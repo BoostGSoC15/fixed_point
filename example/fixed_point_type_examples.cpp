@@ -164,7 +164,7 @@ int main()
 
   typedef negatable<15,  -16> fixed_point_type_15m16;
   typedef negatable<11,  -20> fixed_point_type_11m20;
-  typedef negatable< 0,  -30> fixed_point_type_0m30;
+  typedef negatable< 0,  -31> fixed_point_type_0m31;
   typedef negatable<29,   -2> fixed_point_type_29m2;
   typedef negatable<0,  -168> fixed_point_type_0m168;
   typedef negatable<20, -148> fixed_point_type_20m148;
@@ -212,7 +212,7 @@ int main()
     // Some fixed_point types using 32 bits, and more.
     show_fixed_point<fixed_point_type_15m16> (); // Even split bits between range and resolution. 
     show_fixed_point<fixed_point_type_11m20> (); // More resolution than range.
-    show_fixed_point<fixed_point_type_0m30>  (); // All bits used for resolution.
+    show_fixed_point<fixed_point_type_0m31>  (); // All bits used for resolution.
     show_fixed_point<fixed_point_type_29m2>  (); // Most bits used for range.
     show_fixed_point<fixed_point_type_0m168> ();
     show_fixed_point<fixed_point_type_20m148>();
