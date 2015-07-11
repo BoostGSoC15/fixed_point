@@ -14,43 +14,47 @@
 
 namespace local
 {
-  template<typename real_value_type,
-           typename real_function_type>
-  real_value_type derivative(const real_value_type& x,
-                             const real_value_type& dx,
-                             real_function_type real_function)
+  template<typename RealValueType,
+           typename RealFunctionType>
+  RealValueType first_derivative(const RealValueType& x,
+                                 const RealValueType& dx,
+                                 RealFunctionType real_function)
   {
     // Compute the first derivative of the input function
     // using a three-point central-difference rule of O(dx^6).
 
-    const real_value_type dx2(dx  + dx);
-    const real_value_type dx3(dx2 + dx);
+    const RealValueType dx2(dx  + dx);
+    const RealValueType dx3(dx2 + dx);
 
-    const real_value_type m1((  real_function(x + dx)
-                              - real_function(x - dx))  / 2U);
-    const real_value_type m2((  real_function(x + dx2)
-                              - real_function(x - dx2)) / 4U);
-    const real_value_type m3((  real_function(x + dx3)
-                              - real_function(x - dx3)) / 6U);
+    const RealValueType m1((  real_function(x + dx)
+                            - real_function(x - dx))  / 2U);
+    const RealValueType m2((  real_function(x + dx2)
+                            - real_function(x - dx2)) / 4U);
+    const RealValueType m3((  real_function(x + dx3)
+                            - real_function(x - dx3)) / 6U);
 
-    const real_value_type fifteen_m1(m1 * 15U);
-    const real_value_type six_m2    (m2 *  6U);
-    const real_value_type ten_dx    (dx * 10U);
+    const RealValueType fifteen_m1(m1 * 15U);
+    const RealValueType six_m2    (m2 *  6U);
+    const RealValueType ten_dx    (dx * 10U);
 
     return ((fifteen_m1 - six_m2) + m3) / ten_dx;
   }
 } // namespace local
 
-bool global_result_is_ok;
-
-namespace mcal { namespace wdg {
-
-void trigger()
+// Implement a tiny simulated subset of the mcal (microcontroller abstraction layer).
+namespace mcal
 {
-  // Simulate a fake watchdog trigger mechanism.
-}
+  namespace wdg
+  {
+    void trigger()
+    {
+      // Simulate a fake watchdog trigger mechanism doing nothing here.
+    }
+  }
+} // namespace mcal::wdg
 
-} } // namespace mcal::wdg
+// Declare a global Boolean test variable.
+bool global_result_is_ok;
 
 extern "C" int main()
 {
@@ -62,16 +66,16 @@ extern "C" int main()
 
   // Compute the approximate derivative of (a * x^2) + (b * x) + c
   // evaluated at 1/2, where the approximate values of the coefficients
-  // are a = 1.2, b = 3.4, and c = 5.6. The numerical tolerance is set
-  // to a value of approximately 1/8.
+  // are: a = 1.2, b = 3.4, and c = 5.6. The numerical tolerance is set
+  // to a value of approximately 1/4.
 
   const fixed_point_type d =
-    local::derivative(fixed_point_type(1) / 2,
-                      fixed_point_type(1) / 8,
-                      [&a, &b, &c](const fixed_point_type& x) -> fixed_point_type
-                      {
-                        return (((a * x) + b) * x) + c;
-                      });
+    local::first_derivative(fixed_point_type(1) / 2,
+                            fixed_point_type(1) / 4,
+                            [&a, &b, &c](const fixed_point_type& x) -> fixed_point_type
+                            {
+                              return (((a * x) + b) * x) + c;
+                            });
 
   // The expected result is (2 * a) + b = 2.4 + 3.4 = 4.6 (exact).
   // We obtain a fixed-point result of approximately 4.5938.
@@ -85,21 +89,22 @@ extern "C" int main()
   // Boost configuration.
 
   // But if we could print to the output stream, it might look
-  // similar to the line below.
+  // similar to the lines below.
 
-  //std::cout << std::setprecision(4) << std::fixed << d << std::endl;
+  //std::cout << std::setprecision(std::numeric_limits<fixed_point_type>::digits10)
+  //          << std::fixed
+  //          << d
+  //          << std::endl;
 
-  // Initialize the microcontroller abstraction layer.
+  // Is the result of taking the derivative of the quadratic function OK?
   if(global_result_is_ok)
   {
-    // The result is OK.
-
     // Here we could take some action in the microcontroller
     // such as toggle a digital output port to high, indicating
     // success of the test case.
   }
 
-  // Do not return from main() in this bare-metal OS-less system.
+  // In this bare-metal OS-less system, do not return from main().
   for(;;)
   {
     mcal::wdg::trigger();
