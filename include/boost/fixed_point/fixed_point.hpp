@@ -1682,7 +1682,7 @@
       static BOOST_CONSTEXPR_OR_CONST int                     max_digits10      = static_cast<int>((static_cast<boost::uintmax_t>(digits - 0) * UINTMAX_C(3010)) / UINTMAX_C(10000)) + 2;
       static BOOST_CONSTEXPR_OR_CONST bool                    is_signed         = true;
       static BOOST_CONSTEXPR_OR_CONST bool                    is_integer        = false;
-      static BOOST_CONSTEXPR_OR_CONST bool                    is_exact          = true;
+      static BOOST_CONSTEXPR_OR_CONST bool                    is_exact          = false;
       static BOOST_CONSTEXPR_OR_CONST int                     radix             = 2;
       static BOOST_CONSTEXPR_OR_CONST int                     min_exponent      = -negatable_type::radix_split;
       static BOOST_CONSTEXPR_OR_CONST int                     min_exponent10    = -static_cast<int>((static_cast<boost::uintmax_t>(-min_exponent) * UINTMAX_C(3010)) / UINTMAX_C(10000));
@@ -1757,7 +1757,7 @@
       static BOOST_CONSTEXPR_OR_CONST int                     max_digits10      = static_cast<int>((static_cast<boost::uintmax_t>(digits - 0) * UINTMAX_C(3010)) / UINTMAX_C(10000)) + 2;
       static BOOST_CONSTEXPR_OR_CONST bool                    is_signed         = true;
       static BOOST_CONSTEXPR_OR_CONST bool                    is_integer        = false;
-      static BOOST_CONSTEXPR_OR_CONST bool                    is_exact          = true;
+      static BOOST_CONSTEXPR_OR_CONST bool                    is_exact          = false;
       static BOOST_CONSTEXPR_OR_CONST int                     radix             = 2;
       static BOOST_CONSTEXPR_OR_CONST int                     min_exponent      = -negatable_type::radix_split;
       static BOOST_CONSTEXPR_OR_CONST int                     min_exponent10    = -static_cast<int>((static_cast<boost::uintmax_t>(-min_exponent) * UINTMAX_C(3010)) / UINTMAX_C(10000));
