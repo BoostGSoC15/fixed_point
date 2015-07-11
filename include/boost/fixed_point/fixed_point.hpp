@@ -392,15 +392,9 @@
                                          && (-OtherFractionalResolution <  -FractionalResolution))
                                      || (   ( OtherIntegralRange        <   IntegralRange)
                                          && (-OtherFractionalResolution <= -FractionalResolution))>::type* = nullptr>
-    negatable(const negatable<OtherIntegralRange,
-                              OtherFractionalResolution,
-                              RoundMode,
-                              OverflowMode>& other) : data()
+    negatable(const negatable<OtherIntegralRange, OtherFractionalResolution>& other) : data()
     {
-      typedef negatable<OtherIntegralRange,
-                        OtherFractionalResolution,
-                        RoundMode,
-                        OverflowMode> other_negatable_type;
+      typedef negatable<OtherIntegralRange, OtherFractionalResolution> other_negatable_type;
 
       typedef unsigned_small_type superior_unsigned_small_type;
 
@@ -424,15 +418,9 @@
              const int OtherFractionalResolution,
              typename std::enable_if<   ( OtherIntegralRange        >  IntegralRange)
                                      && (-OtherFractionalResolution < -FractionalResolution)>::type* = nullptr>
-    negatable(const negatable<OtherIntegralRange,
-                              OtherFractionalResolution,
-                              RoundMode,
-                              OverflowMode>& other) : data()
+    negatable(const negatable<OtherIntegralRange, OtherFractionalResolution>& other) : data()
     {
-      typedef negatable<OtherIntegralRange,
-                        OtherFractionalResolution,
-                        RoundMode,
-                        OverflowMode> other_negatable_type;
+      typedef negatable<OtherIntegralRange, OtherFractionalResolution> other_negatable_type;
 
       typedef unsigned_small_type superior_unsigned_small_type;
 
@@ -458,15 +446,9 @@
              const int OtherFractionalResolution,
              typename std::enable_if<   ( OtherIntegralRange        <   IntegralRange)
                                      && (-OtherFractionalResolution >  -FractionalResolution)>::type* = nullptr>
-    negatable(const negatable<OtherIntegralRange,
-                              OtherFractionalResolution,
-                              RoundMode,
-                              OverflowMode>& other) : data()
+    negatable(const negatable<OtherIntegralRange, OtherFractionalResolution>& other) : data()
     {
-      typedef negatable<OtherIntegralRange,
-                        OtherFractionalResolution,
-                        RoundMode,
-                        OverflowMode> other_negatable_type;
+      typedef negatable<OtherIntegralRange, OtherFractionalResolution> other_negatable_type;
 
       typedef typename other_negatable_type::unsigned_small_type superior_unsigned_small_type;
 
@@ -501,15 +483,9 @@
                                          && (-OtherFractionalResolution >  -FractionalResolution))
                                      || (   ( OtherIntegralRange        >   IntegralRange)
                                          && (-OtherFractionalResolution >= -FractionalResolution))>::type* = nullptr>
-    negatable(const negatable<OtherIntegralRange,
-                              OtherFractionalResolution,
-                              RoundMode,
-                              OverflowMode>& other) : data()
+    negatable(const negatable<OtherIntegralRange, OtherFractionalResolution>& other) : data()
     {
-      typedef negatable<OtherIntegralRange,
-                        OtherFractionalResolution,
-                        RoundMode,
-                        OverflowMode> other_negatable_type;
+      typedef negatable<OtherIntegralRange, OtherFractionalResolution> other_negatable_type;
 
       typedef typename other_negatable_type::unsigned_small_type superior_unsigned_small_type;
 
@@ -550,10 +526,7 @@
 
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution>
-    negatable& operator=(const negatable<OtherIntegralRange,
-                                         OtherFractionalResolution,
-                                         RoundMode,
-                                         OverflowMode>& other)
+    negatable& operator=(const negatable<OtherIntegralRange, OtherFractionalResolution>& other)
     {
       // Here, we are equating *this to another negatable type
       // having different range and/or resolution paramters
@@ -990,8 +963,8 @@
        representing round odd 1-ULP to higher value.
      */
 
-      const bool round_up =   ((boost::uint_fast8_t(u_round & UINT8_C(1)) == UINT8_C(1))
-                            && (boost::uint_fast8_t(u_round & UINT8_C(2)) == UINT8_C(2)));
+      const bool round_up = (   (boost::uint_fast8_t(u_round & UINT8_C(1)) == UINT8_C(1))
+                             && (boost::uint_fast8_t(u_round & UINT8_C(2)) == UINT8_C(2)));
 
       u_round = (u_round >> 1);
 
@@ -1274,18 +1247,13 @@
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution>
     friend inline negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
-                            ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                             RoundMode,
-                             OverflowMode>
+                            ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution)>
     operator+(const negatable& u, const negatable<OtherIntegralRange,
-                                                  OtherFractionalResolution,
-                                                  RoundMode,
-                                                  OverflowMode>& v)
+                                                  OtherFractionalResolution>& v)
     {
       typedef negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
-                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                        RoundMode,
-                        OverflowMode> higher_resolution_fixed_point_type;
+                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution)>
+      higher_resolution_fixed_point_type;
 
       return higher_resolution_fixed_point_type(u) += higher_resolution_fixed_point_type(v);
     }
@@ -1293,18 +1261,13 @@
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution>
     friend inline negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
-                            ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                             RoundMode,
-                             OverflowMode>
+                            ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution)>
     operator-(const negatable& u, const negatable<OtherIntegralRange,
-                                                  OtherFractionalResolution,
-                                                  RoundMode,
-                                                  OverflowMode>& v)
+                                                  OtherFractionalResolution>& v)
     {
       typedef negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
-                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                        RoundMode,
-                        OverflowMode> higher_resolution_fixed_point_type;
+                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution)>
+      higher_resolution_fixed_point_type;
 
       return higher_resolution_fixed_point_type(u) -= higher_resolution_fixed_point_type(v);
     }
@@ -1312,18 +1275,13 @@
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution>
     friend inline negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
-                            ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                             RoundMode,
-                             OverflowMode>
+                            ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution)>
     operator*(const negatable& u, const negatable<OtherIntegralRange,
-                                                  OtherFractionalResolution,
-                                                  RoundMode,
-                                                  OverflowMode>& v)
+                                                  OtherFractionalResolution>& v)
     {
       typedef negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
-                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                        RoundMode,
-                        OverflowMode> higher_resolution_fixed_point_type;
+                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution)>
+      higher_resolution_fixed_point_type;
 
       return higher_resolution_fixed_point_type(u) *= higher_resolution_fixed_point_type(v);
     }
@@ -1331,18 +1289,13 @@
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution>
     friend inline negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
-                            ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                             RoundMode,
-                             OverflowMode>
+                            ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution)>
     operator/(const negatable& u, const negatable<OtherIntegralRange,
-                                                  OtherFractionalResolution,
-                                                  RoundMode,
-                                                  OverflowMode>& v)
+                                                  OtherFractionalResolution>& v)
     {
       typedef negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
-                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                        RoundMode,
-                        OverflowMode> higher_resolution_fixed_point_type;
+                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution)>
+      higher_resolution_fixed_point_type;
 
       return higher_resolution_fixed_point_type(u) /= higher_resolution_fixed_point_type(v);
     }
@@ -1353,16 +1306,15 @@
     template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type* = nullptr> friend inline bool operator==(const ArithmeticType& u, const negatable& v) { return (negatable(u).data == v.data); }
 
     template<const int OtherIntegralRange,
-             const int OtherFractionalResolution>
+             const int OtherFractionalResolution,
+             typename std::enable_if<   (OtherIntegralRange        != IntegralRange)
+                                     || (OtherFractionalResolution != FractionalResolution)>::type* = nullptr>
     friend inline bool operator==(const negatable& u, const negatable<OtherIntegralRange,
-                                                                      OtherFractionalResolution,
-                                                                      RoundMode,
-                                                                      OverflowMode>& v)
+                                                                      OtherFractionalResolution>& v)
     {
       typedef negatable<(( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange),
-                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                        RoundMode,
-                        OverflowMode> supra_fixed_point_type;
+                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution)>
+      supra_fixed_point_type;
 
       #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
         static_assert(std::numeric_limits<supra_fixed_point_type>::digits + 1 <= 32, "Error: the width of the supra fixed_point for comparison operations can not exceed 32 bits when multiprecision is disabled.");
@@ -1381,16 +1333,15 @@
     template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type* = nullptr> friend inline bool operator!=(const ArithmeticType& u, const negatable& v) { return (negatable(u).data != v.data); }
 
     template<const int OtherIntegralRange,
-             const int OtherFractionalResolution>
+             const int OtherFractionalResolution,
+             typename std::enable_if<   (OtherIntegralRange        != IntegralRange)
+                                     || (OtherFractionalResolution != FractionalResolution)>::type* = nullptr>
     friend inline bool operator!=(const negatable& u, const negatable<OtherIntegralRange,
-                                                                      OtherFractionalResolution,
-                                                                      RoundMode,
-                                                                      OverflowMode>& v)
+                                                                      OtherFractionalResolution>& v)
     {
       typedef negatable<(( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange),
-                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                        RoundMode,
-                        OverflowMode> supra_fixed_point_type;
+                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution)>
+      supra_fixed_point_type;
 
       #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
         static_assert(std::numeric_limits<supra_fixed_point_type>::digits + 1 <= 32, "Error: the width of the supra fixed_point for comparison operations can not exceed 32 bits when multiprecision is disabled.");
@@ -1420,16 +1371,15 @@
     template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type* = nullptr> friend inline bool operator<=(const ArithmeticType& u, const negatable& v) { return (negatable(u).data <= v.data); }
 
     template<const int OtherIntegralRange,
-             const int OtherFractionalResolution>
+             const int OtherFractionalResolution,
+             typename std::enable_if<   (OtherIntegralRange        != IntegralRange)
+                                     || (OtherFractionalResolution != FractionalResolution)>::type* = nullptr>
     friend inline bool operator>(const negatable& u, const negatable<OtherIntegralRange,
-                                                                     OtherFractionalResolution,
-                                                                     RoundMode,
-                                                                     OverflowMode>& v)
+                                                                     OtherFractionalResolution>& v)
     {
       typedef negatable<(( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange),
-                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                        RoundMode,
-                        OverflowMode> supra_fixed_point_type;
+                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution)>
+      supra_fixed_point_type;
 
       #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
         static_assert(std::numeric_limits<supra_fixed_point_type>::digits + 1 <= 32, "Error: the width of the supra fixed_point for comparison operations can not exceed 32 bits when multiprecision is disabled.");
@@ -1443,16 +1393,15 @@
     }
 
     template<const int OtherIntegralRange,
-             const int OtherFractionalResolution>
+             const int OtherFractionalResolution,
+             typename std::enable_if<   (OtherIntegralRange        != IntegralRange)
+                                     || (OtherFractionalResolution != FractionalResolution)>::type* = nullptr>
     friend inline bool operator<(const negatable& u, const negatable<OtherIntegralRange,
-                                                                     OtherFractionalResolution,
-                                                                     RoundMode,
-                                                                     OverflowMode>& v)
+                                                                     OtherFractionalResolution>& v)
     {
       typedef negatable<(( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange),
-                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                        RoundMode,
-                        OverflowMode> supra_fixed_point_type;
+                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution)>
+      supra_fixed_point_type;
 
       #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
         static_assert(std::numeric_limits<supra_fixed_point_type>::digits + 1 <= 32, "Error: the width of the supra fixed_point for comparison operations can not exceed 32 bits when multiprecision is disabled.");
@@ -1466,16 +1415,15 @@
     }
 
     template<const int OtherIntegralRange,
-             const int OtherFractionalResolution>
+             const int OtherFractionalResolution,
+             typename std::enable_if<   (OtherIntegralRange        != IntegralRange)
+                                     || (OtherFractionalResolution != FractionalResolution)>::type* = nullptr>
     friend inline bool operator>=(const negatable& u, const negatable<OtherIntegralRange,
-                                                                      OtherFractionalResolution,
-                                                                      RoundMode,
-                                                                      OverflowMode>& v)
+                                                                      OtherFractionalResolution>& v)
     {
       typedef negatable<(( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange),
-                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                        RoundMode,
-                        OverflowMode> supra_fixed_point_type;
+                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution)>
+      supra_fixed_point_type;
 
       #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
         static_assert(std::numeric_limits<supra_fixed_point_type>::digits + 1 <= 32, "Error: the width of the supra fixed_point for comparison operations can not exceed 32 bits when multiprecision is disabled.");
@@ -1489,16 +1437,15 @@
     }
 
     template<const int OtherIntegralRange,
-             const int OtherFractionalResolution>
+             const int OtherFractionalResolution,
+             typename std::enable_if<   (OtherIntegralRange        != IntegralRange)
+                                     || (OtherFractionalResolution != FractionalResolution)>::type* = nullptr>
     friend inline bool operator<=(const negatable& u, const negatable<OtherIntegralRange,
-                                                                      OtherFractionalResolution,
-                                                                      RoundMode,
-                                                                      OverflowMode>& v)
+                                                                      OtherFractionalResolution>& v)
     {
       typedef negatable<(( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange),
-                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                        RoundMode,
-                        OverflowMode> supra_fixed_point_type;
+                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution)>
+      supra_fixed_point_type;
 
       #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
         static_assert(std::numeric_limits<supra_fixed_point_type>::digits + 1 <= 32, "Error: the width of the supra fixed_point for comparison operations can not exceed 32 bits when multiprecision is disabled.");
