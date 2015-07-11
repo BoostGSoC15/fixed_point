@@ -26,6 +26,8 @@
 #include <typeinfo>
 #include <limits>
 
+#include <boost/cstdint.hpp>
+
 //[fixed_point_include_1
 #include <boost/fixed_point/fixed_point.hpp>
 //] [/fixed_point_include_1]
@@ -88,43 +90,65 @@ void show_fixed_point(std::ostream& os = std::cout)
   os.precision(std::numeric_limits<T>::max_digits10);
 
   os << "Numeric_limits of type: "
-    << typeid(T).name()
-    << "\n range        = " << numerical_details<T>::get_range() // 
-    << "\n resolution   = " << numerical_details<T>::get_resolution()
-    << "\n radix        = " << std::numeric_limits<T>::radix  // Always 2 for fixed-point.
-    << "\n digits       = " << std::numeric_limits<T>::digits; // Does not include any sign bit.
+     << typeid(T).name()
+     << "\n range        = " << numerical_details<T>::get_range() // 
+     << "\n resolution   = " << numerical_details<T>::get_resolution()
+     << "\n radix        = " << std::numeric_limits<T>::radix  // Always 2 for fixed-point.
+     << "\n digits       = " << std::numeric_limits<T>::digits; // Does not include any sign bit.
+
   if (std::is_signed<T>::value == true)
   {
     os << "\n signed "
-     << "\n total bits = " << std::numeric_limits<T>::digits + 1; // DOES include sign bit.
+       << "\n total bits =   " << std::numeric_limits<T>::digits + 1; // DOES include sign bit.
   }
+
   if (std::numeric_limits<T>::is_exact == false)
   { // epsilon has meaning.
     os << "\n epsilon      = " << std::numeric_limits<T>::epsilon();
   }
   else
   {
-    os << "\n exact";
+    os << "\n exact        = "  << std::numeric_limits<T>::is_exact;
   }
-  // Avoid char values showing as a character or squiggle.
-  os << "\n lowest       = " 
-    << ((std::is_same<T, signed char>::value 
-    || std::is_same<T, unsigned char>::value
-    || std::is_same<T, char16_t>::value
-    || std::is_same<T, char32_t>::value
-    )
-    ?
-     static_cast<int>(std::numeric_limits<T>::lowest())
-    : std::numeric_limits<T>::lowest());
 
-  os  << "\n min          = " 
-    << ((std::is_same<T, signed char>::value || std::is_same<T, unsigned char>::value) ?
-    static_cast<int>(std::numeric_limits<T>::min())
-    : std::numeric_limits<T>::min());
-  os << "\n max          = "
-    << ((std::is_same<T, signed char>::value || std::is_same<T, unsigned char>::value) ?
-    static_cast<int>(std::numeric_limits<T>::max())
-    : std::numeric_limits<T>::max());
+  // Avoid char values showing as a character or squiggle.
+  BOOST_CONSTEXPR_OR_CONST bool is_any_character_type = (   std::is_same<T, signed char>::value 
+                                                         || std::is_same<T, unsigned char>::value
+                                                         || std::is_same<T, char16_t>::value
+                                                         || std::is_same<T, char32_t>::value);
+
+  os << "\n lowest       = ";
+  if(is_any_character_type)
+  {
+    os << static_cast<boost::int32_t>(std::numeric_limits<T>::lowest());
+  }
+  else
+  {
+    os << std::numeric_limits<T>::lowest();
+  }
+
+  BOOST_CONSTEXPR_OR_CONST bool is_8bit_character_type = (   std::is_same<T, signed char>::value
+                                                          || std::is_same<T, unsigned char>::value);
+
+  os << "\n min          = ";
+  if(is_8bit_character_type)
+  {
+    os << static_cast<boost::int32_t>((std::numeric_limits<T>::min)());
+  }
+  else
+  {
+    os << (std::numeric_limits<T>::min)();
+  }
+
+  os << "\n max          = ";
+  if(is_8bit_character_type)
+  {
+    os << static_cast<boost::int32_t>((std::numeric_limits<T>::max)());
+  }
+  else
+  {
+    os << (std::numeric_limits<T>::max)();
+  }
 
   os << "\n max_exponent = " << std::numeric_limits<T>::max_exponent
      << "\n min_exponent = " << std::numeric_limits<T>::min_exponent
@@ -156,15 +180,15 @@ int main()
     // Show all the significant digits for this particular type.
 
     // Fundamental (built-in) integral types.
-    show_fixed_point<bool>                   ();
-    show_fixed_point<signed char>();
-    show_fixed_point<unsigned char>();
-    show_fixed_point<char16_t>(); // Shows as type unsigned short.
-    show_fixed_point<char32_t>(); // Shows as type unsigned int.
-    show_fixed_point<short int>();
+    show_fixed_point<bool>              ();
+    show_fixed_point<signed char>       ();
+    show_fixed_point<unsigned char>     ();
+    show_fixed_point<char16_t>          (); // Shows as type unsigned short.
+    show_fixed_point<char32_t>          (); // Shows as type unsigned int.
+    show_fixed_point<short int>         ();
     show_fixed_point<unsigned short int>();
-    show_fixed_point<int>();
-    show_fixed_point<unsigned int>();
+    show_fixed_point<int>               ();
+    show_fixed_point<unsigned int>      ();
 
    // Fundamental (built-in) floating-point types.
     show_fixed_point<float>();
@@ -185,10 +209,10 @@ int main()
 
 //[fixed_point_15m16
 
-    // Some fixed_point types using 32 bits.
+    // Some fixed_point types using 32 bits, and more.
     show_fixed_point<fixed_point_type_15m16> (); // Even split bits between range and resolution. 
-    show_fixed_point<fixed_point_type_11m20>();  // More resolution than range.
-    show_fixed_point<fixed_point_type_0m30>();   // All bits used for resolution.
+    show_fixed_point<fixed_point_type_11m20> (); // More resolution than range.
+    show_fixed_point<fixed_point_type_0m30>  (); // All bits used for resolution.
     show_fixed_point<fixed_point_type_29m2>  (); // Most bits used for range.
     show_fixed_point<fixed_point_type_0m168> ();
     show_fixed_point<fixed_point_type_20m148>();
