@@ -1,8 +1,12 @@
-// Copyright Paul A. Bristow 2015
-// Use, modification and distribution are subject to the
-// Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt
-// or copy at http://www.boost.org/LICENSE_1_0.txt)
+///////////////////////////////////////////////////////////////////////////////
+//  Copyright Paul Bristow 2015.
+//  Copyright Christopher Kormanyos 2015.
+//  Copyright Nikhar Agrawal 2015.
+//  Distributed under the Boost Software License,
+//  Version 1.0. (See accompanying file LICENSE_1_0.txt
+//  or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
+
 
 
 //! \file
