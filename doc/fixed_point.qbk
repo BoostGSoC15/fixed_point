@@ -47,7 +47,7 @@
 </imageobject>
 </inlinemediaobject>''']
 
-[def __cpp_standard [@http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4382.pdf C++ draft standard]]
+[def __cpp_standard [@http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4431.pdf C++ draft standard]]
 [def __boost [@http://www.boost.org/ Boost]]
 [def __boost_archives [@http://lists.boost.org/Archives/boost/ Boost archives]]
 [def __boostroot [@boost: Boost root ./modular-boost]]
@@ -309,7 +309,7 @@ or we can use nearly all bits for range with
 
 [section:history Historial discussions]
 
-In response to Lawrance Crowl proposal __n3352, there are a thread on the
+In response to Lawrence Crowl proposal __n3352, there are a thread on the
 
 __boost discussion list. See this thread on
 [@http://lists.boost.org/Archives/boost/2012/04/191987.php]
@@ -383,23 +383,26 @@ I have always been haunted by radix-10. Never again for me.
 Radix-2 and don't look back (my opinion).
 I prefer also to concentrate on Radix-2 and leave Radix-10 for another library.
 
-* Should the library implement the basic functions, or should it imperatively implement the C++11 math functions? Could a first version just forward to the c++11 math functions?
+* Should the library implement the basic functions, or should it imperatively implement the C++11 math functions?
+Could a first version just forward to the c++11 math functions?
 It should fit in with Boost.Multiprecision, if there ever is such a thing.
 Users like me who need a tiny set of trig functions for, say, an
 8-bit controller can roll-their-own via template specialization.
-Don't even get started with cordic, Chebyshev, polynomial expansion,
+Don't even get started with Cordic, Chebyshev, polynomial expansion,
 Pade, Taylor, Newton-Raphson, FFT multiplication, AGM, etc., etc., etc. and the rest.
 Just make the numbers! We will be happy for that because it's really a lot.
 C++ should have the templated math functions and an extended complex type
 elsewhere. You just need to make the number types.
 
-* Should the library support just one of the know ways to name a fixed-point, a U(a,b), nQm, ...? Provide some ways to move from one to another?
+* Should the library support just one of the know ways to name a fixed-point, a U(a,b), nQm, ...?
+Provide some ways to move from one to another?
 
 * Could expect the same/better performances respect to hand written code?
 It's implementation-dependent. But if your 7.8 and 15.16 signed splits are
 slower than single-precision float on an 8-bit core, you will get flack for it.
 
-* What should be the size used by a fixed_point instance? _fast? _least? Should the user be able to decide which approach is better for his needs?
+* What should be the size used by a fixed_point instance? _fast? _least?
+Should the user be able to decide which approach is better for his needs?
 It's implementation defined. For small digit counts, I would try to fit it in
 a built-in type. For medium digit counts, a fixed, optionally fixed-hybrid container
 of std::uint_fast32_t. For very high counts, use an established fast integer
@@ -472,6 +475,42 @@ increase the range of potential target compilers (especially
 for embedded systems). (not yet implemented).
 
 [endsect] [/section:macros  Preprocessor Options to disable some features]
+
+[section:is_exact std::numeric_limits<fixed_point>::is_exact]
+
+`std::numeric_limits<fixed_point>::is_exact` was chosen as `false` after some vacillation.
+
+__cpp_standard 18.3.2.1 Class template numeric_limits specifies:
+
+['Specializations shall be provided for each arithmetic type, both floating point and integer, including bool.
+The member is_specialized shall be true for all such specializations of numeric_limits.]
+
+[^static constexpr bool is_exact;]
+
+['19 True if the type uses an exact representation. All integer types are exact, but not all exact types are
+integer. For example, rational and fixed-exponent representations are exact but not integer.
+20 Meaningful for all specializations.]
+
+But the C++ Standard is quiet about User-defined types like fixed-point.
+
+# From one perspective, the underlying integral type is exact.
+So too, then, should `negatable` be exact, and `is_exact` should be true?
+
+#  On the other hand, if a type is exact, then the meaning of
+`std::numeric_limits<negatable>::epsilon()` is undefined?
+We really need a meaningful value for epsilon in order to do almost
+anything mathematical whatsoever.
+
+With floating-point, there are a few values that are [*exactly] __representable,
+like 0.25 and 0.125, but most values, like 0.1, are not.
+
+Similarly with fixed-point, some values like 0.25 and 0.125 are [*exactly] representable,
+but most values like 0.1 are not.
+
+In contrast, with integral types, [*all values] are [*always exactly representable]
+(unless they would overflow when behaviour is undefined).
+
+[endsect] [/section:is_exact std::numeric_limits<fixed_point>::is_exact]
 
 [section:rounding Rounding]
 
