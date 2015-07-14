@@ -7,7 +7,7 @@
 // Copyright Paul A. Bristow 2015.
 // Copyright Christopher Kormanyos 2015.
 
-// This file is written to be included from a Quickbook .qbk document.
+// This file is written for snippets to be imported from a Quickbook .qbk document.
 // It can be compiled by the C++ compiler, and run. Any output can
 // also be added here as comment or included or pasted in elsewhere.
 // Caution: this file contains Quickbook markup as well as code
@@ -18,9 +18,7 @@
 
 //! \file
 
-//! \brief Example program showing use of math constants.
-
-// Below are snippets of code that can be included into a Quickbook file.
+//! \brief Example program showing simple use of math constants.
 
 #include <boost/fixed_point/fixed_point.hpp>
 #include <boost/math/constants/constants.hpp>
@@ -33,8 +31,8 @@
 #include <cmath>
 int main()
 {
-//[bin_float_50_pi
   // Construct a 50 decimal digit string version of pi for reference.
+//[bin_float_50_pi
   using boost::multiprecision::cpp_bin_float_50;  // 50 decimal digits precision.
 
   std::cout << std::setprecision(std::numeric_limits<cpp_bin_float_50>::digits10)
@@ -45,7 +43,7 @@ int main()
 //] //[/bin_float_50_pi]
 
   // Use a rather precise fixed_point that will use a 64-bit integer as its underlying representation.
-//[fixed_point__constant
+//[fixed_point_constant
   typedef boost::fixed_point::negatable<3, -60> fixed_point_type;
 
   std::cout << std::setprecision(std::numeric_limits<fixed_point_type>::digits10)
@@ -54,6 +52,15 @@ int main()
     // 3.141592653589793238
     << std::endl;
 //] [/fixed_point__constant]
+
+  // Display numeric_limits for negatable<3, -60> 
+  std::cout << std::setprecision(std::numeric_limits<fixed_point_type>::digits10)
+    << std::fixed
+    << "lowest " << std::numeric_limits<fixed_point_type>::lowest()
+    << ", max " << std::numeric_limits<fixed_point_type>::max()
+    << ", digits10 " << std::numeric_limits<fixed_point_type>::digits10
+    << std::scientific << std::setprecision(3) << ", epsilon " << std::numeric_limits<fixed_point_type>::epsilon()
+   << std::endl;
 
   // Use a tiny (and so very imprecise) fixed_point type that will fit into a single byte.
 //[fixed_point_imprecise_constant
@@ -87,6 +94,5 @@ Note that large digit counts rely on the
 arc-cosine function is used for pi(). And since this function
 is not included in the negatable realm yet, the constant
 pi() does not work for negatable in all digit ranges.
-
 
 */
