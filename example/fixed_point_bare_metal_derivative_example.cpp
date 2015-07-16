@@ -87,13 +87,11 @@ extern "C" int main()
   const fixed_point_type b = fixed_point_type(34) / 10;
   const fixed_point_type c = fixed_point_type(56) / 10;
 
-<<<<<<< HEAD
   // Compute the approximate derivative of [(a * x^2) + (b * x) + c]
-=======
+
 //] [/fixed_point_derivative_coeffic]
 
   // Compute the approximate derivative of (a * x^2) + (b * x) + c
->>>>>>> d2b156fd224663108c442b15b0dfc17057559635
   // evaluated at 1/2, where the approximate values of the coefficients
   // are: a = 1.2, b = 3.4, and c = 5.6. The numerical tolerance is set
   // to a value of approximately 1/4.
