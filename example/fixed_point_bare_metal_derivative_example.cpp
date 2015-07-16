@@ -64,7 +64,7 @@ extern "C" int main()
   const fixed_point_type b = fixed_point_type(34) / 10;
   const fixed_point_type c = fixed_point_type(56) / 10;
 
-  // Compute the approximate derivative of (a * x^2) + (b * x) + c
+  // Compute the approximate derivative of [(a * x^2) + (b * x) + c]
   // evaluated at 1/2, where the approximate values of the coefficients
   // are: a = 1.2, b = 3.4, and c = 5.6. The numerical tolerance is set
   // to a value of approximately 1/4.
@@ -77,7 +77,7 @@ extern "C" int main()
                               return (((a * x) + b) * x) + c;
                             });
 
-  // The expected result is (2 * a) + b = 2.4 + 3.4 = 4.6 (exact).
+  // The expected result is ((2 * a) + b) = (2.4 + 3.4) = 4.6 (exact).
   // We obtain a fixed-point result of approximately 4.5938.
 
   // Verify that the result lies within (4.5 < result < 4.7).
@@ -89,7 +89,9 @@ extern "C" int main()
   // Boost configuration.
 
   // But if we could print to the output stream, it might look
-  // similar to the lines below.
+  // similar to the lines below. When attempting to print to
+  // the output stream, however, we would need to add <iostream>
+  // and deactivate #define BOOST_FIXED_POINT_DISABLE_IOSTREAM.
 
   //std::cout << std::setprecision(std::numeric_limits<fixed_point_type>::digits10)
   //          << std::fixed
