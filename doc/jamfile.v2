@@ -26,16 +26,16 @@ if --enable-index in  [ modules.peek : ARGV ]
    ECHO "Building the Fixed_point docs with automatic index generation enabled." ;
    using auto-index ;
    project fixed_point_doc : requirements
-             <auto-index>on # Switch auto-indexing on.
-             <auto-index-script>index.idx # script file says which files to index and terms to use.
+             <auto-index>on
+             <auto-index-script>index.idx
              <auto-index-prefix>.
              <auto-index-verbose>on
-             <format>html:<auto-index-internal>on # HTML output uses auto-index to generate the index:
+             <format>html:<auto-index-internal>on
              <format>html:<xsl:param>generate.index=0
              <format>pdf:<auto-index-internal>on
              # See note in http://www.boost.org/doc/libs/master/tools/auto_index/doc/html/boost_autoindex/tut/add_indexes.html
-             <format>pdf:<xsl:param>index.on.type=1 # Honor type attribute for multiple indexes.
-             <quickbook-define>enable_index ; # Enable control of index on/off in quickbook.
+             <format>pdf:<xsl:param>index.on.type=1
+             <quickbook-define>enable_index ;
 }
 else
 {

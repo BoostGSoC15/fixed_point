@@ -18,7 +18,7 @@
 // See http://www.doxygen.org for details.
 
 //! \file
-//! Basic demonstration of use of fixed-point types
+
 // Below are snippets of code that can be included into a Quickbook file.
 
 #include <iostream>
@@ -73,9 +73,6 @@ int main()
     std::cout.setf(std::ios_base::boolalpha | std::ios_base::showpoint); // Show any trailing zeros.
     std::cout << std::endl;
 
-    // Note that using integral types to construct 
-    // rather a floating-point float or double 1.23F
-    // is usually more efficient.
 //[fixed_example_1
 
     fixed_point_type x = fixed_point_type(123) / 100;
@@ -101,11 +98,16 @@ int main()
 //] [/fixed_example_1]
 
 //[fixed_example_functions
+
+    // Probably not needed because should be found by __ADL.
+    using boost::fixed_point::frexp;
+    using boost::fixed_point::ldexp;
+
     int exponential;
     fixed_point_type xx = frexp(x, &exponential);
     std::cout << "frexp(x, &exponential) = " << xx // 0.614990234
       << " exponential = " << exponential << std::endl; // 0
-    exponential++; // double the value because radix == 2.
+    exponential++; // double the value.
     fixed_point_type x2 = ldexp(x, exponential);
 
     // Show how the fraction and exponent parts become after changing exponent.
@@ -128,6 +130,7 @@ int main()
 }
 
 
+
 /*
 //[numeric_limits_output_1
 Numeric_limits for type class boost::fixed_point::negatable<15,-16,struct boost::fixed_point::round::fastest,struct boost::fixed_point::overflow::undefined>
@@ -140,21 +143,57 @@ min = 1.52587891e-005
 lowest = -32768
 Type does not have an infinity!
 Type does not have a NaN!
-//] [/numeric_limits_output_1]
-
-//[numeric_limits_output_2
 fixed_point_type(123) / 100 = 1.22999573
 fixed_point_type(456) / 10000 = 0.0455932617
 x = -x / 2 = -0.614990234
-//] [/numeric_limits_output_2]
-
-//[numeric_limits_output_3
 frexp(x, &exponential) = -0.614990234 exponential = 0
 frexp(x, &exponential) = -0.614990234 exponential = 1
 ldexp(x, exponential); = -1.22998047
 abs(x2) = 1.22998047
 fabs(x2) = 1.22998047
 sqrt(y) = 0.2135162
-//] [/numeric_limits_output_3]
+//]
+
+
+
+
+GCC  debug
+
+Numeric_limits: digits10 = 14
+max_digits10 = 15
+radix = 47
+epsilon = 0.0001068115234375
+max = 1.4073748835533e+014
+min = 1.52587890625e-005
+infinity = 0
+NaN = 0
+
+1.2299957275391
+0.045593261718750
+0.61499023437500
+
+RUN SUCCESSFUL (total time: 43ms)
+
+
+
+GCC release
+
+Numeric_limits: digits10 = 14
+max_digits10 = 15
+radix = 47
+epsilon = 0.0001068115234375
+max = 1.4073748835533e+014
+min = 1.52587890625e-005
+infinity = 0
+NaN = 0
+
+1.2299957275391
+0.045593261718750
+0.61499023437500
+
+RUN SUCCESSFUL (total time: 43ms)
+
+
+
 
 */

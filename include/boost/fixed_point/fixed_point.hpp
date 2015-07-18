@@ -1143,6 +1143,8 @@
       {
         is_init = true;
 
+        // TBD: This algorithm needs to be investigated further.
+        // Look at the real-time C++ code in the reference application.
         unsigned_small_type r10  = radix_split_value();
 
         if(r10 <= 16U)

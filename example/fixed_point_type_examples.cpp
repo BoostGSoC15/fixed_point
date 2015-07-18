@@ -17,22 +17,21 @@
 // See http://www.doxygen.org for details.
 
 //! \file
-//! Example of listing the numeric_limits of any fixed_point type.
-//! (Also works for other types including fundamental floating-point and integral types).
 
-#include <boost/cstdint.hpp>
-
-// Pick out Quickbook code snippets:
-//[fixed_point_include_1
-#include <boost/fixed_point/fixed_point.hpp>
-//] [/fixed_point_include_1]
-
+// Below are snippets of code that can be included into a Quickbook file.
 
 #include <iostream>
 #include <iomanip>
 #include <exception>
 #include <typeinfo>
 #include <limits>
+
+#include <boost/cstdint.hpp>
+
+//[fixed_point_include_1
+#include <boost/fixed_point/fixed_point.hpp>
+//] [/fixed_point_include_1]
+
 /*
 ! Show numeric_limits values for a type.
 \tparam T floating-point, fixed-point type.
@@ -88,7 +87,7 @@ void show_fixed_point(std::ostream& os = std::cout)
 {
   using boost::fixed_point::negatable;
 
-  os.precision(std::numeric_limits<T>::digits10);
+  os.precision(std::numeric_limits<T>::max_digits10);
 
   os << "Numeric_limits of type: "
      << typeid(T).name()
@@ -105,16 +104,14 @@ void show_fixed_point(std::ostream& os = std::cout)
 
   if (std::numeric_limits<T>::is_exact == false)
   { // epsilon has meaning.
-    std::streamsize p = os.precision(3);
     os << "\n epsilon      = " << std::numeric_limits<T>::epsilon();
-    //os.precision(p);
   }
   else
-  { // is_exact (for example, any integral type) so epsilon has no meaning (and is zero).
+  {
     os << "\n exact        = "  << std::numeric_limits<T>::is_exact;
   }
 
-  // Avoid any char values showing as a character or squiggle.
+  // Avoid char values showing as a character or squiggle.
   BOOST_CONSTEXPR_OR_CONST bool is_any_character_type = (   std::is_same<T, signed char>::value 
                                                          || std::is_same<T, unsigned char>::value
                                                          || std::is_same<T, char16_t>::value
@@ -165,35 +162,12 @@ int main()
 {
   using boost::fixed_point::negatable;
 
-  // Several 32-bit splits 
-  typedef negatable<15,  -16> fixed_point_type_15m16; // 32-bit even split.
-  typedef negatable<11,  -20> fixed_point_type_11m20; // 32-bit higher resolution.
-  typedef negatable< 0,  -31> fixed_point_type_0m31; // 32-bit all resolution (no range bit).
-  typedef negatable<29,   -2> fixed_point_type_29m2; // 32-bit nearly all range.
-
-  // Types that correspond to key IEEE745 types binary16, 32, 64, 128.
-  typedef  negatable<4, -11> fixed_point_type_4m11; // 16-bit IEEE half-precision float.
-  // https://en.wikipedia.org/wiki/Half-precision_floating-point_format
-
-  typedef  negatable<7, -24> fixed_point_type_7m24;  //  32-bit float.
-  // https://en.wikipedia.org/wiki/Single-precision_floating-point_format
-
-  typedef  negatable<10, -53> fixed_point_type_10m53; // 64-bit double.
-  // https://en.wikipedia.org/wiki/Double-precision_floating-point_format
-
-  typedef   negatable<14, -113> fixed_point_type_14m113;  // 128-bit quad type C++ __float128
-  // https://en.wikipedia.org/wiki/Quadruple-precision_floating-point_format
-
-  // Some fixed_point types using only a single 8-bit byte (signed char).
-  // Popular low digit 8-bit and 16-bit cases.
-  typedef   negatable<0, -7> fixed_point_type_0m7; // All 7 bits used for resolution.
-  typedef   negatable<2, -5> fixed_point_type_2m5; // 8 bit even split range and resolution.
-  typedef  negatable<6, -9>  fixed_point_type_6m9; // 16-bit, even split range and resolution.
-
-  // High precision, high digit count example.
-  typedef negatable<15, -240> fixed_point_type_15m240; // 256-bit high precision.
-  typedef negatable<0,  -254> fixed_point_type_0m254;  // 256-bit very high precision (no range).
-  typedef negatable<200, -54> fixed_point_type_200m54; // 256-bit high range.
+  typedef negatable<15,  -16> fixed_point_type_15m16;
+  typedef negatable<11,  -20> fixed_point_type_11m20;
+  typedef negatable< 0,  -31> fixed_point_type_0m31;
+  typedef negatable<29,   -2> fixed_point_type_29m2;
+  typedef negatable<0,  -168> fixed_point_type_0m168;
+  typedef negatable<20, -148> fixed_point_type_20m148;
 
   try
   {
@@ -231,6 +205,8 @@ int main()
 //] [/fixed_example_1]
 
 
+// Some fiexed_point types using only a single 8-bit byte (signed char).
+
 //[fixed_point_15m16
 
     // Some fixed_point types using 32 bits, and more.
@@ -238,10 +214,12 @@ int main()
     show_fixed_point<fixed_point_type_11m20> (); // More resolution than range.
     show_fixed_point<fixed_point_type_0m31>  (); // All bits used for resolution.
     show_fixed_point<fixed_point_type_29m2>  (); // Most bits used for range.
-    show_fixed_point<fixed_point_type_15m240>(); // 256-bit high precision.
-    show_fixed_point<fixed_point_type_0m254>();  // 256-bit very high precision (no range).
-    show_fixed_point<fixed_point_type_200m54>(); // 256-bit high range.
+    show_fixed_point<fixed_point_type_0m168> ();
+    show_fixed_point<fixed_point_type_20m148>();
 
+    //std::cout << "fixed_point_type(123) / 100 = "
+    //  << x // 1.22999573 is the nearest representation of decimal digit string 1.23.
+    //  << std::endl;
   }
   catch (std::exception ex)
   {
