@@ -951,10 +951,7 @@
     */
     template<typename IntegralType>
     negatable(const nothing&,
-              const IntegralType& n,
-              const typename std::enable_if<   std::is_integral<IntegralType>::value
-                                            || std::is_same<typename negatable::value_type, IntegralType>::value
-                                            || std::is_same<typename negatable::unsigned_small_type, IntegralType>::value>::type* = nullptr) : data(static_cast<value_type>(n)) { }
+              const IntegralType& n) : data(static_cast<value_type>(n)) { }
 
     template<typename LocalRoundMode = RoundMode>
     static boost::int_fast8_t
