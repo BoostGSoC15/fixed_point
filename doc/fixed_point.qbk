@@ -209,12 +209,28 @@ There are two different forms:
 * Where the operands are of different precision.
 * Where the operands are of the same precision, but yield a higher precision result.
 
-Note that not all the `std::numeric_limits` member constants and functions are meaningful for all user-defined types (UDT),
-such as the decimal and binary multiprecision types provided here.  More information on this is given in the sections below.
+Some design choices were made.
 
-[/ Tables of values for numeric_limits for various built-in and cpp_bin_float types]
-[/include numeric_limits_32_tables.qbk]
-[/include numeric_limits_64_tables.qbk]
+For example, the result of `(a + b)` has the type of ['a].
+Some might argue that the result of (a + b) should
+have the highest precision.
+It's easy to implement either way; it's just a design choice.
+
+For mixed-math comparison, the supra-negatable type
+is created from the maximum of both range and resolution.
+A comparison is then made.
+
+This results in such comparisons like
+
+  negatable<4, -8>(1) / 3 != negatable<3, -11>(1) / 3
+
+And the result is symmetric, otherwise, we might be surprized that
+  `(a == b)`
+and
+  `(b != a)`
+
+It's another design choice.
+
 
 [endsect] [/section:mixed Mixed Precision Arithmetic]
 
@@ -287,7 +303,19 @@ or we can use nearly all bits for range with
 
   typedef boost::fixed_point::negatable<29, -2> fixed_point_type;
 
-[/See for example J:\Cpp\big_number\numeric_limits_32_tables\numeric_limits_32_tables.qbk]
+Note that not all the `std::numeric_limits` member constants and functions
+are meaningful for all user-defined types (UDT),
+such as the decimal and binary multiprecision types provided here.
+More information on this is given in the sections below.
+
+See [link fixed.fixed_versus_float.fixed_point_limits fixed_point numeric_limits_tables] .
+and [link fixed.fixed_versus_float.floating_point_limits floating_point numeric_limits_tables] .
+
+
+[/ Tables of values for numeric_limits for various built-in and cpp_bin_float types]
+[#numeric_limits_tables]
+[include fixed_point_types_table.qbk] [/Complete section containing generated table]
+[include floating_point_types_table.qbk]
 
 
 [endsect] [/section:fixed_versus_float Comparison of Fixed-point and Floating-point Formats]
@@ -374,6 +402,7 @@ Yes, absolutely, in my opinion. Implicit or explicit conversion?
 No. But copy construction and copy assign maybe, whereby the LHS
 dictates the digit count.
 
+* Is there a need for a specific fixed_point I/O?
 * Is there a need for a specific I/O?
 Yes.
 
@@ -387,6 +416,7 @@ I prefer also to concentrate on Radix-2 and leave Radix-10 for another library.
 It should fit in with Boost.Multiprecision, if there ever is such a thing.
 Users like me who need a tiny set of trig functions for, say, an
 8-bit controller can roll-their-own via template specialization.
+Don't even get started with Cordic, Chebyshev, polynomial expansion,
 Don't even get started with cordic, Chebyshev, polynomial expansion,
 Pade, Taylor, Newton-Raphson, FFT multiplication, AGM, etc., etc., etc. and the rest.
 Just make the numbers! We will be happy for that because it's really a lot.
