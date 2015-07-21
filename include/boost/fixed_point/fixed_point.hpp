@@ -898,11 +898,12 @@
         // Acquire the fixed-point data field and convert it to an unsigned type.
         unsigned_small_type number = static_cast<unsigned_small_type>(this->data);
 
-        BOOST_CONSTEXPR_OR_CONST std::string::size_type bit_count = std::numeric_limits<unsigned_small_type>::digits;
 
         // Allocate a string of the proper length with all of the
-        // characters initialized to '0'.
-        std::string answer(bit_count, char('0'));
+        // characters initialized to '0'. Use the total number
+        // of binary digits in the negatable_type, which is
+        // digits_total = (range - resolution) + 1.
+        std::string answer(digits_total, char('0'));
 
         // Extract all of the bits from *this and place them in the string.
         // Use reverse iteration in order to obtain the proper bit representation.
