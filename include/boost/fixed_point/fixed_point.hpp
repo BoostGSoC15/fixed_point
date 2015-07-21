@@ -536,8 +536,16 @@
       data = ((!is_neg) ? value_type(u_round) : -value_type(u_round));
     }
 
+    // This is the class destructor. It has trivial complexity
+    // because the negatyble class does not do any allocation
+    // or complex operations (if any) that are not already
+    // handled by the underlying value_type.
+
     ~negatable() { }
 
+    // The class equality operators follow below.
+
+    // This is the standard equality operator.
     negatable& operator=(const negatable& other)
     {
       if(this != (&other))
@@ -548,6 +556,8 @@
       return *this;
     }
 
+    // This is the equality operator of *this with another
+    // negatable type.
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution>
     negatable& operator=(const negatable<OtherIntegralRange,
