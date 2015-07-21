@@ -16,17 +16,17 @@
 
   // There is optional support for certain variations of fixed_point
   // using preprocessor definitions. Not all of these are supported
-  // at the moment. The options include:
+  // at the moment. The potential options include:
 
-  //#define BOOST_FIXED_POINT_DISABLE_IOSTREAM
-  //#define BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
-  //#define BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH
-  //#define BOOST_FIXED_POINT_DISABLE_CPP11
+  // is  supported : #define BOOST_FIXED_POINT_DISABLE_IOSTREAM
+  // is  supported : #define BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
+  // not supported : #define BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH
+  // not supported : #define BOOST_FIXED_POINT_DISABLE_CPP11
 
   // With BOOST_FIXED_POINT_DISABLE_IOSTREAM, all I/O streaming
   // is disabled, as is the inclusion of associated standard
-  // library headers. This is intended to eliminate I/O stream
-  // overhead in particular for bare-metal microcontroller projects.
+  // library headers. This option eliminates all I/O stream
+  // overhead, in particular for bare-metal microcontroller projects.
   // Disabling I/O streaming requires simultaneous disabling
   // of multiprecision.
 
@@ -38,9 +38,9 @@
   // fixed_point avoids using the unsigned_large_type.
   // This option is intended for systems with limited
   // integer widths such as bare-metal microcontrollers.
-  // When used in combination with BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
-  // this option is intended to provide fixed-point representations
-  // with up to 64-bits (if 64-bit integral types are available)
+  // When used in combination with BOOST_FIXED_POINT_DISABLE_MULTIPRECISION,
+  // this option provides fixed-point representations with
+  // up to 64-bits (if 64-bit integral types are available)
   // without requiring any of Boost.Multiprecision.
   // Otherwise, 32-bit internal representations would
   // have the largest possible widths.
