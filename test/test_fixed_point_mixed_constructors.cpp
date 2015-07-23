@@ -1,12 +1,15 @@
-// Copyright Paul A. Bristow 2015
-// Use, modification and distribution are subject to the
-// Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt
-// or copy at http://www.boost.org/LICENSE_1_0.txt)
+///////////////////////////////////////////////////////////////////////////////
+//  Copyright Christopher Kormanyos 2015.
+//  Copyright Nikhar Agrawal 2015.
+//  Copyright Paul Bristow 2015.
+//  Distributed under the Boost Software License,
+//  Version 1.0. (See accompanying file LICENSE_1_0.txt
+//  or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
 
 
 //! \file
-//!\brief Basic tests for fixed_point.
+//!\brief Mixed constructor tests for fixed_point.
 
 #define BOOST_TEST_MODULE fixed_point_basic
 #define BOOST_LIB_DIAGNOSTIC
@@ -25,7 +28,8 @@
 BOOST_AUTO_TEST_CASE(fixed_point_construct_smaller_range_smaller_resolution)
 {
 
-  // built-in types as base, round::fastest	
+  // This test uses types which would have the underlying representation as built-in types 
+  // and rounding mode is round::fastest.	
   {
     typedef boost::fixed_point::negatable<3,-2> type_from;
     typedef boost::fixed_point::negatable<4,-3> type_to;
@@ -41,7 +45,8 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_smaller_range_smaller_resolution)
     BOOST_CHECK_EQUAL (d,6.25);
   }
 
-  // built-in types as base, round::nearest_even
+  // This test uses types which would have the underlying representation as built-in types 
+  // and rounding mode is round::nearest_even. 
   {
     typedef boost::fixed_point::negatable<3,-2, boost::fixed_point::round::nearest_even> type_from;
     typedef boost::fixed_point::negatable<4,-3, boost::fixed_point::round::nearest_even> type_to;
@@ -58,7 +63,8 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_smaller_range_smaller_resolution)
     BOOST_CHECK_EQUAL (d,6.25);
   }
 
-  // built-in types as base but supposedly different base types, round::fastest
+  // This test uses types which would have the underlying representation as built-in types 
+  // but these built-in types would supposedly be different from each other and rounding mode is round::fastest. 
   {
     typedef boost::fixed_point::negatable<16,-10> type_from; // use int32
     typedef boost::fixed_point::negatable<17,-20> type_to;   // use int64
@@ -74,7 +80,8 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_smaller_range_smaller_resolution)
     BOOST_CHECK_EQUAL (d,1099.5126953125);
   }
 
-  // built-in types as base but supposedly different base types, round::nearest_even
+  // This test uses types which would have the underlying representation as built-in types 
+  // but these built-in types would supposedly be different from each other and rounding mode is round::nearest_even.
   {
     typedef boost::fixed_point::negatable<16, -10, boost::fixed_point::round::nearest_even> type_from; // use int32
     typedef boost::fixed_point::negatable<17, -20, boost::fixed_point::round::nearest_even> type_to;   // use int64
@@ -90,7 +97,8 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_smaller_range_smaller_resolution)
     BOOST_CHECK_EQUAL (d,1099.5126953125);
   }
 
-  // multiprecision and built-in types as base
+  // This test uses types where one would have built-in type and other would have multiprecision type
+  // as underlying representation and rounding mode is round::fastest.
   {
     typedef boost::fixed_point::negatable<16, -10> type_from; // use int32
     typedef boost::fixed_point::negatable<417, -420> type_to;   // use multiprecision backend
@@ -106,7 +114,8 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_smaller_range_smaller_resolution)
     BOOST_CHECK_EQUAL (d,1099.5126953125);
   }
 
-  // multiprecision and built-in types as base, round::nearest_even
+  // This test uses types where one would have built-in type and other would have multiprecision type
+  // as underlying representation and rounding mode is round::nearest_even.
   {
     typedef boost::fixed_point::negatable<16, -10, boost::fixed_point::round::nearest_even> type_from; // use int32
     typedef boost::fixed_point::negatable<417, -420, boost::fixed_point::round::nearest_even> type_to;   // use multiprecision backend
@@ -122,8 +131,9 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_smaller_range_smaller_resolution)
     BOOST_CHECK_EQUAL (d,1099.5126953125);
   }
 
-	 // multiprecision types as base
-	  {
+  // This test uses types with multiprecision types as underlying representation and 
+  // rounding mode is round::fastest.
+	{
 	    typedef boost::fixed_point::negatable<430, -424> fixed_point_type_from;
 	    typedef boost::fixed_point::negatable<440, -430> fixed_point_type_to;
 
@@ -141,9 +151,10 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_smaller_range_smaller_resolution)
 	    BOOST_CHECK_EQUAL (c,a);
 	    BOOST_CHECK_EQUAL (d,a);
 	   // BOOST_CHECK_EQUAL (c,big_float_to);
-	  }
+	}
 
-  // multiprecision types as base, round::nearest_even
+  // This test uses types with multiprecision types as underlying representation and
+  // rounding mode is round::nearest_even.
   {
 
     typedef boost::fixed_point::negatable<430, -424, boost::fixed_point::round::nearest_even> fixed_point_type_from;
@@ -162,15 +173,16 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_smaller_range_smaller_resolution)
 
     BOOST_CHECK_EQUAL (c,a);
     BOOST_CHECK_EQUAL (d,a);
-  //  BOOST_CHECK_EQUAL (c,big_float_to);
   }
 }
 
 BOOST_AUTO_TEST_CASE(fixed_point_construct_larger_range_smaller_resolution)
 {
-  // since the only overflow mode supported is overflow::undefined, all the tests below would only have numbers that could also fit in smaller range
+  // Since the only overflow mode supported is overflow::undefined, all the tests below 
+  // would only have numbers that could also fit in smaller range.
 
-  // built-in types as base, round::fastest 
+  // This test uses types which would have the underlying representation as built-in types 
+  // and rounding mode is round::fastest. 
   {
     typedef boost::fixed_point::negatable<7,-2> type_from;
     typedef boost::fixed_point::negatable<4,-3> type_to;
@@ -186,7 +198,8 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_larger_range_smaller_resolution)
     BOOST_CHECK_EQUAL (d,6.25);
   }
 
-  // built-in types as base, round::nearest_even
+  // This test uses types which would have the underlying representation as built-in types 
+  // and rounding mode is round::nearest_even. 
   {
     typedef boost::fixed_point::negatable<6,-2, boost::fixed_point::round::nearest_even> type_from;
     typedef boost::fixed_point::negatable<4,-3, boost::fixed_point::round::nearest_even> type_to;
@@ -202,7 +215,8 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_larger_range_smaller_resolution)
     BOOST_CHECK_EQUAL (d,6.25);
   }
 
-  // built-in types as base but supposedly different base types, round::fastest
+  // This test uses types which would have the underlying representation as built-in types 
+  // but these built-in types would supposedly be different from each other and rounding mode is round::fastest.
   {
     typedef boost::fixed_point::negatable<18,-10> type_from; // use int32
     typedef boost::fixed_point::negatable<17,-20> type_to;   // use int64
@@ -218,7 +232,9 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_larger_range_smaller_resolution)
     BOOST_CHECK_EQUAL (d,1099.5126953125);
   }
 
-  // built-in types as base but supposedly different base types, round::nearest_even
+
+  // This test uses types which would have the underlying representation as built-in types 
+  // but these built-in types would supposedly be different from each other and rounding mode is round::nearest_even.
   {
     typedef boost::fixed_point::negatable<20, -10, boost::fixed_point::round::nearest_even> type_from; // use int32
     typedef boost::fixed_point::negatable<17, -20, boost::fixed_point::round::nearest_even> type_to;   // use int64
@@ -234,7 +250,8 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_larger_range_smaller_resolution)
     BOOST_CHECK_EQUAL (d,1099.5126953125);
   }
 
-  // multiprecision types as base
+  // This test uses types with multiprecision types as underlying representation and 
+  // rounding mode is round::fastest.
   {
     typedef boost::fixed_point::negatable<470, -424> fixed_point_type_from;
     typedef boost::fixed_point::negatable<440, -430> fixed_point_type_to;
@@ -255,7 +272,8 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_larger_range_smaller_resolution)
     //BOOST_CHECK_EQUAL (c,big_float_to);
   }
 
-  // multiprecision types as base, round::nearest_even
+    // This test uses types with multiprecision types as underlying representation and 
+    // rounding mode is round::nearest_even.
   {
 
     typedef boost::fixed_point::negatable<470, -424, boost::fixed_point::round::nearest_even> fixed_point_type_from;
@@ -271,7 +289,8 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_larger_range_smaller_resolution)
 
 BOOST_AUTO_TEST_CASE(fixed_point_construct_smaller_range_larger_resolution)
 {
-  // built-in types as base, round::fastest 
+  // This test uses types which would have the underlying representation as built-in types 
+  // and rounding mode is round::fastest. 
   {
     typedef boost::fixed_point::negatable<3,-4> type_from;
     typedef boost::fixed_point::negatable<4,-3> type_to;
@@ -287,7 +306,8 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_smaller_range_larger_resolution)
     BOOST_CHECK_EQUAL (e, c);
   }
 
-  // built-in types as base, round::nearest_even
+  // This test uses types which would have the underlying representation as built-in types 
+  // and rounding mode is round::nearest_even. 
   {
     typedef boost::fixed_point::negatable<3,-4, boost::fixed_point::round::nearest_even> type_from;
     typedef boost::fixed_point::negatable<4,-3, boost::fixed_point::round::nearest_even> type_to;
@@ -301,7 +321,8 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_smaller_range_larger_resolution)
     BOOST_CHECK_EQUAL(d, b);
   }
 
-  // built-in types as base but supposedly different base types, round::fastest
+  // This test uses types which would have the underlying representation as built-in types 
+  // but these built-in types would supposedly be different from each other and rounding mode is round::fastest. 
   {
     typedef boost::fixed_point::negatable<20,-43> type_from; // use int64
     typedef boost::fixed_point::negatable<23,-8> type_to;   // use int32
@@ -319,7 +340,8 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_smaller_range_larger_resolution)
   }
 
 
-  // built-in types as base but supposedly different base types, round::nearest_even
+  // This test uses types which would have the underlying representation as built-in types 
+  // but these built-in types would supposedly be different from each other and rounding mode is round::nearest_even.
   {
     typedef boost::fixed_point::negatable<20, -43, boost::fixed_point::round::nearest_even> type_from; // use int64
     typedef boost::fixed_point::negatable<23, -8, boost::fixed_point::round::nearest_even> type_to;   // use int32
@@ -335,7 +357,8 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_smaller_range_larger_resolution)
     BOOST_CHECK_EQUAL (d, b);
   }
 
-  // multiprecision and built-in types as base, round::fastest
+  // This test uses types where one would have built-in type and other would have multiprecision type
+  // as underlying representation and rounding mode is round::fastest.
   {
     typedef boost::fixed_point::negatable<16, -420> fixed_point_type_from; // use multiprecision backend
     typedef boost::fixed_point::negatable<21, -10> fixed_point_type_to;   // use int32
@@ -353,7 +376,8 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_smaller_range_larger_resolution)
     BOOST_CHECK_EQUAL ((d == a || d == b), true);
   }
 
-  // multiprecision and built-in types as base, round::nearest_even
+  // This test uses types where one would have built-in type and other would have multiprecision type
+  // as underlying representation and rounding mode is round::nearest_even.
   {
     typedef boost::fixed_point::negatable<16, -420, boost::fixed_point::round::nearest_even> fixed_point_type_from; // use multiprecision backend
     typedef boost::fixed_point::negatable<20, -10, boost::fixed_point::round::nearest_even> fixed_point_type_to;   // use int32
@@ -370,7 +394,8 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_smaller_range_larger_resolution)
     BOOST_CHECK_EQUAL (c, a);
   }
 
-  // multiprecision types as base, round::fastest
+  // This test uses types with multiprecision types as underlying representation and 
+  // rounding mode is round::fastest.
   {
     typedef boost::fixed_point::negatable<470, -420> fixed_point_type_from;
     typedef boost::fixed_point::negatable<480, -417> fixed_point_type_to;
@@ -390,7 +415,8 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_smaller_range_larger_resolution)
     BOOST_CHECK_EQUAL ((d == a || d == b), true);
   }
 
-  // multiprecision types as base, round::nearest_even
+  // This test uses types with multiprecision types as underlying representation and
+  // rounding mode is round::nearest_even.
   {
     typedef boost::fixed_point::negatable<470, -420, boost::fixed_point::round::nearest_even> fixed_point_type_from;
     typedef boost::fixed_point::negatable<480, -417, boost::fixed_point::round::nearest_even> fixed_point_type_to;
@@ -411,9 +437,11 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_smaller_range_larger_resolution)
 
 BOOST_AUTO_TEST_CASE(fixed_point_construct_larger_range_larger_resolution)
 {
-  // since the only overflow mode supported is overflow::undefined, all the tests below would only have numbers that could also fit in smaller range
+  // Since the only overflow mode supported is overflow::undefined, all the tests below 
+  // would only have numbers that could also fit in smaller range.
 
-  // built-in types as base, round::fastest 
+  // This test uses types which would have the underlying representation as built-in types 
+  // and rounding mode is round::fastest. 
   {
     typedef boost::fixed_point::negatable<5,-4> type_from;
     typedef boost::fixed_point::negatable<4,-3> type_to;
@@ -429,7 +457,8 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_larger_range_larger_resolution)
     BOOST_CHECK_EQUAL (e, c);
   }
 
-  // built-in types as base, round::nearest_even
+  // This test uses types which would have the underlying representation as built-in types 
+  // and rounding mode is round::nearest_even. 
   {
     typedef boost::fixed_point::negatable<5,-4, boost::fixed_point::round::nearest_even> type_from;
     typedef boost::fixed_point::negatable<4,-3, boost::fixed_point::round::nearest_even> type_to;
@@ -443,7 +472,8 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_larger_range_larger_resolution)
     BOOST_CHECK_EQUAL(d, b);
   }
 
-  // built-in types as base but supposedly different base types, round::fastest
+  // This test uses types which would have the underlying representation as built-in types 
+  // but these built-in types would supposedly be different from each other and rounding mode is round::fastest. 
   {
     typedef boost::fixed_point::negatable<24,-39> type_from; // use int64
     typedef boost::fixed_point::negatable<23,-8> type_to;   // use int32
@@ -460,7 +490,8 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_larger_range_larger_resolution)
     BOOST_CHECK_EQUAL (e, c);
   }
 
-  // built-in types as base but supposedly different base types, round::nearest_even
+  // This test uses types which would have the underlying representation as built-in types 
+  // but these built-in types would supposedly be different from each other and rounding mode is round::nearest_even.
   {
     typedef boost::fixed_point::negatable<24, -39, boost::fixed_point::round::nearest_even> type_from; // use int64
     typedef boost::fixed_point::negatable<23, -8, boost::fixed_point::round::nearest_even> type_to;   // use int32
@@ -476,7 +507,9 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_larger_range_larger_resolution)
     BOOST_CHECK_EQUAL (d, b);
   }
 
-  // multiprecision and built-in types as base, round::fastest
+
+  // This test uses types where one would have built-in type and other would have multiprecision type
+  // as underlying representation and rounding mode is round::fastest.
   {
     typedef boost::fixed_point::negatable<25, -420> fixed_point_type_from; // use multiprecision backend
     typedef boost::fixed_point::negatable<21, -10> fixed_point_type_to;   // use int32
@@ -494,7 +527,8 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_larger_range_larger_resolution)
     BOOST_CHECK_EQUAL ((d == a || d == b), true);
   }
 
-  // multiprecision and built-in types as base, round::nearest_even
+  // This test uses types where one would have built-in type and other would have multiprecision type
+  // as underlying representation and rounding mode is round::nearest_even.
   {
     typedef boost::fixed_point::negatable<24, -420, boost::fixed_point::round::nearest_even> fixed_point_type_from; // use multiprecision backend
     typedef boost::fixed_point::negatable<20, -10, boost::fixed_point::round::nearest_even> fixed_point_type_to;   // use int32
@@ -511,7 +545,8 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_larger_range_larger_resolution)
     BOOST_CHECK_EQUAL (c, a);
   }
 
-  // multiprecision types as base, round::fastest
+  // This test uses types with multiprecision types as underlying representation and 
+  // rounding mode is round::fastest.
   {
     typedef boost::fixed_point::negatable<490, -420> fixed_point_type_from;
     typedef boost::fixed_point::negatable<480, -417> fixed_point_type_to;
@@ -531,7 +566,8 @@ BOOST_AUTO_TEST_CASE(fixed_point_construct_larger_range_larger_resolution)
     BOOST_CHECK_EQUAL ((d == a || d == b), true);
   }
 
-  // multiprecision types as base, round::nearest_even
+  // This test uses types with multiprecision types as underlying representation and
+  // rounding mode is round::nearest_even.
   {
     typedef boost::fixed_point::negatable<490, -420, boost::fixed_point::round::nearest_even> fixed_point_type_from;
     typedef boost::fixed_point::negatable<480, -417, boost::fixed_point::round::nearest_even> fixed_point_type_to;
