@@ -10,9 +10,21 @@
 // This file is a partial reference implementation for the proposed
 // "C++ binary fixed-point arithmetic" as specified in N3352.
 // See: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html
+// In this particular file, we implement a prototype for the negatable
+// template class.
 
 #ifndef FIXED_POINT_2015_03_06_HPP_
   #define FIXED_POINT_2015_03_06_HPP_
+
+  // ----------------------------------------------------------------
+  // TBD: This file contains only the negatable class.
+
+  // TBD: Ultimately, we need subfiles files for negatable, nonnegative,
+  // cardinal, etc.
+
+  // TBD: Potential architectural change: These subfiles can be
+  // subsequently included in fixed_point.hpp.
+  // ----------------------------------------------------------------
 
   // There is optional support for certain variations of fixed_point
   // using preprocessor definitions. Not all of these are supported
@@ -93,6 +105,10 @@
     #include <boost/math/constants/constants.hpp>
 
   #else
+
+    // When multiprecision and I/O streaming are enabled:
+    //   * We eliminate nothing and include all overhead from
+    //     both Boost.Multiprecision as well as I/O streaming.
 
     #include <algorithm>
     #include <cmath>
