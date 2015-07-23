@@ -25,6 +25,8 @@
 #include <boost/version.hpp> 
 #include <boost/config.hpp> 
 #include <boost/cstdlib.hpp>
+#include <boost/math/special_functions/pow.hpp>
+
 #include <boost/fixed_point/fixed_point.hpp>
 
 #include <iostream>
@@ -35,7 +37,7 @@
 #include <exception>
 #include <typeinfo>
 #include <limits>
-
+#include <cmath>
 
 /*
 ! Show numeric_limits values for a type.
@@ -243,7 +245,7 @@ void show_floating_point_limits(
   std::string name, // "half", float", double" ...
   int radix, // Assumed for all these types (often called b).
   int bits, // For floating_point types = sign + exponent_bits + fraction_bits + implicit;
-  int exponent_bits, // Exponent bits (often called e, or K by Kahan).
+  int exponent_bits, // Exponent bits (often called e, or K+1 by Kahan K = e-1).
   int exponent_bias, // Bias of offset of exponent, 127 for float, 1023 for double.
   int fraction_bits, // Stored fraction bits (excluding implicit).
   int sign, // 0 if signed, else zero if unsigned.
@@ -251,7 +253,13 @@ void show_floating_point_limits(
   )
 {
  // http://www.cs.berkeley.edu/~wkahan/ieee754status/IEEE754.PDF
-  // W Kahan Lecture Notes on the Status of IEEE 754 October 1, 1997
+  // W. Kahan, Lecture Notes on the Status of IEEE 754 October 1, 1997.
+  // Page 4 gives formulae to compute max, min and denorm min, and
+  // least and most significant decimal digits.
+  // But these may require a higher precision than the C++ types for 64-bit double;
+  // it might be done using Boost.Multiprecision types,
+  // but using Wolfram Alpha arbitrary precision computation is easier.
+
   double log10_2 = log10(2.); // == 3010/10000 == 0.3010
   // T log10_2 = log10(static_cast<T>(2));
 
@@ -266,76 +274,207 @@ void show_floating_point_limits(
   int max_exponent10;
   int min_exponent;
   int min_exponent10;
+  int min;
 
   double epsilon;
-  double lowest;
-  double min;
+  // double lowest;
+  // double min;
   // http://stackoverflow.com/questions/4610999/how-to-calculate-double-float-precision
   // where e = bits in exponent or exponent_bits and p = total fractional significand bits,
   double max; // 2 ^ (2^(e-1) * (1 - 2^-p)
 
   BOOST_ASSERT_MSG(bits == (sign + exponent_bits + fraction_bits + implicit), "bits must be sum of sign + exponent_bits + fraction_bits + implicit!");
 
-  std::cout << "floating-point type " << name << std::endl;
+  std::cout << "\nFloating-point type: " << name << std::endl;
   std::cout << "radix = " << radix << std::endl;
   std::cout << "exponent_bits =  " << exponent_bits << std::endl;
   std::cout << "fraction_bits =  " << fraction_bits << std::endl;
   std::cout << "implicit =  " << implicit << std::endl;
   std::cout << "sign =  " << sign << std::endl;
   std::cout << "digits =  " << digits << std::endl;
-  std::cout << "exponent bias =  " << exponent_bias << std::endl;
+  std::cout << "exponent bias = " << exponent_bias << std::endl; // exponent bias =  2^e -1 = 127
 
-  max_exponent = static_cast<int>(pow(2., exponent_bits)) - 1;
-  std::cout << "biased exponent from 0 to " << max_exponent << std::endl;
-  max_exponent =- exponent_bias; // 
-  std::cout << "unbiased exponent from " << 1 + exponent_bias << " to " << max_exponent << std::endl;
-  std::cout << "max_exponent = " << max_exponent << std::endl;
+  max_exponent = static_cast<int>(pow(2., exponent_bits)) - 1; 
+  std::cout << "biased exponent from 0 to " << max_exponent << std::endl; // biased exponent from 0 to 255
+  max_exponent -= exponent_bias; // 
+  max_exponent -= 1; // 
+  std::cout << "max_exponent = " << max_exponent << std::endl; // 127
 
-  min_exponent = pow(2., -exponent_bits); //  
+  min_exponent = static_cast<int>(pow(2., -exponent_bits)); //  
   std::cout << "min_exponent = " << min_exponent << std::endl;
-  min_exponent =- exponent_bias -1; // 
-  std::cout << "min_exponent = " << min_exponent << std::endl;
+  min_exponent -= exponent_bias; // 
+  min_exponent += 1; // 
+  std::cout << "min_exponent = " << min_exponent << std::endl; // -126
 
+  std::cout << "unbiased exponent from " << min_exponent << " to " << max_exponent << std::endl;
 
-  max_exponent10 = log10(pow(2., fraction_bits)); // log10(2^p)
-  min_exponent10 = -log10(pow(2., fraction_bits));
+  // exponent = 0 is for zero if significand == 0, or denormalized if significand != 0.
+  // exponent = FF is for infinity if significand == 0, or NaN if significand != 0.
+
+  max_exponent10 = static_cast<int>(log10(pow(2., fraction_bits))); // log10(2^p)
+  std::cout << "max_exponent10 = " << max_exponent10 << std::endl; // 
+
+  min_exponent10 = static_cast<int>(-log10(pow(2., fraction_bits)));
+  std::cout << "min_exponent10 = " << min_exponent10 << std::endl; // 
 
   // floor((digits-1) * log10_2);
-  std::cout << " At least " << (digits - 1) * log10_2 << " decimal digits" << std::endl;
-  digits10 = floor(((digits - 1) * log10_2));  //= log10(2^11) == 3.311 for 16 = 3  
+  std::cout << "At least " << (digits - 1) * log10_2 << " decimal digits" << std::endl;
+  digits10 = static_cast<int>(floor(((digits - 1) * log10_2)));  //= log10(2^11) == 3.311 for 16 = 3  
   std::cout << "digits10 = " << digits10 << std::endl;
   // Usually computed at compile-time using this formula:
   digits10 = (digits - 1) * 3010U / 10000U;
   std::cout << "static digits10 = " << digits10 << std::endl;
   // This avoids using floating-point that is not available at compile-time.
 
-  // ceil(((digits) * log10_2) + 2)
-  std::cout << " At most " << 1 + digits * log10_2 << " decimal digits" << std::endl;
-  max_digits10 = ceil(1 + digits * log10_2); // float = 9
+  // ceil(((digits) * log10_2) + 2) 
+  std::cout << "At most " << 1 + digits * log10_2 << " decimal digits" << std::endl;
+  max_digits10 = static_cast<int>(ceil(1 + digits * log10_2)); // float = 9
   std::cout << "max_digits10 " << max_digits10 << std::endl;
-  // Usually computed at compile-time using this formula:
-  max_digits10 = 2 + digits * 3010U / 10000U;
-  std::cout << "static max_digits10 = " << max_digits10 << std::endl;
-  // This avoids using floating-point that is not available at compile-time.
+  {
+    // max_digits10 is usually computed at compile-time using this formula:
+    // BOOST_CONSTEXPR_OR_CONST static int max_digits10 = 2 + digits * 3010U / 10000U;
+    // is usual, but here we must calculate for each floating-point type.
+    int max_digits10 = 2 + digits * 3010U / 10000U;
+    std::cout << "static max_digits10 = " << max_digits10 << std::endl;
+    // This avoids using floating-point that is not available at compile-time.
+  }
+  epsilon = pow(2., (-(digits-1))); // 2 ^ (N); float = 5.96046e-008
+  std::cout <<"digits = " << digits << ", 2^(digits-1) = " << pow(2., ((digits-1))) << ", epsilon = " << epsilon << std::endl;
 
-  epsilon = pow(2., (-digits)); // 2 ^ (N); float = 5.96046e-008
-  std::cout << "epsilon =  " << epsilon << std::endl;
+  int e = exponent_bits; // 8
+  // std::cout << "e  =  " << e << std::endl;
+  int k = e - 1;
+  int n = 24;
+  double two_pow_k = pow(2., e);
+ // std::cout << "two_pow_k =  " << two_pow_k << ", (2 - two_pow_k) = " << (2 - two_pow_k)  << std::endl;
 
-  min = pow(2., (2 - pow(2., exponent_bits - exponent_bias)));  // 
-  std::cout << "min =  " << min << std::endl;
-  // half == 6.10 * 10-5; //  ;
-  max = 2 - pow(2., -fraction_bits) * pow(2., exponent_bias); // (2 - 2^-10) * 2^15 = 65504;
-  std::cout << "max =  " << max << std::endl;
+  min = pow(2., -255);  // 1.2E-38
+ // std::cout << "min =  " << min << std::endl;
 
-  std::cout << "lowest =  " << lowest << std::endl;
-}
+  if (name == "half")
+  {// 16-bit half-precision float.
+    // Kahan formulae using N = 10, K = 5-1 = 4, for example:
+    // Using  http://m.wolframalpha.com/input/?i=%281-2%5E-10%29+*+%282%5E%282%5E4%29%29&x=8&y=8
+    // max is (1-2^-10) * (2^(2^4)) 
+    // 65472
+    // min is 2^(2 - 2^4)
+    // 0.00006103515625
+    // = 1/16348
+    // Denorm min is 2^(3 - 2^4 - 10)
+    // 1.1920928955078125 × 10 ^ -7
+    // 1/8388608
+    int p = 10;
+    int e = 5;
+    int em1 = e - 1; // == Kahan K = 4
+    int two_pow_em1 = static_cast<int>(pow(2., em1)); // 2^e-1= 16
 
+    // Max normal = 2 ^ (2 ^ (e - 1)) * (1 - 2^-p)
+    double e_part = pow(2., two_pow_em1); // 65536
+    double p_part = 1. - pow(2., -p); // 0.999023
+    //std::cout << "p =  " << p << ", e = " << e << ", e-1 = " << em1 << ", 2^e-1= " << two_pow_em1 << ", e_part = " << e_part << ", p_part = " << p_part << std::endl;
+    double  max = e_part * (p_part); // 
+    std::cout << "max =  " << max << std::endl; // max =  65472 = 6.5472e5
+
+   // min (normal) 2 ^ (2 - 2^k)  // Kahan  
+    double twom2pk = 2 - pow(2., em1);
+    double min = pow(2., twom2pk); // 2- 2^k = -14
+
+   // std::cout << "p =  " << p << ", e = " << e << ", e-1 = " << em1 << ", 2- 2^k = " << twom2pk << std::endl;
+    std::cout << "min =  " << min << std::endl; // min =  6.10352e-005
+
+    double denorm_min = pow(2., (3 - pow(2., em1) - p));
+    std::cout << "denorm min =  " << denorm_min << std::endl; //  denorm min =  1.19209e-007
+  } // half precision
+
+  if (name == "float" )
+  { // 32-bit float or 64-bit double
+    
+    // http://stackoverflow.com/questions/4610999/how-to-calculate-double-float-precision
+
+    // 2 ^ (2 ^ (e - 1)) * (1 - 2^-p)
+
+    BOOST_ASSERT_MSG(std::numeric_limits<float>::epsilon() == epsilon, "computed epsilon != std::numeric_limits<>::epsilon!");
+    int p = 24;
+    int e = 8;
+    int em1 = e - 1; // == Kahan K
+    int two_pow_em1 = static_cast<int>(pow(2., em1)); // 2^e-1= 128
+    double e_part = pow(2., two_pow_em1); // 340282366920938463463374607431768211456
+    double p_part = 1. - pow(2., -p); // 0.999999940395355224609375
+
+    //std::cout << "p =  " << p << ", e = " << e << ", e-1 = " << em1 << ", 2^e-1= " << two_pow_em1 << ", e_part = " << e_part << ", p_part = " << p_part << std::endl;
+
+    double  max = e_part * (p_part); // 340282346638528859811704183484516925440
+    // 3.40282346638528859811704183484516925440E-38
+    std::cout << "max =  " << max << std::endl; // max =  3.40282e+038
+    // min (normal) 2 ^ (2 - 2^k)  // Kahan  
+
+    double twom2pk = 2 - pow(2., em1); // 2- 2^k = -126
+    double min = pow(2., twom2pk); // 
+
+    //std::cout << "p =  " << p << ", e = " << e << ", e-1 = " << em1 << ", 2- 2^k = " << twom2pk << std::endl;
+    std::cout << "min =  " << min << std::endl; //  min =  1.17549e-038
+
+    // denorm_min 2 ^ (3 - 2 ^ 7 - 24)
+    // 1.401298464e-45
+
+    double denorm_min = pow(2., (3 - pow(2., em1) - p));
+
+    std::cout << "denorm min =  " << denorm_min << std::endl; //  denorm min =  1.4013e-045
+
+  } // float
+
+  if (name == "double")
+  { // 64-bit double
+
+    // http://stackoverflow.com/questions/4610999/how-to-calculate-double-float-precision
+
+    // 2 ^ (2 ^ (e - 1)) * (1 - 2^-p)
+    int p = digits;
+    int e = 11;
+    int em1 = e - 1; // == Kahan K
+    int two_pow_em1 = static_cast<int>(pow(2.L, em1)); // 2^e-1= 128
+    double e_part = pow(2.L, two_pow_em1); // 340282366920938463463374607431768211456
+    double p_part = 1. - pow(2.L, -p); // 0.999999940395355224609375
+
+    //std::cout << "p =  " << p << ", e = " << e << ", e-1 = " << em1 << ", 2^e-1= " << two_pow_em1 << ", e_part = " << e_part << ", p_part = " << p_part << std::endl;
+
+    double  max = e_part * (p_part); // 340282346638528859811704183484516925440
+    // 3.40282346638528859811704183484516925440E-38
+    std::cout << "max =  " << max << std::endl; // max =  3.40282e+038
+    // min (normal) 2 ^ (2 - 2^k)  // Kahan  
+
+    double twom2pk = 2 - pow(2.L, em1); // 2- 2^k = -126
+    double min = pow(2.L, twom2pk); // 
+
+    //std::cout << "p =  " << p << ", e = " << e << ", e-1 = " << em1 << ", 2- 2^k = " << twom2pk << std::endl;
+    std::cout << "min =  " << min << std::endl; //  min =  1.17549e-038
+
+    // denorm_min 2 ^ (3 - 2 ^ 7 - 24)
+    // 1.401298464e-45
+
+    double denorm_min = pow(2.L, (3 - pow(2.L, em1) - p));
+
+    std::cout << "denorm min =  " << denorm_min << std::endl; //  denorm min =  1.4013e-045
+
+  } // float
+
+
+
+} // void show_floating_point_limits(
 
 
 /*! \brief Output a Quickbook table line of limits for a floating_point type.
-\details Might construct the typedef from the string name?
+\details (Might construct the typedef from the string name, but not portably?)
 \tparam T Floating_point type, for example: float, double.
-\tparam name Short name of Floating_point, for example: "double"
+\param name Short name of Floating_point, for example: "double"
+\param os std::ostream (usually a file std::fstream).
+
+Example call:
+  show_floating_point_limits("half", 2, 16, 5, 15, 10, 1, 1); // Not easily possible.
+  // So paste in the values calculated below.  Uggg!
+
+  show_floating_point_limits("float", 2, 32, 8, 127, 23, 1, 1);
+
 */
 template <typename T>
 void floating_point_limits_line(std::string name, std::ostream& os = std::cout)
@@ -355,40 +494,44 @@ void floating_point_limits_line(std::string name, std::ostream& os = std::cout)
   int range; // exponent bits (often called e).
   int resolution; // Stored fraction bits (excluding implicit).
   int digits; // total fractional significand bits, including any implicit bit Often called p).
-  double significand_precision; // log10(2^digits),  = log10(2^11) == 3.311 for 16, log10(2^24) = 7.225 for 32=bit float
+  // std::streamsize significand_precision; 
+  // log10(2^digits),  = log10(2^11) == 3.311 for 16, log10(2^24) = 7.225 for 32=bit float
   int sign; // 0 if signed, else zero if unsigned.
   int implicit;  // 1 if implicit, unstored bit, else 0;
-  int digits10
   int digits10;
+  int max_digits10;
   double epsilon;
   double lowest;
   double min;
   // http://stackoverflow.com/questions/4610999/how-to-calculate-double-float-precision
   // where e = bits in exponent or range and p = total fractional significand bits,
   double max; // 2 ^ (2^(e-1) * (1 - 2^-p)
+  int max_exponent;
+  int min_exponent;
+  int max_exponent10;
+  int min_exponent10;
 
   double log10_2 = 0.3010;
   // See P J Plauger, The Standard C Library, ISBN 0-13-131509-9, Chapter 4 on float.h, page 60;
 
   if (name == "half")
   {
-
-    significand_precision = log10(pow(2., digits));
-
-    std::cout << significand_precision << " " << floor(significand_precision) << std::endl;
-
     exponent_bias = 15;
     bits = 16;
     sign = 1;
+    implicit = 1;
     range = 5;
     resolution = 10;
     digits = 11; // Including 1 implicit.
-    BOOST_STATIC_ASSERT_MSG(bits == (sign + range + resolution + implicit), "bits must be sum of sign + range + resolution + implicit!");
+    BOOST_ASSERT_MSG(bits == (sign + range + resolution + implicit), "bits must be sum of sign + range + resolution + implicit!");
+    std::streamsize significand_precision = static_cast<std::streamsize>(floor(log10(pow(2., digits))));
+    std::cout << "significand_precision " << significand_precision << std::endl;
+    std::streamsize precision = std::cout.precision(significand_precision);
 
     // floor((digits-1) * log10_2);
-    digits10 = floor(((digits - 1) * 301 / 1000));  //= log10(2^11) == 3.311 for 16 = 3  
+    digits10 = static_cast<int>(floor(((digits - 1) * 301 / 1000)));  //= log10(2^11) == 3.311 for 16 = 3  
     // ceil(((digits - 1) * log10_2) + 2)
-    max_digits10 = ceil(((digits - 1) * 301 / 1000) + 2); // = 5
+    max_digits10 = static_cast<int>(ceil(((digits - 1) * 301 / 1000) + 2)); // = 5
     // max_exponent = radix ^ max_exponent
     // max_exponent = 2 ^ 4
     // max_exponent = // digits ^ max_exponent;
@@ -397,9 +540,12 @@ void floating_point_limits_line(std::string name, std::ostream& os = std::cout)
     max_exponent10 = 15; // 15
     min_exponent10 = -16;
     epsilon = pow(2., (15 - resolution)); // 2 ^ (e-10);
-    lowest = ; // -3.4e+38;
+    lowest = -3.4e+38; // -3.4e+38;
     min = pow(2., -14);// == 6.10 * 10-5; //  ;
     max = 2 - pow(2., -resolution) * pow(2., exponent_bias); // (2 - 2^-10) * 2^15 = 65504;
+    lowest = -max;  // Ideally changesign(max);
+    std::cout.precision(precision); // restore.
+
   }
   else if (name == "float")
   {
@@ -408,33 +554,74 @@ void floating_point_limits_line(std::string name, std::ostream& os = std::cout)
     resolution = 24;
     sign = 1;
     digits = 24;
-    digits10 = ((digits - 1) * 301 / 1000;  // = 6
-    max_digits10 = ((digits - 1) * 301 / 1000 + 2; // = 9
 
+    std::streamsize significand_precision = static_cast<std::streamsize>(floor(log10(pow(2., digits))));
+    std::cout << "significand_precision " << significand_precision << std::endl;
+    std::streamsize precision = std::cout.precision(significand_precision);
+
+    digits10 = (digits - 1) * 301 / 1000;  // = 6
+    max_digits10 = 2 + (digits - 1) * 301 / 1000; // = 9
     epsilon = 1.19e-7;
     lowest = std::numeric_limits<T>::lowest(); //  -3.4e+38;
-    min = (std::numeric_limits<T>::min)()); //  1.18e-38;
-    max = (std::numeric_limits<T>::max)()); //  3.4 + 38;
+    min = (std::numeric_limits<T>::min)(); //  1.18e-38;
+    max = (std::numeric_limits<T>::max)(); //  3.4 + 38;
+    std::cout.precision(precision); // restore.
+
   }
+
+  // Need a bigger type to apply above equations without overflow.
   else if (name == "double")
-  {
+  { //
     bits = 64;
+    range = 11;
+    resolution = 53;
+    sign = 1;
+    digits = std::numeric_limits<T>::digits;
+
+    std::streamsize significand_precision = static_cast<std::streamsize>(floor(log10(pow(2., digits))));
+    std::cout << "significand_precision " << significand_precision << std::endl;
+    std::streamsize precision = std::cout.precision(significand_precision);
+
+    digits10 = (digits - 1) * 301 / 1000;  // = 15
+    max_digits10 = 2 + (digits - 1) * 301 / 1000; // = 17
+    epsilon = std::numeric_limits<T>::epsilon();
+    lowest = std::numeric_limits<T>::lowest(); // 
+    min = (std::numeric_limits<T>::min)(); //  
+    max = (std::numeric_limits<T>::max)(); //  
+    std::cout.precision(precision); // restore.
   }
   else if (name == "long double")
-  {
+  { // Assume is run on GCC where long double uses the 80-bit type, for example:
+    // b2 -a toolset=gcc-5.1.0 release cxxflags=-w > x.log
     bits = 80;
+    range = 11;
+    resolution = 53;
+    sign = 1;
+    digits = std::numeric_limits<T>::digits;
+
+    std::streamsize significand_precision = static_cast<std::streamsize>(floor(log10(pow(2., digits))));
+    std::cout << "significand_precision " << significand_precision << std::endl;
+    std::streamsize precision = std::cout.precision(significand_precision);
+
+    digits10 = (digits - 1) * 3010 / 10000;  // = 18
+    max_digits10 = 2 + (digits - 1) * 3010 / 10000; // = 21
+    epsilon = std::numeric_limits<T>::epsilon();
+    lowest = std::numeric_limits<T>::lowest(); // 
+    min = (std::numeric_limits<T>::min)(); //  
+    max = (std::numeric_limits<T>::max)(); //  
+    std::cout.precision(precision); // restore.
+
   }
-  else if (name == "quad")
-  {
-    bits = 128;
-  }
-  //os.precision(std::numeric_limits<T>::digits10); // Will overflow page width for high precision.
+
+  // Actually output Quickbook table markup to the file.
+
   os.precision(3);
   //  "[[negatable] [range] [resolution] [bits] [epsilon] [lowest] [min] [max] ]" << std::endl; // Headings.
 
-  os << "[[" << name
-    << "] [" // For example: "double".
-    << std::numeric_limits<T>::max_exponent  // == range in bits.
+  os << "[[" << name // floating-point type: float, double.
+    // For example: "double".
+    //<< std::numeric_limits<T>::max_exponent  
+    << "] [" << range // == range in bits.
     //  << "] [" << std::numeric_limits<T>::digits + 1  // +1 for hidden implicit bit.
     << "] [" << std::numeric_limits<T>::digits // resolution.
     << "] [" << std::numeric_limits<T>::digits // digits.
@@ -459,8 +646,7 @@ void floating_point_limits_line(std::string name, std::ostream& os = std::cout)
   }
   else
   {
-    os << os << (std::numeric_limits<T>::min)();
-    << "] [";
+    os << (std::numeric_limits<T>::min)() << "] [";
   }
 
   //os << "\n max          = ";
@@ -499,16 +685,16 @@ std::string versions()
 std::string fixed_table_filename = "fixed_point_types_table.qbk";
 std::string floating_table_filename = "floating_point_types_table.qbk";
 
-
+/*
 int main()
 {
+  show_floating_point_limits("half", 2, 16, 5, 15, 10, 1, 1);
   show_floating_point_limits("float", 2, 32, 8, 127, 23, 1, 1);
-
-
+  show_floating_point_limits("double", 2, 64, 11, 1023, 52, 1, 1);
 } // int main()
+*/
 
 
-/*
 
 int main()
 {
@@ -537,9 +723,9 @@ int main()
 
   // Some fixed_point types using only a single 8-bit byte (signed char).
   // Popular low digit 8-bit and 16-bit cases.
-  typedef   negatable<0, -7> fixed_point_type_0m7; // All 7 bits used for resolution.
-  typedef   negatable<2, -5> fixed_point_type_2m5; // 8 bit even split range and resolution.
-  typedef  negatable<6, -9>  fixed_point_type_6m9; // 16-bit, even split range and resolution.
+  typedef negatable<0, -7> fixed_point_type_0m7; // All 7 bits used for resolution.
+  typedef negatable<2, -5> fixed_point_type_2m5; // 8 bit even split range and resolution.
+  typedef negatable<6, -9> fixed_point_type_6m9; // 16-bit, even split range and resolution.
 
   // High precision, high digit count example.
   typedef negatable<15, -240> fixed_point_type_15m240; // 256-bit high precision.
@@ -552,8 +738,6 @@ int main()
     std::cout << std::endl;
 
     //[fixed_example_1
-
-
     // Show all the significant digits for this particular type.
 
     // Fundamental (built-in) integral types.
@@ -576,11 +760,10 @@ int main()
     // digits 53 (leaving 10 for decimal exponent).
     // epsilon 2.2e-16.
     show_fixed_point<long double>();
-    // Varies with compiler
-    // Using MSVC double == long double
+    // Varies with compiler whether 64-bit or 80-bit is used.
+    // Using MSVC double == long double.
 
     //] [/fixed_example_1]
-
 
     //[fixed_point_15m16
 
@@ -664,9 +847,11 @@ int main()
 
       fout << "[table:floating_point_types_table Numeric limits for IEEE754 floating_point types" "\n";
 
-      fout << "[[negatable] [range] [resolution] [digits] [bits] [epsilon] [lowest] [min] [max] ]" << std::endl; // Headings.
+      fout << "[[type] [range] [resolution] [digits] [bits] [epsilon] [lowest] [min] [max] ]" << std::endl; // Headings.
       fout.precision(3);
-
+      // Paste in the values for half precision (calculated using show_floating_point_limits function above).
+      // Sadly necessary because half precision is not a built-in type and no std::numeric_limits implementation exists.
+      fout << "[[half] [5] [10] [16] [4.88e-4] [-6.55e4] [6.10e-5] [6.55e4]]" << std::endl;
       floating_point_limits_line<float>("float", fout);
       floating_point_limits_line<double>("double", fout);
       floating_point_limits_line<long double>("long double", fout);
@@ -685,8 +870,6 @@ int main()
   }
 } // int main()
 
-
-*/
 
 
 /*
