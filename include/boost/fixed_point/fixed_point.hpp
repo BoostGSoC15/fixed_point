@@ -16,17 +16,17 @@
 
   // There is optional support for certain variations of fixed_point
   // using preprocessor definitions. Not all of these are supported
-  // at the moment. The options include:
+  // at the moment. The potential options include:
 
-  //#define BOOST_FIXED_POINT_DISABLE_IOSTREAM
-  //#define BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
-  //#define BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH
-  //#define BOOST_FIXED_POINT_DISABLE_CPP11
+  // is  supported : #define BOOST_FIXED_POINT_DISABLE_IOSTREAM
+  // is  supported : #define BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
+  // not supported : #define BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH
+  // not supported : #define BOOST_FIXED_POINT_DISABLE_CPP11
 
   // With BOOST_FIXED_POINT_DISABLE_IOSTREAM, all I/O streaming
   // is disabled, as is the inclusion of associated standard
-  // library headers. This is intended to eliminate I/O stream
-  // overhead in particular for bare-metal microcontroller projects.
+  // library headers. This option eliminates all I/O stream
+  // overhead, in particular for bare-metal microcontroller projects.
   // Disabling I/O streaming requires simultaneous disabling
   // of multiprecision.
 
@@ -38,9 +38,9 @@
   // fixed_point avoids using the unsigned_large_type.
   // This option is intended for systems with limited
   // integer widths such as bare-metal microcontrollers.
-  // When used in combination with BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
-  // this option is intended to provide fixed-point representations
-  // with up to 64-bits (if 64-bit integral types are available)
+  // When used in combination with BOOST_FIXED_POINT_DISABLE_MULTIPRECISION,
+  // this option provides fixed-point representations with
+  // up to 64-bits (if 64-bit integral types are available)
   // without requiring any of Boost.Multiprecision.
   // Otherwise, 32-bit internal representations would
   // have the largest possible widths.
@@ -536,8 +536,16 @@
       data = ((!is_neg) ? value_type(u_round) : -value_type(u_round));
     }
 
+    // This is the class destructor. It has trivial complexity
+    // because the negatyble class does not do any allocation
+    // or complex operations (if any) that are not already
+    // handled by the underlying value_type.
+
     ~negatable() { }
 
+    // The class equality operators follow below.
+
+    // This is the standard equality operator.
     negatable& operator=(const negatable& other)
     {
       if(this != (&other))
@@ -548,6 +556,8 @@
       return *this;
     }
 
+    // This is the equality operator of *this with another
+    // negatable type.
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution>
     negatable& operator=(const negatable<OtherIntegralRange,
@@ -898,11 +908,12 @@
         // Acquire the fixed-point data field and convert it to an unsigned type.
         unsigned_small_type number = static_cast<unsigned_small_type>(this->data);
 
-        BOOST_CONSTEXPR_OR_CONST std::string::size_type bit_count = std::numeric_limits<unsigned_small_type>::digits;
 
         // Allocate a string of the proper length with all of the
-        // characters initialized to '0'.
-        std::string answer(bit_count, char('0'));
+        // characters initialized to '0'. Use the total number
+        // of binary digits in the negatable_type, which is
+        // digits_total = (range - resolution) + 1.
+        std::string answer(digits_total, char('0'));
 
         // Extract all of the bits from *this and place them in the string.
         // Use reverse iteration in order to obtain the proper bit representation.
