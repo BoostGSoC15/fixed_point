@@ -934,6 +934,11 @@
         // Extract all of the bits from *this and place them in the string.
         // Use the reverse order to simplify the bit-extraction algorithm.
         // Reverse the bit pattern after the bit extraction.
+
+        // TBD: Why does reverse iteration and bit-test not work for GCC?
+        // TBD: Use forward iteration as suggested by Nikhar and reverse
+        // after the bit extraction.
+
         std::for_each(answer.begin(),
                       answer.end(),
                       [&mask, &number](char& c)
