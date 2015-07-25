@@ -921,33 +921,20 @@
       // This function is used primarily for debugging and testing purposes.
       std::string bit_pattern() const
       {
-        // Acquire the fixed-point data field and convert it to an unsigned type.
-        unsigned_small_type number = static_cast<unsigned_small_type>(this->data);
-
-
-        // Allocate a string of the proper length with all of the
-        // characters initialized to '0'. Use the total number
-        // of binary digits in the negatable_type, which is
-        // digits_total = (range - resolution) + 1.
-        std::string answer(digits_total, char('0'));
-
-        // Extract all of the bits from *this and place them in the string.
-        // Use reverse iteration in order to obtain the proper bit representation.
-        std::for_each(answer.rbegin(),
-                      answer.rend(),
-                      [&number](char& c)
-                      {
-                        const bool bit_is_set = (boost::uint_fast8_t(boost::uint_fast8_t(number) & UINT8_C(1)) != UINT8_C(0));
-
-                        if(bit_is_set)
-                        {
-                          c = char('1');
-                        }
-
-                        number = (number >> 1);
-                      });
-
-        return answer;
+        value_type num = this->data;
+        std::string ans;
+        value_type mask(1);
+        for(int i = 0; i < digits_total; i++)
+        {
+          if(num & mask)
+          {
+            ans += "1";
+          }
+          else ans += "0";
+          mask <<= 1;
+        }
+        std::reverse(ans.begin(), ans.end());
+        return ans;
       }
 
     #endif // !BOOST_FIXED_POINT_DISABLE_IOSTREAM
