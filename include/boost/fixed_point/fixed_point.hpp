@@ -922,8 +922,8 @@
       std::string bit_pattern() const
       {
         // Acquire the fixed-point data field and convert it to an unsigned type.
-        unsigned_small_type number = static_cast<unsigned_small_type>(this->data);
-
+        unsigned_small_type number(static_cast<unsigned_small_type>(this->data));
+        unsigned_small_type mask  (1U);
 
         // Allocate a string of the proper length with all of the
         // characters initialized to '0'. Use the total number
@@ -932,20 +932,23 @@
         std::string answer(digits_total, char('0'));
 
         // Extract all of the bits from *this and place them in the string.
-        // Use reverse iteration in order to obtain the proper bit representation.
-        std::for_each(answer.rbegin(),
-                      answer.rend(),
-                      [&number](char& c)
+        // Use the reverse order to simplify the bit-extraction algorithm.
+        // Reverse the bit pattern after the bit extraction.
+        std::for_each(answer.begin(),
+                      answer.end(),
+                      [&mask, &number](char& c)
                       {
-                        const bool bit_is_set = (boost::uint_fast8_t(boost::uint_fast8_t(number) & UINT8_C(1)) != UINT8_C(0));
+                        const bool bit_is_set = (unsigned_small_type(mask & number) != 0U);
 
                         if(bit_is_set)
                         {
                           c = char('1');
                         }
 
-                        number = (number >> 1);
+                        mask = (mask << 1);
                       });
+
+        std::reverse(answer.begin(), answer.end());
 
         return answer;
       }
