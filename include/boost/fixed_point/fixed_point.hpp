@@ -190,7 +190,7 @@
              const int FractionalResolution,
              typename RoundMode,
              typename OverflowMode>
-    negatable<IntegralRange,
+    inline negatable<IntegralRange,
               FractionalResolution,
               RoundMode,
               OverflowMode> abs(negatable<IntegralRange,
@@ -203,39 +203,39 @@
              const int FractionalResolution,
              typename RoundMode,
              typename OverflowMode>
-    negatable<IntegralRange,
-              FractionalResolution,
-              RoundMode,
-              OverflowMode> fabs(negatable<IntegralRange,
-                                           FractionalResolution,
-                                           RoundMode,
-                                           OverflowMode> x);
+    inline negatable<IntegralRange,
+                     FractionalResolution,
+                     RoundMode,
+                     OverflowMode> fabs(negatable<IntegralRange,
+                                                  FractionalResolution,
+                                                  RoundMode,
+                                                  OverflowMode> x);
 
     // Forward declaration of frexp.
     template<const int IntegralRange,
              const int FractionalResolution,
              typename RoundMode,
              typename OverflowMode>
-    negatable<IntegralRange,
-              FractionalResolution,
-              RoundMode,
-              OverflowMode> frexp(negatable<IntegralRange,
-                                            FractionalResolution,
-                                            RoundMode,
-                                            OverflowMode> x, int* expptr);
+    inline negatable<IntegralRange,
+                     FractionalResolution,
+                     RoundMode,
+                     OverflowMode> frexp(negatable<IntegralRange,
+                                                   FractionalResolution,
+                                                   RoundMode,
+                                                   OverflowMode> x, int* expptr);
 
     // Forward declaration of ldexp.
     template<const int IntegralRange,
              const int FractionalResolution,
              typename RoundMode,
              typename OverflowMode>
-    negatable<IntegralRange,
-              FractionalResolution,
-              RoundMode,
-              OverflowMode> ldexp(negatable<IntegralRange,
-                                            FractionalResolution,
-                                            RoundMode,
-                                            OverflowMode> x, int exp);
+    inline negatable<IntegralRange,
+                     FractionalResolution,
+                     RoundMode,
+                     OverflowMode> ldexp(negatable<IntegralRange,
+                                                   FractionalResolution,
+                                                   RoundMode,
+                                                   OverflowMode> x, int exp);
 
 
     // Forward declaration of fixed_next.
@@ -243,52 +243,52 @@
              const int FractionalResolution,
              typename RoundMode,
              typename OverflowMode>
-    negatable<IntegralRange,
-              FractionalResolution,
-              RoundMode,
-              OverflowMode> fixed_next(negatable<IntegralRange,
-                                       FractionalResolution,
-                                       RoundMode,
-                                       OverflowMode> x);
+    inline negatable<IntegralRange,
+                     FractionalResolution,
+                     RoundMode,
+                     OverflowMode> fixed_next(negatable<IntegralRange,
+                                              FractionalResolution,
+                                              RoundMode,
+                                              OverflowMode> x);
 
     // Forward declaration of fixed_prior.
     template<const int IntegralRange,
              const int FractionalResolution,
              typename RoundMode,
              typename OverflowMode>
-    negatable<IntegralRange,
-              FractionalResolution,
-              RoundMode,
-              OverflowMode> fixed_prior(negatable<IntegralRange,
-                                        FractionalResolution,
-                                        RoundMode,
-                                        OverflowMode> x);
+    inline negatable<IntegralRange,
+                     FractionalResolution,
+                     RoundMode,
+                     OverflowMode> fixed_prior(negatable<IntegralRange,
+                                               FractionalResolution,
+                                               RoundMode,
+                                               OverflowMode> x);
 
     // Forward declaration of fixed_distance.
     template<const int IntegralRange,
              const int FractionalResolution,
              typename RoundMode,
              typename OverflowMode>
-    negatable<IntegralRange,
-              FractionalResolution,
-              RoundMode,
-              OverflowMode> fixed_distance(negatable<IntegralRange,
-                                                     FractionalResolution,
-                                                     RoundMode,
-                                                     OverflowMode> x);
+    inline negatable<IntegralRange,
+                     FractionalResolution,
+                     RoundMode,
+                     OverflowMode> fixed_distance(negatable<IntegralRange,
+                                                            FractionalResolution,
+                                                            RoundMode,
+                                                            OverflowMode> x);
 
     // Forward declaration of fixed_advance.
     template<const int IntegralRange,
              const int FractionalResolution,
              typename RoundMode,
              typename OverflowMode>
-    negatable<IntegralRange,
-              FractionalResolution,
-              RoundMode,
-              OverflowMode> fixed_advance(negatable<IntegralRange,
-                                          FractionalResolution,
-                                          RoundMode,
-                                          OverflowMode> x,
+    inline negatable<IntegralRange,
+                     FractionalResolution,
+                     RoundMode,
+                     OverflowMode> fixed_advance(negatable<IntegralRange,
+                                                 FractionalResolution,
+                                                 RoundMode,
+                                                 OverflowMode> x,
                                           signed int distance);
 
     // Forward declaration of fixed_nextafter.
@@ -296,26 +296,26 @@
              const int FractionalResolution,
              typename RoundMode,
              typename OverflowMode>
-    negatable<IntegralRange,
-              FractionalResolution,
-              RoundMode,
-              OverflowMode> fixed_nextafter(negatable<IntegralRange,
-                                            FractionalResolution,
-                                            RoundMode,
-                                            OverflowMode> x);
+    inline negatable<IntegralRange,
+                     FractionalResolution,
+                     RoundMode,
+                     OverflowMode> fixed_nextafter(negatable<IntegralRange,
+                                                   FractionalResolution,
+                                                   RoundMode,
+                                                   OverflowMode> x);
 
     // Forward declaration of sqrt.
     template<const int IntegralRange,
              const int FractionalResolution,
              typename RoundMode,
              typename OverflowMode>
-    negatable<IntegralRange,
-              FractionalResolution,
-              RoundMode,
-              OverflowMode> sqrt(negatable<IntegralRange,
-                                           FractionalResolution,
-                                           RoundMode,
-                                           OverflowMode> x);
+    inline negatable<IntegralRange,
+                     FractionalResolution,
+                     RoundMode,
+                     OverflowMode> sqrt(negatable<IntegralRange,
+                                                  FractionalResolution,
+                                                  RoundMode,
+                                                  OverflowMode> x);
 
   } } // namespace boost::fixed_point
 
