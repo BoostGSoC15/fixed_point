@@ -21,6 +21,9 @@
 //! Program to Generate a table of numeric_limits of fixed_point types in 
 //! Quickbook format in file modular-boost\libs\fixed_point\doc\fixed_point_types_table.qbk
 
+//! \detail To get a more compact table with only 2 exponent digits, compile using GCC with
+//! bjam command line b2 -a toolset=gcc-5.1.0
+
 #include <boost/cstdint.hpp>
 #include <boost/version.hpp> 
 #include <boost/config.hpp> 
@@ -108,17 +111,19 @@ void show_fixed_point(std::ostream& os = std::cout)
     os << "\n signed "
       << "\n total bits =   " << std::numeric_limits<T>::digits + 1; // DOES include sign bit.
   }
+  std::streamsize p = os.precision(2);
+  std::ios_base::fmtflags flags = os.std::ios_base::setf(std::ios_base::scientific);
 
   if (std::numeric_limits<T>::is_exact == false)
   { // epsilon has meaning.
-    std::streamsize p = os.precision(3);
     os << "\n epsilon      = " << std::numeric_limits<T>::epsilon();
-    //os.precision(p);
   }
   else
   { // is_exact (for example, any integral type) so epsilon has no meaning (and is zero).
     os << "\n exact        = " << std::numeric_limits<T>::is_exact;
   }
+  os.std::ios_base::setf(flags); // Restore.
+  os.precision(p);
 
   // Avoid any char values showing as a character or squiggle.
   BOOST_CONSTEXPR_OR_CONST bool is_any_character_type = (std::is_same<T, signed char>::value
@@ -189,19 +194,26 @@ void fixed_point_limits_line(std::ostream& os = std::cout)
   || std::is_same<T, char16_t>::value
   || std::is_same<T, char32_t>::value);
 
-  //os.precision(std::numeric_limits<T>::digits10); // Will overflow page width for high precision.
-  os.precision(6);
-  //  "[[negatable] [range] [resolution] [bits] [digits] [epsilon] [lowest] [min] [max] ]" << std::endl; // Headings.
+  os.precision(3);
 
+  //  "[[negatable] [range] [resolution] [bits] [digits] [epsilon] [lowest] [min] [max] ]" << std::endl; // Headings.
 
   os << "[[" << name << "] [" // For example: "negatable<29, -2>".
     << numerical_details<T>::get_range()
     << "] [" << numerical_details<T>::get_resolution()
     << "] [" << std::numeric_limits<T>::digits // digits.
-    << "] [" << std::numeric_limits<T>::digits + 1 // Total bits (+1 for sign bit).
-    << "] [" << std::setprecision(3) << std::numeric_limits<T>::epsilon() << std::setprecision(6)
-    << "] [";
+    << "] [" << std::numeric_limits<T>::digits + 1; // Total bits (+1 for sign bit).
 
+    std::streamsize p = os.precision(2);
+    std::ios_base::fmtflags flags = os.std::ios_base::setf(std::ios_base::scientific);
+
+    os << "] [" << std::setprecision(2) << std::numeric_limits<T>::epsilon()
+       << "] [";
+
+    os.std::ios_base::unsetf(std::ios_base::scientific); // Restore.
+
+   os.precision(4); 
+   os << std::defaultfloat;
   // os << "\n lowest       = ";
   if (is_any_character_type)
   {
@@ -215,7 +227,6 @@ void fixed_point_limits_line(std::ostream& os = std::cout)
   BOOST_CONSTEXPR_OR_CONST bool is_8bit_character_type = (std::is_same<T, signed char>::value
     || std::is_same<T, unsigned char>::value);
 
-  os.precision(3);
   //os << "\n min          = ";
   if (is_8bit_character_type)
   {
@@ -226,7 +237,6 @@ void fixed_point_limits_line(std::ostream& os = std::cout)
   {
     os << (std::numeric_limits<T>::min)() << "] [";
   }
-  os.precision(6);
   //os << "\n max          = ";
   if (is_8bit_character_type)
   {
@@ -281,7 +291,7 @@ void show_floating_point_limits(
   // double min;
   // http://stackoverflow.com/questions/4610999/how-to-calculate-double-float-precision
   // where e = bits in exponent or exponent_bits and p = total fractional significand bits,
-  double max; // 2 ^ (2^(e-1) * (1 - 2^-p)
+  // double max; // 2 ^ (2^(e-1) * (1 - 2^-p)
 
   BOOST_ASSERT_MSG(bits == (sign + exponent_bits + fraction_bits + implicit), "bits must be sum of sign + exponent_bits + fraction_bits + implicit!");
 
@@ -348,7 +358,7 @@ void show_floating_point_limits(
   double two_pow_k = pow(2., e);
  // std::cout << "two_pow_k =  " << two_pow_k << ", (2 - two_pow_k) = " << (2 - two_pow_k)  << std::endl;
 
-  min = pow(2., -255);  // 1.2E-38
+  min = static_cast<int>(pow(2., -255));  // 1.2E-38
  // std::cout << "min =  " << min << std::endl;
 
   if (name == "half")
@@ -433,8 +443,8 @@ void show_floating_point_limits(
     int e = 11;
     int em1 = e - 1; // == Kahan K
     int two_pow_em1 = static_cast<int>(pow(2.L, em1)); // 2^e-1= 128
-    double e_part = pow(2.L, two_pow_em1); // 340282366920938463463374607431768211456
-    double p_part = 1. - pow(2.L, -p); // 0.999999940395355224609375
+    double e_part = pow(2., two_pow_em1); // 340282366920938463463374607431768211456
+    double p_part = 1. - pow(2., -p); // 0.999999940395355224609375
 
     //std::cout << "p =  " << p << ", e = " << e << ", e-1 = " << em1 << ", 2^e-1= " << two_pow_em1 << ", e_part = " << e_part << ", p_part = " << p_part << std::endl;
 
@@ -443,7 +453,7 @@ void show_floating_point_limits(
     std::cout << "max =  " << max << std::endl; // max =  3.40282e+038
     // min (normal) 2 ^ (2 - 2^k)  // Kahan  
 
-    double twom2pk = 2 - pow(2.L, em1); // 2- 2^k = -126
+    double twom2pk = 2 - pow(2., em1); // 2- 2^k = -126
     double min = pow(2.L, twom2pk); // 
 
     //std::cout << "p =  " << p << ", e = " << e << ", e-1 = " << em1 << ", 2- 2^k = " << twom2pk << std::endl;
@@ -452,7 +462,8 @@ void show_floating_point_limits(
     // denorm_min 2 ^ (3 - 2 ^ 7 - 24)
     // 1.401298464e-45
 
-    double denorm_min = pow(2.L, (3 - pow(2.L, em1) - p));
+
+    double denorm_min = pow(2L, (3 - pow(2., em1) - p));
 
     std::cout << "denorm min =  " << denorm_min << std::endl; //  denorm min =  1.4013e-045
 
@@ -610,11 +621,11 @@ void floating_point_limits_line(std::string name, std::ostream& os = std::cout)
     min = (std::numeric_limits<T>::min)(); //  
     max = (std::numeric_limits<T>::max)(); //  
     std::cout.precision(precision); // restore.
-
   }
 
   // Actually output Quickbook table markup to the file.
 
+  os << std::noshowpoint << std::defaultfloat;
   os.precision(3);
   //  "[[negatable] [range] [resolution] [bits] [epsilon] [lowest] [min] [max] ]" << std::endl; // Headings.
 
@@ -625,10 +636,13 @@ void floating_point_limits_line(std::string name, std::ostream& os = std::cout)
     //  << "] [" << std::numeric_limits<T>::digits + 1  // +1 for hidden implicit bit.
     << "] [" << std::numeric_limits<T>::digits // resolution.
     << "] [" << std::numeric_limits<T>::digits // digits.
-    << "] [" << bits  // Total bits.
-    << "] [" << std::numeric_limits<T>::epsilon()
-    << "] [";
-
+    << "] [" << bits;  // Total bits.
+    std::streamsize p = os.precision(2);
+    std::ios_base::fmtflags flags = os.std::ios_base::setf(std::ios_base::scientific);
+    os << "] [" << std::numeric_limits<T>::epsilon();
+    os.std::ios_base::setf(flags); // Restore.
+    os.precision(p); // Restore.
+    os << "] [";
   // os << "\n lowest       = ";
   if (is_any_character_type)
   {
@@ -706,7 +720,8 @@ int main()
   typedef negatable<15, -16> fixed_point_type_15m16; // 32-bit even split.
   typedef negatable<11, -20> fixed_point_type_11m20; // 32-bit higher resolution.
   typedef negatable< 0, -31> fixed_point_type_0m31; // 32-bit all resolution (no range bit).
-  typedef negatable<29, -2> fixed_point_type_29m2; // 32-bit nearly all range.
+  typedef negatable<30, -1> fixed_point_type_30m1; // 32-bit almost all range.
+  typedef negatable<31, -0> fixed_point_type_31m0; // All range.
 
   // Types that correspond to key IEEE745 types binary16, 32, 64, 128.
   typedef  negatable<4, -11> fixed_point_type_4m11; // 16-bit IEEE half-precision float.
@@ -771,7 +786,8 @@ int main()
     show_fixed_point<fixed_point_type_15m16>(); // Even split bits between range and resolution. 
     show_fixed_point<fixed_point_type_11m20>(); // More resolution than range.
     show_fixed_point<fixed_point_type_0m31>(); // All bits used for resolution.
-    show_fixed_point<fixed_point_type_29m2>(); // Most bits used for range.
+    show_fixed_point<fixed_point_type_30m1>(); // Allmost all bits used for range.
+    // show_fixed_point<fixed_point_type_31m0>(); // All bits used for range is not supported because is same as using 32-bit `int`.
     show_fixed_point<fixed_point_type_15m240>(); // 256-bit high precision.
     show_fixed_point<fixed_point_type_0m254>();  // 256-bit very high precision (no range).
     show_fixed_point<fixed_point_type_200m54>(); // 256-bit high range.
@@ -806,19 +822,18 @@ int main()
     fixed_point_limits_line<15, -16>(fout);
     fixed_point_limits_line<11, -20>(fout);
     fixed_point_limits_line<0, -31>(fout);
-    fixed_point_limits_line<29, -2>(fout);
+    fixed_point_limits_line<30, -1>(fout);
     fixed_point_limits_line<15, -240>(fout);
     fixed_point_limits_line<0, -254>(fout);
     fixed_point_limits_line<200, -54>(fout);
+    fixed_point_limits_line<7, -8>(fout);
     fixed_point_limits_line<0, -7>(fout);
     fixed_point_limits_line<4, -11>(fout);
     fixed_point_limits_line<7, -24>(fout);
     fixed_point_limits_line<10, -53>(fout);
     fixed_point_limits_line<14, -113>(fout);
 
-
     fout << "]" " [/table:fixed_point_types_table]\n";  // end of table;
-
     fout << "\n"
       "[endsect] [/section:fixed_poin_limits  Numeric limits for various fixed_point types]" "\n" << std::endl;
 

@@ -69,6 +69,8 @@
 [def __ulp [@http://en.wikipedia.org/wiki/Unit_in_the_last_place  Unit in the last place (ULP)]]
 [def __SSE2 [@http://en.wikipedia.org/wiki/SSE2 SSE2 instructions]]
 [def __WolframAlpha [@http://www.wolframalpha.com/ Wolfram Alpha]]
+[def __ARM_architecture  [@https://en.wikipedia.org/wiki/ARM_architecture ARM architecture]]
+[def __Q_format [@https://en.wikipedia.org/wiki/Q_(number_format) Q number format]]
 [def __floating_point  [@http://en.wikipedia.org/wiki/Floating_point Floating point]]
 [def __epsilon [@http://en.wikipedia.org/wiki/Machine_epsilon machine epsilon]]
 [def __ADL [@http://en.cppreference.com/w/cpp/language/adl Argument Dependent Lookup (ADL)]]
@@ -81,6 +83,7 @@
 [def __double_format [@https://en.wikipedia.org/wiki/Double-precision_floating-point_format 64-bit double format]]
 [def __quad_format [@https://en.wikipedia.org/wiki/Quadruple-precision_floating-point_format 128-bit quad format]]
 [def __n3352 [@http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html C++ Binary Fixed-Point Arithmetic N3352]]
+[def __CMK_realtime [@10.1007/978-3-642-34688-0 Real-Time C++, C M Kormanyos]]
 [def __NaN [@https://en.wikipedia.org/wiki/NaN NaN]]
 [def __nan [@http://www.cplusplus.com/reference/cmath/nan-function/ C++ nan function]]
 [def __infinity [@http://www.cplusplus.com/reference/cmath/INFINITY/?kw=INFINITY  infinity]]
@@ -144,8 +147,62 @@ The  Fixed-point types can also interoperate with the
 built-in types in C++ using clearly defined conversion rules.
 This allows Boost.Fixed-point to be used for all
 kinds of mathematical calculations involving integer,
-rational and floating-point types requiring extended
-range and precision.
+rational and floating-point types requiring extended range and precision.
+
+The value of a binary fixed-point type is an integral value that has a fixed number of binary digits before the binary point,
+and another fixed number of fractional binary digits after the point.
+
+The __Q_format is often used to specify the number of bits used.
+
+For example, a G15.16 representation has  a sign bit,
+15 bits before the binary point and 16 bits for the fractional part after the point.
+This format fits neatly into a 32-bit two's complement signed integer.
+
+A tiny G7.8 representation has a sign bit, 7 bits of integer part before the binary point,
+and 8 bits for the fractional part.
+
+The Q7.8 represent can hold integer part values from 0 to 2[super 2] = 127,
+and fraction part from 0 to 1/2[super 8] = 1/256 = 0.00390625
+
+Giving a total spread of values from about 0.004 to 127.996.
+
+[[<7,-8>] [7] [-8] [15] [16] [1.17e-002] [-1.3e+002] [0.0039] [1.3e+002]] ????????????????? eps correct?
+
+The integer part is located as more significant than the fractional part.
+This means that if there is a carry from an addition to the fractional part,
+it simply carrys into the integer part, which means that fast integer instructions can be used.
+
+So fixed-point trades range and precision for (potentially) improved efficiency using integer computation.
+
+[section:why_fixed_point Why Fixed-Point?]
+
+For most computing tasks, floating-point works fine.
+
+* The layout is very cleverly devised to provide a good resolution and a wide exponent range
+making very efficient use of the 32 and 64 bits available
+(including an cunning extra implicit significand bit).
+
+* Hardware microcode, refined for decades, provides very fast instructions.
+
+So why would one prefer fixed-point?
+
+* The hardware CPU does not have instructions or emulation for floating-point.
+Typical examples are 8 and 16-bit microcontrollers used in industrial and consumer devices,
+especially vehicles.
+
+* The RISC CPU provides software emulation of floating-point (for example, __ARM_architecture ) but it is not fast enough.
+
+* Storing many floating-point values takes up more memory than would be possible using `fixed_point`.
+Memory is cheap, but using less can speed I/O and reduce cache misses.
+
+* If a resolution greater than `double` is required, `fixed_point` may prove faster.[br]
+Software like __multiprecision can provide much higher resolution and higher exponent ranges,
+but at a great cost in compute time, often a hundred-fold slower.[br]
+Fixed-point using many bits, for example 256-bit, can provide very high resolution,
+while executing faster than an equivalent __multiprecision type (provided
+the reduced exponent range can be tolerated).
+
+[endsect] [/section:why_fixed_point Why Fixed-Point?]
 
 
 
@@ -244,7 +301,6 @@ and
 
 It's another design choice.
 
-
 [endsect] [/section:mixed Mixed Precision Arithmetic]
 
 [section:constants Constants]
@@ -294,21 +350,21 @@ provided by this library.
 
 We can compare the ubiquitous __IEEE754 types
 
-* __float_format  1 sign bit, 8 exponent bits, 23 stored bits  (+1 implicit not stored bit)
+* __float_format  1 sign bit, 8 exponent bits, 23 stored bits  (+1 implicit not-stored bit)
 
-* __double_format 1 sign bit, 11 exponent bits, and 52 stored bits (+1 implicit not stored bit)
+* __double_format 1 sign bit, 11 exponent bits, and 52 stored bits (+1 implicit not-stored bit)
 
 and the extended precision type (usually implemented in software, and thus much slower)
 
-* __quad_format 1 sign bit, 15 exponent bits, 112 stored bits (+1 implicit not stored bit)
+* __quad_format 1 sign bit, 15 exponent bits, 112 stored bits (+1 implicit not-stored bit)
 
-Using fixed_point, we can chose make quite different splits between exponent (range) and significand (resolution).
+Using fixed point `negatable`, we can chose make quite different splits between exponent (range) and significand (resolution).
 
-For example, to match the range of `double` using only 32-bit, we can define
+For example, to match the range of `float` using only 32-bit, we can define
 
   typedef boost::fixed_point::negatable<11, -20> fixed_point_type;
 
-or we can use all 31 bits for resolution (need one sign bit for signed type `negatable`)
+or we can use all 31 bits for resolution (still need one sign bit for signed type `negatable`)
 
   typedef boost::fixed_point::negatable<0, -30> fixed_point_type;
 
@@ -320,16 +376,45 @@ Note that not all the `std::numeric_limits` member constants and functions
 are meaningful for all user-defined types (UDT),
 such as the decimal and binary multiprecision types provided here.
 More information on this is given in the sections below.
-[/ Tables of values for numeric_limits for various built-in and cpp_bin_float types]
-[#numeric_limits_tables]
+[#numeric_limits_tables] [/ Anchor for Tables of values for numeric_limits for various built-in and cpp_bin_float types]
+
 [include fixed_point_types_table.qbk] [/Complete section containing generated table]
 [include floating_point_types_table.qbk] [/Complete section containing generated table]
 
 See [link fixed.fixed_versus_float.fixed_point_limits fixed_point numeric_limits_tables],
 and [link fixed.fixed_versus_float.floating_point_limits floating_point numeric_limits_tables.]
 
-(A wider range of types, including multiprecision, is at
-__multiprecision_limits_table).
+(A wider range of floating-point types, including __multiprecision, is at __multiprecision_limits_table).
+
+[h3:type_example Examples of boost::fixed_point::negatable<11, -20>]
+
+This type has a similar distribution of bits usage to `float`
+except that IEEE floating point types have an implicit bit that is not stored.
+
+Epsilon is 9.54e-7 compared to `float` 1.2e-7
+The range is 2000 compared to `float` 3.4e38.
+
+
+If we use nearly all the bits for range, (`negatable<29,-2>`) then `epsilon` is 0.25,
+but `max `is 5.4e8.
+
+If we try to use all bits for range, then this is not support and a `static assert` warns thus
+
+  Error: The fractional resolution of negatable must be negative and include at least 1 fractional bit.
+
+This would be the same as using a 32-bit `int` whose `max` is = 2147483647 or 2.14e9,
+and conceptually `epsilon` would be unity.
+(For integral types `std::numeric_limits<>::epsilon()` is not meaningful and is left as zero).
+Using all possible bits for range `negatable<30,-1>` has a `max` of half of `int` and an `epsilon` of 0.5.
+These two extreme example probably do not have much practical use.
+
+If we use all 31 bits for resolution, then `max` is merely unity, so we can only store fractions <= 1,
+but `epsilon` is reduced to 9.3e-10, much less than `float`, so this might be useful.
+
+
+
+
+
 
 [endsect] [/section:fixed_versus_float Comparison of Fixed-point and Floating-point Formats]
 
@@ -387,7 +472,6 @@ having the sing on all the word is a lost of space, and as you say
 whether it is represented represented by left-most word/limb or as a
 separated data should be an internal decision. In this case using more
 space seems IMO to be a minor issue.
-
 
 * Should the library use a specific representation for signed numbers (separated sign, 2-complement? Let the user choose?
 Very good question. A separate bool flag for sign slows down the library and increases
@@ -712,15 +796,39 @@ Vicente Botet Escriba prototyped a [@http://svn.boost.org/svn/boost/sandbox/fixe
 
 [@http://2015.cppnow.org/participant/vicente-j-botet-escriba/ Phil Endecott reviewed past discussions on fixed-point.]
 
+
 [endsect] [/section:ack Acknowledgements]
 
 [section:references References]
 
 #__n3352
 
+# __CMK_realtime Efficient Object-Oriented and Template Microcontroller Programming, DOI 10.1007/978-3-642-34688-0,  2013
+
 #[@http://lists.boost.org/Archives/boost/2012/04/192165.php Boost archive]
 
 # [@http://www.exploringbinary.com/ Exploring Binary]  Blog by Rick Regan, 2015.
+
+# [@http://www.drdobbs.com/cpp/optimizing-math-intensive-applications-w/207000448
+Optimizing Math-Intensive Applications with Fixed-Point Arithmetic], Anthony Williams,  Dr Dobbs March 2008.
+
+# [@https://en.wikipedia.org/wiki/Fixed-point_arithmetic Fixed-point arithmetic]
+
+# [@https://en.wikipedia.org/wiki/Libfixmath libfixmath fixed-point library] by Ben Brewer.
+
+# [@https://en.wikipedia.org/wiki/Q_(number_format) Q number format] used to specify fixed-point numbers with (optional) sign,
+scaling and fractional parts.
+
+#[@https://software.intel.com/en-us/articles/performance-benefits-of-half-precision-floats Performance Benefits of Half Precision Floats]
+Patrick Konsor, Intel 2012. Discusses how using only a 16-bit floating-point type as a ['storage] type
+can save much memory when there are very many values to store.
+Using less memory can also reduce cache misses and can reduce disk I/O.
+
+The type is always converted to
+a __fundamental floating-point type for any computation;
+instructions vcvtph2ps and vcvtps2ph are provided to convert to and from 32-bit float efficiently.
+
+* [@https://en.wikipedia.org/wiki/ARM_architecture ARM architecture]
 
 [/todo Need more background references?]
 

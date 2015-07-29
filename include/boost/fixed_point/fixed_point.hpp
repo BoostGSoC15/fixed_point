@@ -237,6 +237,83 @@
                                                    RoundMode,
                                                    OverflowMode> x, int exp);
 
+
+    // Forward declaration of fixed_next.
+    template<const int IntegralRange,
+      const int FractionalResolution,
+      typename RoundMode,
+      typename OverflowMode>
+        inline negatable<IntegralRange,
+        FractionalResolution,
+        RoundMode,
+        OverflowMode> 
+      fixed_next(negatable<IntegralRange,
+      FractionalResolution,
+      RoundMode,
+      OverflowMode> x);
+
+    // Forward declaration of fixed_prior.
+    template<const int IntegralRange,
+      const int FractionalResolution,
+      typename RoundMode,
+      typename OverflowMode>
+      inline negatable<IntegralRange,
+      FractionalResolution,
+      RoundMode,
+      OverflowMode>
+      fixed_prior(negatable<IntegralRange,
+      FractionalResolution,
+      RoundMode,
+      OverflowMode> x);
+
+    // Forward declaration of fixed_distance.
+    template<const int IntegralRange,
+      const int FractionalResolution,
+      typename RoundMode,
+      typename OverflowMode>
+      inline negatable<IntegralRange,
+      FractionalResolution,
+      RoundMode,
+      OverflowMode>
+      fixed_distance(negatable<IntegralRange,
+      FractionalResolution,
+      RoundMode,
+      OverflowMode> x, 
+      negatable<IntegralRange,
+      FractionalResolution,
+      RoundMode,
+      OverflowMode> y);
+
+    // Forward declaration of fixed_advance.
+    template<const int IntegralRange,
+      const int FractionalResolution,
+      typename RoundMode,
+      typename OverflowMode>
+      inline negatable<IntegralRange,
+      FractionalResolution,
+      RoundMode,
+      OverflowMode>
+      fixed_advance(negatable<IntegralRange,
+      FractionalResolution,
+      RoundMode,
+      OverflowMode> x,
+      signed int distance);
+
+    // Forward declaration of fixed_nextafter.
+    template<const int IntegralRange,
+      const int FractionalResolution,
+      typename RoundMode,
+      typename OverflowMode>
+      inline negatable<IntegralRange,
+      FractionalResolution,
+      RoundMode,
+      OverflowMode>
+      fixed_nextafter(negatable<IntegralRange,
+      FractionalResolution,
+      RoundMode,
+      OverflowMode> x,
+      int direction);
+
     // Forward declaration of sqrt.
     template<const int IntegralRange,
              const int FractionalResolution,
@@ -1598,9 +1675,48 @@
         return negatable(nothing(), value_type((!is_neg) ? value_type(result) : -value_type(result)));
       }
       else
-      {
+      { 
         return x;
       }
+    }
+
+    /*! Provide next, prior and distance for fixed_point types.
+
+    */
+
+    friend inline negatable fixed_next(negatable x)
+    {
+      // TBD overflow
+      return x + std::numeric_limits<negatable>::min();
+    }
+
+    friend inline negatable fixed_prior(negatable x)
+    { // TBD underflow
+      return x - std::numeric_limits<negatable>::min();
+    }
+
+    friend inline negatable fixed_distance(negatable x, negatable y)
+    {
+      // TBD over/underflow
+      // TBD no account of sign of x or y - see complex logic in boost.math next.hpp.
+      // Not sure if return should not be an integer?
+      // float_distance in next.hpp returns type T
+      if (x == y) return 0;
+
+      return (y - x) / std::numeric_limits<negatable>::min();
+    }
+
+    friend inline negatable fixed_advance(negatable x, int distance)
+    {
+      // TBD over/underflow
+      return x + distance * std::numeric_limits<negatable>::min();
+    }
+
+    friend inline negatable fixed_nextafter(negatable val, signed int direction)
+    { // TBD over and underflow
+      return val < direction ? val + std::numeric_limits<negatable>::min()
+        : val == direction ? val
+        : val - std::numeric_limits<negatable>::min();  // val > direction 
     }
 
     friend inline negatable sqrt(negatable x)
