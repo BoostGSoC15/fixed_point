@@ -1002,9 +1002,11 @@
         // Use the reverse order to simplify the bit-extraction algorithm.
         // Reverse the bit pattern after the bit extraction.
 
-        // TBD: Why does reverse iteration and bit-test not work for GCC?
-        // TBD: Use forward iteration as suggested by Nikhar and reverse
+        // Use forward iteration as suggested by Nikhar and reverse
         // after the bit extraction.
+
+        // TBD: Why do reverse iteration and bit-test not work
+        // for certain GCCs, but do work for MSVC?
 
         std::for_each(answer.begin(),
                       answer.end(),
