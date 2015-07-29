@@ -1687,12 +1687,12 @@
     friend inline negatable fixed_next(negatable x)
     {
       // TBD overflow
-      return x + std::numeric_limits<negatable>::min();
+      return x + (std::numeric_limits<negatable>::min)();
     }
 
     friend inline negatable fixed_prior(negatable x)
     { // TBD underflow
-      return x - std::numeric_limits<negatable>::min();
+      return x - (std::numeric_limits<negatable>::min)();
     }
 
     friend inline negatable fixed_distance(negatable x, negatable y)
@@ -1703,20 +1703,20 @@
       // float_distance in next.hpp returns type T
       if (x == y) return 0;
 
-      return (y - x) / std::numeric_limits<negatable>::min();
+      return (y - x) / (std::numeric_limits<negatable>::min)();
     }
 
     friend inline negatable fixed_advance(negatable x, int distance)
     {
       // TBD over/underflow
-      return x + distance * std::numeric_limits<negatable>::min();
+      return x + distance * (std::numeric_limits<negatable>::min)();
     }
 
     friend inline negatable fixed_nextafter(negatable val, signed int direction)
     { // TBD over and underflow
-      return val < direction ? val + std::numeric_limits<negatable>::min()
+      return val < direction ? val + (std::numeric_limits<negatable>::min)()
         : val == direction ? val
-        : val - std::numeric_limits<negatable>::min();  // val > direction 
+        : val - (std::numeric_limits<negatable>::min)();  // val > direction 
     }
 
     friend inline negatable sqrt(negatable x)
