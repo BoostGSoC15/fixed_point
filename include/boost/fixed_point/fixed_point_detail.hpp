@@ -600,6 +600,7 @@
         unsigned_destination = static_cast<UnsignedIntegralType>(floating_point_source);
       }
     };
+
   #else
 
     template<typename UnsignedIntegralType,
@@ -613,6 +614,20 @@
         unsigned_destination = static_cast<UnsignedIntegralType>(floating_point_source);
       }
     };
+
+    #if defined(BOOST_FLOAT80_C)
+    template<>
+    struct conversion_helper<boost::uint64_t,
+                             boost::float80_t,
+                             typename std::enable_if<true>::type>
+    {
+      static void convert_floating_point_to_unsigned_integer(const boost::float80_t& floating_point_source,
+                                                             boost::uint64_t& unsigned_destination)
+      {
+        unsigned_destination = static_cast<boost::uint64_t>(floating_point_source);
+      }
+    };
+    #endif
 
   #endif // !BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
 
