@@ -25,7 +25,7 @@ namespace local
 {
   template<typename FixedPointType,
            typename FloatPointType = typename FixedPointType::float_type>
-  void test(const FixedPointType& my_tolerance = ldexp(FixedPointType(1), FixedPointType::resolution + 3))
+  void test(const FixedPointType& my_tolerance = ldexp(FixedPointType(1), FixedPointType::resolution + 2))
   {
     // Use at least 6 resolution bits.
     // Use at least 8 range bits.
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(fixed_point_sqrt)
   { typedef boost::fixed_point::negatable<100,  -10, boost::fixed_point::round::fastest> fixed_point_type; local::test<fixed_point_type>(); }
   { typedef boost::fixed_point::negatable< 20, -100, boost::fixed_point::round::fastest> fixed_point_type; local::test<fixed_point_type>(); }
   { typedef boost::fixed_point::negatable<100, -100, boost::fixed_point::round::fastest> fixed_point_type; local::test<fixed_point_type>(); }
-  { typedef boost::fixed_point::negatable< 20, -491, boost::fixed_point::round::fastest> fixed_point_type; local::test<fixed_point_type>(ldexp(fixed_point_type(1), fixed_point_type::resolution + 16)); }
+  { typedef boost::fixed_point::negatable< 20, -491, boost::fixed_point::round::fastest> fixed_point_type; local::test<fixed_point_type>(ldexp(fixed_point_type(1), fixed_point_type::resolution + 8)); }
 
   { typedef boost::fixed_point::negatable<  8,   -7, boost::fixed_point::round::nearest_even> fixed_point_type; local::test<fixed_point_type>(); }
   { typedef boost::fixed_point::negatable<  8,  -15, boost::fixed_point::round::nearest_even> fixed_point_type; local::test<fixed_point_type>(); }
@@ -88,5 +88,5 @@ BOOST_AUTO_TEST_CASE(fixed_point_sqrt)
   { typedef boost::fixed_point::negatable<100,  -10, boost::fixed_point::round::nearest_even> fixed_point_type; local::test<fixed_point_type>(); }
   { typedef boost::fixed_point::negatable< 20, -100, boost::fixed_point::round::nearest_even> fixed_point_type; local::test<fixed_point_type>(); }
   { typedef boost::fixed_point::negatable<100, -100, boost::fixed_point::round::nearest_even> fixed_point_type; local::test<fixed_point_type>(); }
-  { typedef boost::fixed_point::negatable< 20, -491, boost::fixed_point::round::nearest_even> fixed_point_type; local::test<fixed_point_type>(ldexp(fixed_point_type(1), fixed_point_type::resolution + 16)); }
+  { typedef boost::fixed_point::negatable< 20, -491, boost::fixed_point::round::nearest_even> fixed_point_type; local::test<fixed_point_type>(ldexp(fixed_point_type(1), fixed_point_type::resolution + 8)); }
 }
