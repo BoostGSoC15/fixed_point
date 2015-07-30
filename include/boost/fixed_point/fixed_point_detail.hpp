@@ -395,11 +395,31 @@
     };
   #endif // BOOST_FLOAT64_C
 
+  #if defined(BOOST_FLOAT80_C)
+    template<const unsigned BitCount>
+    struct float_type_helper<BitCount,
+    #if defined(BOOST_FLOAT64_C)
+                             typename std::enable_if<   (BitCount >  53U)
+                                                     && (BitCount <= 64U)>::type>
+    #else
+                             typename std::enable_if<   (BitCount >  24U)
+                                                     && (BitCount <= 64U)>::type>
+    #endif
+    {
+      typedef boost::float64_t exact_float_type;
+    };
+  #endif // BOOST_FLOAT80_C
+
   #if defined(BOOST_FLOAT128_C)
     template<const unsigned BitCount>
     struct float_type_helper<BitCount,
+    #if defined(BOOST_FLOAT80_C)
+                             typename std::enable_if<   (BitCount >   64U)
+                                                     && (BitCount <= 113U)>::type>
+    #else
                              typename std::enable_if<   (BitCount >   53U)
                                                      && (BitCount <= 113U)>::type>
+    #endif
     {
       typedef boost::float128_t exact_float_type;
     };
@@ -523,6 +543,20 @@
         unsigned_destination = floating_point_source.template convert_to<UnsignedIntegralType>();
       }
     };
+
+    #if defined(BOOST_FLOAT80_C)
+    template<>
+    struct conversion_helper<boost::uint64_t,
+                             boost::float80_t,
+                             typename std::enable_if<true>::type>
+    {
+      static void convert_floating_point_to_unsigned_integer(const boost::float80_t& floating_point_source,
+                                                             boost::uint64_t& unsigned_destination)
+      {
+        unsigned_destination = static_cast<boost::uint64_t>(floating_point_source);
+      }
+    };
+    #endif
 
     template<typename FloatingPointType>
     struct conversion_helper<boost::uint64_t,

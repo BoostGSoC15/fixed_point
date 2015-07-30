@@ -399,7 +399,7 @@
         For example: @c boost::fixed_point::negatable<2, -5> @c x; @c int @c n=x.all_bits; @c n==8\n
         x.range + (-x.resolution) + 1 == 2 + (-(-5)) +1 == 8.
     */
-    static BOOST_CONSTEXPR_OR_CONST int all_bits    = (range + 1) + (-resolution); // +1 for a sign bit.
+    static BOOST_CONSTEXPR_OR_CONST int all_bits = (range + 1) + (-resolution); // +1 for a sign bit.
 
     //! \sa range and resolution,  public static data.
     static BOOST_CONSTEXPR_OR_CONST int radix_split = -FractionalResolution;
