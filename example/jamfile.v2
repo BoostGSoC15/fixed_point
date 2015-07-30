@@ -61,7 +61,7 @@ project
 #run fixed_point_type_examples.cpp ;
 
 # Generate Quickbook tables of types and their numeric_limits.
-# run fixed_point_types_table.cpp ;
+ run fixed_point_types_table.cpp ;
  run fixed_point_representation_examples.cpp ;
 
 

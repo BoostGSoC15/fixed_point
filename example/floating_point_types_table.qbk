@@ -13,7 +13,7 @@ http://www.boost.org/LICENSE_1_0.txt).
 [[half] [5] [10] [16] [4.88e-4] [-6.55e4] [6.10e-5] [6.55e4]]
 [[float] [8] [24] [24] [32] [1.19e-007] [-3.403e+038] [1.175e-038] [3.403e+038]]
 [[double] [11] [53] [53] [64] [2.22e-016] [-1.798e+308] [2.225e-308] [1.798e+308]]
-[[long double] [11] [64] [64] [80] [1.08e-019] [-1.190e+4932] [3.362e-4932] [1.190e+4932]]
+[[long double] [11] [53] [53] [80] [2.22e-016] [-1.798e+308] [2.225e-308] [1.798e+308]]
 ] [/table:floating_point_types_table]
 
 [endsect] [/section:floating_point_limits  Numeric limits for IEE754 floating_point types]

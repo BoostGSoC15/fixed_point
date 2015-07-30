@@ -30,6 +30,8 @@ BOOST_AUTO_TEST_CASE(fixed_point_numeric_limits_min)
     typedef boost::fixed_point::negatable<2, -5> fixed_point_type_2m5;
     fixed_point_type_2m5 x = (std::numeric_limits<fixed_point_type_2m5>::min)();
     BOOST_CHECK_EQUAL(x.all_bits, 8);
+    BOOST_CHECK_EQUAL(x.range, 2);
+    BOOST_CHECK_EQUAL(x.resolution, 5);
     fixed_point_type_2m5 m = 0.03125;
     // std::cout << m.bit_pattern() << std::endl;
     BOOST_CHECK_EQUAL(m.bit_pattern(), "00000001");
@@ -180,6 +182,21 @@ BOOST_AUTO_TEST_CASE(fixed_point_numeric_limits_epsilon)
     BOOST_CHECK_EQUAL((std::numeric_limits<negatable<4, -1> >::epsilon()), 1); //
     BOOST_CHECK_EQUAL((std::numeric_limits<negatable<5, -1> >::epsilon()), 1); //
     BOOST_CHECK_EQUAL((std::numeric_limits<negatable<6, -1> >::epsilon()), 1); //
+  }
+  { // Big resolutions that will use multiprecision.
+    // Wolfram alpha 2^-2543.454467422037777850154540745120159828446400145774512554 × 10^-77
+    negatable<0, -255> e;
+    e = 3.454467422037777850154540745120159828446400145774512554e-77;
+
+    BOOST_CHECK_EQUAL((std::numeric_limits<negatable<0, -255> >::epsilon()), e);
+    BOOST_CHECK_EQUAL((std::numeric_limits<negatable<0, -255> >::epsilon()), 3.45446742203777785015454074512015982844640014577451255400948138806743672126497e-77); // 2^-(255-1) = 2^254 = 
+    
+  }
+  { // Default constructor clears data member so value is zero.
+    negatable<0, -255> x;
+    BOOST_CHECK_EQUAL(x, 0);
+  
+  
   }
 
 

@@ -50,6 +50,20 @@
 
 [/ External links]
 [def __cpp_standard [@http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4382.pdf C++ draft standard]]
+[/Note that is just a recent draft, not an actual standard]
+
+[def __boost_license [@http://www.boost.org/LICENSE_1_0.txt Boost License]]
+[def __boostbook [@http://www.boost.org/doc/html/boostbook.html BoostBook]]
+[def __boostbook_docs [@http://www.boost.org/doc/libs/release/doc/html/boostbook.html BoostBook documentation]]
+[def __quickbook  [@http://www.boost.org/doc/tools/quickbook/index.html Quickbook]]
+[def __quickbook_syntax [@http://www.boost.org/doc/libs/release/doc/html/quickbook/ref.html Quickbook Syntax Compendium]]
+[def __docbook [@http://www.docbook.org/ DocBook]]
+[def __doxygen [@http://www.doxygen.org/ Doxygen]]
+[def __doxygen_conditionals [@http://www.stack.nl/~dimitri/doxygen/manual/commands.html#cmdcond Doxygen conditional command \cond ... \endcond]]
+[def __pdf [@http://www.adobe.com/products/acrobat/adobepdf.html PDF]]
+[def __inkscape [@http://www.inkscape.org Inkscape]]
+[def __autoindex  [@http://www.boost.org/doc/libs/release/tools/auto_index/doc/html/index.html Automatic Indexing]]
+
 [def __boost [@http://www.boost.org/ Boost]]
 [def __boost_archives [@http://lists.boost.org/Archives/boost/ Boost archives]]
 [def __boostroot [@boost: Boost root ./modular-boost]]
@@ -83,8 +97,10 @@
 [def __double_format [@https://en.wikipedia.org/wiki/Double-precision_floating-point_format 64-bit double format]]
 [def __quad_format [@https://en.wikipedia.org/wiki/Quadruple-precision_floating-point_format 128-bit quad format]]
 [def __n3352 [@http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html C++ Binary Fixed-Point Arithmetic N3352]]
-[def __CMK_realtime [@10.1007/978-3-642-34688-0 Real-Time C++, C M Kormanyos]]
+[def __CMK_realtime [@http://dx.doi.org/DOI:10.1007/978-3-642-34688-0 Real-Time C++, C M Kormanyos]]
+[/See https://en.wikipedia.org/wiki/Digital_object_identifier Note B on specifying links to DOI.  http://dx.doi.org/DOI seems to work best.]
 [def __NaN [@https://en.wikipedia.org/wiki/NaN NaN]]
+[def __cmath [@http://www.cplusplus.com/reference/cmath/ cmath]]
 [def __nan [@http://www.cplusplus.com/reference/cmath/nan-function/ C++ nan function]]
 [def __infinity [@http://www.cplusplus.com/reference/cmath/INFINITY/?kw=INFINITY  infinity]]
 [def __isnan [@http://www.cplusplus.com/reference/cmath/isnan/?kw=isnan  isnan function]]
@@ -94,7 +110,7 @@
 [def __corner [@https://en.wikipedia.org/wiki/Corner_case corner case]]
 [def __boundary [@https://en.wikipedia.org/wiki/Boundary_case boundary case]]
 [def __significand [@https://en.wikipedia.org/wiki/Significand significand]]
-[def __C_math [@http://en.cppreference.com/w/cpp/numeric/math C math]]
+[def __cmath [@http://en.cppreference.com/w/cpp/numeric/math C math]]
 [def __is_fundamental [@http://en.cppreference.com/w/cpp/types/is_fundamental std::is_fundamental]]
 [def __is_arithmetic [@http://en.cppreference.com/w/cpp/types/is_arithmetic std::is_arithmetic]]
 [def __is_floating_point[@http://en.cppreference.com/w/cpp/types/is_floating_point std::is_floating_point]]
@@ -105,6 +121,8 @@
 [/Links to classes etc]
 
 [def __negatable [classref boost::fixed_point::negatable  negatable]]
+[def __negatable_value_type [classref boost::fixed_point::negatable::value_type  value_type]]
+[def __negatable_float_type [classref boost::fixed_point::negatable::float_type  float_type]]
 
 [/Unclear how to get a link to the tempate parameters??? So link to class negatable for now.]
 [def __range [classref boost::fixed_point::negatable  integral_range]]
@@ -132,13 +150,10 @@
 [def __pi [memberref boost::fixed_point::negatable::constant_maker::pi pi()]]
 [def __ln_two [memberref boost::fixed_point::negatable::constant_maker::ln_two]]
 
+
 [/Links to sections within fixed_point]
 [def __examples [link fixed.examples examples]]
 [def __intro [link fixed.intro introduction]]
-
-see __examples.
-
-see __intro
 
 [section:intro Introduction]
 The Fixed-point Library provides fixed-point types in C++ that have different
@@ -249,9 +264,9 @@ This ensures no loss of precision or double rounding during construction.
 [fixed_example_1]
 
 We can inspect the __significand or fraction (also called  mantissa but this term is now deprecated)
-and the exponent parts using the using __C_math function `frexp`, and alter the exponent using `ldexp`.
+and the exponent parts using the using __cmath function `frexp`, and alter the exponent using `ldexp`.
 
-Of course, other __C_math functions (`#include <cmath>`) are available.
+Of course, other __cmath functions (`#include <cmath>`) are available.
 
 The user can simply call `sqrt(negatable)` without requiring any namespace decoration.
 
@@ -259,7 +274,7 @@ TODO Examples snippet needed here.
 
 (See rationale for more details on this).
 
-[warning Some __C_math functions are not applicable to `fixed_point` values;
+[warning Some __cmath functions are not applicable to `fixed_point` values;
 others may not yet be implemented.]
 
 [endsect] [/section:numeric_limits Example of a fixed_point type and its numeric_limits]
@@ -424,7 +439,7 @@ with this include:
 
   #include <typeinfo>
 
-To output the name of fixed_point type `negatable<0, -8>` use the `value_type`:
+To output the name of fixed_point type `negatable<0, -8>` use the __value_type:
 
 [fixed_point_type_representation_example_1]
 
@@ -436,7 +451,7 @@ For larger digit counts, this will be a __multiprecision signed integer type.
 One might also want to know the floating-point type that is guaranteed to be wide
 enough to represent the fixed-point negatable number in its entirety.
 
-For this use `float_type`:
+For this use __float_type:
 
 [fixed_point_type_representation_example_2]
 
@@ -684,7 +699,7 @@ The minimal set of  needs:
 * mixed-math global operators add, sub, mul, and div.
 * mixed-math comparison operators.
 
-Desing choices were made that the result of ['(a + b)] has the type of ['a].
+Design choices were made that the result of ['(a + b)] has the type of ['a].
 
 This might be controversial,
 as some might argue that the result of ['(a + b)] should
@@ -725,7 +740,7 @@ A template parameter is provided to control this.
 
 [section:cmath C math functions injected into global namespace]
 
-All implemented __C_math functions are injected into the global namespace
+All implemented __cmath functions are injected into the global namespace
 using statements like
 
   using boost::fixed_point::sqrt;
@@ -791,6 +806,71 @@ possibly much quicker.
 
 [endsect] [/section:main_faq Frequently Asked Questions FAQ]
 
+[section:howtouse How To Use This Documentation]
+
+This documentation is prepared using the Boost __quickbook, __boostbook, __doxygen, __autoindex toolchain.
+
+* Start with the Table of Contents, but see also:
+
+* Hyperlinks (shown in two colors depending on whether they have been visited, or not).[br]
+Considerable work has been put into providing extensive links, so please use them!
+
+* Indexes that link directly to both words in the text and to reference documentation.
+
+* Doxygen-derived C++ Reference.[br]
+[tip The colored class and function names are links will lead you to an individual class, function etc
+are the key to finding what an item does,
+and its parameter, template parameters, pre and post conditions, and returns.]
+The information given is derived from Doxygen-syntax comments in the include files, mainly
+[@../include/boost/fixed_point/fixed_point.hpp fixed_point.hpp].
+
+* Examples will often be your quickest way to find what you need to know.
+Examples often deliberately use many features, often in contrived fashion.
+Snippets of syntax-colored code are used in the text.
+You can also use links to display the entire source code of examples in the `example` folder.
+You should be able to run these examples without modification
+and are often a good starting point to write your own code.
+
+* Tests will also give examples of use. Like examples, there will be links to tests in the `test` folder.
+
+[heading Admonishments]
+
+[note These blocks typically go into more detail about an explanation given above.]
+
+[tip These blocks contain information that you may find helpful while coding.]
+
+[important These contain information that is imperative to understanding a concept.
+Failure to follow suggestions in these blocks will probably result in undesired behavior.
+Read all of these you find.]
+
+[warning It is wise that you follow these. Failure to do so will lead to
+incorrect, and very likely undesired, results.]
+
+[section:conventions Document Conventions]
+
+This documentation aims to use of the following naming and formatting conventions:
+
+* C++ code is in `fixed width font` and is syntax-highlighted in color, for example `double` in blue.
+* Other code is in block [^teletype fixed-width font].
+* Replaceable text that [*you will need to supply] is in [~italics].
+* If a name refers to a free function, it is specified like this:
+  `free_function()`; that is, it is in [~code font] and its name is followed by `()`
+  to indicate that it is a free function.
+* If a name refers to a class template, it is specified like this:
+  `class_template<>`; that is, it is in code font and its name is followed by `<>`
+  to indicate that it is a class template.
+* If a name refers to a function-like macro, it is specified like this: `MACRO()`;
+  that is, it is uppercase in code font and its name is followed by `()` to
+  indicate that it is a function-like macro. Object-like macros appear without the
+  trailing `()`.
+* Names that refer to ['concepts] in the generic programming sense
+(like template parameter names) are specified in CamelCase, for example [^IntegralRange].
+
+[endsect] [/section:conventions Document Conventions]
+
+
+[endsect] [/section:howtouse How To Use This Documentation]
+
 [section:perf Performance Comparison]
 
 TODO
@@ -846,9 +926,11 @@ Vicente Botet Escriba prototyped a [@http://svn.boost.org/svn/boost/sandbox/fixe
 
 #__n3352
 
-# __CMK_realtime Efficient Object-Oriented and Template Microcontroller Programming, DOI 10.1007/978-3-642-34688-0,  2013
+#  Efficient Object-Oriented and Template Microcontroller Programming,
+__CMK_realtime, ISBN 978-3-642-34688-0,  2013,
 
-#[@http://lists.boost.org/Archives/boost/2012/04/192165.php Boost archive]
+#[@http://lists.boost.org/Archives/boost/2012/04/192165.php]
+[/ Boost archive thread:fixed_point:Request for interest in a binary fixed point library]
 
 # [@http://www.exploringbinary.com/ Exploring Binary]  Blog by Rick Regan, 2015.
 
@@ -868,7 +950,7 @@ can save much memory when there are very many values to store.
 Using less memory can also reduce cache misses and can reduce disk I/O.
 
 The type is always converted to
-a __fundamental floating-point type for any computation;
+a __fundamental_types floating-point type for any computation;
 instructions vcvtph2ps and vcvtps2ph are provided to convert to and from 32-bit float efficiently.
 
 * [@https://en.wikipedia.org/wiki/ARM_architecture ARM architecture]
@@ -877,27 +959,6 @@ instructions vcvtph2ps and vcvtps2ph are provided to convert to and from 32-bit 
 
 [endsect] [/section:ack References]
 
-[section:conventions Document Conventions]
-
-This documentation aims to use of the following naming and formatting conventions:
-
-* C++ code is in `fixed width font` and is syntax-highlighted in color, for example `double` in blue.
-* Other code is in block [^teletype fixed-width font].
-* Replaceable text that [*you will need to supply] is in [~italics].
-* If a name refers to a free function, it is specified like this:
-  `free_function()`; that is, it is in [~code font] and its name is followed by `()`
-  to indicate that it is a free function.
-* If a name refers to a class template, it is specified like this:
-  `class_template<>`; that is, it is in code font and its name is followed by `<>`
-  to indicate that it is a class template.
-* If a name refers to a function-like macro, it is specified like this: `MACRO()`;
-  that is, it is uppercase in code font and its name is followed by `()` to
-  indicate that it is a function-like macro. Object-like macros appear without the
-  trailing `()`.
-* Names that refer to ['concepts] in the generic programming sense
-(like template parameter names) are specified in CamelCase, for example [^IntegralRange].
-
-[endsect] [/section:conventions Document Conventions]
 
 [xinclude autodoc.xml] [/ Using Doxygen reference documentation.]
 
@@ -913,8 +974,6 @@ This documentation aims to use of the following naming and formatting convention
 [/named_index type title] [/see modular-boost/tools/auto_index/doc/html/boost_autoindex/qbk.html]
 [named_index function_name Function Index]
 [named_index class_name Class Index]
-[named_index typedef_name Typedef Index]
-[named_index macro_name Macro Index]  [/NO entries in this yet????]
 [endsect] [/section:indexes Indexes]
 
 

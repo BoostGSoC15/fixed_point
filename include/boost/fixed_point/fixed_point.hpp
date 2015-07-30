@@ -183,7 +183,7 @@
              typename OverflowMode>
     class negatable;
 
-    // What follows are forward declarations of elementary transcendental functions.
+    // What follows are forward declarations of elementary transcendental functions mainly from <cmath>.
 
     // Forward declaration of abs.
     template<const int IntegralRange,
@@ -317,7 +317,8 @@
                                                   RoundMode,
                                                   OverflowMode> x);
 
-  } } // namespace boost::fixed_point
+    } // End of forward declaration of transcendental and cmath functions.
+  } // namespace boost::fixed_point
 
   namespace std
   {
@@ -338,11 +339,18 @@
 
   /*!
     \brief Fixed_point negatable class used for signed fractional arithmetic.
-    \details TODO  some examples here?
-    \tparam IntegralRange  Integer g  >= 0 defines a range of signed number n that is 2^-g < n < 2^g.
-    \tparam FractionalResolution Integer s <= -1 defines resolution. The resolution of a fractional number is 2^s.
-    \tparam RoundMode struct defining the rounding behaviour, default round::fastest.
+    \details This is a partial reference implementation for the proposed by
+      Lawrence Crowl, "C++ binary fixed-point arithmetic" as specified in N3352.\n
+      In this particular file, we implement a prototype for the negatable template class.\n
+      Example: @c boost::fixed_point::negatable<2, -5> @c x;\n
+      TODO  some more examples here?
+    \tparam IntegralRange Integer integer >= 0 defines a range of signed number n that is 2^-IntegralRange < n < 2^IntegralRange.
+    \tparam FractionalResolution integer <= -1 defines resolution. 
+      The resolution of a fractional number is 2^FractionalResolution.
+    \tparam RoundMode struct defining the rounding behaviour, default round::fastest.\n
+    \note  Not all rounding or all overflow modes proposed in N3352 are yet implemented.
     \tparam OverflowMode struct defining the behaviour from rounding, default overflow::undefined.
+    \sa http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html
   */
 
   template<const int IntegralRange,
@@ -386,17 +394,24 @@
   public:
 
     // Make the range, resolution and total number of bits available to the user.
-    // These echo the values of the template parameters.
+    // These just echo the values of the template parameters.
   
-    //! range Value of template parameter IntegralRange for the negatable type.
-    static BOOST_CONSTEXPR_OR_CONST int range      = IntegralRange;
-    //! range Value of template parameter FractionalResolution for the negatable type.
-    static BOOST_CONSTEXPR_OR_CONST int resolution = FractionalResolution;
-    /*! digits_total Total number of bits in the negatable type, including sign, for example:\n
-        boost::fixed_point::negatable<2, -5> x;\n
-        x.range + (-x.resolution) + 1 == 8.
+    /*! Value of template parameter IntegralRange for the negatable type.\n
+    Usage: boost::fixed_point::negatable<2, -5> x; x.range == 2;
     */
-    static BOOST_CONSTEXPR_OR_CONST int all_bits   = digits_total;
+    static BOOST_CONSTEXPR_OR_CONST int range = IntegralRange;
+
+    /*! Value of template parameter FractionalResolution for the negatable type.\n
+    Usage: boost::fixed_point::negatable<2, -5> x; x.resolution == -5;
+    \note The value of resolution is always negative.
+    */
+    static BOOST_CONSTEXPR_OR_CONST int resolution = FractionalResolution;
+
+    /*! Total number of bits in the negatable type, including sign.\n
+        For example: @c boost::fixed_point::negatable<2, -5> @c x; @c int @c n=x.all_bits; @c n==8\n
+        x.range + (-x.resolution) + 1 == 2 + (-(-5)) +1 == 8.
+    */
+    static BOOST_CONSTEXPR_OR_CONST int all_bits = digits_total;
 
     // Friend forward declaration of another negatable class
     // with different template parameters.
@@ -412,18 +427,30 @@
     /*!
       The signed integer representation of the fixed-point negatable number.\n
       For low digit counts, this will be
-      a built-in type such as @c int8_t, @c int16_t, @c int32_t, @c int64_t, etc.
+      a built-in type such as @c int8_t, @c int16_t, @c int32_t, @c int64_t, etc.\n
       For larger digit counts, this will be a multiprecision signed integer type.
     */
     typedef typename detail::integer_type_helper<negatable::digits_total - 0>::exact_signed_type value_type;
 
     /*!
       The floating-point type that is guaranteed to be wide
-      enough to represent the fixed-point negatable number
-      in its entirety.\n
-      For low digit counts, this will be
-      a built-in type such as @c float, @c double or @c long @c double.
-      For larger digit counts, this will be a multiprecision floating point type.
+      enough to represent the fixed-point negatable number in its entirety.\n
+      For low digit counts, this will be a built-in type such as @c float, @c double or @c long @c double.\n
+      Example: @c negatable<15, -16> using 32-bits\n
+      \code
+       Fixed_point Type class boost::fixed_point::negatable<15,-16,struct boost::fixed_point::round::fastest,struct boost::fixed_point::overflow::undefined> with range 15, resolution -16
+       value_type is int
+       float_type is double
+      \endcode
+
+      For larger digit counts, this will be a multiprecision floating-point type such as cpp_bin_float.\n
+      Example: for a fixed_point type @c negatable<10, -53> using 64-bits
+      \code
+       Fixed_point Type class boost::fixed_point::negatable<10,-53,struct boost::fixed_point::round::fastest,struct boost::fixed_point::overflow::undefined> with range 10, resolution -53
+       value_type is __int64
+       float_type is class boost::multiprecision::number<class boost::multiprecision::backends::cpp_bin_float<63,2,void,int,0,0>,0>
+
+      \endcode
 
     */
    typedef typename detail::float_type_helper  <negatable::digits_total - 1>::exact_float_type  float_type;
@@ -431,11 +458,16 @@
     // The public class constructors follow below.
 
     // The class default constructor is implemented below.
-    // By design choice, the default constructor clears
-    // the data member.
+
+    /*! Default constructor.\n By design choice, this clears the data member.\n 
+    So after defining @c negatable<15,-16> @c x; then @c x==0; 
+    */
+
     negatable() : data() { }
 
     // Here are the class constructors from built-in unsigned integral types.
+    /*! Constructors from built-in unsigned integral types.
+    */
     template<typename IntegralType>
     negatable(const IntegralType& u,
               const typename std::enable_if<(   std::is_integral<IntegralType>::value
@@ -444,6 +476,10 @@
 
     // Here are the class constructors from both built-in signed integral
     // types as well as from the internal value_type of the data member.
+
+    /*! Constructors from both built-in signed integral types, 
+        as well as from the internal @c value_type of the data member.
+    */
     template<typename IntegralType>
     negatable(const IntegralType& n,
               const typename std::enable_if<  (   std::is_integral<IntegralType>::value
@@ -453,6 +489,10 @@
                         : -value_type(unsigned_small_type(unsigned_small_type(-n) << radix_split) & unsigned_small_mask())) { }
 
     // Here are the class constructors from built-in floating-point types.
+    /*! Constructors from built-in floating-point types: @c float, @c double or @c long @c double.\n
+        Example: negatable<15,-16> x(2.3L);\n
+        Overflow and underflow is of course possible.
+    */
     template<typename FloatingPointType>
     negatable(const FloatingPointType& f,
               const typename std::enable_if<   std::is_floating_point<FloatingPointType>::value
@@ -463,6 +503,20 @@
     }
 
     // Here is the class copy constructor.
+
+    /*! Copy constructors, including mixed-math class constructors that
+        create a negatable type from another negatable type
+        having @b different range and/or resolution.\n
+        Copying a value of same type is simple.\n
+        We can identify four mixed-math cases:\n
+        1) smaller : smaller --> ( OtherIntegralRange <= IntegralRange) && (|OtherFractionalResolution| <= |FractionalResolution|)\n
+        2) larger  : smaller --> ( OtherIntegralRange > IntegralRange) && (|OtherFractionalResolution| <= |FractionalResolution|)\n
+        3) smaller : larger  --> ( OtherIntegralRange <= IntegralRange) && (|OtherFractionalResolution| >  |FractionalResolution|)\n
+        4) larger  : larger  --> ( OtherIntegralRange >  IntegralRange) && (|OtherFractionalResolution| >  |FractionalResolution|)\n
+
+        Design choices were made that the result of @c (a+b) has the type of @c a.
+
+    */
     negatable(const negatable& v) : data(v.data) { }
 
     // What follows are mixed-math class constructors that
@@ -633,15 +687,15 @@
       data = ((!is_neg) ? value_type(u_round) : -value_type(u_round));
     }
 
-    // This is the class destructor. It has trivial complexity
-    // because the negatyble class does not do any allocation
-    // or complex operations (if any) that are not already
-    // handled by the underlying value_type.
-
+    /*! Destructor.\n
+        It has trivial complexity because the negatable class does not do any allocation
+        or complex operations (if any) that are not already handled by the underlying @c value_type.
+    */
     ~negatable() { }
 
-    // The class equality operators follow below.
+    /*! Equality operators.\n 
 
+    */
     // This is the standard equality operator.
     negatable& operator=(const negatable& other)
     {
@@ -653,8 +707,9 @@
       return *this;
     }
 
-    // This is the equality operator of *this with another
-    // negatable type.
+    /*! Equality operator of @c *this with another negatable type
+    having @b different range and/or resolution parameters than @c *this.
+    */
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution>
     negatable& operator=(const negatable<OtherIntegralRange,
@@ -662,13 +717,8 @@
                                          RoundMode,
                                          OverflowMode>& other)
     {
-      // Here, we are equating *this to another negatable type
-      // having different range and/or resolution paramters
-      // than *this.
-
-      // Use a relatively lazy method that creates an intermediate
-      // temporary object. The temporary object is subsequently used
-      // to initialize the data field of *this.
+      // Use a relatively lazy method that creates an intermediate temporary object.
+      // The temporary object is subsequently used to initialize the data field of *this.
 
       const negatable tmp(other);
 
@@ -677,7 +727,7 @@
       return *this;
     }
 
-    // Equality operators for built-in integral types.
+    //! Equality operators for built-in integral types.
     negatable& operator=(const char& n)               { data = value_type(n) << radix_split; return *this; }
     negatable& operator=(const short& n)              { data = value_type(n) << radix_split; return *this; }
     negatable& operator=(const int& n)                { data = value_type(n) << radix_split; return *this; }
@@ -689,20 +739,22 @@
     negatable& operator=(const unsigned int& u)       { data = value_type(unsigned_small_type(u) << radix_split); return *this; }
     negatable& operator=(const unsigned long& u)      { data = value_type(unsigned_small_type(u) << radix_split); return *this; }
     negatable& operator=(const unsigned long long& u) { data = value_type(unsigned_small_type(u) << radix_split); return *this; }
+  
 
-    // Equality operators for built-in floating-point types.
+    /*! Equality operators for built-in floating-point types.
+    */
     negatable& operator=(const float& f)              { make_from_floating_point_type(f);  return *this; }
     negatable& operator=(const double& d)             { make_from_floating_point_type(d);  return *this; }
     negatable& operator=(const long double& ld)       { make_from_floating_point_type(ld); return *this; }
 
-    // Unary pre-increment and post-increment operators.
+    //! Unary pre-increment and post-increment operators.
     negatable& operator++()   { data += value_type(unsigned_small_type(1) << radix_split); return *this; }
     negatable& operator--()   { data -= value_type(unsigned_small_type(1) << radix_split); return *this; }
 
     negatable operator++(int) { const negatable tmp(*this); data += value_type(unsigned_small_type(1) << radix_split); return tmp; }
     negatable operator--(int) { const negatable tmp(*this); data -= value_type(unsigned_small_type(1) << radix_split); return tmp; }
 
-    // Unary operator add of negatable with negatable.
+    //! Unary operator add of negatable with negatable.
     negatable& operator+=(const negatable& v)
     {
       data += v.data;
@@ -718,7 +770,7 @@
       return *this;
     }
 
-    // Unary operator subtract of negatable with negatable.
+    //! Unary operator subtract of negatable with negatable.
     negatable& operator-=(const negatable& v)
     {
       data -= v.data;
@@ -734,7 +786,7 @@
       return *this;
     }
 
-    // Unary operator multiply of negatable with negatable.
+    //! Unary operator multiply of negatable * negatable.
     negatable& operator*=(const negatable& v)
     {
       const bool u_is_neg      = (  data < 0);
@@ -745,8 +797,8 @@
 
       // Multiplication uses a relatively lazy method.
       // The result is first placed in a variable of
-      // type unsigned_large_type (which is twice as wide
-      // as unsigned_small_type).
+      // type @c unsigned_large_type (which is twice as wide
+      // as @c unsigned_small_type).
 
       // The result is multiplied as (u * v) in the
       // unsigned_large_type and subsequently scaled down
@@ -766,9 +818,9 @@
       // in the fixed-point data field.
 
       // Here, we use 1 extra binary digit for rounding.
-      // The extra rounding digit fits in unsigned_small_type
+      // The extra rounding digit fits in @c unsigned_small_type
       // because the value_type (even though just as wide as
-      // unsigned_small_type) reserves one bit for the sign.
+      // @c unsigned_small_type) reserves one bit for the sign.
 
       const int total_right_shift = radix_split - 1;
 
@@ -789,7 +841,7 @@
       return *this;
     }
 
-    // Unary operator divide of negatable with negatable.
+    //! Unary operator divide of negatable with negatable.
     negatable& operator/=(const negatable& v)
     {
       if(v.data == 0)
@@ -848,25 +900,25 @@
       return *this;
     }
 
-    // Unary operators add, sub, and mul of negatable with an arithmetic built-in type.
+    //! Unary operators add, sub, and mul of negatable with an arithmetic built-in type.
     template<typename ArithmeticType, typename = typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type> negatable& operator+=(const ArithmeticType& v) { return (*this) += negatable(v); }
     template<typename ArithmeticType, typename = typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type> negatable& operator-=(const ArithmeticType& v) { return (*this) -= negatable(v); }
     template<typename ArithmeticType, typename = typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type> negatable& operator*=(const ArithmeticType& v) { return (*this) *= negatable(v); }
 
-    // Unary operator div of negatable with a floating-point built-in type.
+    //! Unary operator div of negatable with a floating-point built-in type.
     negatable& operator/=(const float       v) { return (*this) /= negatable(v); }
     negatable& operator/=(const double      v) { return (*this) /= negatable(v); }
     negatable& operator/=(const long double v) { return (*this) /= negatable(v); }
 
-    // Unary operator div of negatable with long and long long.
+    //! Unary operator div of negatable with long and long long.
     negatable& operator/=(const long      v) { return (*this) /= negatable(v); }
     negatable& operator/=(const long long v) { return (*this) /= negatable(v); }
 
-    // Unary operator div of negatable with unsigned long and unsigned long long.
+    //! Unary operator div of negatable with unsigned long and unsigned long long.
     negatable& operator/=(const unsigned long      v) { return (*this) /= negatable(v); }
     negatable& operator/=(const unsigned long long v) { return (*this) /= negatable(v); }
 
-    // Optimized unary operator div of negatable with int.
+    //! Optimized unary operator div of negatable with @c int.
     negatable& operator/=(const int v)
     {
       if(v == 0)
@@ -910,7 +962,7 @@
       return (*this);
     }
 
-    // Optimized unary operator div of negatable with unsigned int.
+    //! Optimized unary operator div of negatable with @c unsigned @c int.
     negatable& operator/=(const unsigned int v)
     {
       if(v == 0U)
@@ -952,18 +1004,19 @@
       return (*this);
     }
 
-    // Optimized unary operator div of negatable with signed and unsigned char and short.
+    //! Optimized unary operator div of negatable with @c signed and @c unsigned @c char and @c short.
     negatable& operator/=(const char           v) { return operator/=(static_cast<int>(v)); }
     negatable& operator/=(const short          v) { return operator/=(static_cast<int>(v)); }
     negatable& operator/=(const unsigned char  v) { return operator/=(static_cast<unsigned int>(v)); }
     negatable& operator/=(const unsigned short v) { return operator/=(static_cast<unsigned int>(v)); }
 
-    // Here are the cast operators for built-in signed and unsigned integral types.
+    /*! Cast operators for built-in signed and unsigned integral types.\n
 
-    // Note: Cast from negatable to a built-in integral type truncates
-    // the fractional part regardless of the rounding mode. This is
-    // consistent with the conversion from built-in floating-point types
-    // to built-in integral types. See also ISO/IEC 14882:2011 paragraph 4.9.1.
+     Note: Cast from @c negatable to a built-in integral type truncates
+     the fractional part regardless of the rounding mode.\n
+     This is consistent with the conversion from built-in floating-point types
+     to built-in integral types. See also ISO/IEC 14882:2011 paragraph 4.9.1.
+    */
 
     operator char     () const { return static_cast<char>     ((!(data < 0)) ? static_cast<char>     (unsigned_small_type(data) >> radix_split) : -static_cast<char>     (unsigned_small_type(-data) >> radix_split)); }
     operator short    () const { return static_cast<short>    ((!(data < 0)) ? static_cast<short>    (unsigned_small_type(data) >> radix_split) : -static_cast<short>    (unsigned_small_type(-data) >> radix_split)); }
@@ -1063,8 +1116,8 @@
 
     struct nothing { };
 
-    /*! \tparam IntegralType Integer type on which the fixed-point type is based, typically the native unsigned integer type unsigned int,
-    but can be a smaller fundamental type like short int, or a much longer type like boost::multiprecision::cpp_int.
+    /*! \tparam IntegralType Integer type on which the fixed-point type is based, typically the native unsigned integer type @c unsigned @c int,
+    but can be a smaller fundamental type like @c short @c int, or a much longer type like @c boost::multiprecision::cpp_int.
     \sa http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/tut/ints/cpp_int.html
     */
     template<typename IntegralType>
@@ -1076,12 +1129,12 @@
       binary_round(unsigned_small_type& u_round,
                    typename std::enable_if<std::is_same<LocalRoundMode, round::fastest>::value>::type* = nullptr)
     {
-      /*! Here, u_round contains the value to be rounded whereby
+      /*! Here, @c u_round contains the value to be rounded whereby
        this value is left-shifted one binary digit larger than
        the final result will be.
 
-       Perform the rounding algorithm for round::fastest.
-       For round::fastest, there is simply no rounding at all.
+       Perform the rounding algorithm for @c round::fastest.
+       For @c round::fastest, there is simply no rounding at all;
        The value is truncated.
      */
 
@@ -1090,21 +1143,23 @@
       return INT8_C(0);
     }
 
+
+   /*! Perform the rounding algorithm for @c round::nearest_even.
+       For @c round::nearest_even, the value is rounded to larger
+       absolute value when both 1/2-ULP as well as 1-ULP are 1,
+       representing round odd 1-ULP to higher value.
+    \tparam LocalRoundMode Rounding mode for this operation.
+     \param u_round contains the value to be rounded whereby
+       this value is left-shifted one binary digit larger than
+       the final result will be.
+
+      */
     template<typename LocalRoundMode = RoundMode>
     static boost::int_fast8_t
       binary_round(unsigned_small_type& u_round,
                    typename std::enable_if<std::is_same<LocalRoundMode, round::nearest_even>::value>::type* = nullptr)
     {
-      /*! Here, u_round contains the value to be rounded whereby
-       this value is left-shifted one binary digit larger than
-       the final result will be.
-
-       Perform the rounding algorithm for round::nearest_even.
-       For round::nearest_even, the value is rounded to larger
-       absolute value when both 1/2-ULP as well as 1-ULP are 1,
-       representing round odd 1-ULP to higher value.
-     */
-
+   
       const bool round_up =   ((boost::uint_fast8_t(u_round & UINT8_C(1)) == UINT8_C(1))
                             && (boost::uint_fast8_t(u_round & UINT8_C(2)) == UINT8_C(2)));
 
@@ -1113,6 +1168,18 @@
       return (round_up ? INT8_C(1) : INT8_C(0));
     }
 
+     /*! Convert the fixed_point value to FloatingPointType result.
+       The fixed_point value is converted with brute force,
+       using one bit at a time.
+
+       TBD: The conversion uses brute force with an inefficient loop.
+       Can (should) this mechanism be optimized?
+
+       \tparam FloatingPointType Type for the result of conversion.
+       Usually a built-in type, @c float, @c double, but may be a multiprecision type.
+
+       TBD Is this correct?
+      */
     template<typename FloatingPointType>
     FloatingPointType convert_to_floating_point_type() const
     {
@@ -1120,13 +1187,7 @@
 
       FloatingPointType f(0);
 
-      // Convert the fixed_point value to FloatingPointType result.
-      // The fixed_point value is converted with brute force,
-      // using one bit at a time.
-
-      // TBD: The conversion uses brute force with an inefficient loop.
-      // Can (should) this mechanism be optimized?
-
+ 
       {
         using std::ldexp;
 
@@ -1172,15 +1233,15 @@
       return ((!is_neg) ? f : -f);
     }
 
+      /*! Define a local_unsigned_small_type.\n
+       This is an unsigned integral type that is guaranteed
+       to hold the larger of:
+       * the number of digits in FloatingPointType plus 1 extra digit
+       * the number of digits in unsigned_small_type.
+      */
     template<typename FloatingPointType>
     void make_from_floating_point_type(const FloatingPointType& f)
     {
-      // Define a local_unsigned_small_type.
-
-      // This is an unsigned integral type that is guaranteed
-      // to hold the larger of:
-      // * the number of digits in FloatingPointType plus 1 extra digit
-      // * the number of digits in unsigned_small_type.
 
       BOOST_CONSTEXPR_OR_CONST int fp_digits_plus_one = std::numeric_limits<FloatingPointType>::digits + 1;
 
@@ -1246,26 +1307,33 @@
       return the_radix_split_value;
     }
 
+
+    /*! Compute machine epsilon (at compile time) for 
+       @c std::numeric_limits<>::epsilon() function.
+       Epsilon is defined as the smallest number that,
+       when added to one, yields a result different from one.
+       By this definition, epsilon equals the value of the unit
+       in the last place relative to 1 (i.e. b^{ -(p - 1) }),
+       where p is the total number of significand bits including
+       any implicit bit. For negatable<7, -8>, for example,
+       we have p = 8 and b = 2, so the value of epsilon is:
+       2^{-(8 - 1)} = 2^{-7} = 0.0078125.
+       \sa http://en.cppreference.com/w/cpp/types/numeric_limits/epsilon
+    */
     static const negatable& epsilon_maker() BOOST_NOEXCEPT
     {
       initialization_helper.force_premain_init_of_static_constants();
 
-      // Machine epsilon is defined as the smallest number that,
-      // when added to one, yields a result different from one.
-      // By this definition, epsilon equals the value of the unit
-      // in the last place relative to 1 (i.e. b^{ -(p - 1) }),
-      // where p is the total number of significand bits including
-      // any implicit. For negatable<7, -8>, for example,
-      // we have p = 8 and b = 2, so the value of epsilon is:
-      // 2^{-(8 - 1)} = 2^{-7} = 0.0078125
-
-      BOOST_CONSTEXPR_OR_CONST int total_right_shift = -(resolution + 1);
+        BOOST_CONSTEXPR_OR_CONST int total_right_shift = -(resolution + 1);
 
       static const negatable the_epsilon(nothing(), radix_split_value() >> total_right_shift);
 
       return the_epsilon;
     }
 
+    /*! Compute (at compile time) the minimum value that the type can represent.\n
+        Used to define function @c std::numeric_limits<>::min().
+    */
     static const negatable& value_min() BOOST_NOEXCEPT
     {
       initialization_helper.force_premain_init_of_static_constants();
@@ -1275,7 +1343,11 @@
       return the_value_min;
     }
 
-    static const negatable& value_max() BOOST_NOEXCEPT
+      /*! Compute (at compile time)the maximum value that the type can represent.\n
+      Used to define function @c std::numeric_limits<>::max()
+      and, when negated, @c std::numeric_limits<>::lowest().
+      */
+      static const negatable& value_max() BOOST_NOEXCEPT
     {
       initialization_helper.force_premain_init_of_static_constants();
 
@@ -1304,9 +1376,15 @@
 
     static initializer initialization_helper;
 
-    // Disable all I/O streaming and the inclusion of associated standard
-    // library headers. This is intended to eliminate I/O stream
-    // overhead in particular for bare-metal microcontroller projects.
+    /*! @c std::ostream output @c operator<<\n
+      Send a fixed-point number to the output stream by first
+      expressing the fixed-point number as a floating-point number.
+      \note Macro BOOST_FIXED_POINT_DISABLE_IOSTREAM can be defined to 
+      disable all I/O streaming and the inclusion of associated standard
+      library headers. This is intended to eliminate I/O stream
+      overhead in particular for bare-metal microcontroller projects.
+    */
+
     #if !defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
 
       template<typename char_type,
@@ -1327,7 +1405,12 @@
         static_cast<void>(ostr << x.convert_to_floating_point_type<float_type>());
 
         return (out << ostr.str());
-      }
+      } // operator<<
+
+      /*! @c std::istream input @c operator>>
+          Receive a floating-point number from the input stream.
+          Subsequently make a fixed-point object from it.
+      */
 
       template<typename char_type,
                typename traits_type>
@@ -1335,13 +1418,11 @@
                                        traits_type>& operator>>(std::basic_istream<char_type, traits_type>& in,
                                                                 negatable& x)
       {
-        // Receive a floating-point number from the input stream.
-        // Subsequently make a fixed-point object from it.
-
         float_type v;
-
+        // Receive a floating-point number from the input stream.
         static_cast<void>(in >> v);
 
+        // Subsequently make a fixed-point object from it.
         x.make_from_floating_point_type(v);
 
         return in;
@@ -1349,29 +1430,32 @@
 
     #endif // !BOOST_FIXED_POINT_DISABLE_IOSTREAM
 
-    // Implementations of global unary plus and minus.
+    //! \cond DETAIL
+    // Do not document the implementation details unless macro DETAIL is defined.
+
+    //! Implementations of global unary plus and minus.
     friend inline negatable operator+(const negatable& self) { return negatable(self); }
     friend inline negatable operator-(const negatable& self) { negatable tmp(self); tmp.data = -tmp.data; return tmp; }
 
-    // Implementations of global binary add, sub, mul, div of [lhs(negatable)] operator [rhs(negatable)].
+    //! Implementations of global binary add, sub, mul, div of [lhs(negatable)] operator [rhs(negatable)].
     friend inline negatable operator+(const negatable& u, const negatable& v) { return negatable(u) += v; }
     friend inline negatable operator-(const negatable& u, const negatable& v) { return negatable(u) -= v; }
     friend inline negatable operator*(const negatable& u, const negatable& v) { return negatable(u) *= v; }
     friend inline negatable operator/(const negatable& u, const negatable& v) { return negatable(u) /= v; }
 
-    // Implementations of global binary add, sub, mul, div of [lhs(negatable)] operator [rhs(arithmetic_type)].
+    //! Implementations of global binary add, sub, mul, div of [lhs(negatable)] operator [rhs(arithmetic_type)].
     template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type* = nullptr> friend inline negatable operator+(const negatable& u, const ArithmeticType& v) { return negatable(u) += v; }
     template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type* = nullptr> friend inline negatable operator-(const negatable& u, const ArithmeticType& v) { return negatable(u) -= v; }
     template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type* = nullptr> friend inline negatable operator*(const negatable& u, const ArithmeticType& v) { return negatable(u) *= v; }
     template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type* = nullptr> friend inline negatable operator/(const negatable& u, const ArithmeticType& v) { return negatable(u) /= v; }
 
-    // Implementations of global binary add, sub, mul, div of [lhs(arithmetic_type)] operator [rhs(negatable)].
+    //! Implementations of global binary add, sub, mul, div of [lhs(arithmetic_type)] operator [rhs(negatable)].
     template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type* = nullptr> friend inline negatable operator+(const ArithmeticType& u, const negatable& v) { return negatable(u) += v; }
     template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type* = nullptr> friend inline negatable operator-(const ArithmeticType& u, const negatable& v) { return negatable(u) -= v; }
     template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type* = nullptr> friend inline negatable operator*(const ArithmeticType& u, const negatable& v) { return negatable(u) *= v; }
     template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type* = nullptr> friend inline negatable operator/(const ArithmeticType& u, const negatable& v) { return negatable(u) /= v; }
 
-    // Implementations of global binary add, sub, mul, div of [lhs(negatable)] operator [rhs(other_negatable)].
+    //! Implementations of global binary add, sub, mul, div of [lhs(negatable)] operator [rhs(other_negatable)].
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution>
     friend inline negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
@@ -1448,7 +1532,7 @@
       return higher_resolution_fixed_point_type(u) /= higher_resolution_fixed_point_type(v);
     }
 
-    // Implementations of global equality.
+    //! Implementations of global equality.
     friend inline bool operator==(const negatable& u, const negatable& v) { return (u.data == v.data); }
     template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type* = nullptr> friend inline bool operator==(const negatable& u, const ArithmeticType& v) { return (u.data == negatable(v).data); }
     template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type* = nullptr> friend inline bool operator==(const ArithmeticType& u, const negatable& v) { return (negatable(u).data == v.data); }
@@ -1476,7 +1560,7 @@
       return (supra_fixed_point_type(u) == supra_fixed_point_type(v));
     }
 
-    // Implementations of global inequality.
+    //! Implementations of global inequality.
     friend inline bool operator!=(const negatable& u, const negatable& v) { return (u.data != v.data); }
     template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type* = nullptr> friend inline bool operator!=(const negatable& u, const ArithmeticType& v) { return (u.data != negatable(v).data); }
     template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type* = nullptr> friend inline bool operator!=(const ArithmeticType& u, const negatable& v) { return (negatable(u).data != v.data); }
@@ -1504,7 +1588,7 @@
       return (supra_fixed_point_type(u) != supra_fixed_point_type(v));
     }
 
-    // Implementations of global operators >, <, >=, <=.
+    //! Implementations of global operators >, <, >=, <=.
     friend inline bool operator> (const negatable& u, const negatable& v) { return (u.data >  v.data); }
     friend inline bool operator< (const negatable& u, const negatable& v) { return (u.data <  v.data); }
     friend inline bool operator>=(const negatable& u, const negatable& v) { return (u.data >= v.data); }
@@ -1611,10 +1695,22 @@
 
       return (supra_fixed_point_type(u) <= supra_fixed_point_type(v));
     }
+    //! \endcond // DETAIL
 
+    //! @c std::abs function.
     friend inline negatable  abs(negatable x) { return ((x.data < 0) ? -x : x); }
+    //! @c std::fabs function (identical to abs and provided for completeness).
     friend inline negatable fabs(negatable x) { return ((x.data < 0) ? -x : x); }
 
+    // TBD implement C++11 copysign and other floating-point manipulation functions.
+
+    /*! @c std::frexp function <cmath> implementation for negatable types.\n
+
+    TBD examples.\n
+        \param x Fixed-point value to decompose into fraction and integral power of 2.
+        \param expptr Pointer to integer value to store the exponent to. 
+        \returns fraction part as a @c negatable type.
+    */
     friend inline negatable frexp(negatable x, int* expptr)
     {
       *expptr = 0;
@@ -1646,8 +1742,16 @@
         return negatable(nothing(), value_type((!is_neg) ?  value_type(result)
                                                          : -value_type(result)));
       }
-    }
+    } // negatable frexp(negatable x, int* expptr)
 
+    /*! @c std::ldexp function <cmath> implementation for negatable type.\n
+    Multiplies a floating point value x by the number 2 raised to the exp power.\n
+    TBD examples.\n
+    \param x Fixed-point value to multiply by @c exp integral power of 2.
+    \param exp power of 2 to use to multiply.
+    \return x * 2^exp.
+
+    */
     friend inline negatable ldexp(negatable x, int exp)
     {
       if(exp > 0)
@@ -1668,25 +1772,25 @@
       { 
         return x;
       }
-    }
+    } // negatable ldexp(negatable x, int exp)
 
     /*! Provide next, prior and distance for fixed_point types.
     */
 
     friend inline negatable fixed_next(negatable x)
     {
-      // TBD overflow
+      // TBD overflow?
       return x + (std::numeric_limits<negatable>::min)();
     }
 
     friend inline negatable fixed_prior(negatable x)
-    { // TBD underflow
+    { // TBD underflow?
       return x - (std::numeric_limits<negatable>::min)();
     }
 
     friend inline negatable fixed_distance(negatable x, negatable y)
     {
-      // TBD over/underflow
+      // TBD over/underflow?
       // TBD no account of sign of x or y - see complex logic in boost.math next.hpp.
       // Not sure if return should not be an integer?
       // float_distance in next.hpp returns type T
@@ -1702,13 +1806,13 @@
 
     friend inline negatable fixed_advance(negatable x, int distance)
     {
-      // TBD over/underflow
+      // TBD over/underflow?
       return x + distance * (std::numeric_limits<negatable>::min)();
     }
 
     friend inline negatable fixed_nextafter(negatable val, int direction)
     {
-      // TBD over and underflow
+      // TBD over and underflow?
       return ((val < direction)
         ? val + (std::numeric_limits<negatable>::min)()
         : ((val == direction) ? val
@@ -1773,9 +1877,9 @@
         }
 
         return result;
-      }
-    }
-  };
+      }// negatable sqrt(negatable x)
+    } 
+  }; // 
 
   // Once-only instances of static constant variables of the negative class.
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::digits_total;
@@ -1784,7 +1888,7 @@
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::range;
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::resolution;
 
-  // Once-only instance of static constant variables of the negative class.
+  //! Once-only instance of static constant variables of the negative class.
   template<const int IntegralRange,
            const int FractionalResolution,
            typename RoundMode,
@@ -1799,8 +1903,8 @@
             OverflowMode>::initialization_helper;
   } } // namespace boost::fixed_point
 
-  // Effectively inject all defined cmath functions into the global namespace.
-  // So users can write sqrt(negatable) without requiring any namespace decoration.
+  //! Effectively inject all defined cmath functions into the global namespace.
+  //! So users can write sqrt(negatable) without requiring any namespace decoration.
 
   using boost::fixed_point::abs;
   using boost::fixed_point::fabs;
@@ -1808,19 +1912,20 @@
   using boost::fixed_point::ldexp;
   using boost::fixed_point::sqrt;
 
-  // TODO Ensure that added functions are also listed in this section.
+  // TODO Ensure that ALL std:: added functions are also listed in this section.
 
   namespace std
   {
-    // Provide specializations of std::numeric_limits<negatable>.
+    //! Provide specializations of std::numeric_limits<negatable>.
 
     /*! \note Individual template specializations need to be provided
      for each different rounding mode and overflow mode.
      This might be 7 rounding * 5 overflow, a total of 35 specializations!
     */
 
-    // Here is the template specialization of std::numeric_limits<negatable>
-    // for round::fastest and overflow::undefined.
+    /*!template specialization of std::numeric_limits<negatable>
+       for @c round::fastest and @c overflow::undefined.
+    */
     template<const int IntegralRange,
              const int FractionalResolution>
     class numeric_limits<boost::fixed_point::negatable<IntegralRange,
@@ -1894,8 +1999,9 @@
     template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::tinyness_before;
     template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST std::float_round_style  numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::round_style;
 
-    // Here is the template specialization of std::numeric_limits<negatable>
-    // for round::nearest_even and overflow::undefined.
+    /*!template specialization of std::numeric_limits<negatable>
+       for @c round::nearest_even and @c overflow::undefined.
+    */
     template<const int IntegralRange,
              const int FractionalResolution>
     class numeric_limits<boost::fixed_point::negatable<IntegralRange,
