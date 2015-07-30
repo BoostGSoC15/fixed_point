@@ -191,12 +191,12 @@
              typename RoundMode,
              typename OverflowMode>
     inline negatable<IntegralRange,
-                     FractionalResolution,
-                     RoundMode,
-                     OverflowMode> abs(negatable<IntegralRange,
-                                                 FractionalResolution,
-                                                 RoundMode,
-                                                 OverflowMode> x);
+              FractionalResolution,
+              RoundMode,
+              OverflowMode> abs(negatable<IntegralRange,
+                                          FractionalResolution,
+                                          RoundMode,
+                                          OverflowMode> x);
 
     // Forward declaration of fabs.
     template<const int IntegralRange,
@@ -240,79 +240,69 @@
 
     // Forward declaration of fixed_next.
     template<const int IntegralRange,
-      const int FractionalResolution,
-      typename RoundMode,
-      typename OverflowMode>
-        inline negatable<IntegralRange,
-        FractionalResolution,
-        RoundMode,
-        OverflowMode> 
-      fixed_next(negatable<IntegralRange,
-      FractionalResolution,
-      RoundMode,
-      OverflowMode> x);
+             const int FractionalResolution,
+             typename RoundMode,
+             typename OverflowMode>
+    inline negatable<IntegralRange,
+                     FractionalResolution,
+                     RoundMode,
+                     OverflowMode> fixed_next(negatable<IntegralRange,
+                                              FractionalResolution,
+                                              RoundMode,
+                                              OverflowMode> x);
 
     // Forward declaration of fixed_prior.
     template<const int IntegralRange,
-      const int FractionalResolution,
-      typename RoundMode,
-      typename OverflowMode>
-      inline negatable<IntegralRange,
-      FractionalResolution,
-      RoundMode,
-      OverflowMode>
-      fixed_prior(negatable<IntegralRange,
-      FractionalResolution,
-      RoundMode,
-      OverflowMode> x);
+             const int FractionalResolution,
+             typename RoundMode,
+             typename OverflowMode>
+    inline negatable<IntegralRange,
+                     FractionalResolution,
+                     RoundMode,
+                     OverflowMode> fixed_prior(negatable<IntegralRange,
+                                               FractionalResolution,
+                                               RoundMode,
+                                               OverflowMode> x);
 
     // Forward declaration of fixed_distance.
     template<const int IntegralRange,
-      const int FractionalResolution,
-      typename RoundMode,
-      typename OverflowMode>
-      inline negatable<IntegralRange,
-      FractionalResolution,
-      RoundMode,
-      OverflowMode>
-      fixed_distance(negatable<IntegralRange,
-      FractionalResolution,
-      RoundMode,
-      OverflowMode> x, 
-      negatable<IntegralRange,
-      FractionalResolution,
-      RoundMode,
-      OverflowMode> y);
+             const int FractionalResolution,
+             typename RoundMode,
+             typename OverflowMode>
+    inline negatable<IntegralRange,
+                     FractionalResolution,
+                     RoundMode,
+                     OverflowMode> fixed_distance(negatable<IntegralRange,
+                                                            FractionalResolution,
+                                                            RoundMode,
+                                                            OverflowMode> x);
 
     // Forward declaration of fixed_advance.
     template<const int IntegralRange,
-      const int FractionalResolution,
-      typename RoundMode,
-      typename OverflowMode>
-      inline negatable<IntegralRange,
-      FractionalResolution,
-      RoundMode,
-      OverflowMode>
-      fixed_advance(negatable<IntegralRange,
-      FractionalResolution,
-      RoundMode,
-      OverflowMode> x,
-      signed int distance);
+             const int FractionalResolution,
+             typename RoundMode,
+             typename OverflowMode>
+    inline negatable<IntegralRange,
+                     FractionalResolution,
+                     RoundMode,
+                     OverflowMode> fixed_advance(negatable<IntegralRange,
+                                                 FractionalResolution,
+                                                 RoundMode,
+                                                 OverflowMode> x,
+                                                 int distance);
 
     // Forward declaration of fixed_nextafter.
     template<const int IntegralRange,
-      const int FractionalResolution,
-      typename RoundMode,
-      typename OverflowMode>
-      inline negatable<IntegralRange,
-      FractionalResolution,
-      RoundMode,
-      OverflowMode>
-      fixed_nextafter(negatable<IntegralRange,
-      FractionalResolution,
-      RoundMode,
-      OverflowMode> x,
-      int direction);
+             const int FractionalResolution,
+             typename RoundMode,
+             typename OverflowMode>
+    inline negatable<IntegralRange,
+                     FractionalResolution,
+                     RoundMode,
+                     OverflowMode> fixed_nextafter(negatable<IntegralRange,
+                                                   FractionalResolution,
+                                                   RoundMode,
+                                                   OverflowMode> x);
 
     // Forward declaration of sqrt.
     template<const int IntegralRange,
@@ -1026,9 +1016,11 @@
         // Use the reverse order to simplify the bit-extraction algorithm.
         // Reverse the bit pattern after the bit extraction.
 
-        // TBD: Why does reverse iteration and bit-test not work for GCC?
-        // TBD: Use forward iteration as suggested by Nikhar and reverse
+        // Use forward iteration as suggested by Nikhar and reverse
         // after the bit extraction.
+
+        // TBD: Why do reverse iteration and bit-test not work
+        // for certain GCCs, but do work for MSVC?
 
         std::for_each(answer.begin(),
                       answer.end(),
@@ -1059,7 +1051,7 @@
 
     static const unsigned_small_type& unsigned_small_mask() BOOST_NOEXCEPT
     {
-      initialization_instance.force_premain_init_of_static_constants();
+      initialization_helper.force_premain_init_of_static_constants();
 
       static const unsigned_small_type the_value =
         detail::bit_mask_helper<unsigned_small_type,
@@ -1247,7 +1239,7 @@
 
     static const unsigned_small_type& radix_split_value() BOOST_NOEXCEPT
     {
-      initialization_instance.force_premain_init_of_static_constants();
+      initialization_helper.force_premain_init_of_static_constants();
 
       static const unsigned_small_type the_radix_split_value(detail::radix_split_maker<unsigned_small_type, radix_split>::value());
 
@@ -1256,43 +1248,27 @@
 
     static const negatable& epsilon_maker() BOOST_NOEXCEPT
     {
-      initialization_instance.force_premain_init_of_static_constants();
+      initialization_helper.force_premain_init_of_static_constants();
 
-      static bool is_init = bool();
+      // Machine epsilon is defined as the smallest number that,
+      // when added to one, yields a result different from one.
+      // By this definition, epsilon equals the value of the unit
+      // in the last place relative to 1 (i.e. b^{ -(p - 1) }),
+      // where p is the total number of significand bits including
+      // any implicit. For negatable<7, -8>, for example,
+      // we have p = 8 and b = 2, so the value of epsilon is:
+      // 2^{-(8 - 1)} = 2^{-7} = 0.0078125
 
-      negatable local_epsilon = negatable();
+      BOOST_CONSTEXPR_OR_CONST int total_right_shift = -(resolution + 1);
 
-      if(is_init == false)
-      {
-        is_init = true;
-
-        // TBD: This algorithm needs to be investigated further.
-        // Look at the real-time C++ code in the reference application.
-        unsigned_small_type r10  = radix_split_value();
-
-        if(r10 <= 16U)
-        {
-          local_epsilon = negatable(nothing(), UINT8_C(1));
-        }
-        else
-        {
-          while(r10 >= 10U)
-          {
-            r10 = (r10 + 5U) / 10U;
-          }
-
-          local_epsilon = negatable(nothing(), r10);
-        }
-      }
-
-      static const negatable the_epsilon(local_epsilon);
+      static const negatable the_epsilon(nothing(), radix_split_value() >> total_right_shift);
 
       return the_epsilon;
     }
 
     static const negatable& value_min() BOOST_NOEXCEPT
     {
-      initialization_instance.force_premain_init_of_static_constants();
+      initialization_helper.force_premain_init_of_static_constants();
 
       static const negatable the_value_min(nothing(), 1U);
 
@@ -1301,7 +1277,7 @@
 
     static const negatable& value_max() BOOST_NOEXCEPT
     {
-      initialization_instance.force_premain_init_of_static_constants();
+      initialization_helper.force_premain_init_of_static_constants();
 
       static const negatable the_value_max(nothing(), unsigned_small_mask());
 
@@ -1326,7 +1302,7 @@
       void force_premain_init_of_static_constants() { }
     };
 
-    static initializer initialization_instance;
+    static initializer initialization_helper;
 
     // Disable all I/O streaming and the inclusion of associated standard
     // library headers. This is intended to eliminate I/O stream
@@ -1695,7 +1671,6 @@
     }
 
     /*! Provide next, prior and distance for fixed_point types.
-
     */
 
     friend inline negatable fixed_next(negatable x)
@@ -1715,9 +1690,14 @@
       // TBD no account of sign of x or y - see complex logic in boost.math next.hpp.
       // Not sure if return should not be an integer?
       // float_distance in next.hpp returns type T
-      if (x == y) return 0;
-
-      return (y - x) / (std::numeric_limits<negatable>::min)();
+      if(x == y)
+      {
+        return 0;
+      }
+      else
+      {
+        return (y - x) / (std::numeric_limits<negatable>::min)();
+      }
     }
 
     friend inline negatable fixed_advance(negatable x, int distance)
@@ -1726,11 +1706,13 @@
       return x + distance * (std::numeric_limits<negatable>::min)();
     }
 
-    friend inline negatable fixed_nextafter(negatable val, signed int direction)
-    { // TBD over and underflow
-      return val < direction ? val + (std::numeric_limits<negatable>::min)()
-        : val == direction ? val
-        : val - (std::numeric_limits<negatable>::min)();  // val > direction 
+    friend inline negatable fixed_nextafter(negatable val, int direction)
+    {
+      // TBD over and underflow
+      return ((val < direction)
+        ? val + (std::numeric_limits<negatable>::min)()
+        : ((val == direction) ? val
+                              : val - (std::numeric_limits<negatable>::min)()));  // val > direction 
     }
 
     friend inline negatable sqrt(negatable x)
@@ -1740,7 +1722,7 @@
 
       // TBD: This implementation of square root may be too inefficient
       // for low digit counts such as 5...16 digits. Consider optimization
-      // for low digit counts.
+      // (such as table-lookup of initial root estimate) for low digit counts.
 
       if(x.data <= 0)
       {
@@ -1795,13 +1777,26 @@
     }
   };
 
+  // Once-only instances of static constant variables of the negative class.
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::digits_total;
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::radix_split;
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::all_bits;
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::range;
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::resolution;
 
-  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> typename negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::initializer negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::initialization_instance;
+  // Once-only instance of static constant variables of the negative class.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  typename negatable<IntegralRange,
+                     FractionalResolution,
+                     RoundMode,
+                     OverflowMode>::initializer
+  negatable<IntegralRange,
+            FractionalResolution,
+            RoundMode,
+            OverflowMode>::initialization_helper;
   } } // namespace boost::fixed_point
 
   // Effectively inject all defined cmath functions into the global namespace.
