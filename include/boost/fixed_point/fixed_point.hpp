@@ -349,7 +349,7 @@
   /*!
     \brief Fixed_point negatable class used for signed fractional arithmetic.
     \details TODO  some examples here?
-    \tparam IntegralRange  Integer g  >= 0 defines a range of sign number n that is 2^-g < n < 2^g.
+    \tparam IntegralRange  Integer g  >= 0 defines a range of signed number n that is 2^-g < n < 2^g.
     \tparam FractionalResolution Integer s <= -1 defines resolution. The resolution of a fractional number is 2^s.
     \tparam RoundMode struct defining the rounding behaviour, default round::fastest.
     \tparam OverflowMode struct defining the behaviour from rounding, default overflow::undefined.
@@ -362,8 +362,11 @@
   class negatable
   {
   private:
+    // TBD can these use the public items?
+    //! \sa range and resolution,  public static data. 
     static BOOST_CONSTEXPR_OR_CONST int radix_split  = -FractionalResolution;
-    static BOOST_CONSTEXPR_OR_CONST int digits_total = (IntegralRange + 1) - FractionalResolution;
+    //! Duplicate of public static data  all_bits.
+    static BOOST_CONSTEXPR_OR_CONST int digits_total = (IntegralRange + 1) + (-FractionalResolution); // +1 for a sign bit.
 
     // TBD: Is this limitation correct?
     // TBD: Or are pure integer instantiations of negatable allowed?
@@ -393,8 +396,16 @@
   public:
 
     // Make the range, resolution and total number of bits available to the user.
+    // These echo the values of the template parameters.
+  
+    //! range Value of template parameter IntegralRange for the negatable type.
     static BOOST_CONSTEXPR_OR_CONST int range      = IntegralRange;
+    //! range Value of template parameter FractionalResolution for the negatable type.
     static BOOST_CONSTEXPR_OR_CONST int resolution = FractionalResolution;
+    /*! digits_total Total number of bits in the negatable type, including sign, for example:\n
+        boost::fixed_point::negatable<2, -5> x;\n
+        x.range + (-x.resolution) + 1 == 8.
+    */
     static BOOST_CONSTEXPR_OR_CONST int all_bits   = digits_total;
 
     // Friend forward declaration of another negatable class
@@ -408,21 +419,24 @@
 
     // Here we declare two convenient class-local type definitions.
     //
-    //   * value_type : is the signed integer representation of the fixed-point
-    //                  negatable number. For low digit counts, this will be
-    //                  a built-in type such as int8_t, int16_t, int32_t, etc.
-    //                  For larger digit counts, this will be a multiprecision
-    //                  signed integer type.
-    //   * float_type : is the floating-point type that is guaranteed to be wide
-    //                  enough to represent the fixed-point negatable number
-    //                  in its entirety. For low digit counts, this will be
-    //                  a built-in type such as float, double or long double.
-    //                  For larger digit counts, this will be a multiprecision
-    //                  floating point type.
-    //
-
+    /*!
+      The signed integer representation of the fixed-point negatable number.\n
+      For low digit counts, this will be
+      a built-in type such as @c int8_t, @c int16_t, @c int32_t, @c int64_t, etc.
+      For larger digit counts, this will be a multiprecision signed integer type.
+    */
     typedef typename detail::integer_type_helper<negatable::digits_total - 0>::exact_signed_type value_type;
-    typedef typename detail::float_type_helper  <negatable::digits_total - 1>::exact_float_type  float_type;
+
+    /*!
+      The floating-point type that is guaranteed to be wide
+      enough to represent the fixed-point negatable number
+      in its entirety.\n
+      For low digit counts, this will be
+      a built-in type such as @c float, @c double or @c long @c double.
+      For larger digit counts, this will be a multiprecision floating point type.
+
+    */
+   typedef typename detail::float_type_helper  <negatable::digits_total - 1>::exact_float_type  float_type;
 
     // The public class constructors follow below.
 

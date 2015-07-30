@@ -205,7 +205,7 @@ int main()
 //] [/fixed_example_1]
 
 
-// Some fiexed_point types using only a single 8-bit byte (signed char).
+// Some fixed_point types using only a single 8-bit byte (signed char).
 
 //[fixed_point_15m16
 

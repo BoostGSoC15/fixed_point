@@ -200,7 +200,7 @@ Software like __multiprecision can provide much higher resolution and higher exp
 but at a great cost in compute time, often a hundred-fold slower.[br]
 Fixed-point using many bits, for example 256-bit, can provide very high resolution,
 while executing faster than an equivalent __multiprecision type (provided
-the reduced exponent range can be tolerated).
+the reduced exponent (scaling) range can be tolerated).
 
 [endsect] [/section:why_fixed_point Why Fixed-Point?]
 
@@ -232,7 +232,7 @@ and a template parameter __range of -16.
 `round_mode` = __round_fastest and `overflow_mode` = __overflow_undefined).
 
 This means that 15 bits are used for the __significand of fraction part and
-16 for the binary exponent.
+16 for the binary exponent or range factor.
 
 We can show the __numeric_limits for this type thus:
 
@@ -410,13 +410,55 @@ These two extreme example probably do not have much practical use.
 
 If we use all 31 bits for resolution, then `max` is merely unity, so we can only store fractions <= 1,
 but `epsilon` is reduced to 9.3e-10, much less than `float`, so this might be useful.
-
-
-
-
-
-
 [endsect] [/section:fixed_versus_float Comparison of Fixed-point and Floating-point Formats]
+
+[section:representation_types How to tell the Representation types used for a fixed_point type]
+
+Users can (and will) want to know the underlying representation used for a __negatable type.
+
+[import ../example/fixed_point_representation_examples.cpp]
+
+To find the name of the underlying representation used by a particular __negatable type,
+one can use the [@ http://www.cplusplus.com/reference/typeinfo/type_info/ type_info class]
+with this include:
+
+  #include <typeinfo>
+
+To output the name of fixed_point type `negatable<0, -8>` use the `value_type`:
+
+[fixed_point_type_representation_example_1]
+
+So `signed char` is signed integer type used for representation of this 8-bit fixed-point negatable number.
+
+For low digit counts, this will be a __fundamental type such as `int8_t, int16_t, int32_t, int64_t`, etc.
+For larger digit counts, this will be a __multiprecision signed integer type.
+
+One might also want to know the floating-point type that is guaranteed to be wide
+enough to represent the fixed-point negatable number in its entirety.
+
+For this use `float_type`:
+
+[fixed_point_type_representation_example_2]
+
+showing that `float` is (plenty) big enough to hold all possible values for this tiny type.
+
+To list some other of the many reasonable fixed_point types, an example function is:
+
+[fixed_point_type_representation_example_3]
+
+[tip The full type given by `typeid(T).name()` will be fully informative but may be inconveniently long.]
+
+The full example and some sample output is at [@../../example/fixed_point_representation_examples.cpp  fixed_point_representation_examples.cpp].
+
+Most of the results are obvious, but it is worth noting that a type that uses a value type of `__int64`
+cannot use a 64-bit `double` type for its floating-point representation and must switch to a __multiprecision type, like
+`class boost::multiprecision::number<class boost::multiprecision::backends::cpp_bin_float<63,2,void,int,0,0>,0>`
+This will have marked effect on any operation like output that uses this.
+
+[tip Take care choosing fixed_point type.]
+
+[endsect] [/section:representation_types How to tell the Representation types used for a fixed_point type]
+
 
 [section:headers Header File Structure]
 
@@ -427,7 +469,7 @@ but `epsilon` is reduced to 9.3e-10, much less than `float`, so this might be us
 
 [table Implementation Headers
 [[Header][Contains]]
-[[boost/fixed_point//detail/fixed_point.hpp] [negatable impemention details]]
+[[boost/fixed_point//detail/fixed_point.hpp] [negatable implemention details]]
 ]
 
 [endsect] [/section:headers Header File Structure]
@@ -473,7 +515,8 @@ whether it is represented represented by left-most word/limb or as a
 separated data should be an internal decision. In this case using more
 space seems IMO to be a minor issue.
 
-* Should the library use a specific representation for signed numbers (separated sign, 2-complement? Let the user choose?
+* Should the library use a specific representation for signed numbers
+(separated sign, 2-complement? Let the user choose?)
 Very good question. A separate bool flag for sign slows down the library and increases
 storage requirements. The sign of the left-most limb could be the sign. But this
 breaks down for all-fractional types. I guess, perhaps, the separate sign information
