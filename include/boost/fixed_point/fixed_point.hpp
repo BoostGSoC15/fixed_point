@@ -191,12 +191,12 @@
              typename RoundMode,
              typename OverflowMode>
     inline negatable<IntegralRange,
-              FractionalResolution,
-              RoundMode,
-              OverflowMode> abs(negatable<IntegralRange,
-                                          FractionalResolution,
-                                          RoundMode,
-                                          OverflowMode> x);
+                     FractionalResolution,
+                     RoundMode,
+                     OverflowMode> abs(negatable<IntegralRange,
+                                                 FractionalResolution,
+                                                 RoundMode,
+                                                 OverflowMode> x);
 
     // Forward declaration of fabs.
     template<const int IntegralRange,
@@ -260,9 +260,9 @@
                      FractionalResolution,
                      RoundMode,
                      OverflowMode> fixed_prior(negatable<IntegralRange,
-                                               FractionalResolution,
-                                               RoundMode,
-                                               OverflowMode> x);
+                                                         FractionalResolution,
+                                                         RoundMode,
+                                                         OverflowMode> x);
 
     // Forward declaration of fixed_distance.
     template<const int IntegralRange,
@@ -286,10 +286,10 @@
                      FractionalResolution,
                      RoundMode,
                      OverflowMode> fixed_advance(negatable<IntegralRange,
-                                                 FractionalResolution,
-                                                 RoundMode,
-                                                 OverflowMode> x,
-                                                 int distance);
+                                                           FractionalResolution,
+                                                           RoundMode,
+                                                           OverflowMode> x,
+                                                           int distance);
 
     // Forward declaration of fixed_nextafter.
     template<const int IntegralRange,
@@ -300,9 +300,9 @@
                      FractionalResolution,
                      RoundMode,
                      OverflowMode> fixed_nextafter(negatable<IntegralRange,
-                                                   FractionalResolution,
-                                                   RoundMode,
-                                                   OverflowMode> x);
+                                                             FractionalResolution,
+                                                             RoundMode,
+                                                             OverflowMode> x);
 
     // Forward declaration of sqrt.
     template<const int IntegralRange,
@@ -359,15 +359,9 @@
            typename OverflowMode = overflow::undefined>
   class negatable
   {
-  private:
-    // TBD can these use the public items?
-    //! \sa range and resolution,  public static data. 
-    static BOOST_CONSTEXPR_OR_CONST int radix_split  = -FractionalResolution;
-    //! Duplicate of public static data  all_bits.
-    static BOOST_CONSTEXPR_OR_CONST int digits_total = (IntegralRange + 1) + (-FractionalResolution); // +1 for a sign bit.
-
-    // TBD: Is this limitation correct?
-    // TBD: Or are pure integer instantiations of negatable allowed?
+  public:
+    // The negatable class must have at least one fractional digit.
+    // Pure integer instantiations of negatable allowed
     static_assert(FractionalResolution < 0,
                   "Error: The fractional resolution of negatable must be negative and include at least 1 fractional bit.");
 
@@ -384,14 +378,8 @@
                   "Error: Only undefined overflow mode is supported at the moment.");
 
     #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
-      static_assert(digits_total <= 32, "Error: the width of fixed_point can not exceed 32 bits when multiprecision is disabled.");
+      static_assert(all_bits <= 32, "Error: the width of fixed_point can not exceed 32 bits when multiprecision is disabled.");
     #endif
-
-    #if !defined(BOOST_FLOAT64_C)
-      static_assert(digits_total <= 24, "Error: the width of fixed_point can not exceed 24 bits when float64_t is unavailable.");
-    #endif
-
-  public:
 
     // Make the range, resolution and total number of bits available to the user.
     // These just echo the values of the template parameters.
@@ -411,7 +399,10 @@
         For example: @c boost::fixed_point::negatable<2, -5> @c x; @c int @c n=x.all_bits; @c n==8\n
         x.range + (-x.resolution) + 1 == 2 + (-(-5)) +1 == 8.
     */
-    static BOOST_CONSTEXPR_OR_CONST int all_bits = digits_total;
+    static BOOST_CONSTEXPR_OR_CONST int all_bits    = (range + 1) + (-resolution); // +1 for a sign bit.
+
+    //! \sa range and resolution,  public static data.
+    static BOOST_CONSTEXPR_OR_CONST int radix_split = -FractionalResolution;
 
     // Friend forward declaration of another negatable class
     // with different template parameters.
@@ -430,7 +421,7 @@
       a built-in type such as @c int8_t, @c int16_t, @c int32_t, @c int64_t, etc.\n
       For larger digit counts, this will be a multiprecision signed integer type.
     */
-    typedef typename detail::integer_type_helper<negatable::digits_total - 0>::exact_signed_type value_type;
+    typedef typename detail::integer_type_helper<negatable::all_bits - 0>::exact_signed_type value_type;
 
     /*!
       The floating-point type that is guaranteed to be wide
@@ -453,7 +444,7 @@
       \endcode
 
     */
-   typedef typename detail::float_type_helper  <negatable::digits_total - 1>::exact_float_type  float_type;
+   typedef typename detail::float_type_helper  <negatable::all_bits - 1>::exact_float_type  float_type;
 
     // The public class constructors follow below.
 
@@ -1062,8 +1053,8 @@
         // Allocate a string of the proper length with all of the
         // characters initialized to '0'. Use the total number
         // of binary digits in the negatable_type, which is
-        // digits_total = (range - resolution) + 1.
-        std::string answer(digits_total, char('0'));
+        // all_bits = (range - resolution) + 1.
+        std::string answer(all_bits, char('0'));
 
         // Extract all of the bits from *this and place them in the string.
         // Use the reverse order to simplify the bit-extraction algorithm.
@@ -1099,8 +1090,8 @@
   private:
     value_type data;
 
-    typedef typename detail::integer_type_helper<negatable::digits_total * 1>::exact_unsigned_type unsigned_small_type;
-    typedef typename detail::integer_type_helper<negatable::digits_total * 2>::exact_unsigned_type unsigned_large_type;
+    typedef typename detail::integer_type_helper<negatable::all_bits * 1>::exact_unsigned_type unsigned_small_type;
+    typedef typename detail::integer_type_helper<negatable::all_bits * 2>::exact_unsigned_type unsigned_large_type;
 
     static const unsigned_small_type& unsigned_small_mask() BOOST_NOEXCEPT
     {
@@ -1867,7 +1858,7 @@
         // square root and subsequently use a tighter tolerance
         // on the number of iterations in the Newton-Raphson loop.
 
-        for(boost::uint_fast16_t i = UINT16_C(1); boost::uint_fast16_t(i / 2U) <= boost::uint_fast16_t(negatable::digits_total); i *= UINT16_C(2))
+        for(boost::uint_fast16_t i = UINT16_C(1); boost::uint_fast16_t(i / 2U) <= boost::uint_fast16_t(negatable::all_bits); i *= UINT16_C(2))
         {
           // Perform the next iteration of vi.
           vi += vi * (-((result * vi) * 2U) + 1U);
@@ -1882,11 +1873,10 @@
   }; // 
 
   // Once-only instances of static constant variables of the negative class.
-  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::digits_total;
-  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::radix_split;
-  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::all_bits;
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::range;
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::resolution;
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::all_bits;
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::radix_split;
 
   //! Once-only instance of static constant variables of the negative class.
   template<const int IntegralRange,
@@ -1941,7 +1931,7 @@
 
     public:
       static BOOST_CONSTEXPR_OR_CONST bool                    is_specialized    = true;
-      static BOOST_CONSTEXPR_OR_CONST int                     digits            = negatable_type::digits_total - 1;
+      static BOOST_CONSTEXPR_OR_CONST int                     digits            = negatable_type::all_bits - 1;
       static BOOST_CONSTEXPR_OR_CONST int                     digits10          = static_cast<int>((static_cast<boost::uintmax_t>(digits - 1) * UINTMAX_C(3010)) / UINTMAX_C(10000));
       static BOOST_CONSTEXPR_OR_CONST int                     max_digits10      = static_cast<int>((static_cast<boost::uintmax_t>(digits - 0) * UINTMAX_C(3010)) / UINTMAX_C(10000)) + 2;
       static BOOST_CONSTEXPR_OR_CONST bool                    is_signed         = true;
@@ -2017,7 +2007,7 @@
 
     public:
       static BOOST_CONSTEXPR_OR_CONST bool                    is_specialized    = true;
-      static BOOST_CONSTEXPR_OR_CONST int                     digits            = negatable_type::digits_total - 1;
+      static BOOST_CONSTEXPR_OR_CONST int                     digits            = negatable_type::all_bits - 1;
       static BOOST_CONSTEXPR_OR_CONST int                     digits10          = static_cast<int>((static_cast<boost::uintmax_t>(digits - 1) * UINTMAX_C(3010)) / UINTMAX_C(10000));
       static BOOST_CONSTEXPR_OR_CONST int                     max_digits10      = static_cast<int>((static_cast<boost::uintmax_t>(digits - 0) * UINTMAX_C(3010)) / UINTMAX_C(10000)) + 2;
       static BOOST_CONSTEXPR_OR_CONST bool                    is_signed         = true;
