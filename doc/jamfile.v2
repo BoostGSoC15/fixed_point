@@ -86,6 +86,7 @@ doxygen autodoc
     # See Doxygen configuration for detailed explanation of these options.
   ;
 
+
 xml fixed_point
   :
     fixed_point.qbk
@@ -166,6 +167,15 @@ boostbook standalone
 install pdfinstall : standalone : <location>. <install-type>PDF <name>fixed_point.pdf ;
 # Only copy pdf if called with b2 pdf (not the default html).
 explicit pdfinstall ;
+
+# Generate Quickbook tables of types and their numeric_limits.
+run fixed_point_types_table.cpp ;
+
+# Copy the generated Quickbook tables to /doc folder.
+#install fixed_table : fixed_point_types_table.qbk : <location>. ;
+#install floating_table : floating_point_types_table.qbk : <location>. ;
+
+
 
 
 

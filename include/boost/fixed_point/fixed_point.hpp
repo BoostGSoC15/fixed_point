@@ -377,10 +377,6 @@
     static_assert(   std::is_same<OverflowMode, overflow::undefined>::value,
                   "Error: Only undefined overflow mode is supported at the moment.");
 
-    #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
-      static_assert(all_bits <= 32, "Error: the width of fixed_point can not exceed 32 bits when multiprecision is disabled.");
-    #endif
-
     // Make the range, resolution and total number of bits available to the user.
     // These just echo the values of the template parameters.
   
@@ -400,6 +396,10 @@
         x.range + (-x.resolution) + 1 == 2 + (-(-5)) +1 == 8.
     */
     static BOOST_CONSTEXPR_OR_CONST int all_bits = (range + 1) + (-resolution); // +1 for a sign bit.
+
+    #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
+      static_assert(all_bits <= 32, "Error: the width of fixed_point can not exceed 32 bits when multiprecision is disabled.");
+    #endif
 
     //! \sa range and resolution,  public static data.
     static BOOST_CONSTEXPR_OR_CONST int radix_split = -FractionalResolution;

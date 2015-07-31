@@ -277,7 +277,67 @@ TODO Examples snippet needed here.
 [warning Some __cmath functions are not applicable to `fixed_point` values;
 others may not yet be implemented.]
 
+The full code is at  [@../../example/fixed_point_constants.cpp  fixed_point_constants.cpp].
+
+
 [endsect] [/section:numeric_limits Example of a fixed_point type and its numeric_limits]
+
+[section:bare_derivative Example of a bare-metal fixed_point type evaluating  derivative.]
+
+[import ../example/fixed_point_bare_metal_derivative_example.cpp]
+
+This example shows how a fixed_point type can be used in an 8-bit micrcontroller
+to evaluate the first derivative (and that can be used, for example, to trigger some action).
+
+It evaluates the first derivative of a real function  using a three-point central-difference rule of ['O(dx^6)].
+
+For more details see this section on
+[@http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/tut/floats/fp_eg/nd.html Calculating a derivative].
+
+The derivative code is
+
+[fixed_point_derivative_function]
+
+The fixed_point 16-bit `negative` type and the coefficients are
+
+[fixed_point_derivative_coeffic]
+
+Evaluation is at 1/2 and uses a step size of 1/4.
+
+(see [@http://link.springer.com/chapter/10.1007/978-3-642-34688-0_12 page 219-220]).
+
+[fixed_point_derivative_evalution]
+
+The expected exact differential is ((2 * a) + b) = (2.4 + 3.4) = 4.6.
+We obtain a fixed-point result of approximately 4.5938.
+
+To verify that the result lies within ['4.5 < result < 4.7]
+(since the expected result is 4.6, this is a wide tolerance):
+
+[fixed_point_verify]
+
+In a bigger system, we could display the result by sending to an output stream,
+but our hardware may have no way of doing this
+(perhaps only toggling a digital output to take some action like switch an LED on).
+
+So this example shows how to avoid the big overhead of `std::ostream` code
+by defining two macros either on the command line, or by adding
+
+  #define BOOST_FIXED_POINT_DISABLE_MULTIPRECISION // Do not use Boost.Multiprecision.
+  #define BOOST_FIXED_POINT_DISABLE_IOSTREAM       // Do not use I/O streaming.
+
+before this include
+
+  #include <boost/fixed_point/fixed_point.hpp>
+
+Full code is at [@../../example/fixed_point_bare_metal_derivative_example.cpp  fixed_point_bare_metal_derivative_example.cpp].
+
+This example is also discussed in C.M. Kormanyos, Real-Time C++: Efficient Object-Oriented and
+Template Microcontroller Programming (Springer, Heidelberg, 2013).
+in Section 12.7 and [@http://link.springer.com/chapter/10.1007/978-3-642-34688-0_13 Chapter 13].
+
+[endsect] [/section:bare_derivative Example of a bare-metal fixed_point type evaluating  derivative.]
+
 
 [endsect] [/section:examples Examples]
 
@@ -429,7 +489,8 @@ but `epsilon` is reduced to 9.3e-10, much less than `float`, so this might be us
 
 [section:representation_types How to tell the Representation types used for a fixed_point type]
 
-Users can (and will) want to know the underlying representation used for a __negatable type.
+Users can (and will) want to know the underlying representations used for a __negatable type.
+These are __negatable_value_type and __negatable_float_type.
 
 [import ../example/fixed_point_representation_examples.cpp]
 
@@ -439,19 +500,19 @@ with this include:
 
   #include <typeinfo>
 
-To output the name of fixed_point type `negatable<0, -8>` use the __value_type:
+To output the name of fixed_point type `negatable<0, -8>` use the __negatable_value_type:
 
 [fixed_point_type_representation_example_1]
 
 So `signed char` is signed integer type used for representation of this 8-bit fixed-point negatable number.
 
-For low digit counts, this will be a __fundamental type such as `int8_t, int16_t, int32_t, int64_t`, etc.
+For low digit counts, this will be a __fundamental_types type such as `int8_t, int16_t, int32_t, int64_t`, etc.
 For larger digit counts, this will be a __multiprecision signed integer type.
 
 One might also want to know the floating-point type that is guaranteed to be wide
 enough to represent the fixed-point negatable number in its entirety.
 
-For this use __float_type:
+For this use __negatable_float_type:
 
 [fixed_point_type_representation_example_2]
 
@@ -468,7 +529,7 @@ The full example and some sample output is at [@../../example/fixed_point_repres
 Most of the results are obvious, but it is worth noting that a type that uses a value type of `__int64`
 cannot use a 64-bit `double` type for its floating-point representation and must switch to a __multiprecision type, like
 `class boost::multiprecision::number<class boost::multiprecision::backends::cpp_bin_float<63,2,void,int,0,0>,0>`
-This will have marked effect on any operation like output that uses this.
+This will have a marked effect on any operation like output that uses this.
 
 [tip Take care choosing fixed_point type.]
 
@@ -821,6 +882,12 @@ Considerable work has been put into providing extensive links, so please use the
 [tip The colored class and function names are links will lead you to an individual class, function etc
 are the key to finding what an item does,
 and its parameter, template parameters, pre and post conditions, and returns.]
+
+[tip Having found a class like `negatable`, use the find key to search for a specific function or value.
+For example, using the index to search for `value_type` will lead you to the (long) page of
+`class template negatable` so then search for `value_type` and click on the link to get the detail.
+This is much quicker than simply scrolling.]
+
 The information given is derived from Doxygen-syntax comments in the include files, mainly
 [@../include/boost/fixed_point/fixed_point.hpp fixed_point.hpp].
 

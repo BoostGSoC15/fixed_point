@@ -14,7 +14,7 @@
 // Configure Boost.Fixed_point for a bare-metal system.
 
 // C.M. Kormanyos, Real-Time C++: Efficient Object-Oriented and
-// Template Microcontroller Programming(Springer, Heidelberg, 2013).
+// Template Microcontroller Programming (Springer, Heidelberg, 2013).
 // in Section 12.7 and Chapter 13.
 // See http://link.springer.com/chapter/10.1007/978-3-642-34688-0_13
 
@@ -87,14 +87,11 @@ extern "C" int main()
   const fixed_point_type b = fixed_point_type(34) / 10;
   const fixed_point_type c = fixed_point_type(56) / 10;
 
-  // Compute the approximate derivative of [(a * x^2) + (b * x) + c]
-
-//] [/fixed_point_derivative_coeffic]
-
   // Compute the approximate derivative of (a * x^2) + (b * x) + c
   // evaluated at 1/2, where the approximate values of the coefficients
   // are: a = 1.2, b = 3.4, and c = 5.6. The numerical tolerance is set
   // to a value of approximately 1/4.
+//] [/fixed_point_derivative_coeffic]
   // See http://link.springer.com/chapter/10.1007/978-3-642-34688-0_12 page 219-220.
 
 //[fixed_point_derivative_evalution
@@ -109,7 +106,6 @@ extern "C" int main()
 
   // The expected result is ((2 * a) + b) = (2.4 + 3.4) = 4.6 (exact).
   // We obtain a fixed-point result of approximately 4.5938.
-
 
   // Verify that the result lies within (4.5 < result < 4.7).
   // The expected result is 4.6, so this is a wide tolerance.
