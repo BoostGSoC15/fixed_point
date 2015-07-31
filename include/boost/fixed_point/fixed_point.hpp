@@ -30,10 +30,10 @@
   // using preprocessor definitions. Not all of these are supported
   // at the moment. The potential options include:
 
-  // is  supported : #define BOOST_FIXED_POINT_DISABLE_IOSTREAM
-  // is  supported : #define BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
-  // not supported : #define BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH
-  // not supported : #define BOOST_FIXED_POINT_DISABLE_CPP11
+  // Is supported now     : #define BOOST_FIXED_POINT_DISABLE_IOSTREAM
+  // Is supported now     : #define BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
+  // Is not yet supported : #define BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH
+  // Is not yet supported : #define BOOST_FIXED_POINT_DISABLE_CPP11
 
   // With BOOST_FIXED_POINT_DISABLE_IOSTREAM, all I/O streaming
   // is disabled, as is the inclusion of associated standard
@@ -379,7 +379,7 @@
 
     // Make the range, resolution and total number of bits available to the user.
     // These just echo the values of the template parameters.
-  
+
     /*! Value of template parameter IntegralRange for the negatable type.\n
     Usage: boost::fixed_point::negatable<2, -5> x; x.range == 2;
     */
@@ -393,7 +393,7 @@
 
     /*! Total number of bits in the negatable type, including sign.\n
         For example: @c boost::fixed_point::negatable<2, -5> @c x; @c int @c n=x.all_bits; @c n==8\n
-        x.range + (-x.resolution) + 1 == 2 + (-(-5)) +1 == 8.
+        x.range + (-x.resolution) + 1 == 2 + (-(-5)) + 1 == 8.
     */
     static BOOST_CONSTEXPR_OR_CONST int all_bits = (range + 1) + (-resolution); // +1 for a sign bit.
 
@@ -421,7 +421,7 @@
       a built-in type such as @c int8_t, @c int16_t, @c int32_t, @c int64_t, etc.\n
       For larger digit counts, this will be a multiprecision signed integer type.
     */
-    typedef typename detail::integer_type_helper<negatable::all_bits - 0>::exact_signed_type value_type;
+    typedef typename detail::integer_type_helper<all_bits>::exact_signed_type value_type;
 
     /*!
       The floating-point type that is guaranteed to be wide
@@ -444,7 +444,7 @@
       \endcode
 
     */
-   typedef typename detail::float_type_helper  <negatable::all_bits - 1>::exact_float_type  float_type;
+   typedef typename detail::float_type_helper<all_bits - 1>::exact_float_type float_type;
 
     // The public class constructors follow below.
 
@@ -463,7 +463,10 @@
     negatable(const IntegralType& u,
               const typename std::enable_if<(   std::is_integral<IntegralType>::value
                                              && std::is_unsigned<IntegralType>::value)>::type* = nullptr)
-      : data(value_type(unsigned_small_type(unsigned_small_type(u) << radix_split) & unsigned_small_mask())) { }
+      : data()
+    {
+      make_from_unsigned_integral_type(u);
+    }
 
     // Here are the class constructors from both built-in signed integral
     // types as well as from the internal value_type of the data member.
@@ -476,8 +479,10 @@
               const typename std::enable_if<  (   std::is_integral<IntegralType>::value
                                                && std::is_signed  <IntegralType>::value)
                                             || std::is_same<IntegralType, value_type>::value>::type* = nullptr)
-      : data((!(n < 0)) ? +value_type(unsigned_small_type(unsigned_small_type(+n) << radix_split) & unsigned_small_mask())
-                        : -value_type(unsigned_small_type(unsigned_small_type(-n) << radix_split) & unsigned_small_mask())) { }
+      : data()
+    {
+      make_from_signed_integral_type(n);
+    }
 
     // Here are the class constructors from built-in floating-point types.
     /*! Constructors from built-in floating-point types: @c float, @c double or @c long @c double.\n
@@ -684,8 +689,7 @@
     */
     ~negatable() { }
 
-    /*! Equality operators.\n 
-
+    /*! Equality operators.\n
     */
     // This is the standard equality operator.
     negatable& operator=(const negatable& other)
@@ -719,24 +723,28 @@
     }
 
     //! Equality operators for built-in integral types.
-    negatable& operator=(const char& n)               { data = value_type(n) << radix_split; return *this; }
-    negatable& operator=(const short& n)              { data = value_type(n) << radix_split; return *this; }
-    negatable& operator=(const int& n)                { data = value_type(n) << radix_split; return *this; }
-    negatable& operator=(const long& n)               { data = value_type(n) << radix_split; return *this; }
-    negatable& operator=(const long long& n)          { data = value_type(n) << radix_split; return *this; }
+    negatable& operator=(const char& n)               { make_from_signed_integral_type(n); return *this; }
+    negatable& operator=(const short& n)              { make_from_signed_integral_type(n); return *this; }
+    negatable& operator=(const int& n)                { make_from_signed_integral_type(n); return *this; }
+    negatable& operator=(const long& n)               { make_from_signed_integral_type(n); return *this; }
+    negatable& operator=(const long long& n)          { make_from_signed_integral_type(n); return *this; }
 
-    negatable& operator=(const unsigned char& u)      { data = value_type(unsigned_small_type(u) << radix_split); return *this; }
-    negatable& operator=(const unsigned short& u)     { data = value_type(unsigned_small_type(u) << radix_split); return *this; }
-    negatable& operator=(const unsigned int& u)       { data = value_type(unsigned_small_type(u) << radix_split); return *this; }
-    negatable& operator=(const unsigned long& u)      { data = value_type(unsigned_small_type(u) << radix_split); return *this; }
-    negatable& operator=(const unsigned long long& u) { data = value_type(unsigned_small_type(u) << radix_split); return *this; }
-  
+    negatable& operator=(const unsigned char& u)      { make_from_unsigned_integral_type(u); return *this; }
+    negatable& operator=(const unsigned short& u)     { make_from_unsigned_integral_type(u); return *this; }
+    negatable& operator=(const unsigned int& u)       { make_from_unsigned_integral_type(u); return *this; }
+    negatable& operator=(const unsigned long& u)      { make_from_unsigned_integral_type(u); return *this; }
+    negatable& operator=(const unsigned long long& u) { make_from_unsigned_integral_type(u); return *this; }
 
-    /*! Equality operators for built-in floating-point types.
-    */
-    negatable& operator=(const float& f)              { make_from_floating_point_type(f);  return *this; }
-    negatable& operator=(const double& d)             { make_from_floating_point_type(d);  return *this; }
-    negatable& operator=(const long double& ld)       { make_from_floating_point_type(ld); return *this; }
+    //! Equality operators for built-in floating-point types.
+    template<typename FloatingPointType,
+             typename = typename std::enable_if<   std::is_floating_point<FloatingPointType>::value
+                                                || std::is_same<FloatingPointType, float_type>::value>::type>
+    negatable& operator=(const FloatingPointType& f)
+    {
+      make_from_floating_point_type(f);
+
+      return *this;
+    }
 
     //! Unary pre-increment and post-increment operators.
     negatable& operator++()   { data += value_type(unsigned_small_type(1) << radix_split); return *this; }
@@ -1177,7 +1185,6 @@
       const bool is_neg = (data < static_cast<value_type>(0));
 
       FloatingPointType f(0);
-
  
       {
         using std::ldexp;
@@ -1224,15 +1231,27 @@
       return ((!is_neg) ? f : -f);
     }
 
-      /*! Define a local_unsigned_small_type.\n
-       This is an unsigned integral type that is guaranteed
-       to hold the larger of:
-       * the number of digits in FloatingPointType plus 1 extra digit
-       * the number of digits in unsigned_small_type.
-      */
+    template<typename UnsignedIntegralType>
+    void make_from_unsigned_integral_type(const UnsignedIntegralType& u)
+    {
+      data = (value_type(unsigned_small_type(unsigned_small_type(u) << radix_split) & unsigned_small_mask()));
+    }
+
+    template<typename SignedIntegralType>
+    void make_from_signed_integral_type(const SignedIntegralType& n)
+    {
+      data = ((!(n < 0)) ? +value_type(unsigned_small_type(unsigned_small_type(+n) << radix_split) & unsigned_small_mask())
+                         : -value_type(unsigned_small_type(unsigned_small_type(-n) << radix_split) & unsigned_small_mask()));
+    }
+
     template<typename FloatingPointType>
     void make_from_floating_point_type(const FloatingPointType& f)
     {
+      // Define a local_unsigned_small_type.
+      // This is an unsigned integral type that is guaranteed
+      // to hold the larger of:
+      // * the number of digits in FloatingPointType plus 1 extra digit
+      // * the number of digits in unsigned_small_type.
 
       BOOST_CONSTEXPR_OR_CONST int fp_digits_plus_one = std::numeric_limits<FloatingPointType>::digits + 1;
 
@@ -1293,7 +1312,7 @@
     {
       initialization_helper.force_premain_init_of_static_constants();
 
-      static const unsigned_small_type the_radix_split_value(detail::radix_split_maker<unsigned_small_type, radix_split>::value());
+      static const unsigned_small_type the_radix_split_value(unsigned_small_type(1U) << radix_split);
 
       return the_radix_split_value;
     }
@@ -1315,7 +1334,7 @@
     {
       initialization_helper.force_premain_init_of_static_constants();
 
-        BOOST_CONSTEXPR_OR_CONST int total_right_shift = -(resolution + 1);
+      BOOST_CONSTEXPR_OR_CONST int total_right_shift = -(resolution + 1);
 
       static const negatable the_epsilon(nothing(), radix_split_value() >> total_right_shift);
 
@@ -1334,11 +1353,11 @@
       return the_value_min;
     }
 
-      /*! Compute (at compile time)the maximum value that the type can represent.\n
-      Used to define function @c std::numeric_limits<>::max()
-      and, when negated, @c std::numeric_limits<>::lowest().
-      */
-      static const negatable& value_max() BOOST_NOEXCEPT
+    /*! Compute (at compile time) the maximum value that the type can represent.\n
+        Used to define function @c std::numeric_limits<>::max()
+        and, when negated, @c std::numeric_limits<>::lowest().
+    */
+    static const negatable& value_max() BOOST_NOEXCEPT
     {
       initialization_helper.force_premain_init_of_static_constants();
 
@@ -1410,6 +1429,7 @@
                                                                 negatable& x)
       {
         float_type v;
+
         // Receive a floating-point number from the input stream.
         static_cast<void>(in >> v);
 
@@ -1451,8 +1471,8 @@
              const int OtherFractionalResolution>
     friend inline negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
                             ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                             RoundMode,
-                             OverflowMode>
+                            RoundMode,
+                            OverflowMode>
     operator+(const negatable& u, const negatable<OtherIntegralRange,
                                                   OtherFractionalResolution,
                                                   RoundMode,
@@ -1470,8 +1490,8 @@
              const int OtherFractionalResolution>
     friend inline negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
                             ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                             RoundMode,
-                             OverflowMode>
+                            RoundMode,
+                            OverflowMode>
     operator-(const negatable& u, const negatable<OtherIntegralRange,
                                                   OtherFractionalResolution,
                                                   RoundMode,
@@ -1489,8 +1509,8 @@
              const int OtherFractionalResolution>
     friend inline negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
                             ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                             RoundMode,
-                             OverflowMode>
+                            RoundMode,
+                            OverflowMode>
     operator*(const negatable& u, const negatable<OtherIntegralRange,
                                                   OtherFractionalResolution,
                                                   RoundMode,
@@ -1508,8 +1528,8 @@
              const int OtherFractionalResolution>
     friend inline negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
                             ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                             RoundMode,
-                             OverflowMode>
+                            RoundMode,
+                            OverflowMode>
     operator/(const negatable& u, const negatable<OtherIntegralRange,
                                                   OtherFractionalResolution,
                                                   RoundMode,
@@ -1540,14 +1560,6 @@
                         RoundMode,
                         OverflowMode> supra_fixed_point_type;
 
-      #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
-        static_assert(std::numeric_limits<supra_fixed_point_type>::digits + 1 <= 32, "Error: the width of the supra fixed_point for comparison operations can not exceed 32 bits when multiprecision is disabled.");
-      #endif
-
-      #if !defined(BOOST_FLOAT64_C)
-        static_assert(std::numeric_limits<supra_fixed_point_type>::digits + 1 <= 24, "Error: the width of the supra fixed_point for comparison operations can not exceed 24 bits when float64_t is unavailable.");
-      #endif
-
       return (supra_fixed_point_type(u) == supra_fixed_point_type(v));
     }
 
@@ -1567,14 +1579,6 @@
                         ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
                         RoundMode,
                         OverflowMode> supra_fixed_point_type;
-
-      #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
-        static_assert(std::numeric_limits<supra_fixed_point_type>::digits + 1 <= 32, "Error: the width of the supra fixed_point for comparison operations can not exceed 32 bits when multiprecision is disabled.");
-      #endif
-
-      #if !defined(BOOST_FLOAT64_C)
-        static_assert(std::numeric_limits<supra_fixed_point_type>::digits + 1 <= 24, "Error: the width of the supra fixed_point for comparison operations can not exceed 24 bits when float64_t is unavailable.");
-      #endif
 
       return (supra_fixed_point_type(u) != supra_fixed_point_type(v));
     }
@@ -1607,14 +1611,6 @@
                         RoundMode,
                         OverflowMode> supra_fixed_point_type;
 
-      #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
-        static_assert(std::numeric_limits<supra_fixed_point_type>::digits + 1 <= 32, "Error: the width of the supra fixed_point for comparison operations can not exceed 32 bits when multiprecision is disabled.");
-      #endif
-
-      #if !defined(BOOST_FLOAT64_C)
-        static_assert(std::numeric_limits<supra_fixed_point_type>::digits + 1 <= 24, "Error: the width of the supra fixed_point for comparison operations can not exceed 24 bits when float64_t is unavailable.");
-      #endif
-
       return (supra_fixed_point_type(u) > supra_fixed_point_type(v));
     }
 
@@ -1629,14 +1625,6 @@
                         ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
                         RoundMode,
                         OverflowMode> supra_fixed_point_type;
-
-      #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
-        static_assert(std::numeric_limits<supra_fixed_point_type>::digits + 1 <= 32, "Error: the width of the supra fixed_point for comparison operations can not exceed 32 bits when multiprecision is disabled.");
-      #endif
-
-      #if !defined(BOOST_FLOAT64_C)
-        static_assert(std::numeric_limits<supra_fixed_point_type>::digits + 1 <= 24, "Error: the width of the supra fixed_point for comparison operations can not exceed 24 bits when float64_t is unavailable.");
-      #endif
 
       return (supra_fixed_point_type(u) < supra_fixed_point_type(v));
     }
@@ -1653,14 +1641,6 @@
                         RoundMode,
                         OverflowMode> supra_fixed_point_type;
 
-      #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
-        static_assert(std::numeric_limits<supra_fixed_point_type>::digits + 1 <= 32, "Error: the width of the supra fixed_point for comparison operations can not exceed 32 bits when multiprecision is disabled.");
-      #endif
-
-      #if !defined(BOOST_FLOAT64_C)
-        static_assert(std::numeric_limits<supra_fixed_point_type>::digits + 1 <= 24, "Error: the width of the supra fixed_point for comparison operations can not exceed 24 bits when float64_t is unavailable.");
-      #endif
-
       return (supra_fixed_point_type(u) >= supra_fixed_point_type(v));
     }
 
@@ -1676,20 +1656,13 @@
                         RoundMode,
                         OverflowMode> supra_fixed_point_type;
 
-      #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
-        static_assert(std::numeric_limits<supra_fixed_point_type>::digits + 1 <= 32, "Error: the width of the supra fixed_point for comparison operations can not exceed 32 bits when multiprecision is disabled.");
-      #endif
-
-      #if !defined(BOOST_FLOAT64_C)
-        static_assert(std::numeric_limits<supra_fixed_point_type>::digits + 1 <= 24, "Error: the width of the supra fixed_point for comparison operations can not exceed 24 bits when float64_t is unavailable.");
-      #endif
-
       return (supra_fixed_point_type(u) <= supra_fixed_point_type(v));
     }
     //! \endcond // DETAIL
 
     //! @c std::abs function.
     friend inline negatable  abs(negatable x) { return ((x.data < 0) ? -x : x); }
+
     //! @c std::fabs function (identical to abs and provided for completeness).
     friend inline negatable fabs(negatable x) { return ((x.data < 0) ? -x : x); }
 
@@ -1741,8 +1714,8 @@
     \param x Fixed-point value to multiply by @c exp integral power of 2.
     \param exp power of 2 to use to multiply.
     \return x * 2^exp.
-
     */
+
     friend inline negatable ldexp(negatable x, int exp)
     {
       if(exp > 0)
@@ -1760,7 +1733,7 @@
         return negatable(nothing(), value_type((!is_neg) ? value_type(result) : -value_type(result)));
       }
       else
-      { 
+      {
         return x;
       }
     } // negatable ldexp(negatable x, int exp)
@@ -1798,7 +1771,7 @@
     friend inline negatable fixed_advance(negatable x, int distance)
     {
       // TBD over/underflow?
-      return x + distance * (std::numeric_limits<negatable>::min)();
+      return x + (distance * (std::numeric_limits<negatable>::min)());
     }
 
     friend inline negatable fixed_nextafter(negatable val, int direction)
@@ -1869,8 +1842,8 @@
 
         return result;
       }// negatable sqrt(negatable x)
-    } 
-  }; // 
+    }
+  };
 
   // Once-only instances of static constant variables of the negative class.
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::range;
@@ -1902,7 +1875,7 @@
   using boost::fixed_point::ldexp;
   using boost::fixed_point::sqrt;
 
-  // TODO Ensure that ALL std:: added functions are also listed in this section.
+  // TBD: Ensure that ALL std:: added functions are also listed in this section.
 
   namespace std
   {

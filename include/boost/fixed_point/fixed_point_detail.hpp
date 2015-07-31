@@ -351,6 +351,62 @@
                                             boost::multiprecision::et_off> exact_unsigned_type;
     };
 
+    template<const unsigned BitCount>
+    struct integer_type_helper<BitCount,
+                               typename std::enable_if<   (BitCount >   8192U)
+                                                       && (BitCount <= 16384U)>::type>
+    {
+    private:
+      typedef boost::multiprecision::cpp_int_backend<16384U,
+                                                     16384U,
+                                                     boost::multiprecision::signed_magnitude,
+                                                     boost::multiprecision::unchecked,
+                                                     void>
+      signed_integral_backend_type;
+
+      typedef boost::multiprecision::cpp_int_backend<16384U,
+                                                     16384U,
+                                                     boost::multiprecision::unsigned_magnitude,
+                                                     boost::multiprecision::unchecked,
+                                                     void>
+      unsigned_integral_backend_type;
+
+    public:
+      typedef boost::multiprecision::number<signed_integral_backend_type,
+                                            boost::multiprecision::et_off> exact_signed_type;
+
+      typedef boost::multiprecision::number<unsigned_integral_backend_type,
+                                            boost::multiprecision::et_off> exact_unsigned_type;
+    };
+
+    template<const unsigned BitCount>
+    struct integer_type_helper<BitCount,
+                               typename std::enable_if<   (BitCount >  16384U)
+                                                       && (BitCount <= 32768U)>::type>
+    {
+    private:
+      typedef boost::multiprecision::cpp_int_backend<32768U,
+                                                     32768U,
+                                                     boost::multiprecision::signed_magnitude,
+                                                     boost::multiprecision::unchecked,
+                                                     void>
+      signed_integral_backend_type;
+
+      typedef boost::multiprecision::cpp_int_backend<32768U,
+                                                     32768U,
+                                                     boost::multiprecision::unsigned_magnitude,
+                                                     boost::multiprecision::unchecked,
+                                                     void>
+      unsigned_integral_backend_type;
+
+    public:
+      typedef boost::multiprecision::number<signed_integral_backend_type,
+                                            boost::multiprecision::et_off> exact_signed_type;
+
+      typedef boost::multiprecision::number<unsigned_integral_backend_type,
+                                            boost::multiprecision::et_off> exact_unsigned_type;
+    };
+
     #endif // !BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
 
 
@@ -425,112 +481,6 @@
     };
   #endif // BOOST_FLOAT128_C
 
-  template<typename ArithmeticType,
-           const int RadixSplit,
-           typename EnableType = void>
-  struct radix_split_maker
-  {
-    static const ArithmeticType& value()
-    {
-      static bool is_init = bool();
-
-      ArithmeticType local_result = ArithmeticType();
-
-      if(is_init == false)
-      {
-        is_init = true;
-
-        // The variable xn stores the binary powers of x.
-        local_result = ArithmeticType(((RadixSplit % 2) != 0) ? ArithmeticType(2) : ArithmeticType(1));
-
-        ArithmeticType xn(2);
-
-        int p2 = RadixSplit;
-
-        while((p2 /= 2) != 0)
-        {
-          // Square xn for each binary power.
-          xn *= xn;
-
-          const bool has_binary_power = ((p2 % 2) != 0);
-
-          if(has_binary_power)
-          {
-            // Multiply the result with each binary power contained in the exponent.
-            local_result *= xn;
-          }
-        }
-      }
-
-      static const ArithmeticType the_result(local_result);
-
-      return the_result;
-    }
-  };
-
-  template<typename ArithmeticType,
-            const int RadixSplit>
-  struct radix_split_maker<ArithmeticType,
-                           RadixSplit,
-                           typename std::enable_if<   std::is_integral<ArithmeticType>::value
-                                                   && (RadixSplit < 8)>::type>
-  {
-    static const ArithmeticType& value()
-    {
-      static const ArithmeticType& the_result(UINT8_C(1) << RadixSplit);
-
-      return the_result;
-    }
-  };
-
-  template<typename ArithmeticType,
-            const int RadixSplit>
-  struct radix_split_maker<ArithmeticType,
-                           RadixSplit,
-                           typename std::enable_if<   std::is_integral<ArithmeticType>::value
-                                                   && (RadixSplit >=  8)
-                                                   && (RadixSplit <  16)>::type>
-  {
-    static const ArithmeticType& value()
-    {
-      static const ArithmeticType the_result(UINT16_C(1) << RadixSplit);
-
-      return the_result;
-    }
-  };
-
-  template<typename ArithmeticType,
-            const int RadixSplit>
-  struct radix_split_maker<ArithmeticType,
-                           RadixSplit,
-                           typename std::enable_if<   std::is_integral<ArithmeticType>::value
-                                                   && (RadixSplit >= 16)
-                                                   && (RadixSplit <  32)>::type>
-  {
-    static const ArithmeticType& value()
-    {
-      static const ArithmeticType the_result(UINT32_C(1) << RadixSplit);
-
-      return the_result;
-    }
-  };
-
-  template<typename ArithmeticType,
-            const int RadixSplit>
-  struct radix_split_maker<ArithmeticType,
-                           RadixSplit,
-                           typename std::enable_if<   std::is_integral<ArithmeticType>::value
-                                                   && (RadixSplit >= 32)
-                                                   && (RadixSplit <  64)>::type>
-  {
-    static const ArithmeticType& value()
-    {
-      static const ArithmeticType the_result(UINT64_C(1) << RadixSplit);
-
-      return the_result;
-    }
-  };
-
   #if !defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
     template<typename UnsignedIntegralType,
              typename FloatingPointType,
@@ -566,9 +516,11 @@
       static void convert_floating_point_to_unsigned_integer(const FloatingPointType& floating_point_source,
                                                              boost::uint64_t& unsigned_destination)
       {
-        // TBD: Here is a big workaround for the conversion of cpp_bin_float to uint64_t.
-        // TBD: It is for cases when the digits in cpp_bin_float are fewer than
-        // the digits in uint64_t, but larger than the digits in float64_t.
+        // Here is a somewhat significant workaround for the conversion of
+        // cpp_bin_float to uint64_t. It is used for cases when the digits
+        // in cpp_bin_float are fewer than the digits in uint64_t,
+        // but larger than the digits in float64_t.
+
         // TBD: See the TODO in the comment at line 1113 of cpp_bin_float.hpp.
 
         std::stringstream ss;
