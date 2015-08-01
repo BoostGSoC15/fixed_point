@@ -68,17 +68,15 @@ namespace local
     const FixedPointType a8 (FixedPointType(111) / 10);                      const FloatPointType b8(FloatPointType(111) / 10);
     const FixedPointType a9 (boost::math::constants::phi<FixedPointType>()); const FloatPointType b9(boost::math::constants::phi<FloatPointType>());
 
-    const FixedPointType my_tolerance = tolerance_maker<FixedPointType>(fuzzy_bits);
-
-    BOOST_CHECK_CLOSE_FRACTION(cbrt(a1), cbrt(b1), my_tolerance);
-    BOOST_CHECK_CLOSE_FRACTION(cbrt(a2), cbrt(b2), my_tolerance);
-    BOOST_CHECK_CLOSE_FRACTION(cbrt(a3), cbrt(b3), my_tolerance);
-    BOOST_CHECK_CLOSE_FRACTION(cbrt(a4), cbrt(b4), my_tolerance);
-    BOOST_CHECK_CLOSE_FRACTION(cbrt(a5), cbrt(b5), my_tolerance);
-    BOOST_CHECK_CLOSE_FRACTION(cbrt(a6), cbrt(b6), my_tolerance);
-    BOOST_CHECK_CLOSE_FRACTION(cbrt(a7), cbrt(b7), my_tolerance);
-    BOOST_CHECK_CLOSE_FRACTION(cbrt(a8), cbrt(b8), my_tolerance);
-    BOOST_CHECK_CLOSE_FRACTION(cbrt(a9), cbrt(b9), my_tolerance);
+    BOOST_CHECK_CLOSE_FRACTION(cbrt(a1), cbrt(b1), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(cbrt(a2), cbrt(b2), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(cbrt(a3), cbrt(b3), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(cbrt(a4), cbrt(b4), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(cbrt(a5), cbrt(b5), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(cbrt(a6), cbrt(b6), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(cbrt(a7), cbrt(b7), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(cbrt(a8), cbrt(b8), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(cbrt(a9), cbrt(b9), tolerance_maker<FixedPointType>(fuzzy_bits));
   }
 }
 
@@ -89,22 +87,26 @@ BOOST_AUTO_TEST_CASE(fixed_point_cbrt)
 
   { typedef boost::fixed_point::negatable<   8,    -7, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(6); }
   { typedef boost::fixed_point::negatable<   8,    -7, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_cbrt<fixed_point_type>(6); }
-  { typedef boost::fixed_point::negatable<  11,   -12, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 1) * 3) / 2); }
-  { typedef boost::fixed_point::negatable<  11,   -12, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 1) * 3) / 2); }
-  { typedef boost::fixed_point::negatable<  15,   -16, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 1) * 3) / 2); }
-  { typedef boost::fixed_point::negatable<  15,   -16, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 1) * 3) / 2); }
-  { typedef boost::fixed_point::negatable<  26,   -26, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 1) * 3) / 2); }
-  { typedef boost::fixed_point::negatable<  26,   -26, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 1) * 3) / 2); }
-  { typedef boost::fixed_point::negatable<  31,   -32, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 1) * 3) / 2); }
-  { typedef boost::fixed_point::negatable<  31,   -32, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 1) * 3) / 2); }
-  { typedef boost::fixed_point::negatable<  56,   -56, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 1) * 3) / 2); }
-  { typedef boost::fixed_point::negatable<  56,   -56, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 1) * 3) / 2); }
-  { typedef boost::fixed_point::negatable<  63,   -64, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 1) * 3) / 2); }
-  { typedef boost::fixed_point::negatable<  63,   -64, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 1) * 3) / 2); }
-  { typedef boost::fixed_point::negatable< 127,  -128, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 1) * 3) / 2); }
-  { typedef boost::fixed_point::negatable< 127,  -128, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 1) * 3) / 2); }
-  { typedef boost::fixed_point::negatable< 255,  -256, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 1) * 3) / 2); }
-  { typedef boost::fixed_point::negatable< 255,  -256, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 1) * 3) / 2); }
-  { typedef boost::fixed_point::negatable<2047, -2048, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 1) * 3) / 2); }
-  { typedef boost::fixed_point::negatable<2047, -2048, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 1) * 3) / 2); }
+  { typedef boost::fixed_point::negatable<  11,   -12, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 17) / 10); }
+  { typedef boost::fixed_point::negatable<  11,   -12, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 17) / 10); }
+  { typedef boost::fixed_point::negatable<  15,   -16, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 17) / 10); }
+  { typedef boost::fixed_point::negatable<  15,   -16, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 17) / 10); }
+  { typedef boost::fixed_point::negatable<  26,   -26, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 17) / 10); }
+  { typedef boost::fixed_point::negatable<  26,   -26, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 17) / 10); }
+  { typedef boost::fixed_point::negatable<  31,   -32, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 17) / 10); }
+  { typedef boost::fixed_point::negatable<  31,   -32, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 17) / 10); }
+  { typedef boost::fixed_point::negatable<  56,   -56, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 17) / 10); }
+  { typedef boost::fixed_point::negatable<  56,   -56, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 17) / 10); }
+  { typedef boost::fixed_point::negatable<  63,   -64, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 17) / 10); }
+  { typedef boost::fixed_point::negatable<  63,   -64, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 17) / 10); }
+  { typedef boost::fixed_point::negatable< 119,  -120, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 17) / 10); }
+  { typedef boost::fixed_point::negatable< 119,  -120, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 17) / 10); }
+  { typedef boost::fixed_point::negatable< 127,  -128, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 17) / 10); }
+  { typedef boost::fixed_point::negatable< 127,  -128, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 17) / 10); }
+  { typedef boost::fixed_point::negatable< 255,  -256, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 17) / 10); }
+  { typedef boost::fixed_point::negatable< 255,  -256, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 17) / 10); }
+  { typedef boost::fixed_point::negatable<2047, -2048, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 17) / 10); }
+  { typedef boost::fixed_point::negatable<2047, -2048, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 17) / 10); }
+  { typedef boost::fixed_point::negatable<4095, -4096, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 17) / 10); }
+  { typedef boost::fixed_point::negatable<4095, -4096, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 17) / 10); }
 }
