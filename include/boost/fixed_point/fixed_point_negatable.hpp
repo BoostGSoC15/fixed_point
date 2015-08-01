@@ -13,18 +13,12 @@
 // In this particular file, we implement a prototype for the proposed
 // negatable template class.
 
+// ----------------------------------------------------------------
+// This file contains only the negatable class.
+// ----------------------------------------------------------------
+
 #ifndef FIXED_POINT_NEGATABLE_2015_03_06_HPP_
   #define FIXED_POINT_NEGATABLE_2015_03_06_HPP_
-
-  // ----------------------------------------------------------------
-  // TBD: This file contains only the negatable class.
-
-  // TBD: Ultimately, we need subfiles files for negatable, nonnegative,
-  // cardinal, etc.
-
-  // TBD: Potential architectural change: These subfiles can be
-  // subsequently included in fixed_point.hpp.
-  // ----------------------------------------------------------------
 
   // There is optional support for certain variations of fixed_point
   // using preprocessor definitions. Not all of these are supported
@@ -327,8 +321,7 @@
     static_assert(FractionalResolution < 0,
                   "Error: The fractional resolution of negatable must be negative and include at least 1 fractional bit.");
 
-    // TBD: Is this limitation correct?
-    // TBD: Or can negatable have a negative integral range?
+    // The negatable class can not have a negative integral range.
     static_assert(IntegralRange >= 0,
                   "Error: The integral range of negatable must be 0 or more.");
 
@@ -413,12 +406,11 @@
     // The class default constructor is implemented below.
 
     /*! Default constructor.\n By design choice, this clears the data member.\n 
-    So after defining @c negatable<15,-16> @c x; then @c x==0; 
+        So after defining @c negatable<15,-16> @c x; then @c x==0; 
     */
 
     negatable() : data() { }
 
-    // Here are the class constructors from built-in unsigned integral types.
     /*! Constructors from built-in unsigned integral types.
     */
     template<typename IntegralType>
@@ -429,9 +421,6 @@
     {
       make_from_unsigned_integral_type(u);
     }
-
-    // Here are the class constructors from both built-in signed integral
-    // types as well as from the internal value_type of the data member.
 
     /*! Constructors from both built-in signed integral types, 
         as well as from the internal @c value_type of the data member.
@@ -446,7 +435,6 @@
       make_from_signed_integral_type(n);
     }
 
-    // Here are the class constructors from built-in floating-point types.
     /*! Constructors from built-in floating-point types: @c float, @c double or @c long @c double.\n
         Example: negatable<15,-16> x(2.3L);\n
         Overflow and underflow is of course possible.
@@ -460,8 +448,6 @@
       make_from_floating_point_type(f);
     }
 
-    // Here is the class copy constructor.
-
     /*! Copy constructors, including mixed-math class constructors that
         create a negatable type from another negatable type
         having @b different range and/or resolution.\n
@@ -473,8 +459,8 @@
         4) larger  : larger  --> ( OtherIntegralRange >  IntegralRange) && (|OtherFractionalResolution| >  |FractionalResolution|)\n
 
         Design choices were made that the result of @c (a+b) has the type of @c a.
-
     */
+
     negatable(const negatable& v) : data(v.data) { }
 
     // What follows are mixed-math class constructors that
