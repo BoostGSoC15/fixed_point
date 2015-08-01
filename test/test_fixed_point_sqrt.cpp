@@ -115,28 +115,28 @@ BOOST_AUTO_TEST_CASE(fixed_point_sqrt)
   // such as 16, 24, 32, 53, 64, 113, 128, and also in randomly
   // selected higher digit regions.
 
-  { typedef boost::fixed_point::negatable<   8,    -7, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(2); }
-  { typedef boost::fixed_point::negatable<   8,    -7, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(2); }
-  { typedef boost::fixed_point::negatable<   8,   -15, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(2); }
-  { typedef boost::fixed_point::negatable<   8,   -15, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(2); }
-  { typedef boost::fixed_point::negatable<   8,   -23, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(2); }
-  { typedef boost::fixed_point::negatable<   8,   -23, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(2); }
-  { typedef boost::fixed_point::negatable<   8,   -44, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(2); }
-  { typedef boost::fixed_point::negatable<   8,   -44, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(2); }
-  { typedef boost::fixed_point::negatable<   8,   -55, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(2); }
-  { typedef boost::fixed_point::negatable<   8,   -55, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(2); }
-  { typedef boost::fixed_point::negatable<   8,  -104, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(2); }
-  { typedef boost::fixed_point::negatable<   8,  -104, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(2); }
-  { typedef boost::fixed_point::negatable<   8,  -119, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(2); }
-  { typedef boost::fixed_point::negatable<   8,  -119, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(2); }
-  { typedef boost::fixed_point::negatable<  20,   -10, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(2); }
-  { typedef boost::fixed_point::negatable<  20,   -10, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(2); }
-  { typedef boost::fixed_point::negatable< 100,   -10, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(2); }
-  { typedef boost::fixed_point::negatable< 100,   -10, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(2); }
-  { typedef boost::fixed_point::negatable<  20,  -100, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(2); }
-  { typedef boost::fixed_point::negatable<  20,  -100, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(2); }
-  { typedef boost::fixed_point::negatable< 100,  -100, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(2); }
-  { typedef boost::fixed_point::negatable< 100,  -100, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(2); }
+  { typedef boost::fixed_point::negatable<   8,    -7, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable<   8,    -7, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable<   8,   -15, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable<   8,   -15, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable<   8,   -23, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable<   8,   -23, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable<   8,   -44, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable<   8,   -44, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable<   8,   -55, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable<   8,   -55, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable<   8,  -104, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable<   8,  -104, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable<   8,  -119, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable<   8,  -119, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable<  20,   -10, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable<  20,   -10, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable< 100,   -10, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable< 100,   -10, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable<  20,  -100, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable<  20,  -100, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable< 100,  -100, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable< 100,  -100, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
   { typedef boost::fixed_point::negatable< 119,  -120, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(8); }
   { typedef boost::fixed_point::negatable< 119,  -120, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(8); }
   { typedef boost::fixed_point::negatable<  20,  -491, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(8); }
