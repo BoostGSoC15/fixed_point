@@ -129,6 +129,8 @@
   #endif
 
   #include <boost/fixed_point/detail/fixed_point_detail.hpp>
+  #include <boost/fixed_point/fixed_point_overflow.hpp>
+  #include <boost/fixed_point/fixed_point_round.hpp>
 
   static_assert(std::numeric_limits<boost::uint8_t >::digits ==  8, "Configuration error: the size of boost::uint8_t  must be 8  bits!");
   static_assert(std::numeric_limits<boost::uint16_t>::digits == 16, "Configuration error: the size of boost::uint16_t must be 16 bits!");
@@ -137,188 +139,148 @@
 
   namespace boost { namespace fixed_point {
 
-  namespace round
-  { // Care - Doxygen is really picky about layout here - don't try to tidy it up!
-    struct fastest      { }; //!< Template parameter for fixed_point negatable.\n Speed is more important than the choice in value.
-    struct negative     { }; //!< Template parameter for fixed_point negatable.\n Round towards negative infinity. This mode is useful in interval arithmetic.
-    struct truncated    { }; //!< Template parameter for fixed_point negatable.\n Template parameter for fixed_point negatableRound towards zero. This mode is useful in implementing integral arithmetic.
-    struct positive     { }; //!< Template parameter for fixed_point negatable.\n Round towards positive infinity. This mode is useful in interval arithmetic.
-    struct classic      { }; //!< Template parameter for fixed_point negatable.\n Template parameter for fixed_point negatableRound towards the nearest value, but exactly-half values are rounded towards maximum magnitude. This mode is the standard school algorithm.
-    struct nearest_even { }; //!< Template parameter for fixed_point negatable.\n Round towards the nearest value, but exactly-half values are rounded towards even values. This mode has more balance than the classic mode.
-    struct nearest_odd  { }; //!< Template parameter for fixed_point negatable.\n Round towards the nearest value, but exactly-half values are rounded towards odd values. This mode has as much balance as the near_even mode, but preserves more information.
-  }
+  // Forward declaration of the negatable class.
+  template<const int IntegralRange,
+            const int FractionalResolution,
+            typename RoundMode,
+            typename OverflowMode>
+  class negatable;
 
-  // See also ISO/IEC 14882:2011 Paragraph 18.3.2.5.
+  // What follows are forward declarations of elementary transcendental functions mainly from <cmath>.
 
-  // 18.3.2.5 Type float_round_style
-  //
-  // namespace std
-  // {
-  //   enum float_round_style
-  //   {
-  //     round_indeterminate       = -1, : Potential interpretation: fastest
-  //     round_toward_zero         =  0, : Potential interpretation: truncated (Is this the same as fastest?)
-  //     round_to_nearest          =  1, : Potential interpretation: nearest_even
-  //     round_toward_infinity     =  2, : Potential interpretation: positive (toward positive infinity)
-  //     round_toward_neg_infinity =  3  : Potential interpretation: negative (toward negative infinity)
-  //   };
-  // }
+  // Forward declaration of abs.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  inline negatable<IntegralRange,
+                   FractionalResolution,
+                   RoundMode,
+                   OverflowMode> abs(negatable<IntegralRange,
+                                               FractionalResolution,
+                                               RoundMode,
+                                               OverflowMode> x);
 
-  namespace overflow
-  {
-    struct impossible   { }; //!< Template parameter for fixed_point negatable.\n Programmer analysis of the program has determined that overflow cannot occur. Uses of this mode should be accompanied by an argument supporting the conclusion.
-    struct undefined    { }; //!< Template parameter for fixed_point negatable.\n Programmers are willing to accept undefined behavior in the event of an overflow.
-    struct modulus      { }; //!< Template parameter for fixed_point negatable.\n The assigned value is the dynamic value mod the range of the variable. This mode makes sense only with unsigned numbers. It is useful for angular measures.
-    struct saturate     { }; //!< Template parameter for fixed_point negatable.\n If the dynamic value exceeds the range of the variable, assign the nearest representable value.
-    struct exception    { }; //!< Template parameter for fixed_point negatable.\n If the dynamic value exceeds the range of the variable, throw an exeception of type `std::overflow_error`.
-  }
-  } } // namespace boost::fixed_point
+  // Forward declaration of fabs.
+  template<const int IntegralRange,
+            const int FractionalResolution,
+            typename RoundMode,
+            typename OverflowMode>
+  inline negatable<IntegralRange,
+                   FractionalResolution,
+                   RoundMode,
+                   OverflowMode> fabs(negatable<IntegralRange,
+                                                FractionalResolution,
+                                                RoundMode,
+                                                OverflowMode> x);
 
-  namespace boost { namespace fixed_point {
-
-    // Forward declaration of the negatable class.
-    template<const int IntegralRange,
-             const int FractionalResolution,
-             typename RoundMode,
-             typename OverflowMode>
-    class negatable;
-
-    // What follows are forward declarations of elementary transcendental functions mainly from <cmath>.
-
-    // Forward declaration of abs.
-    template<const int IntegralRange,
-             const int FractionalResolution,
-             typename RoundMode,
-             typename OverflowMode>
-    inline negatable<IntegralRange,
-                     FractionalResolution,
-                     RoundMode,
-                     OverflowMode> abs(negatable<IntegralRange,
+  // Forward declaration of frexp.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  inline negatable<IntegralRange,
+                   FractionalResolution,
+                   RoundMode,
+                   OverflowMode> frexp(negatable<IntegralRange,
                                                  FractionalResolution,
                                                  RoundMode,
-                                                 OverflowMode> x);
+                                                 OverflowMode> x, int* expptr);
 
-    // Forward declaration of fabs.
-    template<const int IntegralRange,
-             const int FractionalResolution,
-             typename RoundMode,
-             typename OverflowMode>
-    inline negatable<IntegralRange,
-                     FractionalResolution,
-                     RoundMode,
-                     OverflowMode> fabs(negatable<IntegralRange,
-                                                  FractionalResolution,
-                                                  RoundMode,
-                                                  OverflowMode> x);
-
-    // Forward declaration of frexp.
-    template<const int IntegralRange,
-             const int FractionalResolution,
-             typename RoundMode,
-             typename OverflowMode>
-    inline negatable<IntegralRange,
-                     FractionalResolution,
-                     RoundMode,
-                     OverflowMode> frexp(negatable<IntegralRange,
-                                                   FractionalResolution,
-                                                   RoundMode,
-                                                   OverflowMode> x, int* expptr);
-
-    // Forward declaration of ldexp.
-    template<const int IntegralRange,
-             const int FractionalResolution,
-             typename RoundMode,
-             typename OverflowMode>
-    inline negatable<IntegralRange,
-                     FractionalResolution,
-                     RoundMode,
-                     OverflowMode> ldexp(negatable<IntegralRange,
-                                                   FractionalResolution,
-                                                   RoundMode,
-                                                   OverflowMode> x, int exp);
+  // Forward declaration of ldexp.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  inline negatable<IntegralRange,
+                   FractionalResolution,
+                   RoundMode,
+                   OverflowMode> ldexp(negatable<IntegralRange,
+                                                 FractionalResolution,
+                                                 RoundMode,
+                                                 OverflowMode> x, int exp);
 
 
-    // Forward declaration of fixed_next.
-    template<const int IntegralRange,
-             const int FractionalResolution,
-             typename RoundMode,
-             typename OverflowMode>
-    inline negatable<IntegralRange,
-                     FractionalResolution,
-                     RoundMode,
-                     OverflowMode> fixed_next(negatable<IntegralRange,
-                                              FractionalResolution,
-                                              RoundMode,
-                                              OverflowMode> x);
+  // Forward declaration of fixed_next.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  inline negatable<IntegralRange,
+                   FractionalResolution,
+                   RoundMode,
+                   OverflowMode> fixed_next(negatable<IntegralRange,
+                                                      FractionalResolution,
+                                                      RoundMode,
+                                                      OverflowMode> x);
 
-    // Forward declaration of fixed_prior.
-    template<const int IntegralRange,
-             const int FractionalResolution,
-             typename RoundMode,
-             typename OverflowMode>
-    inline negatable<IntegralRange,
-                     FractionalResolution,
-                     RoundMode,
-                     OverflowMode> fixed_prior(negatable<IntegralRange,
+  // Forward declaration of fixed_prior.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  inline negatable<IntegralRange,
+                   FractionalResolution,
+                   RoundMode,
+                   OverflowMode> fixed_prior(negatable<IntegralRange,
+                                                       FractionalResolution,
+                                                       RoundMode,
+                                                       OverflowMode> x);
+
+  // Forward declaration of fixed_distance.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  inline negatable<IntegralRange,
+                   FractionalResolution,
+                   RoundMode,
+                   OverflowMode> fixed_distance(negatable<IntegralRange,
+                                                          FractionalResolution,
+                                                          RoundMode,
+                                                          OverflowMode> x);
+
+  // Forward declaration of fixed_advance.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  inline negatable<IntegralRange,
+                   FractionalResolution,
+                   RoundMode,
+                   OverflowMode> fixed_advance(negatable<IntegralRange,
                                                          FractionalResolution,
                                                          RoundMode,
-                                                         OverflowMode> x);
+                                                         OverflowMode> x,
+                                                         int distance);
 
-    // Forward declaration of fixed_distance.
-    template<const int IntegralRange,
-             const int FractionalResolution,
-             typename RoundMode,
-             typename OverflowMode>
-    inline negatable<IntegralRange,
-                     FractionalResolution,
-                     RoundMode,
-                     OverflowMode> fixed_distance(negatable<IntegralRange,
-                                                            FractionalResolution,
-                                                            RoundMode,
-                                                            OverflowMode> x);
-
-    // Forward declaration of fixed_advance.
-    template<const int IntegralRange,
-             const int FractionalResolution,
-             typename RoundMode,
-             typename OverflowMode>
-    inline negatable<IntegralRange,
-                     FractionalResolution,
-                     RoundMode,
-                     OverflowMode> fixed_advance(negatable<IntegralRange,
+  // Forward declaration of fixed_nextafter.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  inline negatable<IntegralRange,
+                   FractionalResolution,
+                   RoundMode,
+                   OverflowMode> fixed_nextafter(negatable<IntegralRange,
                                                            FractionalResolution,
                                                            RoundMode,
-                                                           OverflowMode> x,
-                                                           int distance);
+                                                           OverflowMode> x);
 
-    // Forward declaration of fixed_nextafter.
-    template<const int IntegralRange,
-             const int FractionalResolution,
-             typename RoundMode,
-             typename OverflowMode>
-    inline negatable<IntegralRange,
-                     FractionalResolution,
-                     RoundMode,
-                     OverflowMode> fixed_nextafter(negatable<IntegralRange,
-                                                             FractionalResolution,
-                                                             RoundMode,
-                                                             OverflowMode> x);
+  // Forward declaration of sqrt.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  inline negatable<IntegralRange,
+                   FractionalResolution,
+                   RoundMode,
+                   OverflowMode> sqrt(negatable<IntegralRange,
+                                                FractionalResolution,
+                                                RoundMode,
+                                                OverflowMode> x);
 
-    // Forward declaration of sqrt.
-    template<const int IntegralRange,
-             const int FractionalResolution,
-             typename RoundMode,
-             typename OverflowMode>
-    inline negatable<IntegralRange,
-                     FractionalResolution,
-                     RoundMode,
-                     OverflowMode> sqrt(negatable<IntegralRange,
-                                                  FractionalResolution,
-                                                  RoundMode,
-                                                  OverflowMode> x);
-
-    } // End of forward declaration of transcendental and cmath functions.
-  } // namespace boost::fixed_point
+  } } // namespace boost::fixed_point: End of forward declaration of transcendental and cmath functions.
 
   namespace std
   {
@@ -506,7 +468,7 @@
         Copying a value of same type is simple.\n
         We can identify four mixed-math cases:\n
         1) smaller : smaller --> ( OtherIntegralRange <= IntegralRange) && (|OtherFractionalResolution| <= |FractionalResolution|)\n
-        2) larger  : smaller --> ( OtherIntegralRange > IntegralRange) && (|OtherFractionalResolution| <= |FractionalResolution|)\n
+        2) larger  : smaller --> ( OtherIntegralRange >  IntegralRange) && (|OtherFractionalResolution| <= |FractionalResolution|)\n
         3) smaller : larger  --> ( OtherIntegralRange <= IntegralRange) && (|OtherFractionalResolution| >  |FractionalResolution|)\n
         4) larger  : larger  --> ( OtherIntegralRange >  IntegralRange) && (|OtherFractionalResolution| >  |FractionalResolution|)\n
 
@@ -1151,8 +1113,7 @@
      \param u_round contains the value to be rounded whereby
        this value is left-shifted one binary digit larger than
        the final result will be.
-
-      */
+    */
     template<typename LocalRoundMode = RoundMode>
     static boost::int_fast8_t
       binary_round(unsigned_small_type& u_round,
@@ -1167,18 +1128,18 @@
       return (round_up ? INT8_C(1) : INT8_C(0));
     }
 
-     /*! Convert the fixed_point value to FloatingPointType result.
-       The fixed_point value is converted with brute force,
-       using one bit at a time.
+    /*! Convert the fixed_point value to FloatingPointType result.
+        The fixed_point value is converted with brute force,
+        using one bit at a time.
 
-       TBD: The conversion uses brute force with an inefficient loop.
-       Can (should) this mechanism be optimized?
+        TBD: The conversion uses brute force with an inefficient loop.
+        Can (should) this mechanism be optimized?
 
-       \tparam FloatingPointType Type for the result of conversion.
-       Usually a built-in type, @c float, @c double, but may be a multiprecision type.
+        \tparam FloatingPointType Type for the result of conversion.
+        Usually a built-in type, @c float, @c double, but may be a multiprecision type.
 
        TBD Is this correct?
-      */
+    */
     template<typename FloatingPointType>
     FloatingPointType convert_to_floating_point_type() const
     {
@@ -1319,16 +1280,16 @@
 
 
     /*! Compute machine epsilon (at compile time) for 
-       @c std::numeric_limits<>::epsilon() function.
-       Epsilon is defined as the smallest number that,
-       when added to one, yields a result different from one.
-       By this definition, epsilon equals the value of the unit
-       in the last place relative to 1 (i.e. b^{ -(p - 1) }),
-       where p is the total number of significand bits including
-       any implicit bit. For negatable<7, -8>, for example,
-       we have p = 8 and b = 2, so the value of epsilon is:
-       2^{-(8 - 1)} = 2^{-7} = 0.0078125.
-       \sa http://en.cppreference.com/w/cpp/types/numeric_limits/epsilon
+        @c std::numeric_limits<>::epsilon() function.
+        Epsilon is defined as the smallest number that,
+        when added to one, yields a result different from one.
+        By this definition, epsilon equals the value of the unit
+        in the last place relative to 1 (i.e. b^{ -(p - 1) }),
+        where p is the total number of significand bits including
+        any implicit bit. For negatable<7, -8>, for example,
+        we have p = 8 and b = 2, so the value of epsilon is:
+        2^{-(8 - 1)} = 2^{-7} = 0.0078125.
+        \sa http://en.cppreference.com/w/cpp/types/numeric_limits/epsilon
     */
     static const negatable& epsilon_maker() BOOST_NOEXCEPT
     {
@@ -1387,12 +1348,12 @@
     static initializer initialization_helper;
 
     /*! @c std::ostream output @c operator<<\n
-      Send a fixed-point number to the output stream by first
-      expressing the fixed-point number as a floating-point number.
-      \note Macro BOOST_FIXED_POINT_DISABLE_IOSTREAM can be defined to 
-      disable all I/O streaming and the inclusion of associated standard
-      library headers. This is intended to eliminate I/O stream
-      overhead in particular for bare-metal microcontroller projects.
+        Send a fixed-point number to the output stream by first
+        expressing the fixed-point number as a floating-point number.
+        \note Macro BOOST_FIXED_POINT_DISABLE_IOSTREAM can be defined to 
+        disable all I/O streaming and the inclusion of associated standard
+        library headers. This is intended to eliminate I/O stream
+        overhead in particular for bare-metal microcontroller projects.
     */
 
     #if !defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
@@ -1709,11 +1670,11 @@
     } // negatable frexp(negatable x, int* expptr)
 
     /*! @c std::ldexp function <cmath> implementation for negatable type.\n
-    Multiplies a floating point value x by the number 2 raised to the exp power.\n
-    TBD examples.\n
-    \param x Fixed-point value to multiply by @c exp integral power of 2.
-    \param exp power of 2 to use to multiply.
-    \return x * 2^exp.
+        Multiplies a floating point value x by the number 2 raised to the exp power.\n
+        TBD examples.\n
+        \param x Fixed-point value to multiply by @c exp integral power of 2.
+        \param exp power of 2 to use to multiply.
+        \return x * 2^exp.
     */
 
     friend inline negatable ldexp(negatable x, int exp)
@@ -1827,6 +1788,7 @@
         // We begin with an estimate of 1/2 digit of precision and double
         // the number of digits with each iteration.
 
+        // TBD: Here we are using too many Newton-Raphson steps.
         // TBD: Improve the accuracy of the initial estimate of the
         // square root and subsequently use a tighter tolerance
         // on the number of iterations in the Newton-Raphson loop.

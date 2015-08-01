@@ -17,6 +17,8 @@
   #define FIXED_POINT_NONNEGATIVE_2015_08_01_HPP_
 
   #include <boost/fixed_point/detail/fixed_point_detail.hpp>
+  #include <boost/fixed_point/fixed_point_overflow.hpp>
+  #include <boost/fixed_point/fixed_point_round.hpp>
 
   static_assert(std::numeric_limits<boost::uint8_t >::digits ==  8, "Configuration error: the size of boost::uint8_t  must be 8  bits!");
   static_assert(std::numeric_limits<boost::uint16_t>::digits == 16, "Configuration error: the size of boost::uint16_t must be 16 bits!");
@@ -25,17 +27,147 @@
 
   namespace boost { namespace fixed_point {
 
-    // Forward declaration of the nonnegative class.
-    template<const int IntegralRange,
-             const int FractionalResolution,
-             typename RoundMode,
-             typename OverflowMode>
-    class nonnegative;
+  // Forward declaration of the nonnegative class.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  class nonnegative;
 
-    // What follows are forward declarations of elementary transcendental functions mainly from <cmath>.
+  // What follows are forward declarations of elementary transcendental functions mainly from <cmath>.
 
-    } // End of forward declaration of transcendental and cmath functions.
-  } // namespace boost::fixed_point
+  // Forward declaration of abs.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  inline nonnegative<IntegralRange,
+                     FractionalResolution,
+                     RoundMode,
+                     OverflowMode> abs(nonnegative<IntegralRange,
+                                                   FractionalResolution,
+                                                   RoundMode,
+                                                   OverflowMode> x);
+
+  // Forward declaration of fabs.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  inline nonnegative<IntegralRange,
+                     FractionalResolution,
+                     RoundMode,
+                     OverflowMode> fabs(nonnegative<IntegralRange,
+                                                    FractionalResolution,
+                                                    RoundMode,
+                                                    OverflowMode> x);
+
+  // Forward declaration of frexp.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  inline nonnegative<IntegralRange,
+                     FractionalResolution,
+                     RoundMode,
+                     OverflowMode> frexp(nonnegative<IntegralRange,
+                                                     FractionalResolution,
+                                                     RoundMode,
+                                                     OverflowMode> x, int* expptr);
+
+  // Forward declaration of ldexp.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  inline nonnegative<IntegralRange,
+                     FractionalResolution,
+                     RoundMode,
+                     OverflowMode> ldexp(nonnegative<IntegralRange,
+                                                     FractionalResolution,
+                                                     RoundMode,
+                                                     OverflowMode> x, int exp);
+
+  // Forward declaration of fixed_next.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  inline nonnegative<IntegralRange,
+                     FractionalResolution,
+                     RoundMode,
+                     OverflowMode> fixed_next(nonnegative<IntegralRange,
+                                              FractionalResolution,
+                                              RoundMode,
+                                              OverflowMode> x);
+
+  // Forward declaration of fixed_prior.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  inline nonnegative<IntegralRange,
+                     FractionalResolution,
+                     RoundMode,
+                     OverflowMode> fixed_prior(nonnegative<IntegralRange,
+                                                           FractionalResolution,
+                                                           RoundMode,
+                                                           OverflowMode> x);
+
+  // Forward declaration of fixed_distance.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  inline nonnegative<IntegralRange,
+                     FractionalResolution,
+                     RoundMode,
+                     OverflowMode> fixed_distance(nonnegative<IntegralRange,
+                                                              FractionalResolution,
+                                                              RoundMode,
+                                                              OverflowMode> x);
+
+  // Forward declaration of fixed_advance.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  inline nonnegative<IntegralRange,
+                     FractionalResolution,
+                     RoundMode,
+                     OverflowMode> fixed_advance(nonnegative<IntegralRange,
+                                                             FractionalResolution,
+                                                             RoundMode,
+                                                             OverflowMode> x,
+                                                             int distance);
+
+  // Forward declaration of fixed_nextafter.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  inline nonnegative<IntegralRange,
+                     FractionalResolution,
+                     RoundMode,
+                     OverflowMode> fixed_nextafter(nonnegative<IntegralRange,
+                                                               FractionalResolution,
+                                                               RoundMode,
+                                                               OverflowMode> x);
+
+  // Forward declaration of sqrt.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  inline nonnegative<IntegralRange,
+                     FractionalResolution,
+                     RoundMode,
+                     OverflowMode> sqrt(nonnegative<IntegralRange,
+                                                    FractionalResolution,
+                                                    RoundMode,
+                                                    OverflowMode> x);
+
+  } } // namespace boost::fixed_point: End of forward declaration of transcendental and cmath functions.
 
   namespace std
   {
