@@ -20,44 +20,6 @@
 #ifndef FIXED_POINT_NEGATABLE_2015_03_06_HPP_
   #define FIXED_POINT_NEGATABLE_2015_03_06_HPP_
 
-  // There is optional support for certain variations of fixed_point
-  // using preprocessor definitions. Not all of these are supported
-  // at the moment. The potential options include:
-
-  // Is supported now     : #define BOOST_FIXED_POINT_DISABLE_IOSTREAM
-  // Is supported now     : #define BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
-  // Is not yet supported : #define BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH
-  // Is not yet supported : #define BOOST_FIXED_POINT_DISABLE_CPP11
-
-  // With BOOST_FIXED_POINT_DISABLE_IOSTREAM, all I/O streaming
-  // is disabled, as is the inclusion of associated standard
-  // library headers. This option eliminates all I/O stream
-  // overhead, in particular for bare-metal microcontroller projects.
-  // Disabling I/O streaming requires simultaneous disabling
-  // of multiprecision.
-
-  // With BOOST_FIXED_POINT_DISABLE_MULTIPRECISION,
-  // the use of Boost.Multiprecision for back-ends
-  // of the fixed-point classes is disabled.
-
-  // With BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH,
-  // fixed_point avoids using the unsigned_large_type.
-  // This option is intended for systems with limited
-  // integer widths such as bare-metal microcontrollers.
-  // When used in combination with BOOST_FIXED_POINT_DISABLE_MULTIPRECISION,
-  // this option provides fixed-point representations with
-  // up to 64-bits (if 64-bit integral types are available)
-  // without requiring any of Boost.Multiprecision.
-  // Otherwise, 32-bit internal representations would
-  // have the largest possible widths.
-
-  // With BOOST_FIXED_POINT_DISABLE_CPP11, an optional
-  // back-port to C++03 is supported. This eliminates
-  // the use of all C++11 language elements. This might send
-  // the wrong message about language technology, but could
-  // increase the range of potential target compilers
-  // (especially for embedded systems).
-
   #if defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
 
     // When I/O streaming is disabled:
@@ -353,10 +315,10 @@
     static BOOST_CONSTEXPR_OR_CONST int all_bits = (range + 1) + (-resolution); // +1 for a sign bit.
 
     #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
-      static_assert(all_bits <= 32, "Error: the width of fixed_point can not exceed 32 bits when multiprecision is disabled.");
+      static_assert(all_bits <= 32, "Error: the width of fixed_point negatable can not exceed 32 bits when multiprecision is disabled.");
     #endif
 
-    //! \sa range and resolution,  public static data.
+    //! \sa range and resolution, public static data.
     static BOOST_CONSTEXPR_OR_CONST int radix_split = -FractionalResolution;
 
     // Friend forward declaration of another negatable class
@@ -408,7 +370,6 @@
     /*! Default constructor.\n By design choice, this clears the data member.\n 
         So after defining @c negatable<15,-16> @c x; then @c x==0; 
     */
-
     negatable() : data() { }
 
     /*! Constructors from built-in unsigned integral types.
@@ -422,7 +383,7 @@
       make_from_unsigned_integral_type(u);
     }
 
-    /*! Constructors from both built-in signed integral types, 
+    /*! Constructors from both built-in signed integral types,
         as well as from the internal @c value_type of the data member.
     */
     template<typename IntegralType>
@@ -1071,113 +1032,6 @@
     negatable(const nothing&,
               const IntegralType& n) : data(static_cast<value_type>(n)) { }
 
-    template<typename LocalRoundMode = RoundMode>
-    static boost::int_fast8_t
-      binary_round(unsigned_small_type& u_round,
-                   typename std::enable_if<std::is_same<LocalRoundMode, round::fastest>::value>::type* = nullptr)
-    {
-      /*! Here, @c u_round contains the value to be rounded whereby
-       this value is left-shifted one binary digit larger than
-       the final result will be.
-
-       Perform the rounding algorithm for @c round::fastest.
-       For @c round::fastest, there is simply no rounding at all;
-       The value is truncated.
-     */
-
-      u_round = (u_round >> 1);
-
-      return INT8_C(0);
-    }
-
-
-   /*! Perform the rounding algorithm for @c round::nearest_even.
-       For @c round::nearest_even, the value is rounded to larger
-       absolute value when both 1/2-ULP as well as 1-ULP are 1,
-       representing round odd 1-ULP to higher value.
-    \tparam LocalRoundMode Rounding mode for this operation.
-     \param u_round contains the value to be rounded whereby
-       this value is left-shifted one binary digit larger than
-       the final result will be.
-    */
-    template<typename LocalRoundMode = RoundMode>
-    static boost::int_fast8_t
-      binary_round(unsigned_small_type& u_round,
-                   typename std::enable_if<std::is_same<LocalRoundMode, round::nearest_even>::value>::type* = nullptr)
-    {
-   
-      const bool round_up =   ((boost::uint_fast8_t(u_round & UINT8_C(1)) == UINT8_C(1))
-                            && (boost::uint_fast8_t(u_round & UINT8_C(2)) == UINT8_C(2)));
-
-      u_round = (u_round >> 1);
-
-      return (round_up ? INT8_C(1) : INT8_C(0));
-    }
-
-    /*! Convert the fixed_point value to FloatingPointType result.
-        The fixed_point value is converted with brute force,
-        using one bit at a time.
-
-        TBD: The conversion uses brute force with an inefficient loop.
-        Can (should) this mechanism be optimized?
-
-        \tparam FloatingPointType Type for the result of conversion.
-        Usually a built-in type, @c float, @c double, but may be a multiprecision type.
-
-       TBD Is this correct?
-    */
-    template<typename FloatingPointType>
-    FloatingPointType convert_to_floating_point_type() const
-    {
-      const bool is_neg = (data < static_cast<value_type>(0));
-
-      FloatingPointType f(0);
- 
-      {
-        using std::ldexp;
-
-        unsigned_small_type u((!is_neg) ? data : -data);
-
-        BOOST_CONSTEXPR_OR_CONST int digits_unsigned_small_type = std::numeric_limits<unsigned_small_type>::digits;
-        BOOST_CONSTEXPR_OR_CONST int digits_floating_point_type = std::numeric_limits<FloatingPointType>::digits;
-
-        BOOST_CONSTEXPR_OR_CONST int max_digits = ((digits_unsigned_small_type >= digits_floating_point_type)
-                                                     ? digits_unsigned_small_type
-                                                     : digits_floating_point_type);
-
-        boost::int_fast16_t digit_index;
-
-        for(digit_index = INT16_C(0); ((digit_index < max_digits) && (u != 0)); ++digit_index)
-        {
-          const boost::uint_fast8_t bit_test_value = static_cast<boost::uint_fast8_t>(u);
-
-          u = (u >> 1);
-
-          if(boost::uint_fast8_t(bit_test_value & UINT8_C(1)) != UINT8_C(0))
-          {
-            f += ldexp(FloatingPointType(1), digit_index);
-          }
-        }
-
-        // Rounding needs to be done if the fixed_point type
-        // has more digits than the target FloatingPointType
-        // of the result.
-
-        if(digit_index < boost::int_fast16_t(std::numeric_limits<unsigned_small_type>::digits))
-        {
-          // Check if the result of the conversion needs to be rounded.
-          const boost::int_fast8_t rounding_result = binary_round(u);
-
-          // Add or subtract the result of the rounding (-1, 0, or +1).
-          f += FloatingPointType(rounding_result);
-        }
-
-        f = ldexp(f, -int(radix_split));
-      }
-
-      return ((!is_neg) ? f : -f);
-    }
-
     template<typename UnsignedIntegralType>
     void make_from_unsigned_integral_type(const UnsignedIntegralType& u)
     {
@@ -1255,6 +1109,112 @@
       data = value_type((!is_neg) ? value_type(u_round) : -value_type(u_round));
     }
 
+    /*! Convert the fixed_point value to FloatingPointType result.
+        The fixed_point value is converted with brute force,
+        using one bit at a time.
+
+        TBD: The conversion uses brute force with an inefficient loop.
+        Can (should) this mechanism be optimized?
+
+        \tparam FloatingPointType Type for the result of conversion.
+        Usually a built-in type, @c float, @c double, but may be a multiprecision type.
+
+       TBD Is this correct?
+    */
+    template<typename FloatingPointType>
+    FloatingPointType convert_to_floating_point_type() const
+    {
+      const bool is_neg = (data < static_cast<value_type>(0));
+
+      FloatingPointType f(0);
+ 
+      {
+        using std::ldexp;
+
+        unsigned_small_type u((!is_neg) ? data : -data);
+
+        BOOST_CONSTEXPR_OR_CONST int digits_unsigned_small_type = std::numeric_limits<unsigned_small_type>::digits;
+        BOOST_CONSTEXPR_OR_CONST int digits_floating_point_type = std::numeric_limits<FloatingPointType>::digits;
+
+        BOOST_CONSTEXPR_OR_CONST int max_digits = ((digits_unsigned_small_type >= digits_floating_point_type)
+                                                     ? digits_unsigned_small_type
+                                                     : digits_floating_point_type);
+
+        boost::int_fast16_t digit_index;
+
+        for(digit_index = INT16_C(0); ((digit_index < max_digits) && (u != 0)); ++digit_index)
+        {
+          const boost::uint_fast8_t bit_test_value = static_cast<boost::uint_fast8_t>(u);
+
+          u = (u >> 1);
+
+          if(boost::uint_fast8_t(bit_test_value & UINT8_C(1)) != UINT8_C(0))
+          {
+            f += ldexp(FloatingPointType(1), digit_index);
+          }
+        }
+
+        // Rounding needs to be done if the fixed_point type
+        // has more digits than the target FloatingPointType
+        // of the result.
+
+        if(digit_index < boost::int_fast16_t(std::numeric_limits<unsigned_small_type>::digits))
+        {
+          // Check if the result of the conversion needs to be rounded.
+          const boost::int_fast8_t rounding_result = binary_round(u);
+
+          // Add or subtract the result of the rounding (-1, 0, or +1).
+          f += FloatingPointType(rounding_result);
+        }
+
+        f = ldexp(f, -int(radix_split));
+      }
+
+      return ((!is_neg) ? f : -f);
+    }
+
+    template<typename LocalRoundMode = RoundMode>
+    static boost::int_fast8_t
+      binary_round(unsigned_small_type& u_round,
+                   typename std::enable_if<std::is_same<LocalRoundMode, round::fastest>::value>::type* = nullptr)
+    {
+      /*! Here, @c u_round contains the value to be rounded whereby
+       this value is left-shifted one binary digit larger than
+       the final result will be.
+
+       Perform the rounding algorithm for @c round::fastest.
+       For @c round::fastest, there is simply no rounding at all;
+       The value is truncated.
+     */
+
+      u_round = (u_round >> 1);
+
+      return INT8_C(0);
+    }
+
+   /*! Perform the rounding algorithm for @c round::nearest_even.
+       For @c round::nearest_even, the value is rounded to larger
+       absolute value when both 1/2-ULP as well as 1-ULP are 1,
+       representing round odd 1-ULP to higher value.
+    \tparam LocalRoundMode Rounding mode for this operation.
+     \param u_round contains the value to be rounded whereby
+       this value is left-shifted one binary digit larger than
+       the final result will be.
+    */
+    template<typename LocalRoundMode = RoundMode>
+    static boost::int_fast8_t
+      binary_round(unsigned_small_type& u_round,
+                   typename std::enable_if<std::is_same<LocalRoundMode, round::nearest_even>::value>::type* = nullptr)
+    {
+   
+      const bool round_up =   ((boost::uint_fast8_t(u_round & UINT8_C(1)) == UINT8_C(1))
+                            && (boost::uint_fast8_t(u_round & UINT8_C(2)) == UINT8_C(2)));
+
+      u_round = (u_round >> 1);
+
+      return (round_up ? INT8_C(1) : INT8_C(0));
+    }
+
     static const unsigned_small_type& radix_split_value() BOOST_NOEXCEPT
     {
       initialization_helper.force_premain_init_of_static_constants();
@@ -1263,7 +1223,6 @@
 
       return the_radix_split_value;
     }
-
 
     /*! Compute machine epsilon (at compile time) for 
         @c std::numeric_limits<>::epsilon() function.
