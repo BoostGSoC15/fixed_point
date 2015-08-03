@@ -13,6 +13,11 @@
 // In this file, we include subsidiary files that implement
 // certain rounding modes of fixed-point types.
 
+/*!
+  \file
+  \brief Fixed_point namespace round and structs used for handling rounding.
+*/
+
 #ifndef FIXED_POINT_ROUND_2015_08_01_HPP_
   #define FIXED_POINT_ROUND_2015_08_01_HPP_
 
@@ -20,7 +25,7 @@
 
   namespace round
   { // Care - Doxygen is really picky about layout here - don't try to tidy it up!
-    struct fastest      { }; //!< Template parameter for fixed_point types.\n Speed is more important than the choice in value.
+    struct fastest      { }; //!< Template parameter for fixed_point types.\n Speed is more important than the choice of value.
     struct negative     { }; //!< Template parameter for fixed_point types.\n Round towards negative infinity. This mode is useful in interval arithmetic.
     struct truncated    { }; //!< Template parameter for fixed_point types.\n Template parameter for fixed_point negatableRound towards zero. This mode is useful in implementing integral arithmetic.
     struct positive     { }; //!< Template parameter for fixed_point types.\n Round towards positive infinity. This mode is useful in interval arithmetic.

@@ -13,6 +13,11 @@
 // In this file, we include subsidiary files that implement
 // certain overflow modes of fixed-point types.
 
+/*!
+  \file
+  \brief Fixed_point namespace and structs used for handling overflow.
+*/
+
 #ifndef FIXED_POINT_OVERFLOW_2015_08_01_HPP_
   #define FIXED_POINT_OVERFLOW_2015_08_01_HPP_
 
@@ -22,9 +27,9 @@
   {
     struct impossible   { }; //!< Template parameter for fixed_point types.\n Programmer analysis of the program has determined that overflow cannot occur. Uses of this mode should be accompanied by an argument supporting the conclusion.
     struct undefined    { }; //!< Template parameter for fixed_point types.\n Programmers are willing to accept undefined behavior in the event of an overflow.
-    struct modulus      { }; //!< Template parameter for fixed_point types.\n The assigned value is the dynamic value mod the range of the variable. This mode makes sense only with unsigned numbers. It is useful for angular measures.
+    struct modulus      { }; //!< Template parameter for fixed_point types.\n The assigned value is the dynamic value @c mod the range of the variable. This mode makes sense only with unsigned numbers. It is useful for angular measures.
     struct saturate     { }; //!< Template parameter for fixed_point types.\n If the dynamic value exceeds the range of the variable, assign the nearest representable value.
-    struct exception    { }; //!< Template parameter for fixed_point types.\n If the dynamic value exceeds the range of the variable, throw an exeception of type `std::overflow_error`.
+    struct exception    { }; //!< Template parameter for fixed_point types.\n If the dynamic value exceeds the range of the variable, throw an exception of type `std::overflow_error`.
   }
 
   } } // namespace boost::fixed_point

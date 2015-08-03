@@ -21,6 +21,16 @@ path-constant images_location : ./doc ; # location of SVG and PNG images referen
 # http://docbook.sourceforge.net/release/xsl/1.77.1/doc/html/img.src.path.html
 # relative to /doc ?
 
+
+rule all_tables
+{
+  # Generate Quickbook tables of types and their numeric_limits.
+  run fixed_point_types_table.cpp ;
+} # rule all_tables
+
+test-suite tables_generate : [ all_tables ] ;
+
+
 if --enable-index in  [ modules.peek : ARGV ]
 {
    ECHO "Building the Fixed_point docs with automatic index generation enabled." ;
@@ -28,7 +38,7 @@ if --enable-index in  [ modules.peek : ARGV ]
    project fixed_point_doc : requirements
              <auto-index>on
              <auto-index-script>index.idx
-             <auto-index-prefix>.
+             #<auto-index-prefix>../../../
              <auto-index-verbose>on
              <format>html:<auto-index-internal>on
              <format>html:<xsl:param>generate.index=0
@@ -46,6 +56,10 @@ else
 doxygen autodoc
   :
    [ glob ../include/boost/fixed_point/fixed_point.hpp ] # These are your hpp header include files.
+   [ glob ../include/boost/fixed_point/fixed_point_negatable.hpp ]
+   [ glob ../include/boost/fixed_point/fixed_point_round.hpp ]
+   [ glob ../include/boost/fixed_point/fixed_point_overflow.hpp ]
+   [ glob ../include/boost/fixed_point/fixed_point_nonnegative.hpp ]
 
     # [ glob $(here)/../include/boost/fixed_point/*.hpp ]
     # [ glob $(here)/../include/boost/fixed_point/detail/fixed_point/*.hpp ]
@@ -61,7 +75,7 @@ doxygen autodoc
     # This might be useful for maintainers.
   :
     <doxygen:param>PROJECT_NAME="Fixed_point"
-    <doxygen:param>RECURSIVE=NO
+    <doxygen:param>RECURSIVE=YES
     <doxygen:param>ENABLE_PREPROCESSING=YES
     <doxygen:param>EXPAND_ONLY_PREDEF=YES
     <doxygen:param>EXTRACT_ALL=YES
@@ -89,9 +103,10 @@ doxygen autodoc
 
 xml fixed_point
   :
-    fixed_point.qbk
+    fixed_point.qbk :
   :
     <dependency>autodoc # doxygen
+    <dependency>tables_generate # tables of fixed_point and floating-point limits.
   ;
 
 
@@ -169,7 +184,7 @@ install pdfinstall : standalone : <location>. <install-type>PDF <name>fixed_poin
 explicit pdfinstall ;
 
 # Generate Quickbook tables of types and their numeric_limits.
-run fixed_point_types_table.cpp ;
+#run fixed_point_types_table.cpp ;
 
 # Copy the generated Quickbook tables to /doc folder.
 #install fixed_table : fixed_point_types_table.qbk : <location>. ;

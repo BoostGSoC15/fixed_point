@@ -9,9 +9,17 @@
 
 // This file is a partial reference implementation for the proposed
 // "C++ binary fixed-point arithmetic" as specified in N3352.
-// See: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html
-// In this particular file, we implement a prototype for the proposed
-// negatable template class.
+// 
+
+/*! \file
+    \brief Fixed_point negatable class used for @b signed fractional arithmetic.
+    \details This is a partial reference implementation for the proposed by
+       Lawrence Crowl, "C++ binary fixed-point arithmetic" as specified in N3352.\n
+
+   In this particular file, we implement a prototype for the proposed
+   @b negatable template class. (See fixed_point_nonnegative.hpp for an unsigned version).\n
+   \sa http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html
+*/
 
 // ----------------------------------------------------------------
 // This file contains only the negatable class.
@@ -309,7 +317,7 @@
     static BOOST_CONSTEXPR_OR_CONST int resolution = FractionalResolution;
 
     /*! Total number of bits in the negatable type, including sign.\n
-        For example: @c boost::fixed_point::negatable<2, -5> @c x; @c int @c n=x.all_bits; @c n==8\n
+        For example: @c boost::fixed_point::negatable<2, -5> @c x; @c int @c n=x.all_bits; @c n==8 \n
         x.range + (-x.resolution) + 1 == 2 + (-(-5)) + 1 == 8.
     */
     static BOOST_CONSTEXPR_OR_CONST int all_bits = (range + 1) + (-resolution); // +1 for a sign bit.
@@ -1292,9 +1300,10 @@
 
     static initializer initialization_helper;
 
-    /*! @c std::ostream output @c operator<<\n
+    /*! @c std::ostream output @c operator\<\< \n
         Send a fixed-point number to the output stream by first
-        expressing the fixed-point number as a floating-point number.
+        expressing the fixed-point number as a floating-point number.\n
+
         \note Macro BOOST_FIXED_POINT_DISABLE_IOSTREAM can be defined to 
         disable all I/O streaming and the inclusion of associated standard
         library headers. This is intended to eliminate I/O stream
@@ -1574,7 +1583,7 @@
 
     // TBD implement C++11 copysign and other floating-point manipulation functions.
 
-    /*! @c std::frexp function <cmath> implementation for negatable types.\n
+    /*! @c std::frexp function \<cmath\> implementation for negatable types.\n
 
     TBD examples.\n
         \param x Fixed-point value to decompose into fraction and integral power of 2.
@@ -1614,9 +1623,10 @@
       }
     } // negatable frexp(negatable x, int* expptr)
 
-    /*! @c std::ldexp function <cmath> implementation for negatable type.\n
+    /*! @c std::ldexp function \<cmath\> implementation for negatable type.\n
         Multiplies a floating point value x by the number 2 raised to the exp power.\n
         TBD examples.\n
+
         \param x Fixed-point value to multiply by @c exp integral power of 2.
         \param exp power of 2 to use to multiply.
         \return x * 2^exp.

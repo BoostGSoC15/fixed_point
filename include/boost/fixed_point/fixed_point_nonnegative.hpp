@@ -13,6 +13,16 @@
 // In this particular file, we implement a prototype for the proposed
 // nonnegative template class.
 
+/*! \file
+    \brief Fixed_point nonnegative class used for @b unsigned fractional arithmetic.
+    \details This is a partial reference implementation for the proposed by
+    Lawrence Crowl, "C++ binary fixed-point arithmetic" as specified in N3352.\n
+
+    In this particular file, we implement a prototype for the proposed
+    @b nonnegative template class. (See fixed_point_negatable.hpp for an usigned version).\n
+    \see http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html
+*/
+
 // ----------------------------------------------------------------
 // This file contains only the nonnegative class.
 // ----------------------------------------------------------------
@@ -308,7 +318,8 @@
     static BOOST_CONSTEXPR_OR_CONST int resolution = FractionalResolution;
 
     /*! Total number of bits in the nonnegative type, unsigned without a sign bit.\n
-        For example: @c boost::fixed_point::nonnegative<2, -5> @c x; @c int @c n=x.all_bits; @c n==7\n
+        For example: 
+        @c boost::fixed_point::nonnegative\<2, -5\> @c x; @c int @c n=x.all_bits; @c n==7 \n
         x.range + (-x.resolution) == 2 + (-(-5)) == 7.
     */
     static BOOST_CONSTEXPR_OR_CONST int all_bits = range + (-resolution);
@@ -332,18 +343,18 @@
     // Here we declare two convenient class-local type definitions.
     //
     /*!
-      The unsigned integer representation of the fixed-point nonnegative number.\n
+      The unsigned integer representation of the fixed-point @c nonnegative number.\n
       For low digit counts, this will be
       a built-in type such as @c uint8_t, @c uint16_t, @c uint32_t, @c uint64_t, etc.\n
       For larger digit counts, this will be a multiprecision unsigned integer type.
-      One bit is added to the sum of al_bits == (range + (-resolution))
+      One bit is added to the sum of all_bits == (range + (-resolution))
       in order to provide room for internal rounding mechanisms.
     */
     typedef typename detail::integer_type_helper<all_bits + 1>::exact_unsigned_type value_type;
 
     /*!
       The floating-point type that is guaranteed to be wide
-      enough to represent the fixed-point nonnegative number in its entirety.\n
+      enough to represent the fixed-point @c nonnegative number in its entirety.\n
       For low digit counts, this will be a built-in type such as @c float, @c double or @c long @c double.\n
       Example: @c nonnegative<15, -16> using 32-bits\n
       \code
@@ -355,10 +366,9 @@
       For larger digit counts, this will be a multiprecision floating-point type such as cpp_bin_float.\n
       Example: for a fixed_point type @c nonnegative<10, -53> using 64-bits
       \code
-       Fixed_point Type class boost::fixed_point::nonnegative<10, -53, struct boost::fixed_point::round::fastest,struct boost::fixed_point::overflow::undefined> with range 10, resolution -53
-       value_type is @c uint64_t
-       float_type is class boost::multiprecision::number<class boost::multiprecision::backends::cpp_bin_float<63, 2, void, int, 0, 0>, 0>
-
+        Fixed_point Type class boost::fixed_point::nonnegative<10, -53, struct boost::fixed_point::round::fastest,struct boost::fixed_point::overflow::undefined> with range 10, resolution -53
+        value_type is @c uint64_t
+        float_type is class boost::multiprecision::number<class boost::multiprecision::backends::cpp_bin_float<63, 2, void, int, 0, 0>, 0>
       \endcode
 
     */
@@ -435,9 +445,10 @@
 
     struct nothing { };
 
-    /*! \tparam IntegralType Integer type on which the fixed-point type is based, typically the native unsigned integer type @c unsigned @c int,
-    but can be a smaller fundamental type like @c short @c int, or a much longer type like @c boost::multiprecision::cpp_int.
-    \sa http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/tut/ints/cpp_int.html
+    /*!
+      \tparam IntegralType Integer type on which the fixed-point type is based, typically the native unsigned integer type @c unsigned @c int,
+      but can be a smaller fundamental type like @c short @c int, or a much longer type like @c boost::multiprecision::cpp_int.\n
+      \sa http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/tut/ints/cpp_int.html
     */
     template<typename IntegralType>
     nonnegative(const nothing&,

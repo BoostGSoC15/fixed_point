@@ -1,6 +1,5 @@
 [/
   Copyright 2013 Christopher Kormanyos.
-  Copyright 2015 John Maddock.
   Copyright 2015 Paul A. Bristow.
   Copyright 2015 Nikhar Agrawal.
 
@@ -18,7 +17,7 @@
          [@http://www.boost.org/LICENSE_1_0.txt])
     ]
     [id fixed]
-    [authors [Kormanyos, Christopher], [Maddock, John], [Agrawal, Nikhar], [Bristow, Paul A.]]
+    [authors [Kormanyos, Christopher], [Agrawal, Nikhar], [Bristow, Paul A.]]
     [/last-revision $Date: 2011-07-08 18:51:46 +0100 (Fri, 08 Jul 2011) $]
 ] [/article Boost.Fixed-point]
 
@@ -111,6 +110,9 @@
 [def __boundary [@https://en.wikipedia.org/wiki/Boundary_case boundary case]]
 [def __significand [@https://en.wikipedia.org/wiki/Significand significand]]
 [def __cmath [@http://en.cppreference.com/w/cpp/numeric/math C math]]
+[def __frexp [@http://en.cppreference.com/w/cpp/numeric/math/frexp frexp]]
+[def __ldexp [@http://en.cppreference.com/w/cpp/numeric/math/ldexp ldexp]]
+
 [def __is_fundamental [@http://en.cppreference.com/w/cpp/types/is_fundamental std::is_fundamental]]
 [def __is_arithmetic [@http://en.cppreference.com/w/cpp/types/is_arithmetic std::is_arithmetic]]
 [def __is_floating_point[@http://en.cppreference.com/w/cpp/types/is_floating_point std::is_floating_point]]
@@ -125,28 +127,33 @@
 [def __negatable_float_type [classref boost::fixed_point::negatable::float_type  float_type]]
 
 [/Unclear how to get a link to the tempate parameters??? So link to class negatable for now.]
-[def __range [classref boost::fixed_point::negatable  integral_range]]
-[def __resolution [classref boost::fixed_point::negatable  fractional_resolution]]
+[def __range [classref boost::fixed_point::negatable  IntegralRange]]
+[def __resolution [classref boost::fixed_point::negatable  FractionalResolution]]
+[def __round [memberref boost::fixed_point::negatable  RoundMode]]
+[def __overflow [memberref boost::fixed_point::negatable  OverflowMode]]
 
 [/def __range [classref boost::fixed_point::negatable::integral_range  integral_range]]
 [/def __resolution [memberref boost::fixed_point::negatable::fractional_resolution  fractional_resolution]]
 [/def __round [memberref boost::fixed_point::negatable  round_mode]]
-[/def __overflow [memberref boost::fixed_point::negatable  overflow_mode]]
+[/def __overflow [memberref boost::fixed_point::negatable  OverflowMode]]
 
+[/ Round modes]
 [def __round_fastest [classref boost::fixed_point::round::fastest  round::fastest]]
-[def __round_negative [classref boost::fixed_point::round::mode  round::negative]]
-[def __round_truncated [classref boost::fixed_point::round::fastest  round::truncated]]
-[def __round_positive [classref boost::fixed_point::round::fastest  round::positive]]
-[def __round_classic [classref boost::fixed_point::round::fastest  round::classic]]
-[def __round_nearest_even [classref boost::fixed_point::round::fastest  round::nearest_even]]
-[def __round_nearest_odd [classref boost::fixed_point::round::fastest  round::nearest_odd]]
+[def __round_negative [classref boost::fixed_point::round::negative  round::negative]]
+[def __round_truncated [classref boost::fixed_point::round::truncated round::truncated]]
+[def __round_positive [classref boost::fixed_point::round::positive  round::positive]]
+[def __round_classic [classref boost::fixed_point::round::classic  round::classic]]
+[def __round_nearest_even [classref boost::fixed_point::round::nearest_even  round::nearest_even]]
+[def __round_nearest_odd [classref boost::fixed_point::round::nearest_odd  round::nearest_odd]]
 
 [/ overflow template parameter options]
 [def __overflow_undefined [classref boost::fixed_point::overflow::undefined overflow::undefined]]
-[def __overflow_impossible [classref boost::fixed_point::overflow::undefined overflow::impossible]]
-[def __overflow_modulus [classref boost::fixed_point::overflow::undefined overflow::modulus]]
-[def __overflow_saturate [classref boost::fixed_point::overflow::undefined overflow::saturate]]
-[def __overflow_exception [classref boost::fixed_point::overflow::undefined overflow::exception ]]
+[def __overflow_impossible [classref boost::fixed_point::overflow::impossible overflow::impossible]]
+[def __overflow_modulus [classref boost::fixed_point::overflow::modulus overflow::modulus]]
+[def __overflow_saturate [classref boost::fixed_point::overflow::saturate overflow::saturate]]
+[def __overflow_exception [classref boost::fixed_point::overflow::exception overflow::exception]]
+
+[/Other links to functions]
 [def __pi [memberref boost::fixed_point::negatable::constant_maker::pi pi()]]
 [def __ln_two [memberref boost::fixed_point::negatable::constant_maker::ln_two]]
 
@@ -264,7 +271,7 @@ This ensures no loss of precision or double rounding during construction.
 [fixed_example_1]
 
 We can inspect the __significand or fraction (also called  mantissa but this term is now deprecated)
-and the exponent parts using the using __cmath function `frexp`, and alter the exponent using `ldexp`.
+and the exponent parts using the using __cmath function __frexp, and alter the exponent using __ldexp.
 
 Of course, other __cmath functions (`#include <cmath>`) are available.
 
@@ -540,13 +547,17 @@ This will have a marked effect on any operation like output that uses this.
 
 [table Top level headers
 [[Header][Contains]]
-[[boost/fixed_point/fixed_point.hpp] [negatable type]]
-]
+[[boost/fixed_point/fixed_point.hpp] [includes all other headers]]
+[[boost/fixed_point/fixed_point_negatable.hpp] [negatable type]]
+[[boost/fixed_point/fixed_point_nonnegative.hpp] [nonnegative type]]
+[[boost/fixed_point/fixed_point_round.hpp] [rounding `structs`]]
+[[boost/fixed_point/fixed_point_overflow.hpp] [overflow `structs`]]
+] [/table Top level headers]
 
 [table Implementation Headers
 [[Header][Contains]]
-[[boost/fixed_point//detail/fixed_point.hpp] [negatable implemention details]]
-]
+[[boost/fixed_point//detail/fixed_point.hpp] [negatable and nonnegative implemention details]]
+]  [/table Implementation Headers]
 
 [endsect] [/section:headers Header File Structure]
 
@@ -793,9 +804,10 @@ The `bool std::numeric_limits<T>::has_infinity`
 and `bool std::numeric_limits<T>::has_quiet_NaN` both
 return `false` for all fixed-point types.
 
-Lack of an encoding for infinity or NaN means that
-overflow or underflow must be signalled differently.
-A template parameter is provided to control this.
+Lack of an encoding for infinity or NaN means that overflow or underflow must be signalled differently.\n
+
+A template parameter `typename OverflowMode`  is provided to permit control what happens on overflow or underflow.
+In `namespace overflow` some `struct` like `modulus`, `exception` etc are provided.
 
 [endsect] [/section:infinity Infinity and NotANumber (NaN)]
 
@@ -981,7 +993,7 @@ We are grateful for Google for support of Nikhar Agrawal for support through the
 [@http://code.google.com/soc/2007/ Google Summer of Code (2015) program].
 
 [@http://lists.boost.org/Archives/boost/2012/04/191987.php Vicente Botet Escriba ] posed a lots of questions about a design.
-As a result of reading Lawrence Crowl's proposal __N3352,
+As a result of reading Lawrence Crowl's proposal __n3352,
 Vicente Botet Escriba prototyped a [@http://svn.boost.org/svn/boost/sandbox/fixed_point fixed-point library] in 2013.
 
 [@http://2015.cppnow.org/participant/vicente-j-botet-escriba/ Phil Endecott reviewed past discussions on fixed-point.]
