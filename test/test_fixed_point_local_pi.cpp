@@ -56,11 +56,11 @@ namespace local
       FixedPointType t (FixedPointType(3) / 8);
 
       // This loop is designed for computing a maximum of a few million
-      // decimal digits of pi. The number of digits roughly doubles
-      // with each iteration of the loop. After 20 iterations,
-      // the precision is about 2.8 million decimal digits.
-      // We are not using that many digits in these tests,
-      // only up to a few thousand at most.
+      // decimal digits of pi. But we are not using that many digits
+      // in these tests---only up to a few thousand at most.
+      // The Gauss AGM algorithm that is used is quadratically
+      // convergent and the number of digits roughly doubles with
+      // each iteration of the loop.
 
       for(boost::uint_least8_t k = UINT8_C(1); k < UINT8_C(32); ++k)
       {
@@ -141,8 +141,8 @@ BOOST_AUTO_TEST_CASE(fixed_point_local_pi)
   { typedef boost::fixed_point::negatable< 4,   -27> fixed_point_type; local::pi_helper<fixed_point_type, fixed_point_type::float_type>::test_pi(4); }
   { typedef boost::fixed_point::negatable< 8,   -44> fixed_point_type; local::pi_helper<fixed_point_type, fixed_point_type::float_type>::test_pi(((-fixed_point_type::resolution + 9) * 2) / 10); }
   { typedef boost::fixed_point::negatable< 8,   -55> fixed_point_type; local::pi_helper<fixed_point_type, fixed_point_type::float_type>::test_pi(((-fixed_point_type::resolution + 9) * 2) / 10); }
-  { typedef boost::fixed_point::negatable<16,   -96> fixed_point_type; local::pi_helper<fixed_point_type, fixed_point_type::float_type>::test_pi(((-fixed_point_type::resolution + 9) * 2) / 10); }
-  { typedef boost::fixed_point::negatable<16,  -111> fixed_point_type; local::pi_helper<fixed_point_type, fixed_point_type::float_type>::test_pi(((-fixed_point_type::resolution + 9) * 2) / 10); }
+  { typedef boost::fixed_point::negatable< 8,   -96> fixed_point_type; local::pi_helper<fixed_point_type, fixed_point_type::float_type>::test_pi(((-fixed_point_type::resolution + 9) * 2) / 10); }
+  { typedef boost::fixed_point::negatable< 8,  -111> fixed_point_type; local::pi_helper<fixed_point_type, fixed_point_type::float_type>::test_pi(((-fixed_point_type::resolution + 9) * 2) / 10); }
   { typedef boost::fixed_point::negatable<16,  -223> fixed_point_type; local::pi_helper<fixed_point_type, fixed_point_type::float_type>::test_pi(((-fixed_point_type::resolution + 9) * 2) / 10); }
   { typedef boost::fixed_point::negatable<16,  -495> fixed_point_type; local::pi_helper<fixed_point_type, fixed_point_type::float_type>::test_pi(((-fixed_point_type::resolution + 9) * 1) / 10); }
   { typedef boost::fixed_point::negatable<16, -1007> fixed_point_type; local::pi_helper<fixed_point_type, fixed_point_type::float_type>::test_pi(((-fixed_point_type::resolution + 9) * 1) / 10); }
