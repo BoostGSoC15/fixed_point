@@ -20,7 +20,7 @@
 
 //! \brief Example program showing use of math constants.
 
-// Below are snippets of code that can be included into a Quickbook file.
+// Below are snippets of code that are included into Quickbook file fixed_point.qbk.
 
 #include <boost/fixed_point/fixed_point.hpp>
 #include <boost/math/constants/constants.hpp>
@@ -81,13 +81,12 @@ int main()
 
 } // int main()
 
-
 /*
 
 Note that large digit counts rely on the
-arc-cosine function is used for pi(). And since this function
-is not included in the negatable realm yet, the constant
-pi() does not work for negatable in all digit ranges.
-
+arc-cosine function is used for pi(). 
+And since this function 
+is not included in the negatable realm yet,
+the constant pi() does not work for negatable in all digit ranges.
 
 */

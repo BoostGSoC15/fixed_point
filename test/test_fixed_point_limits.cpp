@@ -24,16 +24,19 @@
 
 using namespace boost::fixed_point;
 
+
 BOOST_AUTO_TEST_CASE(fixed_point_numeric_limits_min)
 { 
+  std::cout.setf(std::ios_base::boolalpha | std::ios_base::showpoint); // Show any trailing zeros.
   {//! small range 2 and resolution 5 + sign = 8 bit, default round and overflow.
+
     typedef boost::fixed_point::negatable<2, -5> fixed_point_type_2m5;
     fixed_point_type_2m5 x = (std::numeric_limits<fixed_point_type_2m5>::min)();
     BOOST_CHECK_EQUAL(x.all_bits, 8);
     BOOST_CHECK_EQUAL(x.range, 2);
-    BOOST_CHECK_EQUAL(x.resolution, 5);
-    fixed_point_type_2m5 m = 0.03125;
-    // std::cout << m.bit_pattern() << std::endl;
+    BOOST_CHECK_EQUAL(x.resolution, -5);
+    fixed_point_type_2m5 m = x; // = 0.03125;
+    std::cout << m.bit_pattern() << std::endl;
     BOOST_CHECK_EQUAL(m.bit_pattern(), "00000001");
     BOOST_CHECK_EQUAL(m.bit_pattern().size(), x.range + (-x.resolution) + 1); // 8 bits.
     BOOST_CHECK_EQUAL(x, m);
@@ -44,16 +47,40 @@ BOOST_AUTO_TEST_CASE(fixed_point_numeric_limits_min)
     BOOST_CHECK_EQUAL(e, -5 + 1);
     BOOST_CHECK_EQUAL(s, 0.5);
   }
+  { //range 15 and resolution 16 + sign = 32 bit, default round and overflow.
+    typedef boost::fixed_point::negatable<15, -16> fixed_point_type_15m16;
+
+    fixed_point_type_15m16 x = (std::numeric_limits<fixed_point_type_15m16>::min)();
+    BOOST_CHECK_EQUAL(x.all_bits, 32);
+    BOOST_CHECK_EQUAL(x.range, 15);
+    BOOST_CHECK_EQUAL(x.resolution, -16);
+    fixed_point_type_15m16 m = x;
+    std::cout << m.bit_pattern() << std::endl;
+    BOOST_CHECK_EQUAL(m.bit_pattern(), "00000000000000000000000000000001");
+    BOOST_CHECK_EQUAL(m.bit_pattern().size(), x.range + (-x.resolution) + 1); // 32 bits.
+    BOOST_CHECK_EQUAL(x, m);
+    int e;
+    fixed_point_type_15m16 s = frexp(x, &e);
+
+    BOOST_CHECK_EQUAL(e, -16 + 1);
+    BOOST_CHECK_EQUAL(s, 0.5);
+  }
+
+
 } // BOOST_AUTO_TEST_CASE(fixed_point_numeric_limits_min)
 
 
 BOOST_AUTO_TEST_CASE(fixed_point_numeric_limits_max)
-{ //! small range 2 and resolution 5 + sign = 8 bit, default round and overflow.
-  {
+{
+  std::cout.setf(std::ios_base::boolalpha | std::ios_base::showpoint); // Show any trailing zeros.
+
+
+  { //! small range 2 and resolution 5 + sign = 8 bit, default round and overflow.
     typedef boost::fixed_point::negatable<2, -5> fixed_point_type_2m5;
+    std::cout.precision(std::numeric_limits<fixed_point_type_2m5>::digits10);
 
     fixed_point_type_2m5 x = (std::numeric_limits<fixed_point_type_2m5>::max)();
-    BOOST_CHECK_EQUAL(x.all_bits, 8);
+    BOOST_CHECK_EQUAL(x.all_bits, 8); // 8 bits used.
     fixed_point_type_2m5 m = 3.969; // 
      std::cout << m.bit_pattern() << std::endl;
     BOOST_CHECK_EQUAL(m.bit_pattern(), "01111111"); // All except sign bit set.
@@ -61,12 +88,43 @@ BOOST_AUTO_TEST_CASE(fixed_point_numeric_limits_max)
     BOOST_CHECK_EQUAL(x, m);
     int e;
     fixed_point_type_2m5 s = frexp(x, &e);
+    fixed_point_type_2m5 eps = std::numeric_limits<fixed_point_type_2m5>::epsilon();
+    fixed_point_type_2m5 ulp = eps/2;
+    BOOST_CHECK_EQUAL(ulp, 0.03125);
+    std::cout << "frac " << s << ", exp =  " << e <<", eps = " << eps << ", ulp = " << ulp << std::endl;
+    fixed_point_type_2m5 max = 1 - eps/2;
 
-    std::cout << s << " " << e << std::endl;
     BOOST_CHECK_EQUAL(e, 2);
+    BOOST_CHECK_EQUAL(s, 1 - ulp);
     BOOST_CHECK_EQUAL(s, 1 - 0.03125);
    // BOOST_CHECK_EQUAL(s, 0.96875);
   }
+
+  { //range 15 and resolution 16 + sign = 32 bit, default round and overflow.
+    typedef boost::fixed_point::negatable<15, -16> fixed_point_type_15m16;
+
+    std::cout.precision(std::numeric_limits<fixed_point_type_15m16>::digits10);
+
+    fixed_point_type_15m16 x;
+    x = (std::numeric_limits<fixed_point_type_15m16>::max)();
+    BOOST_CHECK_EQUAL(x.all_bits, 32);
+    fixed_point_type_15m16 m = x; // 
+    std::cout << m.bit_pattern() << std::endl;
+    BOOST_CHECK_EQUAL(m.bit_pattern(), "01111111111111111111111111111111"); // All except sign bit set.
+    BOOST_CHECK_EQUAL(m.bit_pattern().size(), x.range + (-x.resolution) + 1); // 32 bits.
+    BOOST_CHECK_EQUAL(x, m);
+    fixed_point_type_15m16 eps = std::numeric_limits<fixed_point_type_15m16>::epsilon();
+    fixed_point_type_15m16 ulp = eps / 2;
+
+    int e;
+    fixed_point_type_15m16 s = frexp(x, &e); 
+    std::cout << "frac " << s << ", exp =  " << e << ", eps = " << eps << ", ulp = " << ulp << std::endl;
+    fixed_point_type_15m16 max = 1 - eps / 2;
+    BOOST_CHECK_EQUAL(e, 15);
+    BOOST_CHECK_EQUAL(s, 1 - ulp);
+  }
+
+
 } // BOOST_AUTO_TEST_CASE(fixed_point_numeric_limits_max)
 
 

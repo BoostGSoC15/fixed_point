@@ -5,7 +5,6 @@
 //  Distributed under the Boost Software License,
 //  Version 1.0. (See accompanying file LICENSE_1_0.txt
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
 
 // This file is a partial reference implementation for the proposed
 // "C++ binary fixed-point arithmetic" as specified in N3352.
@@ -244,7 +243,8 @@
                                                 RoundMode,
                                                 OverflowMode> x);
 
-  } } // namespace boost::fixed_point: End of forward declaration of transcendental and cmath functions.
+  } } // namespace boost::fixed_point: 
+  // End of forward declaration of transcendental and cmath functions.
 
   namespace std
   {
@@ -267,15 +267,19 @@
     \brief Fixed_point negatable class used for signed fractional arithmetic.
     \details This is a partial reference implementation for the proposed by
       Lawrence Crowl, "C++ binary fixed-point arithmetic" as specified in N3352.\n
-      In this particular file, we implement a prototype for the negatable template class.\n
-      Example: @c boost::fixed_point::negatable<2, -5> @c x;\n
-      TODO  some more examples here?
-    \tparam IntegralRange Integer integer >= 0 defines a range of signed number n that is 2^-IntegralRange < n < 2^IntegralRange.
-    \tparam FractionalResolution integer <= -1 defines resolution. 
+      In this particular file, we implement a prototype for the @c negatable template class.\n
+      Examples:\n
+      @c boost::fixed_point::negatable<2,-5> @c x; // 8-bit\n
+      @c negatable<15, -16> @c y;  // 32-bit \n
+      @c negatable<10, -53> @c y;  // 64-bit \n
+      @c negatable<10, -245> @c y;  // 256-bit (requires use of @c cpp_bin_float)\n
+
+    \tparam IntegralRange integer >= 0, defines a range of signed number n that is 2^-IntegralRange < n < 2^IntegralRange.
+    \tparam FractionalResolution integer <= -1, defines resolution. 
       The resolution of a fractional number is 2^FractionalResolution.
-    \tparam RoundMode struct defining the rounding behaviour, default round::fastest.\n
+    \tparam RoundMode struct defining the rounding behaviour, default @c round::fastest.\n
+    \tparam OverflowMode struct defining the behaviour from rounding, default @c overflow::undefined.
     \note  Not all rounding or all overflow modes proposed in N3352 are yet implemented.
-    \tparam OverflowMode struct defining the behaviour from rounding, default overflow::undefined.
     \sa http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html
   */
 
@@ -306,19 +310,22 @@
     // These just echo the values of the template parameters.
 
     /*! Value of template parameter IntegralRange for the negatable type.\n
-    Usage: boost::fixed_point::negatable<2, -5> x; x.range == 2;
+    Example: boost::fixed_point::negatable<2, -5> x; x.range == 2;
     */
     static BOOST_CONSTEXPR_OR_CONST int range = IntegralRange;
 
     /*! Value of template parameter FractionalResolution for the negatable type.\n
-    Usage: boost::fixed_point::negatable<2, -5> x; x.resolution == -5;
+    Example: boost::fixed_point::negatable<2, -5> x; x.resolution == -5;
     \note The value of resolution is always negative.
     */
     static BOOST_CONSTEXPR_OR_CONST int resolution = FractionalResolution;
 
     /*! Total number of bits in the negatable type, including sign.\n
-        For example: @c boost::fixed_point::negatable<2, -5> @c x; @c int @c n=x.all_bits; @c n==8 \n
+        For example:
+        \code
+        boost::fixed_point::negatable<2, -5> x; int n=x.all_bits; n==8 \n
         x.range + (-x.resolution) + 1 == 2 + (-(-5)) + 1 == 8.
+        \endcode
     */
     static BOOST_CONSTEXPR_OR_CONST int all_bits = (range + 1) + (-resolution); // +1 for a sign bit.
 
@@ -326,7 +333,7 @@
       static_assert(all_bits <= 32, "Error: the width of fixed_point negatable can not exceed 32 bits when multiprecision is disabled.");
     #endif
 
-    //! \sa range and resolution, public static data.
+    //! See also public static data items range and resolution.
     static BOOST_CONSTEXPR_OR_CONST int radix_split = -FractionalResolution;
 
     // Friend forward declaration of another negatable class
@@ -359,7 +366,7 @@
        float_type is double
       \endcode
 
-      For larger digit counts, this will be a multiprecision floating-point type such as cpp_bin_float.\n
+      For larger digit counts, this will be a multiprecision floating-point type such as @c cpp_bin_float.\n
       Example: for a fixed_point type @c negatable<10, -53> using 64-bits
       \code
        Fixed_point Type class boost::fixed_point::negatable<10,-53,struct boost::fixed_point::round::fastest,struct boost::fixed_point::overflow::undefined> with range 10, resolution -53
@@ -406,7 +413,7 @@
 
     /*! Constructors from built-in floating-point types: @c float, @c double or @c long @c double.\n
         Example: negatable<15,-16> x(2.3L);\n
-        Overflow and underflow is of course possible.
+        (Overflow and underflow is, of course, possible).
     */
     template<typename FloatingPointType>
     negatable(const FloatingPointType& f,
@@ -1192,7 +1199,7 @@
 
        Perform the rounding algorithm for @c round::fastest.
        For @c round::fastest, there is simply no rounding at all;
-       The value is truncated.
+       the value is truncated.
      */
 
       u_round = (u_round >> 1);

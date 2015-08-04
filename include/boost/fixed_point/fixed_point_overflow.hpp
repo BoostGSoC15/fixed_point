@@ -5,17 +5,14 @@
 //  Distributed under the Boost Software License,
 //  Version 1.0. (See accompanying file LICENSE_1_0.txt
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
 
 // This file is a partial reference implementation for the proposed
 // "C++ binary fixed-point arithmetic" as specified in N3352.
 // See: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html
-// In this file, we include subsidiary files that implement
-// certain overflow modes of fixed-point types.
 
 /*!
   \file
-  \brief Fixed_point namespace and structs used for handling overflow.
+  \brief Fixed_point namespace and structs used for handling overflow as value for template parameter OverflowMode, default @c overflow::undefined.
 */
 
 #ifndef FIXED_POINT_OVERFLOW_2015_08_01_HPP_

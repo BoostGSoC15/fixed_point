@@ -673,6 +673,36 @@ I would prefer to decouple. Fixed-point arithmetic without saturation
 is useful, as is integer arithmetic with saturation. So I'd prefer to
 make them orthogonal, but compatible, concepts. "
 
+
+[h4 nonnegative and the sign bit]
+Is it right that we don't get any more resolution for the unsigned version
+'nonnegative' even though we are not using a bit for sign?
+
+This is a tough design choice. It's a bit tricky
+for the following reason. The `negatable` class performs
+all operations internally with `unsigned` representations,
+keeping track of the sign of the result independently.
+This allows us to utilize the sign bit for one additional
+left shift slot, thereby providing one extra digit for
+rounding.
+
+The nonnegative class can and does use the full
+width of its underlying unsigned data representation.
+Internal operations, however, still require one
+extra bit for rounding. For this reason, the key
+nonnegative examples use types such as
+nonnegative<15, -16>. The type nonnegative<16, 16>
+will fill the underlying 32-bit data field entirely, but
+will require 65 bits for multiply, divide, etc. So as
+it turns out using 31 bits provides for better optimization.
+
+This could of course be solved better if I decided
+to use more cleverness instead of lazy mul and div.
+But I don't have time for that now.
+
+
+
+
 [endsect] [/section:history Historial discussions]
 
 [section:layout Layout]
