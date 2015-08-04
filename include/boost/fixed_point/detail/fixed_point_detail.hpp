@@ -485,12 +485,11 @@
   {
   private:
 
-    // Use a binary search to find the most significant bit in an unsigned integral type.
-    // The binary search is enabled and accelerated with template metaprogramming.
+    // Use binary-halving to find the most significant bit in an unsigned integral type.
+    // The binary-halving search is enabled and accelerated with template metaprogramming.
 
-    static_assert(   std::is_integral<UnsignedIntegralType>::value
-                  && std::is_unsigned<UnsignedIntegralType>::value,
-                  "The UnsignedIntegralType for msb_meta_helper must be an unsigned integral type.");
+    static_assert(std::numeric_limits<UnsignedIntegralType>::is_signed == false,
+                  "The UnsignedIntegralType for msb_meta_helper must be an unsigned (integral) type.");
 
     typedef typename integer_type_helper<std::numeric_limits<UnsignedIntegralType>::digits / 2 >::exact_unsigned_type
     unsigned_integral_lo_type;

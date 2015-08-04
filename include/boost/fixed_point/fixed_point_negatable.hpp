@@ -1599,32 +1599,31 @@
     */
     friend inline negatable frexp(negatable x, int* exp2)
     {
-      *exp2 = 0;
-
       if(x.data == 0)
       {
+        *exp2 = 0;
+
         return negatable(0);
       }
       else
       {
         const bool is_neg = (x.data < 0);
 
+        // Extract the unsigned representation of the data field.
         unsigned_small_type result((!is_neg) ? unsigned_small_type(x.data) : unsigned_small_type(-x.data));
 
-        while(result < (radix_split_value() / 2U))
-        {
-          result = (result << 1);
+        // Use a binary-halving mechanism to obtain the most significant bit.
+        const int msb = static_cast<int>(detail::msb_meta_helper<unsigned_small_type>::hi_bit(result));
 
-          --(*exp2);
-        }
+        // Evaluate the necessary amount of right-shift.
+        const int total_right_shift = (msb - radix_split) + 1;
 
-        while(result >= radix_split_value())
-        {
-          result = (result >> 1);
+        // Compute the (still unsigned) data field and the exponent.
+        result = detail::right_shift_helper(result, total_right_shift);
 
-          ++(*exp2);
-        }
+        *exp2 = total_right_shift;
 
+        // Create and return the signed fixed-point result.
         return negatable(nothing(), value_type((!is_neg) ?  value_type(result)
                                                          : -value_type(result)));
       }
