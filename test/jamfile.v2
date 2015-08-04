@@ -61,7 +61,7 @@ test-suite "Fixed_point"
       [ run test_fixed_point_bare_metal_config.cpp boost_unit_test ]
       [ run test_fixed_point_sqrt.cpp boost_unit_test ]
       [ run test_fixed_point_cbrt.cpp boost_unit_test ]
-      [ run test_fixed_point_local_pi.cpp boost_unit_test ]
+      [ run test_fixed_point_local_constants.cpp boost_unit_test ]
       [ run test_round_trip_decimal_digits_003.cpp boost_unit_test ]
       [ run test_round_trip_decimal_digits_005.cpp boost_unit_test ]
       [ run test_round_trip_decimal_digits_006.cpp boost_unit_test ]

@@ -151,7 +151,7 @@
                      OverflowMode> frexp(nonnegative<IntegralRange,
                                                      FractionalResolution,
                                                      RoundMode,
-                                                     OverflowMode> x, int* expptr);
+                                                     OverflowMode> x, int* exp2);
 
   // Forward declaration of ldexp.
   template<const int IntegralRange,
@@ -164,7 +164,7 @@
                      OverflowMode> ldexp(nonnegative<IntegralRange,
                                                      FractionalResolution,
                                                      RoundMode,
-                                                     OverflowMode> x, int exp);
+                                                     OverflowMode> x, int exp2);
 
   // Forward declaration of fixed_next.
   template<const int IntegralRange,

@@ -148,7 +148,7 @@
                    OverflowMode> frexp(negatable<IntegralRange,
                                                  FractionalResolution,
                                                  RoundMode,
-                                                 OverflowMode> x, int* expptr);
+                                                 OverflowMode> x, int* exp2);
 
   // Forward declaration of ldexp.
   template<const int IntegralRange,
@@ -161,7 +161,7 @@
                    OverflowMode> ldexp(negatable<IntegralRange,
                                                  FractionalResolution,
                                                  RoundMode,
-                                                 OverflowMode> x, int exp);
+                                                 OverflowMode> x, int exp2);
 
 
   // Forward declaration of fixed_next.
@@ -1084,8 +1084,8 @@
       using std::ldexp;
 
       // Extract the mantissa and exponent.
-      int exp;
-      const FloatingPointType fp(frexp((!is_neg) ? f : -f, &exp));
+      int exp2;
+      const FloatingPointType fp(frexp((!is_neg) ? f : -f, &exp2));
 
       // Here we scale the mantissa to an unsigned integer value
       // that is large enough to contain all the binary digits
@@ -1104,7 +1104,7 @@
       // because the value_type (even though just as wide as
       // unsigned_small_type) reserves one bit for the sign.
 
-      const int total_left_shift =   (radix_split + exp)
+      const int total_left_shift =   (radix_split + exp2)
                                    - (std::numeric_limits<FloatingPointType>::digits);
 
       const local_unsigned_small_type u_round_local(detail::left_shift_helper(u, total_left_shift));
@@ -1594,12 +1594,12 @@
 
     TBD examples.\n
         \param x Fixed-point value to decompose into fraction and integral power of 2.
-        \param expptr Pointer to integer value to store the exponent to. 
+        \param exp2 Pointer to integer value to store the exponent to. 
         \returns fraction part as a @c negatable type.
     */
-    friend inline negatable frexp(negatable x, int* expptr)
+    friend inline negatable frexp(negatable x, int* exp2)
     {
-      *expptr = 0;
+      *exp2 = 0;
 
       if(x.data == 0)
       {
@@ -1615,43 +1615,43 @@
         {
           result = (result << 1);
 
-          --(*expptr);
+          --(*exp2);
         }
 
         while(result >= radix_split_value())
         {
           result = (result >> 1);
 
-          ++(*expptr);
+          ++(*exp2);
         }
 
         return negatable(nothing(), value_type((!is_neg) ?  value_type(result)
                                                          : -value_type(result)));
       }
-    } // negatable frexp(negatable x, int* expptr)
+    } // negatable frexp(negatable x, int* exp2)
 
     /*! @c std::ldexp function \<cmath\> implementation for negatable type.\n
-        Multiplies a floating point value x by the number 2 raised to the exp power.\n
+        Multiplies a floating point value x by the number 2 raised to the exp2 power.\n
         TBD examples.\n
 
-        \param x Fixed-point value to multiply by @c exp integral power of 2.
-        \param exp power of 2 to use to multiply.
-        \return x * 2^exp.
+        \param x Fixed-point value to multiply by @c exp2 integral power of 2.
+        \param exp2 power of 2 to use to multiply.
+        \return x * 2^exp2.
     */
 
-    friend inline negatable ldexp(negatable x, int exp)
+    friend inline negatable ldexp(negatable x, int exp2)
     {
-      if(exp > 0)
+      if(exp2 > 0)
       {
-        return negatable(nothing(), value_type(x.data << exp));
+        return negatable(nothing(), value_type(x.data << exp2));
       }
-      else if(exp < 0)
+      else if(exp2 < 0)
       {
         const bool is_neg = (x.data < 0);
 
         unsigned_small_type result((!is_neg) ? unsigned_small_type(x.data) : unsigned_small_type(-x.data));
 
-        result = (result >> -exp);
+        result = (result >> -exp2);
 
         return negatable(nothing(), value_type((!is_neg) ? value_type(result) : -value_type(result)));
       }
@@ -1659,7 +1659,7 @@
       {
         return x;
       }
-    } // negatable ldexp(negatable x, int exp)
+    } // negatable ldexp(negatable x, int exp2)
 
     /*! Provide next, prior and distance for fixed_point types.
     */

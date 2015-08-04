@@ -26,7 +26,7 @@
   {
     static_assert(    (std::numeric_limits<UnsignedIntegralType>::is_integer == true)
                    && (std::numeric_limits<UnsignedIntegralType>::is_signed  == false),
-                   "the UnsignedIntegralType for left shift must be an unsigned integral type");
+                   "The UnsignedIntegralType for left shift must be an unsigned integral type.");
 
     return ((shift_count > 0) ? UnsignedIntegralType(u << +shift_count)
                               : UnsignedIntegralType(u >> -shift_count));
@@ -37,7 +37,7 @@
   {
     static_assert(    (std::numeric_limits<UnsignedIntegralType>::is_integer == true)
                    && (std::numeric_limits<UnsignedIntegralType>::is_signed  == false),
-                   "the UnsignedIntegralType for right shift must be an unsigned integral type");
+                   "The UnsignedIntegralType for right shift must be an unsigned integral type.");
 
     return ((shift_count > 0) ? UnsignedIntegralType(u >> +shift_count)
                               : UnsignedIntegralType(u << -shift_count));
@@ -51,7 +51,7 @@
   {
     // Ensure that the requested bit mask is in range.
     static_assert((BitPosition + BitCount) <= unsigned(std::numeric_limits<UnsignedIntegralType>::digits),
-                  "the requested bit_mask value exceeds the maximum value of the UnsignedIntegralType");
+                  "The requested bit_mask value exceeds the maximum value of the UnsignedIntegralType.");
 
     static const UnsignedIntegralType& value()
     {
@@ -73,7 +73,7 @@
   {
     // Ensure that the requested bit mask is in range.
     static_assert((BitPosition + BitCount) <= unsigned(std::numeric_limits<UnsignedIntegralType>::digits),
-                  "the requested bit_mask value exceeds the maximum value of the UnsignedIntegralType");
+                  "The requested bit_mask value exceeds the maximum value of the UnsignedIntegralType.");
 
     static UnsignedIntegralType value() BOOST_NOEXCEPT
     {
@@ -409,7 +409,6 @@
 
     #endif // !BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
 
-
     #if !defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
 
       template<const unsigned BitCount,
@@ -480,6 +479,70 @@
       typedef boost::float128_t exact_float_type;
     };
   #endif // BOOST_FLOAT128_C
+
+  template<typename UnsignedIntegralType>
+  struct msb_meta_helper
+  {
+  private:
+
+    // Use a binary search to find the most significant bit in an unsigned integral type.
+    // The binary search is enabled and accelerated with template metaprogramming.
+
+    static_assert(   std::is_integral<UnsignedIntegralType>::value
+                  && std::is_unsigned<UnsignedIntegralType>::value,
+                  "The UnsignedIntegralType for msb_meta_helper must be an unsigned integral type.");
+
+    typedef typename integer_type_helper<std::numeric_limits<UnsignedIntegralType>::digits / 2 >::exact_unsigned_type
+    unsigned_integral_lo_type;
+
+    typedef typename integer_type_helper<   std::numeric_limits<UnsignedIntegralType>::digits
+                                          - (std::numeric_limits<UnsignedIntegralType>::digits / 2)>::exact_unsigned_type
+    unsigned_integral_hi_type;
+
+    static BOOST_CONSTEXPR_OR_CONST std::size_t digits_lo = static_cast<std::size_t>(std::numeric_limits<unsigned_integral_lo_type>::digits);
+    static BOOST_CONSTEXPR_OR_CONST std::size_t digits_hi = static_cast<std::size_t>(std::numeric_limits<unsigned_integral_hi_type>::digits);
+
+  public:
+    static std::size_t hi_bit(const UnsignedIntegralType& u)
+    {
+      const unsigned_integral_lo_type lo_part = static_cast<unsigned_integral_lo_type>(u);
+      const unsigned_integral_hi_type hi_part = static_cast<unsigned_integral_hi_type>(u >> digits_lo);
+
+      if(hi_part != 0)
+      {
+        return   std::size_t(std::numeric_limits<unsigned_integral_lo_type>::digits)
+                + msb_meta_helper<unsigned_integral_hi_type>::hi_bit(hi_part);
+      }
+      else if(lo_part != 0)
+      {
+        return msb_meta_helper<unsigned_integral_lo_type>::hi_bit(lo_part);
+      }
+      else
+      {
+        return std::size_t(0U);
+      }
+    }
+  };
+
+  template<>
+  struct msb_meta_helper<boost::uint8_t>
+  {
+  public:
+    static std::size_t hi_bit(const boost::uint8_t& u)
+    {
+      const boost::uint_fast8_t lo_nibble( u       & UINT8_C(0x0F));
+      const boost::uint_fast8_t hi_nibble((u >> 4) & UINT8_C(0x0F));
+
+      BOOST_CONSTEXPR_OR_CONST std::size_t hi_bit_value[16U] =
+      {
+        // 0   1,  2,  3,  4,  5,  6,  7,  8,  9,  A,  B,  C,  D,  E,  F
+          0U, 0U, 1U, 1U, 2U, 2U, 2U, 2U, 3U, 3U, 3U, 3U, 3U, 3U, 3U, 3U
+      };
+
+      return ((hi_nibble != UINT8_C(0)) ? (std::size_t(4U) + hi_bit_value[hi_nibble])
+                                        : hi_bit_value[lo_nibble]);
+    }
+  };
 
   #if !defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
     template<typename UnsignedIntegralType,
