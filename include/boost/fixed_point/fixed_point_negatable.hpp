@@ -8,7 +8,6 @@
 
 // This file is a partial reference implementation for the proposed
 // "C++ binary fixed-point arithmetic" as specified in N3352.
-// 
 
 /*! \file
     \brief Fixed_point negatable class used for @b signed fractional arithmetic.
@@ -1613,7 +1612,7 @@
         unsigned_small_type result((!is_neg) ? unsigned_small_type(x.data) : unsigned_small_type(-x.data));
 
         // Use a binary-halving mechanism to obtain the most significant bit.
-        const int msb = static_cast<int>(detail::msb_meta_helper<unsigned_small_type>::hi_bit(result));
+        const int msb = static_cast<int>(detail::msb_meta_helper_nonconstant<unsigned_small_type>::hi_bit(result));
 
         // Evaluate the necessary amount of right-shift.
         const int total_right_shift = (msb - radix_split) + 1;

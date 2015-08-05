@@ -68,15 +68,15 @@ namespace local
     const FixedPointType a8 (FixedPointType(111) / 10);                      const FloatPointType b8(FloatPointType(111) / 10);
     const FixedPointType a9 (boost::math::constants::phi<FixedPointType>()); const FloatPointType b9(boost::math::constants::phi<FloatPointType>());
 
-    BOOST_CHECK_CLOSE_FRACTION(cbrt(a1), cbrt(b1), tolerance_maker<FixedPointType>(fuzzy_bits));
-    BOOST_CHECK_CLOSE_FRACTION(cbrt(a2), cbrt(b2), tolerance_maker<FixedPointType>(fuzzy_bits));
-    BOOST_CHECK_CLOSE_FRACTION(cbrt(a3), cbrt(b3), tolerance_maker<FixedPointType>(fuzzy_bits));
-    BOOST_CHECK_CLOSE_FRACTION(cbrt(a4), cbrt(b4), tolerance_maker<FixedPointType>(fuzzy_bits));
-    BOOST_CHECK_CLOSE_FRACTION(cbrt(a5), cbrt(b5), tolerance_maker<FixedPointType>(fuzzy_bits));
-    BOOST_CHECK_CLOSE_FRACTION(cbrt(a6), cbrt(b6), tolerance_maker<FixedPointType>(fuzzy_bits));
-    BOOST_CHECK_CLOSE_FRACTION(cbrt(a7), cbrt(b7), tolerance_maker<FixedPointType>(fuzzy_bits));
-    BOOST_CHECK_CLOSE_FRACTION(cbrt(a8), cbrt(b8), tolerance_maker<FixedPointType>(fuzzy_bits));
-    BOOST_CHECK_CLOSE_FRACTION(cbrt(a9), cbrt(b9), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(cbrt(a1), FixedPointType(cbrt(b1)), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(cbrt(a2), FixedPointType(cbrt(b2)), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(cbrt(a3), FixedPointType(cbrt(b3)), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(cbrt(a4), FixedPointType(cbrt(b4)), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(cbrt(a5), FixedPointType(cbrt(b5)), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(cbrt(a6), FixedPointType(cbrt(b6)), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(cbrt(a7), FixedPointType(cbrt(b7)), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(cbrt(a8), FixedPointType(cbrt(b8)), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(cbrt(a9), FixedPointType(cbrt(b9)), tolerance_maker<FixedPointType>(fuzzy_bits));
   }
 }
 

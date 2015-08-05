@@ -68,15 +68,15 @@ namespace local
     const FixedPointType a8 (FixedPointType(111) / 10);                      const FloatPointType b8(FloatPointType(111) / 10);
     const FixedPointType a9 (boost::math::constants::phi<FixedPointType>()); const FloatPointType b9(boost::math::constants::phi<FloatPointType>());
 
-    BOOST_CHECK_CLOSE_FRACTION(sqrt(a1), sqrt(b1), tolerance_maker<FixedPointType>(fuzzy_bits));
-    BOOST_CHECK_CLOSE_FRACTION(sqrt(a2), sqrt(b2), tolerance_maker<FixedPointType>(fuzzy_bits));
-    BOOST_CHECK_CLOSE_FRACTION(sqrt(a3), sqrt(b3), tolerance_maker<FixedPointType>(fuzzy_bits));
-    BOOST_CHECK_CLOSE_FRACTION(sqrt(a4), sqrt(b4), tolerance_maker<FixedPointType>(fuzzy_bits));
-    BOOST_CHECK_CLOSE_FRACTION(sqrt(a5), sqrt(b5), tolerance_maker<FixedPointType>(fuzzy_bits));
-    BOOST_CHECK_CLOSE_FRACTION(sqrt(a6), sqrt(b6), tolerance_maker<FixedPointType>(fuzzy_bits));
-    BOOST_CHECK_CLOSE_FRACTION(sqrt(a7), sqrt(b7), tolerance_maker<FixedPointType>(fuzzy_bits));
-    BOOST_CHECK_CLOSE_FRACTION(sqrt(a8), sqrt(b8), tolerance_maker<FixedPointType>(fuzzy_bits));
-    BOOST_CHECK_CLOSE_FRACTION(sqrt(a9), sqrt(b9), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(sqrt(a1), FixedPointType(sqrt(b1)), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(sqrt(a2), FixedPointType(sqrt(b2)), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(sqrt(a3), FixedPointType(sqrt(b3)), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(sqrt(a4), FixedPointType(sqrt(b4)), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(sqrt(a5), FixedPointType(sqrt(b5)), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(sqrt(a6), FixedPointType(sqrt(b6)), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(sqrt(a7), FixedPointType(sqrt(b7)), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(sqrt(a8), FixedPointType(sqrt(b8)), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(sqrt(a9), FixedPointType(sqrt(b9)), tolerance_maker<FixedPointType>(fuzzy_bits));
   }
 
   template<typename FixedPointType,
@@ -105,7 +105,7 @@ namespace local
     const FixedPointType a(boost::math::constants::zeta_three<FixedPointType>());
     const FloatPointType b(boost::math::constants::zeta_three<FloatPointType>());
 
-    BOOST_CHECK_CLOSE_FRACTION(sqrt(a), sqrt(b), tolerance_maker<FixedPointType>(fuzzy_bits));
+    BOOST_CHECK_CLOSE_FRACTION(sqrt(a), FixedPointType(sqrt(b)), tolerance_maker<FixedPointType>(fuzzy_bits));
   }
 }
 
