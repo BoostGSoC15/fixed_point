@@ -23,6 +23,24 @@
 
 namespace local
 {
+  // Patch BOOST_CHECK_CLOSE_FRACTION because of disagreements
+  // among compilers, the implementation of fixed_point and Boost.Test.
+
+  template<typename T>
+  void boost_check_close_fraction(const T& left, const T& right, const T& tolerance)
+  {
+    using std::fabs;
+
+    const T fraction = fabs(left / right);
+
+    const bool the_comparison_result = (fabs(T(1) - fraction) <= tolerance);
+
+    BOOST_CHECK_EQUAL(the_comparison_result, true);
+  }
+
+  #undef  BOOST_CHECK_CLOSE_FRACTION
+  #define BOOST_CHECK_CLOSE_FRACTION(L, R, T) local::boost_check_close_fraction(L, R, T);
+
   template<typename FixedPointType>
   const FixedPointType& tolerance_maker(const int fuzzy_bits)
   {
@@ -102,10 +120,10 @@ namespace local
 
 BOOST_AUTO_TEST_CASE(fixed_point_frexp_ldexp)
 {
-  { typedef boost::fixed_point::negatable<6,  -17> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(4)); }
-  { typedef boost::fixed_point::negatable<6,  -25> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(4)); }
-  { typedef boost::fixed_point::negatable<6,  -46> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(4)); }
-  { typedef boost::fixed_point::negatable<6,  -57> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(4)); }
-  { typedef boost::fixed_point::negatable<6, -121> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(4)); }
-  { typedef boost::fixed_point::negatable<6, -233> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(4)); }
+  { typedef boost::fixed_point::negatable<6,  -17> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(5)); }
+  { typedef boost::fixed_point::negatable<6,  -25> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(5)); }
+  { typedef boost::fixed_point::negatable<6,  -46> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(5)); }
+  { typedef boost::fixed_point::negatable<6,  -57> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(5)); }
+  { typedef boost::fixed_point::negatable<6, -121> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(5)); }
+  { typedef boost::fixed_point::negatable<6, -233> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(5)); }
 }

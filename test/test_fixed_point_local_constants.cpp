@@ -27,6 +27,24 @@
 
 namespace local
 {
+  // Patch BOOST_CHECK_CLOSE_FRACTION because of disagreements
+  // among compilers, the implementation of fixed_point and Boost.Test.
+
+  template<typename T>
+  void boost_check_close_fraction(const T& left, const T& right, const T& tolerance)
+  {
+    using std::fabs;
+
+    const T fraction = fabs(left / right);
+
+    const bool the_comparison_result = (fabs(T(1) - fraction) <= tolerance);
+
+    BOOST_CHECK_EQUAL(the_comparison_result, true);
+  }
+
+  #undef  BOOST_CHECK_CLOSE_FRACTION
+  #define BOOST_CHECK_CLOSE_FRACTION(L, R, T) local::boost_check_close_fraction(L, R, T);
+
   template<typename FixedPointType,
            typename FloatingPointType,
            typename EnableType = void>
