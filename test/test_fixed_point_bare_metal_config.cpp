@@ -8,7 +8,7 @@
 //
 
 //! \file
-//!\brief Tests for a successful bare-metal configuration of fixed_point.
+//!\brief Test for a successful bare-metal configuration of fixed_point.
 
 // For further mathematical details pertaining to this file,
 // see C.M. Kormanyos, Real-Time C++: Efficient Object-Oriented and
@@ -83,7 +83,20 @@ BOOST_AUTO_TEST_CASE(fixed_point_bare_metal_config)
   // Verify that the result lies within (4.5 < result < 4.7).
   // The expected result is 4.6, so this is a wide tolerance.
 
+  // This is the test of the result that has been used
+  // on the bare-metal system.
   const bool result_is_ok = ((d > (fixed_point_type(45) / 10)) && (d < (fixed_point_type(47) / 10)));
 
   BOOST_CHECK_EQUAL(result_is_ok, true);
+
+  // Now we perform a second test of the result based on a
+  // close-fraction test. We do not use BOOST_CHECK_CLOSE_FRACTION()
+  // here becasue that would require I/O streaming, which is
+  // disabled in this bare-metal configuration.
+  const fixed_point_type fraction = fabs(d / fixed_point_type(4.6F));
+  const fixed_point_type delta    = fabs(1 - fraction);
+
+  const bool result_is_within_tolerance = (delta < ldexp(fixed_point_type(1), fixed_point_type::resolution + 2));
+
+  BOOST_CHECK_EQUAL(result_is_within_tolerance, true);
 }
