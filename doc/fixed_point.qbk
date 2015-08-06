@@ -83,6 +83,10 @@
 [def __SSE2 [@http://en.wikipedia.org/wiki/SSE2 SSE2 instructions]]
 [def __WolframAlpha [@http://www.wolframalpha.com/ Wolfram Alpha]]
 [def __ARM_architecture  [@https://en.wikipedia.org/wiki/ARM_architecture ARM architecture]]
+[def __harvard_architecture [@https://en.wikipedia.org/wiki/Harvard_architecture Harvard architecture]]
+[def __von_neumann [@https://en.wikipedia.org/wiki/Von_Neumann_architecture Von Neumann architecture]]
+[def __microcontroller [@https://en.wikipedia.org/wiki/Microcontroller microcontroller]]
+[def __Arduino [@https://www.arduino.cc/ Arduino]]
 [def __Q_format [@https://en.wikipedia.org/wiki/Q_(number_format) Q number format]]
 [def __floating_point  [@http://en.wikipedia.org/wiki/Floating_point Floating point]]
 [def __epsilon [@http://en.wikipedia.org/wiki/Machine_epsilon machine epsilon]]
@@ -198,35 +202,80 @@ So fixed-point trades range and precision for (potentially) improved efficiency 
 
 [section:why_fixed_point Why Fixed-Point?]
 
-For most computing tasks, floating-point works fine.
+For most computing tasks, floating-point works very well.
 
-* The layout is very cleverly devised to provide a good resolution and a wide exponent range
+* The __IEEE754 layout is very cleverly devised to provide a good resolution and a wide exponent range
 making very efficient use of the 32 and 64 bits available
 (including an cunning extra implicit significand bit).
-
 * Hardware microcode, refined for decades, provides very fast instructions.
 
 So why would one prefer fixed-point?
 
-* The hardware CPU does not have instructions or emulation for floating-point.
-Typical examples are 8 and 16-bit microcontrollers used in industrial and consumer devices,
-especially vehicles.
+* The hardware [*CPU does not have instructions or emulation for floating-point].
+For example those using __harvard_architecture (rather than __von_neumann).
+Typical examples are 8 and 16-bit __microcontroller used in industrial and consumer devices,
+especially vehicles, for example the __Arduino family of single board devices.
 
-* The RISC CPU provides software emulation of floating-point (for example, __ARM_architecture ) but it is not fast enough.
+* High-performance micros that have FPUs usually
+have circuitry that can enable or disable the FPU.
+This will save some power because the FPU requires energy.[br]
+The more common case is not to disable the FPU
+but rather to select a micro that does not have one
+in the first place. You get the energy savings
+and thereby enter the realm of integral and fixed-point math.
+
+* The RISC CPU provides software emulation of floating-point
+(for example, __ARM_architecture ) but it is not fast enough,
+or uses more power than integral operations use by a fixed-point.
 
 * Storing many floating-point values takes up more memory than would be possible using `fixed_point`.
-Memory is cheap, but using less can speed I/O and reduce cache misses.
+Memory is cheap, but using less can speed data transfer and reduce cache misses.
+So if an entire array of data can be stored as a `negatable`
+using a small integral type ,`byte` or `short int`, in a very fast memory cache,
+it might be processed more quickly.
 
 * If a resolution greater than `double` is required, `fixed_point` may prove faster.[br]
 Software like __multiprecision can provide much higher resolution and higher exponent ranges,
 but at a great cost in compute time, often a hundred-fold slower.[br]
 Fixed-point using many bits, for example 256-bit, can provide very high resolution,
-while executing faster than an equivalent __multiprecision type (provided
+while may execute faster than an equivalent __multiprecision type (provided
 the reduced exponent (scaling) range can be tolerated).
+
+* Rationalized integer calculations (and even fixed-point)
+are more reliable than floating-point emulations.
+
+* In the end, the main reason to choose fixed-point may be [*to reduce power consumption];
+that often means longer battery life, helpful for portable devices like watches, but
+even more for implanted medical devices and space-craft where battery charges and changes
+are especially inconvenient.
 
 [endsect] [/section:why_fixed_point Why Fixed-Point?]
 
+[section:why_this_fixed_point  Why use Boost.Fixed_point]
 
+A number of fixed_point libraries have been written; why would one choose this library?
+
+* Boost free for all uses, including commercial.
+
+* Compatible with C++ standard including `std::numeric_limits` and `cmath` libraries.
+
+* Visible tests.
+
+* Range and resolution are chosen using C++ templates.
+
+* The smallest underlying power-of-2 hardware type (byte, word, dword ...)
+will be chosen automatically.
+
+* Rounding and overflow may be controlled using C++ templates.
+
+* Extends to use underlying __fundamental_types automatically.
+
+* Extends to use __multiprecision when the resolution and/or range specified are too big to
+fit into the largest of the __fundamental_types.
+This allows fixed-point type with much higher resolution and/or range
+than any other library.
+
+[endsect] [/section:why_this_fixed_point  Why use Boost.Fixed_point]
 
 [endsect] [/section:intro Introduction]
 
@@ -255,6 +304,14 @@ and a template parameter __range of -16.
 
 This means that 15 bits are used for the __significand of fraction part and
 16 for the binary exponent or range factor.
+
+[tip Choosing a total of range and resolution (and allowing an extra bit for sign)
+so that the total is a power of 2 is very sensible. [br]
+Choosing just one extra bit would mean
+that the underlying __fundamental_types will be twice as wide![br]
+]
+[warning Choosing a combination that does not fit into the largest available integral type
+(usually 32 or 64 bits) can have a dramatic effect because a __multiprecision type will be used.]
 
 We can show the __numeric_limits for this type thus:
 
@@ -344,7 +401,6 @@ Template Microcontroller Programming (Springer, Heidelberg, 2013).
 in Section 12.7 and [@http://link.springer.com/chapter/10.1007/978-3-642-34688-0_13 Chapter 13].
 
 [endsect] [/section:bare_derivative Example of a bare-metal fixed_point type evaluating  derivative.]
-
 
 [endsect] [/section:examples Examples]
 
@@ -542,7 +598,6 @@ This will have a marked effect on any operation like output that uses this.
 
 [endsect] [/section:representation_types How to tell the Representation types used for a fixed_point type]
 
-
 [section:headers Header File Structure]
 
 [table Top level headers
@@ -565,9 +620,8 @@ This will have a marked effect on any operation like output that uses this.
 
 [section:history Historial discussions]
 
-In response to Lawrance Crowl proposal __n3352, there are a thread on the
-
-__boost discussion list. See this thread on
+In response to Lawrance Crowl proposal __n3352, this a thread on the __boost discussion list.
+See this thread on
 [@http://lists.boost.org/Archives/boost/2012/04/191987.php]
 on the __boost_archives.
 
@@ -673,7 +727,6 @@ I would prefer to decouple. Fixed-point arithmetic without saturation
 is useful, as is integer arithmetic with saturation. So I'd prefer to
 make them orthogonal, but compatible, concepts. "
 
-
 [h4 nonnegative and the sign bit]
 Is it right that we don't get any more resolution for the unsigned version
 'nonnegative' even though we are not using a bit for sign?
@@ -686,22 +739,27 @@ This allows us to utilize the sign bit for one additional
 left shift slot, thereby providing one extra digit for
 rounding.
 
-The nonnegative class can and does use the full
+The `nonnegative` class can and does use the full
 width of its underlying unsigned data representation.
 Internal operations, however, still require one
 extra bit for rounding. For this reason, the key
 nonnegative examples use types such as
-nonnegative<15, -16>. The type nonnegative<16, 16>
+`nonnegative<15, -16>`. The type `nonnegative<16, 16>`
 will fill the underlying 32-bit data field entirely, but
 will require 65 bits for multiply, divide, etc. So as
 it turns out using 31 bits provides for better optimization.
 
-This could of course be solved better if I decided
-to use more cleverness instead of lazy mul and div.
-But I don't have time for that now.
+This could of course be solved better
+if a there was a more clever `mul` and `div` instead of the current lazy way.
+This might be improved later.
 
-
-
+[warning Ensure that the sum of resolution and range
+is not [*equal] to the number of bits in the underlying integral type, usually `int` 32 or 64-bit.
+Other fixed_point will use the next largest type, at worse a __multiprecision type,
+with dramatic effect on code size and run time.
+For example, `negatable<0,63>` and `nonnegative<0,63>`
+are the largest types possible based on `__int64_t` without using __multiprecision.
+] [/warning]
 
 [endsect] [/section:history Historial discussions]
 

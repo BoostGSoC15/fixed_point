@@ -265,7 +265,7 @@
   // We will now begin the implementation of the nonnegative class.
 
   /*!
-    \brief Fixed_point nonnegative class used for unsigned fractional arithmetic.
+    \brief Fixed_point nonnegative class used for @b unsigned fractional arithmetic.
     \details This is a partial reference implementation for the proposed by
       Lawrence Crowl, "C++ binary fixed-point arithmetic" as specified in N3352.\n
       In this particular file, we implement a prototype for the nonnegative template class.\n
@@ -349,6 +349,12 @@
       For larger digit counts, this will be a multiprecision unsigned integer type.
       One bit is added to the sum of all_bits == (range + (-resolution))
       in order to provide room for internal rounding mechanisms.
+
+      \warning Take care that the sum of @c range and @c resolution does not @b equal a power of 2
+      or the @b next @b largest integral type is used.
+      For example: @c nonegative<16,-16> will not use @c __int64 as intended
+      but will use a multiprecision type taking up much more space, needing more code and running much slower.
+
     */
     typedef typename detail::integer_type_helper<all_bits + 1>::exact_unsigned_type value_type;
 
