@@ -412,7 +412,7 @@
     #if !defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
 
       template<const unsigned BitCount,
-                typename EnableType = void>
+               typename EnableType = void>
       struct float_type_helper
       {
         typedef boost::multiprecision::number<

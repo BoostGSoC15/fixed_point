@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE(fixed_point_bare_metal_config)
   const fixed_point_type fraction = fabs(d / fixed_point_type(4.6F));
   const fixed_point_type delta    = fabs(1 - fraction);
 
-  const bool result_is_within_tolerance = (delta < ldexp(fixed_point_type(1), fixed_point_type::resolution + 2));
+  const bool result_is_within_tolerance = (delta <= ldexp(fixed_point_type(1), fixed_point_type::resolution + 2));
 
   BOOST_CHECK_EQUAL(result_is_within_tolerance, true);
 }
