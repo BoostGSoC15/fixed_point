@@ -498,9 +498,6 @@
                                          - (std::numeric_limits<UnsignedIntegralType>::digits / 2)>::exact_unsigned_type
     unsigned_integral_hi_type;
 
-    static BOOST_CONSTEXPR_OR_CONST std::size_t digits_lo = static_cast<std::size_t>(std::numeric_limits<unsigned_integral_lo_type>::digits);
-    static BOOST_CONSTEXPR_OR_CONST std::size_t digits_hi = static_cast<std::size_t>(std::numeric_limits<unsigned_integral_hi_type>::digits);
-
   public:
     static std::size_t hi_bit(const UnsignedIntegralType& u)
     {
@@ -510,6 +507,8 @@
       }
       else
       {
+        const std::size_t digits_lo = static_cast<std::size_t>(std::numeric_limits<unsigned_integral_lo_type>::digits);
+
         const unsigned_integral_hi_type hi_part = static_cast<unsigned_integral_hi_type>(u >> digits_lo);
 
         if(hi_part != 0)
