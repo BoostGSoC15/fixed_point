@@ -483,24 +483,21 @@
   template<typename UnsignedIntegralType>
   struct msb_meta_helper_nonconstant
   {
-  private:
-
-    // Use binary-halving to find the most significant bit in an unsigned integral type.
-    // The binary-halving search is enabled and accelerated with template metaprogramming.
-
-    static_assert(std::numeric_limits<UnsignedIntegralType>::is_signed == false,
-                  "The UnsignedIntegralType for msb_meta_helper_nonconstant must be an unsigned (integral) type.");
-
-    typedef typename integer_type_helper<std::numeric_limits<UnsignedIntegralType>::digits / 2 >::exact_unsigned_type
-    unsigned_integral_lo_type;
-
-    typedef typename integer_type_helper<   std::numeric_limits<UnsignedIntegralType>::digits
-                                         - (std::numeric_limits<UnsignedIntegralType>::digits / 2)>::exact_unsigned_type
-    unsigned_integral_hi_type;
-
-  public:
     static std::size_t hi_bit(const UnsignedIntegralType& u)
     {
+      // Use binary-halving to find the most significant bit in an unsigned integral type.
+      // The binary-halving search is enabled and accelerated with template metaprogramming.
+
+      static_assert(std::numeric_limits<UnsignedIntegralType>::is_signed == false,
+                    "The UnsignedIntegralType for msb_meta_helper_nonconstant must be an unsigned (integral) type.");
+
+      typedef typename integer_type_helper<std::numeric_limits<UnsignedIntegralType>::digits / 2 >::exact_unsigned_type
+      unsigned_integral_lo_type;
+
+      typedef typename integer_type_helper<   std::numeric_limits<UnsignedIntegralType>::digits
+                                           - (std::numeric_limits<UnsignedIntegralType>::digits / 2)>::exact_unsigned_type
+      unsigned_integral_hi_type;
+
       if(u == 0)
       {
         return std::size_t(0U);
@@ -529,7 +526,6 @@
   template<>
   struct msb_meta_helper_nonconstant<boost::uint8_t>
   {
-  public:
     static std::size_t hi_bit(const boost::uint8_t& u)
     {
       const boost::uint_fast8_t lo_nibble( u       & UINT8_C(0x0F));
@@ -544,54 +540,6 @@
       return ((hi_nibble != UINT8_C(0)) ? (std::size_t(4U) + hi_bit_value[hi_nibble])
                                         : hi_bit_value[lo_nibble]);
     }
-  };
-
-  template<typename UnsignedIntegralType,
-          const UnsignedIntegralType N>
-  struct msb_meta_helper_constant
-  {
-  private:
-
-    // Use binary-halving to find the most significant bit in an unsigned integral type.
-    // The binary-halving search is enabled and accelerated with template metaprogramming.
-
-    static_assert(   std::is_integral<UnsignedIntegralType>::value
-                  && std::is_unsigned<UnsignedIntegralType>::value,
-                  "The UnsignedIntegralType for msb_meta_helper_nonconstant must be an unsigned integral type.");
-
-    typedef typename integer_type_helper<std::numeric_limits<UnsignedIntegralType>::digits / 2 >::exact_unsigned_type
-    unsigned_integral_lo_type;
-
-    typedef typename integer_type_helper<   std::numeric_limits<UnsignedIntegralType>::digits
-                                         - (std::numeric_limits<UnsignedIntegralType>::digits / 2)>::exact_unsigned_type
-    unsigned_integral_hi_type;
-
-    static BOOST_CONSTEXPR_OR_CONST std::size_t digits_lo = static_cast<std::size_t>(std::numeric_limits<unsigned_integral_lo_type>::digits);
-    static BOOST_CONSTEXPR_OR_CONST std::size_t digits_hi = static_cast<std::size_t>(std::numeric_limits<unsigned_integral_hi_type>::digits);
-
-    static BOOST_CONSTEXPR_OR_CONST unsigned_integral_lo_type lo_part = unsigned_integral_lo_type(N);
-    static BOOST_CONSTEXPR_OR_CONST unsigned_integral_hi_type hi_part = unsigned_integral_hi_type(N >> digits_lo);
-
-  public:
-    static BOOST_CONSTEXPR_OR_CONST std::size_t hi_bit =
-      ((N == 0U) ? std::size_t(0U)
-                 : ((hi_part != 0U) ? (  std::size_t(std::numeric_limits<unsigned_integral_lo_type>::digits)
-                                       + msb_meta_helper_constant<unsigned_integral_hi_type, hi_part>::hi_bit)
-                                    : msb_meta_helper_constant<unsigned_integral_lo_type, lo_part>::hi_bit));
-  };
-
-  template<const boost::uint8_t N>
-  struct msb_meta_helper_constant<boost::uint8_t, N>
-  {
-  private:
-    static BOOST_CONSTEXPR_OR_CONST boost::uint_fast8_t lo_nibble =  (N       & UINT8_C(0x0F));
-    static BOOST_CONSTEXPR_OR_CONST boost::uint_fast8_t hi_nibble = ((N >> 4) & UINT8_C(0x0F));
-
-  public:
-    static BOOST_CONSTEXPR_OR_CONST std::size_t hi_bit =
-      ((hi_nibble != UINT8_C(0))
-        ? (hi_nibble > UINT8_C(7)) ? 7U : (hi_nibble > UINT8_C(3)) ? 6U : (hi_nibble > UINT8_C(1)) ? 5U : 4U
-        : (lo_nibble > UINT8_C(7)) ? 3U : (lo_nibble > UINT8_C(3)) ? 2U : (lo_nibble > UINT8_C(1)) ? 1U : 0U);
   };
 
   #if !defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)

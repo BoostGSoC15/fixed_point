@@ -326,10 +326,12 @@
         x.range + (-x.resolution) + 1 == 2 + (-(-5)) + 1 == 8.
         \endcode
     */
-    static BOOST_CONSTEXPR_OR_CONST int all_bits = (range + 1) + (-resolution); // +1 for a sign bit.
+    static BOOST_CONSTEXPR_OR_CONST int all_bits = (range + 1) + (-resolution); // +1 for the sign bit.
+
+    static_assert(all_bits <= 32768, "Error: At the moment, the width of fixed_point negatable can not exceed 32768 bits (limitation of details section).");
 
     #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
-      static_assert(all_bits <= 32, "Error: the width of fixed_point negatable can not exceed 32 bits when multiprecision is disabled.");
+      static_assert(all_bits <= 32, "Error: The width of fixed_point negatable can not exceed 32 bits when multiprecision is disabled.");
     #endif
 
     //! See also public static data items range and resolution.

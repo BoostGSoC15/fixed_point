@@ -128,10 +128,12 @@ namespace local
 
 BOOST_AUTO_TEST_CASE(fixed_point_frexp_ldexp)
 {
-  { typedef boost::fixed_point::negatable<6,  -17> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(5)); }
-  { typedef boost::fixed_point::negatable<6,  -25> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(5)); }
-  { typedef boost::fixed_point::negatable<6,  -46> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(5)); }
-  { typedef boost::fixed_point::negatable<6,  -57> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(5)); }
-  { typedef boost::fixed_point::negatable<6, -121> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(5)); }
-  { typedef boost::fixed_point::negatable<6, -233> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(5)); }
+  { typedef boost::fixed_point::negatable<  6,  -17> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(5)); }
+  { typedef boost::fixed_point::negatable<  6,  -25> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(5)); }
+  { typedef boost::fixed_point::negatable<  6,  -46> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(5)); }
+  { typedef boost::fixed_point::negatable<  6,  -57> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(5)); }
+  { typedef boost::fixed_point::negatable<  6, -121> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(5)); }
+  { typedef boost::fixed_point::negatable<  6, -233> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(5)); }
+  { typedef boost::fixed_point::negatable< 39, -200> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(5)); }
+  { typedef boost::fixed_point::negatable<100, -139> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(5)); }
 }
