@@ -1,17 +1,16 @@
 ///////////////////////////////////////////////////////////////////////////////
+//  Copyright Nikhar Agrawal 2015.
 //  Copyright Paul Bristow 2015.
 //  Copyright Christopher Kormanyos 2015.
-//  Copyright Nikhar Agrawal 2015.
 //  Distributed under the Boost Software License,
 //  Version 1.0. (See accompanying file LICENSE_1_0.txt
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
 
 //! \file
 //!\ This is used to test the underlying bit representation of our negatable class.
 //!\ If any of these tests fail, then something is wrong at a very basic level.
 
-#define BOOST_TEST_MODULE fixed_point_basic
+#define BOOST_TEST_MODULE test_negatable_bit_pattern
 #define BOOST_LIB_DIAGNOSTIC
 
 #include <iomanip>
@@ -21,12 +20,12 @@
 
 #include <boost/fixed_point/fixed_point.hpp>
 #include <boost/multiprecision/cpp_dec_float.hpp>
-#include <boost/test/included/unit_test.hpp> // No Boost.Test library.
+#include <boost/test/included/unit_test.hpp>
 
 typedef boost::multiprecision::number<boost::multiprecision::cpp_dec_float<100>, boost::multiprecision::et_off> cpp_dec_float_100_noet;
 typedef boost::multiprecision::number<boost::multiprecision::cpp_dec_float<200>, boost::multiprecision::et_off> cpp_dec_float_200_noet;
 
-BOOST_AUTO_TEST_CASE(fixed_point_construct_nearest_even_round)
+BOOST_AUTO_TEST_CASE(test_negatable_bit_pattern)
 {
   //! small range and resolution
   {

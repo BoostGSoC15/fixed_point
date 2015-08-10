@@ -5,19 +5,18 @@
 //  Distributed under the Boost Software License,
 //  Version 1.0. (See accompanying file LICENSE_1_0.txt
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
 
 //! \file
 //!\brief Perform local computations of pi and ln_two for fixed_point. Use quadratically convergent Gauss AGM methods.
+
+#define BOOST_TEST_MODULE test_negatable_local_constants
+#define BOOST_LIB_DIAGNOSTIC
 
 #include <cmath>
 #include <iomanip>
 #include <iostream>
 #include <limits>
 #include <type_traits>
-
-#define BOOST_TEST_MODULE fixed_point_local_constants
-#define BOOST_LIB_DIAGNOSTIC
 
 #include <boost/cstdfloat.hpp>
 #include <boost/cstdint.hpp>
@@ -324,7 +323,7 @@ namespace local
   };
 }
 
-BOOST_AUTO_TEST_CASE(fixed_point_local_constants)
+BOOST_AUTO_TEST_CASE(test_negatable_local_constants)
 {
   { typedef boost::fixed_point::negatable< 2,    -3> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::pi(1)); }
   { typedef boost::fixed_point::negatable< 2,    -5> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::pi(1)); }

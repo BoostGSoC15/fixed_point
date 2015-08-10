@@ -10,12 +10,12 @@
 //! \file
 //!\brief Perform tests of frexp and ldexp for fixed_point.
 
+#define BOOST_TEST_MODULE test_negatable_frexp_ldexp
+#define BOOST_LIB_DIAGNOSTIC
+
 #include <cmath>
 #include <iomanip>
 #include <iostream>
-
-#define BOOST_TEST_MODULE fixed_point_frexp_ldexp
-#define BOOST_LIB_DIAGNOSTIC
 
 #include <boost/fixed_point/fixed_point.hpp>
 #include <boost/math/constants/constants.hpp>
@@ -126,7 +126,7 @@ namespace local
   }
 }
 
-BOOST_AUTO_TEST_CASE(fixed_point_frexp_ldexp)
+BOOST_AUTO_TEST_CASE(test_negatable_frexp_ldexp)
 {
   { typedef boost::fixed_point::negatable<  6,  -17> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(5)); }
   { typedef boost::fixed_point::negatable<  6,  -25> fixed_point_type; static_cast<void>(local::test_frexp_ldexp<fixed_point_type>(5)); }

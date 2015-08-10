@@ -5,17 +5,16 @@
 //  Distributed under the Boost Software License,
 //  Version 1.0. (See accompanying file LICENSE_1_0.txt
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
 
 //! \file
 //!\brief Tests for cbrt(fixed_point). Along the way, also test numerous fixed_point arithmetic operations.
 
+#define BOOST_TEST_MODULE test_negatable_cbrt
+#define BOOST_LIB_DIAGNOSTIC
+
 #include <cmath>
 #include <iomanip>
 #include <iostream>
-
-#define BOOST_TEST_MODULE fixed_point_cbrt
-#define BOOST_LIB_DIAGNOSTIC
 
 #include <boost/fixed_point/fixed_point.hpp>
 #include <boost/math/special_functions/cbrt.hpp>
@@ -105,7 +104,7 @@ namespace local
   }
 }
 
-BOOST_AUTO_TEST_CASE(fixed_point_cbrt)
+BOOST_AUTO_TEST_CASE(test_negatable_cbrt)
 {
   // Test cbrt() for negatable in various key digit regions
   // such as 16, 24, 32, 53, 64, 113, 128, etc.

@@ -8,27 +8,22 @@
 //! \file
 //!\brief Basic tests for fixed_point.
 
-#define BOOST_TEST_MODULE fixed_point_basic
-#define BOOST_LIB_DIAGNOSTIC
-//  Linking to lib file: libboost_unit_test_framework-vc120-mt-gd-1_59.lib
-// boost_unit_test_framework-mgw48-mt-s-1_59
-
-//#include <boost/test/included/unit_test.hpp> // No Boost.Test library.
-#include <boost/test/unit_test.hpp> // USe Boost.Test library.
-
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 
-#include "boost/fixed_point/fixed_point.hpp"
+#define BOOST_TEST_MODULE test_negatable_basic
+#define BOOST_LIB_DIAGNOSTIC
+
+#include <boost/fixed_point/fixed_point.hpp>
+#include <boost/test/included/unit_test.hpp> // No Boost.Test library.
 
 typedef boost::fixed_point::negatable<87, -2, boost::fixed_point::round::negative> fixed_point_type_negative_round;
 typedef boost::fixed_point::negatable<87, -2> fixed_point_type_fastest_round;
 typedef boost::fixed_point::negatable<87, -2, boost::fixed_point::round::positive> fixed_point_type_positive_round;
 
-BOOST_AUTO_TEST_CASE(fixed_point_basic)
+BOOST_AUTO_TEST_CASE(test_negatable_basic)
 {
-
   BOOST_TEST(true);
 
   { // Plain fixed-point
@@ -53,16 +48,4 @@ BOOST_AUTO_TEST_CASE(fixed_point_basic)
     os << x;
     BOOST_TEST_CHECK(os.str() == "-1.25");
   }
-
 }
-
-/*
-
-CustomBuildStep:
-1>  Description: Autorun "J:\Cpp\fixed_point\Debug\test_fixed_point_basic.exe"
-1>  Running 1 test case...
-1>  11111111111111111111111111111111111111111111111111111111111111111111111111111111111111010
-1>
-1>  *** No errors detected
-
-*/

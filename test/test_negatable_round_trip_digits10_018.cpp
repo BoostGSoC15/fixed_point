@@ -1,17 +1,15 @@
 ///////////////////////////////////////////////////////////////////////////////
+//  Copyright Christopher Kormanyos 2015.
 //  Copyright Nikhar Agrawal 2015.
 //  Copyright Paul Bristow 2015.
-//  Copyright Christopher Kormanyos 2015.
 //  Distributed under the Boost Software License,
 //  Version 1.0. (See accompanying file LICENSE_1_0.txt
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
 
-// This file does round-trip testing for
-// "C++ binary fixed-point arithmetic" as specified in N3352.
-// See: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html
+//! \file
+//!\brief Tests round-trip for fixed_point negatable with 18 decimal digits.
 
-#define BOOST_TEST_MODULE round_trip_decimal_digits_014
+#define BOOST_TEST_MODULE test_negatable_round_trip_digits10_018
 #define BOOST_LIB_DIAGNOSTIC
 
 #include <algorithm>
@@ -29,19 +27,22 @@
 
 namespace local
 {
-  // Define a binary fixed-point type with 14 decimal digits of precision.
+  // Define a binary fixed-point type with 18 decimal digits of precision.
   typedef
   boost::fixed_point::negatable<0,
-                                -48,
+                                -61,
                                 boost::fixed_point::round::nearest_even>
-  fixed_point_type_decimal_digits_014;
+  fixed_point_type;
 
-  bool round_trip(const fixed_point_type_decimal_digits_014& x);
+  BOOST_CONSTEXPR_OR_CONST std::string::size_type digits10_string_length =
+    ((std::numeric_limits<fixed_point_type>::digits10 - 2L) * 1000L) / 301L;
+
+  bool round_trip(const fixed_point_type& x);
 }
 
-bool local::round_trip(const local::fixed_point_type_decimal_digits_014& x)
+bool local::round_trip(const local::fixed_point_type& x)
 {
-  typedef local::fixed_point_type_decimal_digits_014 fixed_point_type;
+  using local::fixed_point_type;
 
   std::stringstream ss1;
 
@@ -59,29 +60,33 @@ bool local::round_trip(const local::fixed_point_type_decimal_digits_014& x)
   return b;
 }
 
-BOOST_AUTO_TEST_CASE(round_trip_decimal_digits_014)
+BOOST_AUTO_TEST_CASE(test_negatable_round_trip_digits10_018)
 {
-  typedef local::fixed_point_type_decimal_digits_014 fixed_point_type;
+  using local::fixed_point_type;
+
   typedef fixed_point_type::float_type floating_point_type;
 
   typedef boost::mt19937 random_generator_type;
 
-  boost::uniform_int<boost::uint64_t> uniform_bit_range(UINT64_C(1), (UINT64_C(1) << 46));
+  typedef boost::uint64_t unsigned_integral_type;
+
+  boost::uniform_int<unsigned_integral_type> uniform_bit_range(unsigned_integral_type(1U),
+                                                              (unsigned_integral_type(1U) << int(local::digits10_string_length)));
 
   boost::variate_generator<random_generator_type,
-                           boost::uniform_int<boost::uint64_t>>
+                           boost::uniform_int<unsigned_integral_type>>
   unsigned_integral_maker(random_generator_type(), uniform_bit_range);
 
-  boost::uint_fast32_t count;
+  boost::uint_fast32_t count = UINT32_C(0);
 
   BOOST_CONSTEXPR_OR_CONST boost::uint_fast32_t number_of_test_cases = UINT32_C(1000000);
 
   bool b = true;
 
-  // Test random values with 14 decimal digits of precision.
-  for(count = UINT32_C(0); ((count < number_of_test_cases) && b); ++count)
+  // Test random values with 18 decimal digits of precision.
+  for( ; ((count < number_of_test_cases) && b); ++count)
   {
-    const boost::uint64_t u = unsigned_integral_maker();
+    const unsigned_integral_type u = unsigned_integral_maker();
 
     std::stringstream ss1;
 
@@ -89,13 +94,13 @@ BOOST_AUTO_TEST_CASE(round_trip_decimal_digits_014)
 
     std::string str(ss1.str());
 
-    str.insert(std::string::size_type( 0U),
-               std::string::size_type(14U) - ((std::min)(std::string::size_type(14U), str.length())),
+    str.insert(std::string::size_type(0U),
+               local::digits10_string_length - (std::min)(local::digits10_string_length, str.length()),
                char('0'));
 
     const fixed_point_type x(boost::lexical_cast<floating_point_type>(str.insert(std::string::size_type(0U), "0.")));
 
-    const bool next_test_result = local::round_trip(local::fixed_point_type_decimal_digits_014(x));
+    const bool next_test_result = local::round_trip(fixed_point_type(x));
 
     b = (b && next_test_result);
   }

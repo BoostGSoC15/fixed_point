@@ -242,7 +242,32 @@
                                                 RoundMode,
                                                 OverflowMode> x);
 
-  } } // namespace boost::fixed_point: 
+  // Forward declaration of exp.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  inline negatable<IntegralRange,
+                   FractionalResolution,
+                   RoundMode,
+                   OverflowMode> exp(negatable<IntegralRange,
+                                               FractionalResolution,
+                                               RoundMode,
+                                               OverflowMode> x);
+
+  // Forward declaration of log.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  inline negatable<IntegralRange,
+                   FractionalResolution,
+                   RoundMode,
+                   OverflowMode> log(negatable<IntegralRange,
+                                               FractionalResolution,
+                                               RoundMode,
+                                               OverflowMode> x);
+  } } // namespace boost::fixed_point:
   // End of forward declaration of transcendental and cmath functions.
 
   namespace std
@@ -419,7 +444,7 @@
     template<typename FloatingPointType>
     negatable(const FloatingPointType& f,
               const typename std::enable_if<   std::is_floating_point<FloatingPointType>::value
-                                            || std::is_same<FloatingPointType, float_type>::value>::type* = nullptr)
+                                            /*|| std::is_same<FloatingPointType, float_type>::value*/>::type* = nullptr)
       : data()
     {
       make_from_floating_point_type(f);
@@ -1767,6 +1792,42 @@
         return result;
       }// negatable sqrt(negatable x)
     }
+
+    friend inline negatable exp(negatable x)
+    {
+      // Implement an *extremely* lazy and inefficient exp() for test purposes.
+      // TBD: Implement a better, more efficient exp().
+
+      using std::exp;
+
+      const float_type fx = x.convert_to_floating_point_type<float_type>();
+
+      const float_type ex = exp(fx);
+
+      negatable result;
+
+      result.make_from_floating_point_type(ex);
+
+      return result;
+    }
+
+    friend inline negatable log(negatable x)
+    {
+      // Implement an *extremely* lazy and inefficient log() for test purposes.
+      // TBD: Implement a better, more efficient log().
+
+      using std::log;
+
+      const float_type fx = x.convert_to_floating_point_type<float_type>();
+
+      const float_type ex = log(fx);
+
+      negatable result;
+
+      result.make_from_floating_point_type(ex);
+
+      return result;
+    }
   };
 
   // Once-only instances of static constant variables of the negative class.
@@ -1798,6 +1859,8 @@
   using boost::fixed_point::frexp;
   using boost::fixed_point::ldexp;
   using boost::fixed_point::sqrt;
+  using boost::fixed_point::exp;
+  using boost::fixed_point::log;
 
   // TBD: Ensure that ALL std:: added functions are also listed in this section.
 

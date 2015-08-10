@@ -5,10 +5,12 @@
 //  Distributed under the Boost Software License,
 //  Version 1.0. (See accompanying file LICENSE_1_0.txt
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
 
 //! \file
-//!\brief Tests for cbrt(fixed_point). Along the way, also test numerous fixed_point arithmetic operations.
+//!\brief Tests for bernoulli_b2n(fixed_point). Along the way, also test numerous fixed_point arithmetic operations.
+
+#define BOOST_TEST_MODULE test_negatable_bernoullib2n
+#define BOOST_LIB_DIAGNOSTIC
 
 #include <cmath>
 #include <iomanip>
@@ -16,9 +18,8 @@
 #include <vector>
 
 #include <boost/fixed_point/fixed_point.hpp>
-
-#define BOOST_TEST_MODULE fixed_point_bernoullib2n
-#define BOOST_LIB_DIAGNOSTIC
+#include <boost/math/special_functions/bernoulli.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 //#define ENABLE_LOCAL_TEST_DEBUG_MESSAGES
 #define ENABLE_LOCAL_PATCH_OF_BOOST_TEST
@@ -47,22 +48,18 @@
 
 #endif // ENABLE_LOCAL_PATCH_OF_BOOST_TEST
 
-
-BOOST_AUTO_TEST_CASE(fixed_point_bernoullib2n)
+BOOST_AUTO_TEST_CASE(test_negatable_bernoullib2n)
 {
   // Test bernoulli_b2n() for negatable in one single digit range.
 
   typedef boost::fixed_point::negatable<230, -24> fixed_point_type;
-  //typedef fixed_point_type::float_type            float_point_type;
 
   std::vector<fixed_point_type> bn_fp; // Space for 32-bit fixed-point Bernoulli numbers.
-  //std::vector<float_point_type> bn_mp; // Space for 32-bit multiple-precision Bernoulli numbers.
 
   // Start with Bernoulli number 0.
 
   // Fill the vectors with even Bernoulli numbers.
   boost::math::bernoulli_b2n<fixed_point_type>(0, 32, std::back_inserter(bn_fp));
-  //boost::math::bernoulli_b2n<float_point_type>(0, 32, std::back_inserter(bn_mp));
 
   for(size_t i = 0; i < bn_fp.size(); i++)
   {

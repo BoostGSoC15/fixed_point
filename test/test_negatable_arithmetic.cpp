@@ -13,12 +13,11 @@
 #include <iomanip>
 #include <iostream>
 
-#define BOOST_TEST_MODULE fixed_point_basic
+#define BOOST_TEST_MODULE test_negatable_arithmetic
 #define BOOST_LIB_DIAGNOSTIC
-//  Linking to lib file: libboost_unit_test_framework-vc120-mt-gd-1_59.lib
 
 #include <boost/fixed_point/fixed_point.hpp>
-#include <boost/test/included/unit_test.hpp> // No Boost.Test library.
+#include <boost/test/included/unit_test.hpp>
 
 //use 6 fractinal bits at least
 template <typename fixed_point_type>
@@ -312,7 +311,7 @@ void test ()
   BOOST_CHECK_EQUAL((65.953125 >  b + a) ,  false);
 }
 
-BOOST_AUTO_TEST_CASE(fixed_point_arithmetic)
+BOOST_AUTO_TEST_CASE(test_negatable_arithmetic)
 {
   test<boost::fixed_point::negatable< 20,  -10, boost::fixed_point::round::fastest> >();
   test<boost::fixed_point::negatable<100,  -10, boost::fixed_point::round::fastest> >();

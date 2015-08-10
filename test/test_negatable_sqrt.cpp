@@ -5,7 +5,6 @@
 //  Distributed under the Boost Software License,
 //  Version 1.0. (See accompanying file LICENSE_1_0.txt
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
 
 //! \file
 //!\brief Tests for sqrt(fixed_point). Along the way, also test numerous fixed_point arithmetic operations.
@@ -14,7 +13,7 @@
 #include <iomanip>
 #include <iostream>
 
-#define BOOST_TEST_MODULE fixed_point_sqrt
+#define BOOST_TEST_MODULE test_negatable_sqrt
 #define BOOST_LIB_DIAGNOSTIC
 
 #include <boost/fixed_point/fixed_point.hpp>
@@ -134,7 +133,7 @@ namespace local
   }
 }
 
-BOOST_AUTO_TEST_CASE(fixed_point_sqrt)
+BOOST_AUTO_TEST_CASE(test_negatable_sqrt)
 {
   // Test sqrt() for negatable in various key digit regions
   // such as 16, 24, 32, 53, 64, 113, 128, and also in randomly

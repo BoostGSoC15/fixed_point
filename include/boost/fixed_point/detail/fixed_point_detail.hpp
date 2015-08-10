@@ -415,11 +415,14 @@
                typename EnableType = void>
       struct float_type_helper
       {
-        typedef boost::multiprecision::number<
-                  boost::multiprecision::backends::cpp_bin_float<BitCount,
-                                                                 boost::multiprecision::backends::digit_base_2>,
-                boost::multiprecision::et_off>
-        exact_float_type;
+      private:
+        typedef boost::multiprecision::backends::cpp_bin_float<BitCount,
+                                                               boost::multiprecision::backends::digit_base_2>
+        floating_point_backend_type;
+
+      public:
+        typedef boost::multiprecision::number<floating_point_backend_type,
+                                              boost::multiprecision::et_off> exact_float_type;
       };
 
     #else
@@ -498,13 +501,14 @@
                                            - (std::numeric_limits<UnsignedIntegralType>::digits / 2)>::exact_unsigned_type
       unsigned_integral_hi_type;
 
-      if(u == 0)
+      if(u == 0U)
       {
         return std::size_t(0U);
       }
       else
       {
-        const std::size_t digits_lo = static_cast<std::size_t>(std::numeric_limits<unsigned_integral_lo_type>::digits);
+        BOOST_CONSTEXPR_OR_CONST std::size_t digits_lo =
+          static_cast<std::size_t>(std::numeric_limits<unsigned_integral_lo_type>::digits);
 
         const unsigned_integral_hi_type hi_part = static_cast<unsigned_integral_hi_type>(u >> digits_lo);
 

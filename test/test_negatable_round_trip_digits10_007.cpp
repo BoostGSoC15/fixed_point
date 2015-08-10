@@ -1,17 +1,15 @@
 ///////////////////////////////////////////////////////////////////////////////
+//  Copyright Christopher Kormanyos 2015.
 //  Copyright Nikhar Agrawal 2015.
 //  Copyright Paul Bristow 2015.
-//  Copyright Christopher Kormanyos 2015.
 //  Distributed under the Boost Software License,
 //  Version 1.0. (See accompanying file LICENSE_1_0.txt
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
 
-// This file does round-trip testing for
-// "C++ binary fixed-point arithmetic" as specified in N3352.
-// See: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html
+//! \file
+//!\brief Tests round-trip for fixed_point negatable with 7 decimal digits.
 
-#define BOOST_TEST_MODULE round_trip_decimal_digits_005
+#define BOOST_TEST_MODULE test_negatable_round_trip_digits10_007
 #define BOOST_LIB_DIAGNOSTIC
 
 #include <algorithm>
@@ -27,19 +25,19 @@
 
 namespace local
 {
-  // Define a binary fixed-point type with 5 decimal digits of precision.
+  // Define a binary fixed-point type with 7 decimal digits of precision.
   typedef
   boost::fixed_point::negatable<0,
-                                -18,
+                                -25,
                                 boost::fixed_point::round::nearest_even>
-  fixed_point_type_decimal_digits_005;
+  fixed_point_type_decimal_digits_007;
 
-  bool round_trip(const fixed_point_type_decimal_digits_005& x);
+  bool round_trip(const fixed_point_type_decimal_digits_007& x);
 }
 
-bool local::round_trip(const local::fixed_point_type_decimal_digits_005& x)
+bool local::round_trip(const local::fixed_point_type_decimal_digits_007& x)
 {
-  typedef local::fixed_point_type_decimal_digits_005 fixed_point_type;
+  typedef local::fixed_point_type_decimal_digits_007 fixed_point_type;
 
   std::stringstream ss1;
 
@@ -57,19 +55,19 @@ bool local::round_trip(const local::fixed_point_type_decimal_digits_005& x)
   return b;
 }
 
-BOOST_AUTO_TEST_CASE(round_trip_decimal_digits_005)
+BOOST_AUTO_TEST_CASE(test_negatable_round_trip_digits10_007)
 {
-  typedef local::fixed_point_type_decimal_digits_005 fixed_point_type;
+  typedef local::fixed_point_type_decimal_digits_007 fixed_point_type;
   typedef fixed_point_type::float_type floating_point_type;
 
   boost::uint_fast32_t count;
 
-  BOOST_CONSTEXPR_OR_CONST boost::uint_fast32_t number_of_test_cases = UINT32_C(99999);
+  BOOST_CONSTEXPR_OR_CONST boost::uint_fast32_t number_of_test_cases = UINT32_C(9999999);
 
   bool b = true;
 
-  // Test every single value with 5 decimal digits of precision
-  // ranging from 0.00001, 0.00002, 0.00003, ... 0.99999.
+  // Test every single value with 7 decimal digits of precision
+  // ranging from 0.0000001, 0.0000002, 0.0000003, ... 0.9999999.
   for(count = UINT32_C(1); ((count < number_of_test_cases) && b); ++count)
   {
     std::stringstream ss1;
@@ -79,12 +77,12 @@ BOOST_AUTO_TEST_CASE(round_trip_decimal_digits_005)
     std::string str(ss1.str());
 
     str.insert(std::string::size_type(0U),
-               std::string::size_type(5U) - ((std::min)(std::string::size_type(5U), str.length())),
+               std::string::size_type(7U) - ((std::min)(std::string::size_type(7U), str.length())),
                char('0'));
 
     const fixed_point_type x(boost::lexical_cast<floating_point_type>(str.insert(std::string::size_type(0U), "0.")));
 
-    const bool next_test_result = local::round_trip(local::fixed_point_type_decimal_digits_005(x));
+    const bool next_test_result = local::round_trip(local::fixed_point_type_decimal_digits_007(x));
 
     b = (b && next_test_result);
   }
