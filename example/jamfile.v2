@@ -55,18 +55,10 @@ project
     <toolset>msvc:<cxxflags>/wd4305
   ;
 
-#run fixed_point_demo_basic.cpp ;
-#run fixed_point_limits.cpp ;
-#run fixed_point_constants.cpp ;
-#run fixed_point_type_examples.cpp ;
-
-# Generate Quickbook tables of types and their numeric_limits.
-# run fixed_point_types_table.cpp ;
-
-
-# Copy the generated Quickbook tables from /example to /doc folder.
-#install fixed_table : fixed_point_types_table.qbk : <location>../doc ;
-#install floating_table : floating_point_types_table.qbk : <location>../doc ;
+run fixed_point_demo_basic.cpp ;
+run fixed_point_limits.cpp ;
+run fixed_point_constants.cpp ;
+run fixed_point_type_examples.cpp ;
 
 
 
