@@ -62,13 +62,13 @@ BOOST_AUTO_TEST_CASE(test_negatable_round_trip_digits10_007)
 
   boost::uint_fast32_t count;
 
-  BOOST_CONSTEXPR_OR_CONST boost::uint_fast32_t number_of_test_cases = UINT32_C(9999999);
+  BOOST_CONSTEXPR_OR_CONST boost::uint_fast32_t range_of_test_cases = UINT32_C(9999998);
 
   bool b = true;
 
-  // Test every single value with 7 decimal digits of precision
-  // ranging from 0.0000001, 0.0000002, 0.0000003, ... 0.9999999.
-  for(count = UINT32_C(1); ((count < number_of_test_cases) && b); ++count)
+  // Test every seventh value with 7 decimal digits of precision
+  // ranging from 0.0000001, 0.0000008, 0.0000015, ... 0.9999998.
+  for(count = UINT32_C(1); ((count < range_of_test_cases) && b); count += UINT32_C(7))
   {
     std::stringstream ss1;
 
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_round_trip_digits10_007)
     b = (b && next_test_result);
   }
 
-  BOOST_CHECK_EQUAL(count, number_of_test_cases);
+  BOOST_CHECK_EQUAL(count, range_of_test_cases);
 
   BOOST_CHECK_EQUAL(b, true);
 }
