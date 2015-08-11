@@ -51,19 +51,19 @@
 BOOST_AUTO_TEST_CASE(test_negatable_bernoullib2n)
 {
   // Test bernoulli_b2n() for negatable in one single digit range.
+  // Compute 32 fixed-point Bernoulli numbers.
+  // Start with Bernoulli number 0.
 
   typedef boost::fixed_point::negatable<230, -24> fixed_point_type;
 
-  std::vector<fixed_point_type> bn_fp; // Space for 32-bit fixed-point Bernoulli numbers.
-
-  // Start with Bernoulli number 0.
+  std::vector<fixed_point_type::float_type> bn_fp(32U);
 
   // Fill the vectors with even Bernoulli numbers.
-  boost::math::bernoulli_b2n<fixed_point_type>(0, 32, std::back_inserter(bn_fp));
+  boost::math::bernoulli_b2n<fixed_point_type::float_type>(0, 32, std::back_inserter(bn_fp));
 
   for(size_t i = 0; i < bn_fp.size(); i++)
   {
-    std::cout << std::setprecision(std::numeric_limits<fixed_point_type>::digits10)
+    std::cout << std::setprecision(std::numeric_limits<fixed_point_type::float_type>::digits10)
               << i*2
               << ",\t"
               << bn_fp[i]

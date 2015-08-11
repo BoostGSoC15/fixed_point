@@ -35,7 +35,7 @@ namespace local
   fixed_point_type;
 
   BOOST_CONSTEXPR_OR_CONST std::string::size_type digits10_string_length =
-    ((std::numeric_limits<fixed_point_type>::digits10 - 2L) * 1000L) / 301L;
+    ((long(std::numeric_limits<fixed_point_type>::digits) - 2L) * 301L) / 1000L;
 
   bool round_trip(const fixed_point_type& x);
 }

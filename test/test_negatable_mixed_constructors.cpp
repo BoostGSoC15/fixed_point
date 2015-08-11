@@ -1,11 +1,10 @@
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright Christopher Kormanyos 2015.
 //  Copyright Nikhar Agrawal 2015.
+//  Copyright Christopher Kormanyos 2015.
 //  Copyright Paul Bristow 2015.
 //  Distributed under the Boost Software License,
 //  Version 1.0. (See accompanying file LICENSE_1_0.txt
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
 
 
 //! \file
@@ -29,15 +28,15 @@ BOOST_AUTO_TEST_CASE(test_negatable_mixed_constructors)
     typedef boost::fixed_point::negatable<3,-2> type_from;
     typedef boost::fixed_point::negatable<4,-3> type_to;
 
-    type_to a = 6.25;
-    type_from b = 6.25;
+    type_to a = 6.25F;
+    type_from b = 6.25F;
     type_to c (b);
-    type_to d (type_from(6.25));
+    type_to d (type_from(6.25F));
 
     BOOST_CHECK_EQUAL (c,a);
     BOOST_CHECK_EQUAL (d,a);
-    BOOST_CHECK_EQUAL (c,6.25);
-    BOOST_CHECK_EQUAL (d,6.25);
+    BOOST_CHECK_EQUAL (c,6.25F);
+    BOOST_CHECK_EQUAL (d,6.25F);
   }
 
   // This test uses types which would have the underlying representation as built-in types 
@@ -46,16 +45,16 @@ BOOST_AUTO_TEST_CASE(test_negatable_mixed_constructors)
     typedef boost::fixed_point::negatable<3,-2, boost::fixed_point::round::nearest_even> type_from;
     typedef boost::fixed_point::negatable<4,-3, boost::fixed_point::round::nearest_even> type_to;
 
-    type_to a = 6.25;
-    type_from b = 6.25;
+    type_to a = 6.25F;
+    type_from b = 6.25F;
     type_to c (b);
-    type_to d (type_from(6.25));
+    type_to d (type_from(6.25F));
 
     BOOST_CHECK_EQUAL (c,a);
     BOOST_CHECK_EQUAL (d,a);
 
-    BOOST_CHECK_EQUAL (c,6.25);
-    BOOST_CHECK_EQUAL (d,6.25);
+    BOOST_CHECK_EQUAL (c,6.25F);
+    BOOST_CHECK_EQUAL (d,6.25F);
   }
 
   // This test uses types which would have the underlying representation as built-in types 
@@ -64,15 +63,15 @@ BOOST_AUTO_TEST_CASE(test_negatable_mixed_constructors)
     typedef boost::fixed_point::negatable<16,-10> type_from; // use int32
     typedef boost::fixed_point::negatable<17,-20> type_to;   // use int64
 
-    type_to a = 1099.5126953125;
-    type_from b = 1099.5126953125;
+    type_to a = 1099.5126953125L;
+    type_from b = 1099.5126953125L;
     type_to c (b);
-    type_to d (type_from(1099.5126953125));
+    type_to d (type_from(1099.5126953125L));
 
     BOOST_CHECK_EQUAL (c,a);
     BOOST_CHECK_EQUAL (d,a);
-    BOOST_CHECK_EQUAL (c,1099.5126953125);
-    BOOST_CHECK_EQUAL (d,1099.5126953125);
+    BOOST_CHECK_EQUAL (c,1099.5126953125L);
+    BOOST_CHECK_EQUAL (d,1099.5126953125L);
   }
 
   // This test uses types which would have the underlying representation as built-in types 
@@ -81,15 +80,15 @@ BOOST_AUTO_TEST_CASE(test_negatable_mixed_constructors)
     typedef boost::fixed_point::negatable<16, -10, boost::fixed_point::round::nearest_even> type_from; // use int32
     typedef boost::fixed_point::negatable<17, -20, boost::fixed_point::round::nearest_even> type_to;   // use int64
 
-    type_to a = 1099.5126953125;
-    type_from b = 1099.5126953125;
+    type_to a = 1099.5126953125L;
+    type_from b = 1099.5126953125L;
     type_to c (b);
-    type_to d (type_from(1099.5126953125));
+    type_to d (type_from(1099.5126953125L));
 
     BOOST_CHECK_EQUAL (c,a);
     BOOST_CHECK_EQUAL (d,a);
-    BOOST_CHECK_EQUAL (c,1099.5126953125);
-    BOOST_CHECK_EQUAL (d,1099.5126953125);
+    BOOST_CHECK_EQUAL (c,1099.5126953125L);
+    BOOST_CHECK_EQUAL (d,1099.5126953125L);
   }
 
   // This test uses types where one would have built-in type and other would have multiprecision type
@@ -98,15 +97,15 @@ BOOST_AUTO_TEST_CASE(test_negatable_mixed_constructors)
     typedef boost::fixed_point::negatable<16, -10> type_from; // use int32
     typedef boost::fixed_point::negatable<417, -420> type_to;   // use multiprecision backend
 
-    type_to a = 1099.5126953125;
-    type_from b = 1099.5126953125;
+    type_to a = 1099.5126953125L;
+    type_from b = 1099.5126953125L;
     type_to c (b);
-    type_to d (type_from(1099.5126953125));
+    type_to d (type_from(1099.5126953125L));
 
     BOOST_CHECK_EQUAL (c,a);
     BOOST_CHECK_EQUAL (d,a);
-    BOOST_CHECK_EQUAL (c,1099.5126953125);
-    BOOST_CHECK_EQUAL (d,1099.5126953125);
+    BOOST_CHECK_EQUAL (c,1099.5126953125L);
+    BOOST_CHECK_EQUAL (d,1099.5126953125L);
   }
 
   // This test uses types where one would have built-in type and other would have multiprecision type
@@ -115,15 +114,15 @@ BOOST_AUTO_TEST_CASE(test_negatable_mixed_constructors)
     typedef boost::fixed_point::negatable<16, -10, boost::fixed_point::round::nearest_even> type_from; // use int32
     typedef boost::fixed_point::negatable<417, -420, boost::fixed_point::round::nearest_even> type_to;   // use multiprecision backend
 
-    type_to a = 1099.5126953125;
-    type_from b = 1099.5126953125;
+    type_to a = 1099.5126953125L;
+    type_from b = 1099.5126953125L;
     type_to c (b);
-    type_to d (type_from(1099.5126953125));
+    type_to d (type_from(1099.5126953125L));
 
     BOOST_CHECK_EQUAL (c,a);
     BOOST_CHECK_EQUAL (d,a);
-    BOOST_CHECK_EQUAL (c,1099.5126953125);
-    BOOST_CHECK_EQUAL (d,1099.5126953125);
+    BOOST_CHECK_EQUAL (c,1099.5126953125L);
+    BOOST_CHECK_EQUAL (d,1099.5126953125L);
   }
 
   // This test uses types with multiprecision types as underlying representation and 
@@ -145,7 +144,6 @@ BOOST_AUTO_TEST_CASE(test_negatable_mixed_constructors)
 
     BOOST_CHECK_EQUAL (c,a);
     BOOST_CHECK_EQUAL (d,a);
-    //BOOST_CHECK_EQUAL (c,big_float_to);
   }
 
   // This test uses types with multiprecision types as underlying representation and
@@ -182,15 +180,15 @@ BOOST_AUTO_TEST_CASE(test_negatable_construct_larger_range_smaller_resolution)
     typedef boost::fixed_point::negatable<7,-2> type_from;
     typedef boost::fixed_point::negatable<4,-3> type_to;
 
-    type_to a = 6.25;
-    type_from b = 6.25;
+    type_to a = 6.25F;
+    type_from b = 6.25F;
     type_to c (b);
-    type_to d (type_from(6.25));
+    type_to d (type_from(6.25F));
 
     BOOST_CHECK_EQUAL (c,a);
     BOOST_CHECK_EQUAL (d,a);
-    BOOST_CHECK_EQUAL (c,6.25);
-    BOOST_CHECK_EQUAL (d,6.25);
+    BOOST_CHECK_EQUAL (c,6.25F);
+    BOOST_CHECK_EQUAL (d,6.25F);
   }
 
   // This test uses types which would have the underlying representation as built-in types 
@@ -199,15 +197,15 @@ BOOST_AUTO_TEST_CASE(test_negatable_construct_larger_range_smaller_resolution)
     typedef boost::fixed_point::negatable<6,-2, boost::fixed_point::round::nearest_even> type_from;
     typedef boost::fixed_point::negatable<4,-3, boost::fixed_point::round::nearest_even> type_to;
 
-    type_to a = 6.25;
-    type_from b = 6.25;
+    type_to a = 6.25F;
+    type_from b = 6.25F;
     type_to c (b);
-    type_to d (type_from(6.25));
+    type_to d (type_from(6.25F));
 
     BOOST_CHECK_EQUAL (c,a);
     BOOST_CHECK_EQUAL (d,a);
-    BOOST_CHECK_EQUAL (c,6.25);
-    BOOST_CHECK_EQUAL (d,6.25);
+    BOOST_CHECK_EQUAL (c,6.25F);
+    BOOST_CHECK_EQUAL (d,6.25F);
   }
 
   // This test uses types which would have the underlying representation as built-in types 
@@ -216,15 +214,15 @@ BOOST_AUTO_TEST_CASE(test_negatable_construct_larger_range_smaller_resolution)
     typedef boost::fixed_point::negatable<18,-10> type_from; // use int32
     typedef boost::fixed_point::negatable<17,-20> type_to;   // use int64
 
-    type_to a = 1099.5126953125;
-    type_from b = 1099.5126953125;
+    type_to a = 1099.5126953125L;
+    type_from b = 1099.5126953125L;
     type_to c (b);
-    type_to d (type_from(1099.5126953125));
+    type_to d (type_from(1099.5126953125L));
 
     BOOST_CHECK_EQUAL (c,a);
     BOOST_CHECK_EQUAL (d,a);
-    BOOST_CHECK_EQUAL (c,1099.5126953125);
-    BOOST_CHECK_EQUAL (d,1099.5126953125);
+    BOOST_CHECK_EQUAL (c,1099.5126953125L);
+    BOOST_CHECK_EQUAL (d,1099.5126953125L);
   }
 
   // This test uses types which would have the underlying representation as built-in types 
@@ -233,15 +231,15 @@ BOOST_AUTO_TEST_CASE(test_negatable_construct_larger_range_smaller_resolution)
     typedef boost::fixed_point::negatable<20, -10, boost::fixed_point::round::nearest_even> type_from; // use int32
     typedef boost::fixed_point::negatable<17, -20, boost::fixed_point::round::nearest_even> type_to;   // use int64
 
-    type_to a = 1099.5126953125;
-    type_from b = 1099.5126953125;
+    type_to a = 1099.5126953125L;
+    type_from b = 1099.5126953125L;
     type_to c (b);
-    type_to d (type_from(1099.5126953125));
+    type_to d (type_from(1099.5126953125L));
 
     BOOST_CHECK_EQUAL (c,a);
     BOOST_CHECK_EQUAL (d,a);
-    BOOST_CHECK_EQUAL (c,1099.5126953125);
-    BOOST_CHECK_EQUAL (d,1099.5126953125);
+    BOOST_CHECK_EQUAL (c,1099.5126953125L);
+    BOOST_CHECK_EQUAL (d,1099.5126953125L);
   }
 
   // This test uses types with multiprecision types as underlying representation and 
@@ -263,7 +261,6 @@ BOOST_AUTO_TEST_CASE(test_negatable_construct_larger_range_smaller_resolution)
 
     BOOST_CHECK_EQUAL (c,a);
     BOOST_CHECK_EQUAL (d,a);
-    //BOOST_CHECK_EQUAL (c,big_float_to);
   }
 
     // This test uses types with multiprecision types as underlying representation and 
@@ -288,10 +285,10 @@ BOOST_AUTO_TEST_CASE(test_negatable_construct_smaller_range_larger_resolution)
     typedef boost::fixed_point::negatable<3,-4> type_from;
     typedef boost::fixed_point::negatable<4,-3> type_to;
 
-    type_to a = 6.125;
-    type_to b = 6.25;
-    type_to c = 6.1875;
-    type_from d = 6.1875;
+    type_to a = 6.125F;
+    type_to b = 6.25F;
+    type_to c = 6.1875F;
+    type_from d = 6.1875F;
     type_to e (d);
 
     BOOST_CHECK_EQUAL ((e == a || e == b), true);
@@ -319,10 +316,10 @@ BOOST_AUTO_TEST_CASE(test_negatable_construct_smaller_range_larger_resolution)
     typedef boost::fixed_point::negatable<20,-43> type_from; // use int64
     typedef boost::fixed_point::negatable<23,-8> type_to;   // use int32
 
-    type_to a = 999.03125;
-    type_to b = 999.02734375;
-    type_to c = 999.029541015625;
-    type_from d = 999.029541015625;
+    type_to a = 999.03125L;
+    type_to b = 999.02734375L;
+    type_to c = 999.029541015625L;
+    type_from d = 999.029541015625L;
     type_to e (d);
 
     BOOST_CHECK_EQUAL ((e == a || e == b), true);
@@ -335,9 +332,9 @@ BOOST_AUTO_TEST_CASE(test_negatable_construct_smaller_range_larger_resolution)
     typedef boost::fixed_point::negatable<20, -43, boost::fixed_point::round::nearest_even> type_from; // use int64
     typedef boost::fixed_point::negatable<23, -8, boost::fixed_point::round::nearest_even> type_to;   // use int32
 
-    type_to a = 999.03125;
-    type_to b = 999.029541015625;
-    type_from c = 999.029541015625;
+    type_to a = 999.03125L;
+    type_to b = 999.029541015625L;
+    type_from c = 999.029541015625L;
     type_to d (c);
 
     BOOST_CHECK_EQUAL (d, a);
@@ -351,12 +348,11 @@ BOOST_AUTO_TEST_CASE(test_negatable_construct_smaller_range_larger_resolution)
     typedef boost::fixed_point::negatable<21, -10> fixed_point_type_to;   // use int32
 
     typedef fixed_point_type_from::float_type floating_point_type_from;
-    typedef fixed_point_type_to::float_type floating_point_type_to;
 
     floating_point_type_from big_float_from ("1024.499511718750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003025093114331318471207856075024462507576719799239315603180910706763469153143705915278456705185225159003629620616853584634302761167921671050495463099756392848967738514960376530192422564155070725513250306166850322074879148855369981176783751956850300945259051553504203724287435761652886867523193359375");
 
-    fixed_point_type_to a = 1024.5;
-    fixed_point_type_to b = 1024.4990234375;
+    fixed_point_type_to a = 1024.5L;
+    fixed_point_type_to b = 1024.4990234375L;
     fixed_point_type_from c (big_float_from);
     fixed_point_type_to d (c);
 
@@ -370,7 +366,6 @@ BOOST_AUTO_TEST_CASE(test_negatable_construct_smaller_range_larger_resolution)
     typedef boost::fixed_point::negatable<20, -10, boost::fixed_point::round::nearest_even> fixed_point_type_to;   // use int32
 
     typedef fixed_point_type_from::float_type floating_point_type_from;
-    typedef fixed_point_type_to::float_type floating_point_type_to;
 
     floating_point_type_from big_float_from ("1024.499511718750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003025093114331318471207856075024462507576719799239315603180910706763469153143705915278456705185225159003629620616853584634302761167921671050495463099756392848967738514960376530192422564155070725513250306166850322074879148855369981176783751956850300945259051553504203724287435761652886867523193359375");
 
@@ -433,10 +428,10 @@ BOOST_AUTO_TEST_CASE(test_negatable_construct_larger_range_larger_resolution)
     typedef boost::fixed_point::negatable<5,-4> type_from;
     typedef boost::fixed_point::negatable<4,-3> type_to;
 
-    type_to a = 6.125;
-    type_to b = 6.25;
-    type_to c = 6.1875;
-    type_from d = 6.1875;
+    type_to a = 6.125F;
+    type_to b = 6.25F;
+    type_to c = 6.1875F;
+    type_from d = 6.1875F;
     type_to e (d);
 
     BOOST_CHECK_EQUAL ((e == a || e == b), true);
@@ -449,9 +444,9 @@ BOOST_AUTO_TEST_CASE(test_negatable_construct_larger_range_larger_resolution)
     typedef boost::fixed_point::negatable<5,-4, boost::fixed_point::round::nearest_even> type_from;
     typedef boost::fixed_point::negatable<4,-3, boost::fixed_point::round::nearest_even> type_to;
 
-    type_to a = 6.25;
-    type_to b = 6.1875;
-    type_from c = 6.1875;
+    type_to a = 6.25F;
+    type_to b = 6.1875F;
+    type_from c = 6.1875F;
     type_to d (c);
 
     BOOST_CHECK_EQUAL(d, a);
@@ -464,10 +459,10 @@ BOOST_AUTO_TEST_CASE(test_negatable_construct_larger_range_larger_resolution)
     typedef boost::fixed_point::negatable<24,-39> type_from; // use int64
     typedef boost::fixed_point::negatable<23,-8> type_to;   // use int32
 
-    type_to a = 999.03125;
-    type_to b = 999.02734375;
-    type_to c = 999.029541015625;
-    type_from d = 999.029541015625;
+    type_to a = 999.03125L;
+    type_to b = 999.02734375L;
+    type_to c = 999.029541015625L;
+    type_from d = 999.029541015625L;
     type_to e (d);
 
     BOOST_CHECK_EQUAL ((e == a || e == b), true);
@@ -480,9 +475,9 @@ BOOST_AUTO_TEST_CASE(test_negatable_construct_larger_range_larger_resolution)
     typedef boost::fixed_point::negatable<24, -39, boost::fixed_point::round::nearest_even> type_from; // use int64
     typedef boost::fixed_point::negatable<23, -8, boost::fixed_point::round::nearest_even> type_to;   // use int32
 
-    type_to a = 999.03125;
-    type_to b = 999.029541015625;
-    type_from c = 999.029541015625;
+    type_to a = 999.03125L;
+    type_to b = 999.029541015625L;
+    type_from c = 999.029541015625L;
     type_to d (c);
 
     BOOST_CHECK_EQUAL (d, a);
@@ -496,12 +491,11 @@ BOOST_AUTO_TEST_CASE(test_negatable_construct_larger_range_larger_resolution)
     typedef boost::fixed_point::negatable<21, -10> fixed_point_type_to;   // use int32
 
     typedef fixed_point_type_from::float_type floating_point_type_from;
-    typedef fixed_point_type_to::float_type floating_point_type_to;
 
     floating_point_type_from big_float_from ("1024.499511718750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003025093114331318471207856075024462507576719799239315603180910706763469153143705915278456705185225159003629620616853584634302761167921671050495463099756392848967738514960376530192422564155070725513250306166850322074879148855369981176783751956850300945259051553504203724287435761652886867523193359375");
 
-    fixed_point_type_to a = 1024.5;
-    fixed_point_type_to b = 1024.4990234375;
+    fixed_point_type_to a = 1024.5L;
+    fixed_point_type_to b = 1024.4990234375L;
     fixed_point_type_from c (big_float_from);
     fixed_point_type_to d (c);
 
@@ -515,7 +509,6 @@ BOOST_AUTO_TEST_CASE(test_negatable_construct_larger_range_larger_resolution)
     typedef boost::fixed_point::negatable<20, -10, boost::fixed_point::round::nearest_even> fixed_point_type_to;   // use int32
 
     typedef fixed_point_type_from::float_type floating_point_type_from;
-    typedef fixed_point_type_to::float_type floating_point_type_to;
 
     floating_point_type_from big_float_from ("1024.499511718750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003025093114331318471207856075024462507576719799239315603180910706763469153143705915278456705185225159003629620616853584634302761167921671050495463099756392848967738514960376530192422564155070725513250306166850322074879148855369981176783751956850300945259051553504203724287435761652886867523193359375");
 
