@@ -136,6 +136,45 @@
                                                 RoundMode,
                                                 OverflowMode> x);
 
+  // Forward declaration of floor.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  inline negatable<IntegralRange,
+                   FractionalResolution,
+                   RoundMode,
+                   OverflowMode> floor(negatable<IntegralRange,
+                                                 FractionalResolution,
+                                                 RoundMode,
+                                                 OverflowMode> x);
+
+  // Forward declaration of ceil.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  inline negatable<IntegralRange,
+                   FractionalResolution,
+                   RoundMode,
+                   OverflowMode> ceil(negatable<IntegralRange,
+                                                FractionalResolution,
+                                                RoundMode,
+                                                OverflowMode> x);
+
+  // Forward declaration of trunc.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  inline negatable<IntegralRange,
+                   FractionalResolution,
+                   RoundMode,
+                   OverflowMode> trunc(negatable<IntegralRange,
+                                                 FractionalResolution,
+                                                 RoundMode,
+                                                 OverflowMode> x);
+
   // Forward declaration of frexp.
   template<const int IntegralRange,
            const int FractionalResolution,
@@ -656,7 +695,9 @@
     having @b different range and/or resolution parameters than @c *this.
     */
     template<const int OtherIntegralRange,
-             const int OtherFractionalResolution>
+             const int OtherFractionalResolution,
+             typename std::enable_if<   (FractionalResolution != OtherFractionalResolution)
+                                     || (IntegralRange        != OtherIntegralRange)>::type* = nullptr>
     negatable& operator=(const negatable<OtherIntegralRange,
                                          OtherFractionalResolution,
                                          RoundMode,
@@ -1063,6 +1104,18 @@
       return the_value;
     }
 
+    static const unsigned_small_type& unsigned_integer_part_mask() BOOST_NOEXCEPT
+    {
+      initialization_helper.force_premain_init_of_static_constants();
+
+      static const unsigned_small_type the_value =
+        detail::bit_mask_helper<unsigned_small_type,
+                                unsigned(-FractionalResolution),
+                                unsigned(IntegralRange + 1)>::value();
+
+      return the_value;
+    }
+
     struct nothing { };
 
     /*! \tparam IntegralType Integer type on which the fixed-point type is based, typically the native unsigned integer type @c unsigned @c int,
@@ -1323,6 +1376,7 @@
       {
         static_cast<void>(negatable::radix_split_value());
         static_cast<void>(negatable::unsigned_small_mask());
+        static_cast<void>(negatable::unsigned_integer_part_mask());
         static_cast<void>(negatable::value_min());
         static_cast<void>(negatable::value_max());
         static_cast<void>(negatable::epsilon_maker());
@@ -1416,7 +1470,9 @@
 
     //! Implementations of global binary add, sub, mul, div of [lhs(negatable)] operator [rhs(other_negatable)].
     template<const int OtherIntegralRange,
-             const int OtherFractionalResolution>
+             const int OtherFractionalResolution,
+             typename std::enable_if<   (FractionalResolution != OtherFractionalResolution)
+                                     || (IntegralRange        != OtherIntegralRange)>::type* = nullptr>
     friend inline negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
                             ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
                             RoundMode,
@@ -1435,7 +1491,9 @@
     }
 
     template<const int OtherIntegralRange,
-             const int OtherFractionalResolution>
+             const int OtherFractionalResolution,
+             typename std::enable_if<   (FractionalResolution != OtherFractionalResolution)
+                                     || (IntegralRange        != OtherIntegralRange)>::type* = nullptr>
     friend inline negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
                             ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
                             RoundMode,
@@ -1454,7 +1512,9 @@
     }
 
     template<const int OtherIntegralRange,
-             const int OtherFractionalResolution>
+             const int OtherFractionalResolution,
+             typename std::enable_if<   (FractionalResolution != OtherFractionalResolution)
+                                     || (IntegralRange        != OtherIntegralRange)>::type* = nullptr>
     friend inline negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
                             ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
                             RoundMode,
@@ -1473,7 +1533,9 @@
     }
 
     template<const int OtherIntegralRange,
-             const int OtherFractionalResolution>
+             const int OtherFractionalResolution,
+             typename std::enable_if<   (FractionalResolution != OtherFractionalResolution)
+                                     || (IntegralRange        != OtherIntegralRange)>::type* = nullptr>
     friend inline negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
                             ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
                             RoundMode,
@@ -1615,6 +1677,47 @@
     friend inline negatable fabs(negatable x) { return ((x.data < 0) ? -x : x); }
 
     // TBD implement C++11 copysign and other floating-point manipulation functions.
+
+    friend inline negatable floor(negatable x)
+    {
+      if(x < 0)
+      {
+        const unsigned_small_type u(-x.data);
+
+        const unsigned_small_type u_mask(u & unsigned_integer_part_mask());
+
+        return ((u == u_mask) ? x : (negatable(nothing(), -value_type(u_mask)) - 1));
+      }
+      else
+      {
+        const unsigned_small_type u_mask(unsigned_small_type(x.data) & unsigned_integer_part_mask());
+
+        return negatable(nothing(), u_mask);
+      }
+    }
+
+    friend inline negatable ceil(negatable x)
+    {
+      if(x < 0)
+      {
+        const unsigned_small_type u_mask(unsigned_small_type(-x.data) & unsigned_integer_part_mask());
+
+        return negatable(nothing(), -value_type(u_mask));
+      }
+      else
+      {
+        const unsigned_small_type u(x.data);
+
+        const unsigned_small_type u_mask(u & unsigned_integer_part_mask());
+
+        return ((u == u_mask) ? x : (negatable(nothing(), value_type(u_mask)) + 1));
+      }
+    }
+
+    friend inline negatable trunc(negatable x)
+    {
+      return ((!(x < 0)) ? floor(x) : -floor(-x));
+    }
 
     /*! @c std::frexp function \<cmath\> implementation for negatable types.\n
 
@@ -1792,42 +1895,6 @@
         return result;
       }// negatable sqrt(negatable x)
     }
-
-    friend inline negatable exp(negatable x)
-    {
-      // Implement an *extremely* lazy and inefficient exp() for test purposes.
-      // TBD: Implement a better, more efficient exp().
-
-      using std::exp;
-
-      const float_type fx = x.convert_to_floating_point_type<float_type>();
-
-      const float_type ex = exp(fx);
-
-      negatable result;
-
-      result.make_from_floating_point_type(ex);
-
-      return result;
-    }
-
-    friend inline negatable log(negatable x)
-    {
-      // Implement an *extremely* lazy and inefficient log() for test purposes.
-      // TBD: Implement a better, more efficient log().
-
-      using std::log;
-
-      const float_type fx = x.convert_to_floating_point_type<float_type>();
-
-      const float_type ex = log(fx);
-
-      negatable result;
-
-      result.make_from_floating_point_type(ex);
-
-      return result;
-    }
   };
 
   // Once-only instances of static constant variables of the negative class.
@@ -1856,11 +1923,12 @@
 
   using boost::fixed_point::abs;
   using boost::fixed_point::fabs;
+  using boost::fixed_point::floor;
+  using boost::fixed_point::ceil;
+  using boost::fixed_point::trunc;
   using boost::fixed_point::frexp;
   using boost::fixed_point::ldexp;
   using boost::fixed_point::sqrt;
-  using boost::fixed_point::exp;
-  using boost::fixed_point::log;
 
   // TBD: Ensure that ALL std:: added functions are also listed in this section.
 
