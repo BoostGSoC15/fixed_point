@@ -20,8 +20,6 @@
 
 BOOST_AUTO_TEST_CASE(test_negatable_basic)
 {
-  BOOST_TEST(true);
-
   {
     // Plain fixed-point
     typedef boost::fixed_point::negatable<32, -16> fixed_point_type;

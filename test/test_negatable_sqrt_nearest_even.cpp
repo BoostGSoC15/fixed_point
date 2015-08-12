@@ -7,13 +7,13 @@
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 //! \file
-//!\brief Tests for sqrt(fixed_point). Along the way, also test numerous fixed_point arithmetic operations.
+//!\brief Tests for sqrt(fixed_point) rouund::nearest_even. Along the way, also test numerous fixed_point arithmetic operations.
 
 #include <cmath>
 #include <iomanip>
 #include <iostream>
 
-#define BOOST_TEST_MODULE test_negatable_sqrt
+#define BOOST_TEST_MODULE test_negatable_sqrt_nearest_even
 #define BOOST_LIB_DIAGNOSTIC
 
 #include <boost/fixed_point/fixed_point.hpp>
@@ -133,42 +133,23 @@ namespace local
   }
 }
 
-BOOST_AUTO_TEST_CASE(test_negatable_sqrt)
+BOOST_AUTO_TEST_CASE(test_negatable_sqrt_nearest_even)
 {
-  // Test sqrt() for negatable in various key digit regions
-  // such as 16, 24, 32, 53, 64, 113, 128, and also in randomly
+  // Test sqrt() for negatable round::nearest_even in various key digit
+  // regions such as 16, 24, 32, 53, 64, 113, 128, and also in randomly
   // selected higher digit regions.
 
-  { typedef boost::fixed_point::negatable<   8,    -7, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
   { typedef boost::fixed_point::negatable<   8,    -7, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable<   8,   -15, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
   { typedef boost::fixed_point::negatable<   8,   -15, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable<   8,   -23, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
   { typedef boost::fixed_point::negatable<   8,   -23, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable<   8,   -44, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
   { typedef boost::fixed_point::negatable<   8,   -44, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable<   8,   -55, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
   { typedef boost::fixed_point::negatable<   8,   -55, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable<   8,  -104, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
   { typedef boost::fixed_point::negatable<   8,  -104, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable<   8,  -119, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
   { typedef boost::fixed_point::negatable<   8,  -119, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable<  20,   -10, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
   { typedef boost::fixed_point::negatable<  20,   -10, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable< 100,   -10, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
   { typedef boost::fixed_point::negatable< 100,   -10, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable<  20,  -100, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
   { typedef boost::fixed_point::negatable<  20,  -100, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable< 100,  -100, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
   { typedef boost::fixed_point::negatable< 100,  -100, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable< 119,  -120, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(8); }
   { typedef boost::fixed_point::negatable< 119,  -120, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(8); }
-  { typedef boost::fixed_point::negatable<  20,  -491, boost::fixed_point::round::fastest>      fixed_point_type; local::test_sqrt<fixed_point_type>(8); }
   { typedef boost::fixed_point::negatable<  20,  -491, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(8); }
-
-  // Test sqrt() for negatable in a large digit range using the result
-  // of a non-trivial calculation (in this case zeta_three). This also
-  // exercises negatable with numerous arithmetic operations.
-  { typedef boost::fixed_point::negatable<2000, -6191, boost::fixed_point::round::fastest>      fixed_point_type; local::test_big_sqrt_zeta_three<fixed_point_type>(fixed_point_type::range); }
-  { typedef boost::fixed_point::negatable<2000, -6191, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_big_sqrt_zeta_three<fixed_point_type>(fixed_point_type::range); }
 }

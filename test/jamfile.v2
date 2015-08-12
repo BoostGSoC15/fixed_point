@@ -58,7 +58,8 @@ test-suite "Fixed_point"
       [ run test_negatable_bare_metal_config_32bit.cpp boost_unit_test ]
       [ run test_negatable_basic.cpp boost_unit_test ]
       [ run test_negatable_bit_pattern.cpp boost_unit_test ]
-      [ run test_negatable_cbrt.cpp boost_unit_test ]
+      [ run test_negatable_cbrt_fastest.cpp boost_unit_test ]
+      [ run test_negatable_cbrt_nearest_even.cpp boost_unit_test ]
       [ run test_negatable_construct.cpp boost_unit_test ]
       [ run test_negatable_floor_ceil.cpp boost_unit_test ]
       [ run test_negatable_frexp_ldexp.cpp boost_unit_test ]
@@ -75,6 +76,8 @@ test-suite "Fixed_point"
       [ run test_negatable_round_trip_digits10_050.cpp boost_unit_test ]
       [ run test_negatable_round_trip_digits10_100.cpp boost_unit_test ]
       [ run test_negatable_round_trip_digits10_999.cpp boost_unit_test ]
-      [ run test_negatable_sqrt.cpp boost_unit_test ]
+      [ run test_negatable_sqrt_big.cpp boost_unit_test ]
+      [ run test_negatable_sqrt_fastest.cpp boost_unit_test ]
+      [ run test_negatable_sqrt_nearest_even.cpp boost_unit_test ]
 
     ;

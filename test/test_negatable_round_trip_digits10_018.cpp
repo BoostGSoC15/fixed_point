@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_round_trip_digits10_018)
 
   boost::uint_fast32_t count = UINT32_C(0);
 
-  BOOST_CONSTEXPR_OR_CONST boost::uint_fast32_t number_of_test_cases = UINT32_C(1000000);
+  BOOST_CONSTEXPR_OR_CONST boost::uint_fast32_t number_of_test_cases = UINT32_C(200000);
 
   bool b = true;
 
