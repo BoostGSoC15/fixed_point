@@ -19,7 +19,8 @@ all_files : test_negatable_arithmetic.exe                 \
             test_negatable_bare_metal_config_32bit.exe    \
             test_negatable_basic.exe                      \
             test_negatable_bit_pattern.exe                \
-            test_negatable_cbrt.exe                       \
+            test_negatable_cbrt_fastest.exe               \
+            test_negatable_cbrt_nearest_even.exe          \
             test_negatable_construct.exe                  \
             test_negatable_floor_ceil.exe                 \
             test_negatable_frexp_ldexp.exe                \
@@ -36,7 +37,9 @@ all_files : test_negatable_arithmetic.exe                 \
             test_negatable_round_trip_digits10_050.exe    \
             test_negatable_round_trip_digits10_100.exe    \
             test_negatable_round_trip_digits10_999.exe    \
-            test_negatable_sqrt.exe
+            test_negatable_sqrt_big.exe                   \
+            test_negatable_sqrt_fastest.exe               \
+            test_negatable_sqrt_nearest_even.exe
 
 cleanup :
 	@-echo +++cleaning all executable files
