@@ -4,8 +4,8 @@ g++ -O2 -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -
 g++ -O2 -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -IC:\boost_fixed_point\include -IC:\boost\boost_1_58_0 test_negatable_bare_metal_config.cpp -o test_negatable_bare_metal_config.exe
 .\test_negatable_bare_metal_config.exe
 
-g++ -O2 -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -IC:\boost_fixed_point\include -IC:\boost\boost_1_58_0 test_negatable_bare_metal_config_32bit.cpp -o test_negatable_bare_metal_config_32bit.exe
-.\test_negatable_bare_metal_config_32bit.exe
+g++ -O2 -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -IC:\boost_fixed_point\include -IC:\boost\boost_1_58_0 test_negatable_bare_metal_config_26bit.cpp -o test_negatable_bare_metal_config_26bit.exe
+.\test_negatable_bare_metal_config_26bit.exe
 
 g++ -O2 -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -IC:\boost_fixed_point\include -IC:\boost\boost_1_58_0 test_negatable_basic.cpp -o test_negatable_basic.exe
 .\test_negatable_basic.exe

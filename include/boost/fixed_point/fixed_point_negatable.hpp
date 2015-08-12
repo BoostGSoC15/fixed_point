@@ -420,7 +420,7 @@
     static_assert(all_bits <= 32768, "Error: At the moment, the width of fixed_point negatable can not exceed 32768 bits (limitation of details section).");
 
     #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
-      static_assert(all_bits <= 32, "Error: The width of fixed_point negatable can not exceed 32 bits when multiprecision is disabled.");
+      static_assert(all_bits <= 27, "Error: The width of fixed_point negatable can not exceed 27 bits when multiprecision is disabled.");
     #endif
 
     //! See also public static data items range and resolution.

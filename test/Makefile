@@ -16,7 +16,7 @@ CPPFLAGS    = -O2                                              \
 
 all_files : test_negatable_arithmetic.exe                 \
             test_negatable_bare_metal_config.exe          \
-            test_negatable_bare_metal_config_32bit.exe    \
+            test_negatable_bare_metal_config_26bit.exe    \
             test_negatable_basic.exe                      \
             test_negatable_bit_pattern.exe                \
             test_negatable_cbrt_fastest.exe               \
