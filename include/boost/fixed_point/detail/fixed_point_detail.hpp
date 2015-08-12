@@ -479,7 +479,18 @@
                                                      && (BitCount <= 113U)>::type>
     #endif
     {
+      #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
       typedef boost::float128_t exact_float_type;
+      #else
+      private:
+        typedef boost::multiprecision::backends::cpp_bin_float<128U,
+                                                               boost::multiprecision::backends::digit_base_2>
+        floating_point_backend_type;
+
+      public:
+        typedef boost::multiprecision::number<floating_point_backend_type,
+                                              boost::multiprecision::et_off> exact_float_type;
+      #endif
     };
   #endif // BOOST_FLOAT128_C
 
@@ -604,6 +615,39 @@
         unsigned_destination = boost::lexical_cast<boost::uint64_t>(str);
       }
     };
+
+    #if defined(BOOST_FLOAT128_C)
+    template<>
+    struct conversion_helper<typename integer_type_helper<128U>::exact_unsigned_type,
+                             boost::float128_t,
+                             typename std::enable_if<true>::type>
+    {
+      static void convert_floating_point_to_unsigned_integer(const boost::float128_t& floating_point_source,
+                                                             typename integer_type_helper<128U>::exact_unsigned_type& unsigned_destination)
+      {
+        // Here we are converting float128_t to a multiprecision unsigned integer
+        // with 128 bits. Use string extraction and lexical cast in order to
+        // carry out this exotic operation.
+
+        // TBD: Does this really work on Ubuntu x64 with quadmath enabled?
+
+        std::stringstream ss;
+
+        ss << std::fixed << floating_point_source;
+
+        std::string str(ss.str());
+
+        const std::string::size_type position_of_dot = str.find(".");
+
+        if(position_of_dot != std::string::npos)
+        {
+          str = str.substr(std::string::size_type(0U), position_of_dot);
+        }
+
+        unsigned_destination = boost::lexical_cast<boost::uint64_t>(str);
+      }
+    };
+    #endif
 
     template<typename UnsignedIntegralType,
              typename FloatingPointType>
