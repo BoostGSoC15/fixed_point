@@ -14,40 +14,13 @@
 
 #include <algorithm>
 #include <cmath>
-#include <iomanip>
-#include <iostream>
 #include <iterator>
 #include <vector>
+#include <utility>
 
 #include <boost/fixed_point/fixed_point.hpp>
 #include <boost/math/special_functions/bernoulli.hpp>
 #include <boost/test/included/unit_test.hpp>
-
-#define ENABLE_LOCAL_PATCH_OF_BOOST_TEST
-
-#if defined(ENABLE_LOCAL_PATCH_OF_BOOST_TEST)
-
-  // Patch BOOST_CHECK_CLOSE_FRACTION because of disagreements
-  // regarding syntax among various compilers, the implementation
-  // of fixed_point, and of Boost.Test.
-
-  template<typename T>
-  void boost_check_close_fraction(const T& left, const T& right, const T& tolerance)
-  {
-    using std::fabs;
-
-    const T fraction = fabs(left / right);
-    const T delta    = fabs(1 - fraction);
-
-    const bool the_comparison_result = (delta <= tolerance);
-
-    BOOST_CHECK_EQUAL(the_comparison_result, true);
-  }
-
-  #undef  BOOST_CHECK_CLOSE_FRACTION
-  #define BOOST_CHECK_CLOSE_FRACTION(LEFT, RIGHT, TOLERANCE) local::boost_check_close_fraction((LEFT), (RIGHT), (TOLERANCE));
-
-#endif // ENABLE_LOCAL_PATCH_OF_BOOST_TEST
 
 BOOST_AUTO_TEST_CASE(test_negatable_bernoullib2n)
 {
@@ -57,16 +30,34 @@ BOOST_AUTO_TEST_CASE(test_negatable_bernoullib2n)
 
   BOOST_CONSTEXPR_OR_CONST std::size_t number_of_bernoulli_b2n = 23U;
 
-  typedef boost::fixed_point::negatable<2000, -47> fixed_point_type;
+  typedef boost::fixed_point::negatable<1847, -200> fixed_point_type;
+  typedef fixed_point_type::float_type              float_point_type;
 
-  std::vector<fixed_point_type> b2n;
+  // Define fixed-point and floating-point verctors for calculating Bernoulli numbers.
+  std::vector<fixed_point_type> b2n_fixed;
+  std::vector<float_point_type> b2n_float;
 
-  // Fill the vectors with even Bernoulli numbers.
-  boost::math::bernoulli_b2n<fixed_point_type>(0, number_of_bernoulli_b2n, std::back_inserter(b2n));
+  // Fill the the fixed-point and floating point vectors with even Bernoulli numbers.
+  boost::math::bernoulli_b2n<fixed_point_type>(0, number_of_bernoulli_b2n, std::back_inserter(b2n_fixed));
+  boost::math::bernoulli_b2n<float_point_type>(0, number_of_bernoulli_b2n, std::back_inserter(b2n_float));
 
-  std::cout.precision(80);
+  // Set a judiciously selected tolerance for these tests.
+  const fixed_point_type tolerance = ldexp(fixed_point_type(1), -130);
 
-  std::copy(b2n.begin(),
-            b2n.end(),
-            std::ostream_iterator<fixed_point_type>(std::cout, "\n"));
+  // Search for a potential mismatch between the fixed-point Bernoulli numbers
+  // and the floatiing-point Bernoulli numbers
+  const std::pair<std::vector<fixed_point_type>::const_iterator,
+                  std::vector<float_point_type>::const_iterator> result_of_mismatch_search =
+    std::mismatch(b2n_fixed.cbegin(),
+                  b2n_fixed.cend(),
+                  b2n_float.cbegin(),
+                  [&tolerance](const fixed_point_type& a, const float_point_type& b) -> bool
+                  {
+                    const fixed_point_type fraction = fabs(a / fixed_point_type(b));
+                    const fixed_point_type delta    = fabs(1 - fraction);
+
+                    return (delta <= tolerance);
+                  });
+
+  BOOST_CHECK_EQUAL(result_of_mismatch_search.first == b2n_fixed.cend(), true);
 }

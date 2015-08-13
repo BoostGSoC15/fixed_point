@@ -66,61 +66,8 @@ namespace local
       BOOST_STATIC_ASSERT((FixedPointType::range - FixedPointType::resolution) >= (std::numeric_limits<boost::float32_t>::digits + 1));
       BOOST_STATIC_ASSERT( FixedPointType::range >= 4);
 
-      FixedPointType val_pi;
-
-      FixedPointType a (1);
-      FixedPointType bB(FixedPointType(1) / 2);
-      FixedPointType s (FixedPointType(1) / 2);
-      FixedPointType t (FixedPointType(3) / 8);
-
-      // This loop is designed for computing a maximum of a few million
-      // decimal digits of pi. The number of digits roughly doubles
-      // with each iteration of the loop. After 20 iterations,
-      // the precision is about 2.8 million decimal digits.
-      // We are not using that many digits in these tests,
-      // only up to a few thousand at most.
-
-      for(boost::uint_least8_t k = UINT8_C(1); k < UINT8_C(32); ++k)
-      {
-        // Perform the iteration steps of the Gauss AGM.
-
-        a      += sqrt(bB);
-        a      /= 2U;
-        val_pi  = (a * a);
-        bB      = (val_pi - t) * 2U;
-
-        const FixedPointType iterate_term((bB - val_pi) * (UINT32_C(1) << k));
-
-        s += iterate_term;
-
-        const bool minimum_number_of_iterations_are_complete = (k > UINT8_C(2));
-
-        if(minimum_number_of_iterations_are_complete)
-        {
-          // Extract the exponent of the iteration term in order to
-          // obtain a rough estimate of the number of base-2 digits
-          // that have been obtained in this iteration.
-
-          int exp2;
-          static_cast<void>(frexp(iterate_term, &exp2));
-
-          const bool iteration_term_is_zero = ((exp2 == 0) || (iterate_term == 0));
-
-          const bool precision_goal_has_been_reached = (exp2 <= ((FixedPointType::resolution - 1) / 2));
-
-          if(precision_goal_has_been_reached || iteration_term_is_zero)
-          {
-            break;
-          }
-        }
-
-        t = (val_pi + bB) / 4U;
-      }
-
-      val_pi += bB;
-      val_pi /= s;
-
-      const FixedPointType control_value(boost::math::constants::pi<FloatingPointType>());
+      const FixedPointType val_pi        = boost::fixed_point::negatable_constants<FixedPointType>::pi();
+      const FixedPointType control_value = FixedPointType(boost::math::constants::pi<FloatingPointType>());
 
       BOOST_CHECK_CLOSE_FRACTION(val_pi, control_value, tolerance_maker(fuzzy_bits));
 
@@ -146,7 +93,7 @@ namespace local
       BOOST_STATIC_ASSERT( FixedPointType::range >= 2);
 
       // Choose m > (N * 1.661), where N is the number of decimal digits requested.
-      const int m = static_cast<int>((((-large_fixed_point_type::resolution) * 301) / 1000) * 1.7F);
+      BOOST_CONSTEXPR_OR_CONST int m = static_cast<int>(((long(-large_fixed_point_type::resolution) * 301L) / 1000L) * 1.7F);
 
       // Set a0 = 1.
       // Set b0 = 4 / (2^m) = 1 / 2^(m - 2).

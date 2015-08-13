@@ -103,10 +103,53 @@
 
   // Forward declaration of the negatable class.
   template<const int IntegralRange,
-            const int FractionalResolution,
-            typename RoundMode,
-            typename OverflowMode>
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
   class negatable;
+
+  // Forward declaration of the negatable_constants struct.
+  template<typename NonSpecializedParameter>
+  struct negatable_constants { };
+
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  struct negatable_constants<negatable<IntegralRange,
+                                       FractionalResolution,
+                                       RoundMode,
+                                       OverflowMode>>;
+
+  #if !defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
+
+    template<typename char_type,
+             typename traits_type,
+             const int IntegralRange,
+             const int FractionalResolution,
+             typename RoundMode,
+             typename OverflowMode>
+    inline std::basic_ostream<char_type,
+                              traits_type>& operator<<(std::basic_ostream<char_type, traits_type>& out,
+                                                       const negatable<IntegralRange,
+                                                                       FractionalResolution,
+                                                                       RoundMode,
+                                                                       OverflowMode>& x);
+
+    template<typename char_type,
+             typename traits_type,
+             const int IntegralRange,
+             const int FractionalResolution,
+             typename RoundMode,
+             typename OverflowMode>
+    inline std::basic_istream<char_type,
+                              traits_type>& operator>>(std::basic_istream<char_type, traits_type>& in,
+                                                       negatable<IntegralRange,
+                                                                 FractionalResolution,
+                                                                 RoundMode,
+                                                                 OverflowMode>& x);
+
+  #endif
 
   // What follows are forward declarations of elementary transcendental functions mainly from <cmath>.
 
@@ -319,6 +362,19 @@
                                                RoundMode,
                                                OverflowMode> x);
 
+  // Forward declaration of acos.
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  inline negatable<IntegralRange,
+                   FractionalResolution,
+                   RoundMode,
+                   OverflowMode> acos(negatable<IntegralRange,
+                                                FractionalResolution,
+                                                RoundMode,
+                                                OverflowMode> x);
+
   // Forward declaration of log.
   template<const int IntegralRange,
            const int FractionalResolution,
@@ -477,82 +533,50 @@
     */
     negatable() : data() { }
 
-    /*! Ccopy constructor.
+    /*! Constructors from built-in signed integral types.
     */
-    negatable(const negatable& v) : data(v.data) { }
+    negatable(const signed char&        n) : data() { make_from_signed_integral_type(n); }
+    negatable(const signed short&       n) : data() { make_from_signed_integral_type(n); }
+    negatable(const signed int&         n) : data() { make_from_signed_integral_type(n); }
+    negatable(const signed long&        n) : data() { make_from_signed_integral_type(n); }
+    negatable(const signed long long&   n) : data() { make_from_signed_integral_type(n); }
 
     /*! Constructors from built-in unsigned integral types.
     */
-    #if defined(BOOST_MSVC)
+    negatable(const unsigned char&      u) : data() { make_from_unsigned_integral_type(u); }
+    negatable(const unsigned short&     u) : data() { make_from_unsigned_integral_type(u); }
+    negatable(const unsigned int&       u) : data() { make_from_unsigned_integral_type(u); }
+    negatable(const unsigned long&      u) : data() { make_from_unsigned_integral_type(u); }
+    negatable(const unsigned long long& u) : data() { make_from_unsigned_integral_type(u); }
 
-      negatable(const unsigned char&      u) : data() { make_from_unsigned_integral_type(u); }
-      negatable(const unsigned short&     u) : data() { make_from_unsigned_integral_type(u); }
-      negatable(const unsigned int&       u) : data() { make_from_unsigned_integral_type(u); }
-      negatable(const unsigned long&      u) : data() { make_from_unsigned_integral_type(u); }
-      negatable(const unsigned long long& u) : data() { make_from_unsigned_integral_type(u); }
-
-    #else
-
-      template<typename UnsignedIntegralType>
-      negatable(const UnsignedIntegralType& u,
-                typename std::enable_if<   std::is_integral<UnsignedIntegralType>::value
-                                        && std::is_unsigned<UnsignedIntegralType>::value>::type const* = nullptr)
-        : data()
-      {
-        make_from_unsigned_integral_type(u);
-      }
-
-    #endif
-
-    /*! Constructors from built-in signed integral types.
-    */
-
-    #if defined(BOOST_MSVC)
-
-      negatable(const signed char&      n) : data() { make_from_signed_integral_type(n); }
-      negatable(const signed short&     n) : data() { make_from_signed_integral_type(n); }
-      negatable(const signed int&       n) : data() { make_from_signed_integral_type(n); }
-      negatable(const signed long&      n) : data() { make_from_signed_integral_type(n); }
-      negatable(const signed long long& n) : data() { make_from_signed_integral_type(n); }
-
-    #else
-
-      template<typename SignedIntegralType>
-      negatable(const SignedIntegralType& n,
-                typename std::enable_if<   (    std::is_integral<SignedIntegralType>::value
-                                            &&  std::is_signed<SignedIntegralType>::value)
-                                        || (   (std::is_integral<SignedIntegralType>::value == false)
-                                            &&  std::is_same<SignedIntegralType, value_type>::value)>::type const* = nullptr)
-        : data()
-      {
-        make_from_signed_integral_type(n);
-      }
-
-    #endif
+    template<typename ValueType>
+    negatable(const ValueType& n,
+              typename std::enable_if<std::is_same<ValueType, value_type>::value>::type const* = nullptr) : data(n) { }
 
     /*! Constructors from built-in floating-point types: @c float, @c double or @c long @c double.\n
         Example: negatable<15,-16> x(2.3L);\n
         (Overflow and underflow is, of course, possible).
     */
 
-    #if defined(BOOST_MSVC)
+    negatable(const float&       f) : data() { make_from_floating_point_type(f); }
+    negatable(const double&      f) : data() { make_from_floating_point_type(f); }
+    negatable(const long double& f) : data() { make_from_floating_point_type(f); }
 
-      negatable(const float&       f) : data() { make_from_floating_point_type(f); }
-      negatable(const double&      f) : data() { make_from_floating_point_type(f); }
-      negatable(const long double& f) : data() { make_from_floating_point_type(f); }
+    template<typename FloatingPointType>
+    negatable(const FloatingPointType& f,
+              typename std::enable_if<std::is_same<FloatingPointType, float_type>::value>::type const* = nullptr)
+      : data()
+    {
+      make_from_floating_point_type(f);
+    }
 
-    #else
+    /*! Copy constructor.
+    */
+    negatable(const negatable& v) : data(v.data) { }
 
-      template<typename FloatingPointType>
-      negatable(const FloatingPointType& f,
-                typename std::enable_if<   std::is_floating_point<FloatingPointType>::value
-                                        || std::is_same<FloatingPointType, float_type>::value>::type const* = nullptr)
-        : data()
-      {
-        make_from_floating_point_type(f);
-      }
-
-    #endif
+    /*! Move constructor.
+    */
+    negatable(negatable&& v) : data(static_cast<value_type&&>(v.data)) { }
 
     /*! Copy constructors, including mixed-math class constructors that
         create a negatable type from another negatable type
@@ -758,10 +782,17 @@
       return *this;
     }
 
+    negatable& operator=(negatable&& other)
+    {
+      data = static_cast<value_type&&>(other.data);
+
+      return *this;
+    }
+
     /*! Equality operator of @c *this with another negatable type
     having @b different range and/or resolution parameters than @c *this.
     */
-
+/*
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution>
     negatable& operator=(const negatable<OtherIntegralRange,
@@ -778,57 +809,21 @@
 
       return *this;
     }
-
+*/
     //! Equality operators for built-in integral types.
-    #if defined(BOOST_MSVC)
-
-      negatable& operator=(const signed char        n) { make_from_signed_integral_type(n);   return *this; }
-      negatable& operator=(const signed short       n) { make_from_signed_integral_type(n);   return *this; }
-      negatable& operator=(const signed int         n) { make_from_signed_integral_type(n);   return *this; }
-      negatable& operator=(const signed long        n) { make_from_signed_integral_type(n);   return *this; }
-      negatable& operator=(const signed long long   n) { make_from_signed_integral_type(n);   return *this; }
-      negatable& operator=(const unsigned char      u) { make_from_unsigned_integral_type(u); return *this; }
-      negatable& operator=(const unsigned short     u) { make_from_unsigned_integral_type(u); return *this; }
-      negatable& operator=(const unsigned int       u) { make_from_unsigned_integral_type(u); return *this; }
-      negatable& operator=(const unsigned long      u) { make_from_unsigned_integral_type(u); return *this; }
-      negatable& operator=(const unsigned long long u) { make_from_unsigned_integral_type(u); return *this; }
-      negatable& operator=(const float              f) { make_from_floating_point_type(f);    return *this; }
-      negatable& operator=(const double             f) { make_from_floating_point_type(f);    return *this; }
-      negatable& operator=(const long double        f) { make_from_floating_point_type(f);    return *this; }
-
-    #else
-
-      template<typename UnsignedIntegralType,
-               typename std::enable_if<   std::is_integral<UnsignedIntegralType>::value
-                                       && std::is_unsigned<UnsignedIntegralType>::value>::type const* = nullptr>
-      negatable& operator=(const UnsignedIntegralType u)
-      {
-        make_from_unsigned_integral_type(u);
-
-        return *this;
-      }
-
-      template<typename SignedIntegralType,
-               typename std::enable_if<   std::is_integral<SignedIntegralType>::value
-                                       && std::is_signed<SignedIntegralType>::value>::type const* = nullptr>
-      negatable& operator=(const SignedIntegralType n)
-      {
-        make_from_signed_integral_type(n);
-
-        return *this;
-      }
-
-      template<typename FloatingPointType,
-               typename std::enable_if<   std::is_floating_point<FloatingPointType>::value
-                                       || std::is_same<FloatingPointType, float_type>::value>::type const* = nullptr>
-      negatable& operator=(const FloatingPointType f)
-      {
-        make_from_floating_point_type(f);
-
-        return *this;
-      }
-
-    #endif
+    negatable& operator=(const signed char&        n) { make_from_signed_integral_type  (n); return *this; }
+    negatable& operator=(const signed short&       n) { make_from_signed_integral_type  (n); return *this; }
+    negatable& operator=(const signed int&         n) { make_from_signed_integral_type  (n); return *this; }
+    negatable& operator=(const signed long&        n) { make_from_signed_integral_type  (n); return *this; }
+    negatable& operator=(const signed long long&   n) { make_from_signed_integral_type  (n); return *this; }
+    negatable& operator=(const unsigned char&      u) { make_from_signed_integral_type  (u); return *this; }
+    negatable& operator=(const unsigned short&     u) { make_from_signed_integral_type  (u); return *this; }
+    negatable& operator=(const unsigned int&       u) { make_from_signed_integral_type  (u); return *this; }
+    negatable& operator=(const unsigned long&      u) { make_from_signed_integral_type  (u); return *this; }
+    negatable& operator=(const unsigned long long& u) { make_from_signed_integral_type  (u); return *this; }
+    negatable& operator=(const float&              f) { make_from_floating_point_type   (f); return *this; }
+    negatable& operator=(const double&             f) { make_from_floating_point_type   (f); return *this; }
+    negatable& operator=(const long double&        f) { make_from_floating_point_type   (f); return *this; }
 
     //! Unary pre-increment and post-increment operators.
     negatable& operator++()   { data += value_type(unsigned_small_type(1) << radix_split); return *this; }
@@ -982,6 +977,73 @@
 
       return *this;
     }
+
+    #if defined(BOOST_MSVC)
+
+      negatable& operator+=(const signed char        n) { return (*this) += negatable(n); }
+      negatable& operator+=(const signed short       n) { return (*this) += negatable(n); }
+      negatable& operator+=(const signed int         n) { return (*this) += negatable(n); }
+      negatable& operator+=(const signed long        n) { return (*this) += negatable(n); }
+      negatable& operator+=(const signed long long   n) { return (*this) += negatable(n); }
+      negatable& operator+=(const unsigned char      u) { return (*this) += negatable(u); }
+      negatable& operator+=(const unsigned short     u) { return (*this) += negatable(u); }
+      negatable& operator+=(const unsigned int       u) { return (*this) += negatable(u); }
+      negatable& operator+=(const unsigned long      u) { return (*this) += negatable(u); }
+      negatable& operator+=(const unsigned long long u) { return (*this) += negatable(u); }
+      negatable& operator+=(const float              f) { return (*this) += negatable(f); }
+      negatable& operator+=(const double             f) { return (*this) += negatable(f); }
+      negatable& operator+=(const long double        f) { return (*this) += negatable(f); }
+
+      negatable& operator-=(const signed char        n) { return (*this) -= negatable(n); }
+      negatable& operator-=(const signed short       n) { return (*this) -= negatable(n); }
+      negatable& operator-=(const signed int         n) { return (*this) -= negatable(n); }
+      negatable& operator-=(const signed long        n) { return (*this) -= negatable(n); }
+      negatable& operator-=(const signed long long   n) { return (*this) -= negatable(n); }
+      negatable& operator-=(const unsigned char      u) { return (*this) -= negatable(u); }
+      negatable& operator-=(const unsigned short     u) { return (*this) -= negatable(u); }
+      negatable& operator-=(const unsigned int       u) { return (*this) -= negatable(u); }
+      negatable& operator-=(const unsigned long      u) { return (*this) -= negatable(u); }
+      negatable& operator-=(const unsigned long long u) { return (*this) -= negatable(u); }
+      negatable& operator-=(const float              f) { return (*this) -= negatable(f); }
+      negatable& operator-=(const double             f) { return (*this) -= negatable(f); }
+      negatable& operator-=(const long double        f) { return (*this) -= negatable(f); }
+
+      negatable& operator*=(const signed char        n) { return (*this) *= negatable(n); }
+      negatable& operator*=(const signed short       n) { return (*this) *= negatable(n); }
+      negatable& operator*=(const signed int         n) { return (*this) *= negatable(n); }
+      negatable& operator*=(const signed long        n) { return (*this) *= negatable(n); }
+      negatable& operator*=(const signed long long   n) { return (*this) *= negatable(n); }
+      negatable& operator*=(const unsigned char      u) { return (*this) *= negatable(u); }
+      negatable& operator*=(const unsigned short     u) { return (*this) *= negatable(u); }
+      negatable& operator*=(const unsigned int       u) { return (*this) *= negatable(u); }
+      negatable& operator*=(const unsigned long      u) { return (*this) *= negatable(u); }
+      negatable& operator*=(const unsigned long long u) { return (*this) *= negatable(u); }
+      negatable& operator*=(const float              f) { return (*this) *= negatable(f); }
+      negatable& operator*=(const double             f) { return (*this) *= negatable(f); }
+      negatable& operator*=(const long double        f) { return (*this) *= negatable(f); }
+
+      negatable& operator/=(const signed char        n) { return (*this) /= negatable(n); }
+      negatable& operator/=(const signed short       n) { return (*this) /= negatable(n); }
+      negatable& operator/=(const signed int         n) { return (*this) /= negatable(n); }
+      negatable& operator/=(const signed long        n) { return (*this) /= negatable(n); }
+      negatable& operator/=(const signed long long   n) { return (*this) /= negatable(n); }
+      negatable& operator/=(const unsigned char      u) { return (*this) /= negatable(u); }
+      negatable& operator/=(const unsigned short     u) { return (*this) /= negatable(u); }
+      negatable& operator/=(const unsigned int       u) { return (*this) /= negatable(u); }
+      negatable& operator/=(const unsigned long      u) { return (*this) /= negatable(u); }
+      negatable& operator/=(const unsigned long long u) { return (*this) /= negatable(u); }
+      negatable& operator/=(const float              f) { return (*this) /= negatable(f); }
+      negatable& operator/=(const double             f) { return (*this) /= negatable(f); }
+      negatable& operator/=(const long double        f) { return (*this) /= negatable(f); }
+
+    #else
+
+      template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> negatable& operator+=(const ArithmeticType& a) { return (*this) += negatable(a); }
+      template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> negatable& operator-=(const ArithmeticType& a) { return (*this) -= negatable(a); }
+      template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> negatable& operator*=(const ArithmeticType& a) { return (*this) *= negatable(a); }
+      template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> negatable& operator/=(const ArithmeticType& a) { return (*this) /= negatable(a); }
+
+    #endif
 
     /*! Cast operators for built-in signed and unsigned integral types.\n
 
@@ -1331,7 +1393,7 @@
     {
       initialization_helper.force_premain_init_of_static_constants();
 
-      static const negatable the_value_min(nothing(), 1U);
+      static const negatable the_value_min(nothing(), static_cast<value_type>(1));
 
       return the_value_min;
     }
@@ -1344,12 +1406,99 @@
     {
       initialization_helper.force_premain_init_of_static_constants();
 
-      static const negatable the_value_max(nothing(), unsigned_small_mask() >> 1);
+      static const negatable the_value_max(nothing(), static_cast<value_type>(unsigned_small_mask()));
 
       return the_value_max;
     }
 
+    static const negatable& value_pi()
+    {
+      initialization_helper.force_premain_init_of_static_constants();
+
+      static const negatable the_value_pi = pi_helper<unsigned(-resolution)>::calculate_pi();
+
+      return the_value_pi;
+    }
+
+    template<const unsigned BitCount,
+             typename EnableType = void>
+    struct pi_helper
+    {
+      static negatable calculate_pi()
+      {
+        BOOST_CONSTEXPR_OR_CONST value_type pi_data = value_type(UINT64_C(0x6487ED5110B4611A) >> (61 - int(BitCount)));
+
+        return negatable(nothing(), pi_data);
+      }
+    };
+
+    template<const unsigned BitCount>
+    struct pi_helper<BitCount,
+                     typename std::enable_if<(BitCount >= 62U)>::type>
+    {
+      static negatable calculate_pi()
+      {
+        negatable val_pi;
+
+        negatable a (1);
+        negatable bB(negatable(1) / 2);
+        negatable s (negatable(1) / 2);
+        negatable t (negatable(3) / 8);
+
+        // This loop is designed for computing a maximum of a few million
+        // decimal digits of pi. The number of digits roughly doubles
+        // with each iteration of the loop. After 20 iterations,
+        // the precision is about 2.8 million decimal digits.
+        // We are not using that many digits in these tests,
+        // only up to a few thousand at most.
+
+        for(boost::uint_least8_t k = UINT8_C(1); k < UINT8_C(32); ++k)
+        {
+          // Perform the iteration steps of the Gauss AGM.
+
+          a      += sqrt(bB);
+          a      /= 2U;
+          val_pi  = (a * a);
+          bB      = (val_pi - t) * 2U;
+
+          const negatable iterate_term((bB - val_pi) * (UINT32_C(1) << k));
+
+          s += iterate_term;
+
+          const bool minimum_number_of_iterations_are_complete = (k > UINT8_C(2));
+
+          if(minimum_number_of_iterations_are_complete)
+          {
+            // Extract the exponent of the iteration term in order to
+            // obtain a rough estimate of the number of base-2 digits
+            // that have been obtained in this iteration.
+
+            int exp2;
+            static_cast<void>(frexp(iterate_term, &exp2));
+
+            const bool iteration_term_is_zero = ((exp2 == 0) || (iterate_term == 0));
+
+            const bool precision_goal_has_been_reached = (exp2 <= ((-int(BitCount) / 2) + 4));
+
+            if(precision_goal_has_been_reached || iteration_term_is_zero)
+            {
+              break;
+            }
+          }
+
+          t = (val_pi + bB) / 4U;
+        }
+
+        val_pi += bB;
+        val_pi /= s;
+
+        return val_pi;
+      }
+    };
+
     friend class std::numeric_limits<negatable>;
+
+    friend struct negatable_constants<negatable>;
 
     friend struct initializer;
 
@@ -1362,6 +1511,7 @@
         static_cast<void>(negatable::unsigned_integer_part_mask());
         static_cast<void>(negatable::value_min());
         static_cast<void>(negatable::value_max());
+        static_cast<void>(negatable::value_pi());
         static_cast<void>(negatable::epsilon_maker());
       }
 
@@ -1469,7 +1619,6 @@
     }
 
     //! Implementations of global binary add, sub, mul, div of [lhs(arithmetic_type)] operator [rhs(negatable)].
-
     template<typename ArithmeticType,
              typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr>
     friend inline negatable operator+(const ArithmeticType& u, const negatable& v)
@@ -1499,6 +1648,7 @@
     }
 
     //! Implementations of global binary add, sub, mul, div of [lhs(negatable)] operator [rhs(other_negatable)].
+
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution,
              typename std::enable_if<   (FractionalResolution != OtherFractionalResolution)
@@ -1940,6 +2090,17 @@
       }// negatable sqrt(negatable x)
     }
 
+    friend inline negatable acos(negatable x)
+    {
+      using std::acos;
+
+      const float_type fx = x.convert_to_floating_point_type<float_type>();
+
+      const float_type result = acos(fx);
+
+      return negatable(result);
+    }
+
     friend inline negatable exp(negatable x)
     {
       using std::exp;
@@ -1948,7 +2109,7 @@
 
       const float_type result = exp(fx);
 
-      return negatable(fx);
+      return negatable(result);
     }
 
     friend inline negatable log(negatable x)
@@ -1959,7 +2120,7 @@
 
       const float_type result = log(fx);
 
-      return negatable(fx);
+      return negatable(result);
     }
   };
 
@@ -1982,6 +2143,24 @@
             FractionalResolution,
             RoundMode,
             OverflowMode>::initialization_helper;
+
+    template<const int IntegralRange,
+             const int FractionalResolution>
+    struct negatable_constants<boost::fixed_point::negatable<IntegralRange,
+                                                             FractionalResolution,
+                                                             boost::fixed_point::round::fastest,
+                                                             boost::fixed_point::overflow::undefined>>
+    {
+    private:
+      typedef boost::fixed_point::negatable<IntegralRange,
+                                            FractionalResolution,
+                                            boost::fixed_point::round::fastest,
+                                            boost::fixed_point::overflow::undefined> negatable_type;
+
+    public:
+      static BOOST_CONSTEXPR_OR_CONST negatable_type pi    () BOOST_NOEXCEPT { return negatable_type::value_pi(); }
+    };
+
   } } // namespace boost::fixed_point
 
   //! Effectively inject all defined cmath functions into the global namespace.
@@ -1997,6 +2176,7 @@
   using boost::fixed_point::ltrunc;
   using boost::fixed_point::lltrunc;
   using boost::fixed_point::sqrt;
+  using boost::fixed_point::acos;
   using boost::fixed_point::exp;
   using boost::fixed_point::log;
 
