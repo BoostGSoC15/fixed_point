@@ -20,35 +20,8 @@
 #include <boost/math/special_functions/cbrt.hpp>
 #include <boost/test/included/unit_test.hpp>
 
-//#define ENABLE_LOCAL_TEST_DEBUG_MESSAGES
-#define ENABLE_LOCAL_PATCH_OF_BOOST_TEST
-
 namespace local
 {
-  #if defined(ENABLE_LOCAL_PATCH_OF_BOOST_TEST)
-
-    // Patch BOOST_CHECK_CLOSE_FRACTION because of disagreements
-    // regarding syntax among various compilers, the implementation
-    // of fixed_point, and of Boost.Test.
-
-    template<typename T>
-    void boost_check_close_fraction(const T& left, const T& right, const T& tolerance)
-    {
-      using std::fabs;
-
-      const T fraction = fabs(left / right);
-      const T delta    = fabs(1 - fraction);
-
-      const bool the_comparison_result = (delta <= tolerance);
-
-      BOOST_CHECK_EQUAL(the_comparison_result, true);
-    }
-
-    #undef  BOOST_CHECK_CLOSE_FRACTION
-    #define BOOST_CHECK_CLOSE_FRACTION(LEFT, RIGHT, TOLERANCE) local::boost_check_close_fraction((LEFT), (RIGHT), (TOLERANCE));
-
-  #endif // ENABLE_LOCAL_PATCH_OF_BOOST_TEST
-
   template<typename FixedPointType>
   const FixedPointType& tolerance_maker(const int fuzzy_bits)
   {

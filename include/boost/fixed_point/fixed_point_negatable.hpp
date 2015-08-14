@@ -30,22 +30,16 @@
 
     // When I/O streaming is disabled:
     //   * We must eliminate use of Boost.Multiprecision.
-    //   * We must eliminate use of Boost.Math.Constants (because these require istreaming).
-    //   * We must eliminate the parts of <boost/cstdfloat.hpp> that require I/O streams.
+    //   * We must eliminate use of Boost.Math.Constants (because these require I/O streams).
 
     #if !defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
       #error Error: BOOST_FIXED_POINT_DISABLE_IOSTREAM can not be set without also setting BOOST_FIXED_POINT_DISABLE_MULTIPRECISION.
     #endif
 
-    #define BOOST_CSTDFLOAT_NO_LIBQUADMATH_COMPLEX
-    #define BOOST_CSTDFLOAT_NO_LIBQUADMATH_IOSTREAM
-
     #include <algorithm>
     #include <cmath>
     #include <limits>
     #include <type_traits>
-    #include <boost/cstdfloat.hpp>
-    #include <boost/cstdint.hpp>
 
   #elif defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION) && !defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
 
@@ -61,8 +55,6 @@
     #include <sstream>
     #include <string>
     #include <type_traits>
-    #include <boost/cstdfloat.hpp>
-    #include <boost/cstdint.hpp>
     #include <boost/lexical_cast.hpp>
     #include <boost/math/constants/constants.hpp>
 
@@ -81,8 +73,6 @@
     #include <sstream>
     #include <string>
     #include <type_traits>
-    #include <boost/cstdfloat.hpp>
-    #include <boost/cstdint.hpp>
     #include <boost/lexical_cast.hpp>
     #include <boost/math/constants/constants.hpp>
     #include <boost/multiprecision/cpp_bin_float.hpp>
@@ -90,6 +80,8 @@
 
   #endif
 
+  #include <boost/cstdint.hpp>
+  #include <boost/fixed_point/detail/fixed_point_detail_cstdfloat.hpp>
   #include <boost/fixed_point/detail/fixed_point_detail.hpp>
   #include <boost/fixed_point/fixed_point_overflow.hpp>
   #include <boost/fixed_point/fixed_point_round.hpp>
@@ -414,9 +406,9 @@
       In this particular file, we implement a prototype for the @c negatable template class.\n
       Examples:\n
       @c boost::fixed_point::negatable<2,-5> @c x; // 8-bit\n
-      @c negatable<15, -16> @c y;  // 32-bit \n
-      @c negatable<10, -53> @c y;  // 64-bit \n
-      @c negatable<10, -245> @c y;  // 256-bit (requires use of @c cpp_bin_float)\n
+      @c negatable<15,  -16> @c y; // 32-bit \n
+      @c negatable<10,  -53> @c y; // 64-bit \n
+      @c negatable<10, -245> @c y; // 256-bit (requires use of @c cpp_bin_float)\n
 
     \tparam IntegralRange integer >= 0, defines a range of signed number n that is 2^-IntegralRange < n < 2^IntegralRange.
     \tparam FractionalResolution integer <= -1, defines resolution. 
@@ -476,7 +468,7 @@
     static_assert(all_bits <= 32768, "Error: At the moment, the width of fixed_point negatable can not exceed 32768 bits (limitation of details section).");
 
     #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
-      static_assert(all_bits <= 27, "Error: The width of fixed_point negatable can not exceed 27 bits when multiprecision is disabled.");
+      static_assert(all_bits <= 32, "Error: The width of fixed_point negatable can not exceed 32 bits when multiprecision is disabled.");
     #endif
 
     //! See also public static data items range and resolution.
@@ -1187,20 +1179,43 @@
     template<typename FloatingPointType>
     void make_from_floating_point_type(const FloatingPointType& f)
     {
-      // Define a local_unsigned_small_type.
-      // This is an unsigned integral type that is guaranteed
-      // to hold the larger of:
-      // * the number of digits in FloatingPointType plus 1 extra digit
-      // * the number of digits in unsigned_small_type.
+      // Here, we make (in *this) a negatable data value from
+      // a floating-point source value
 
-      BOOST_CONSTEXPR_OR_CONST int fp_digits_plus_one = std::numeric_limits<FloatingPointType>::digits + 1;
+      // If the number of digits in the floating-point source type and
+      // the number of digits in the target data value type differ,
+      // then rounding potentially makes sense. In this case,
+      // we reserve 1 extra binary digit for rounding.
 
+      // Otherwise the floating-point source type and the target
+      // data value type have exactly the same amount of digits.
+      // In this case rounding need not be carried out because
+      // no additional information is available for rounding,
+      // and no extra binary digit is reserved for rounding.
+
+      BOOST_CONSTEXPR_OR_CONST unsigned floating_point_digits          = unsigned(std::numeric_limits<FloatingPointType>::digits);
+      BOOST_CONSTEXPR_OR_CONST unsigned floating_point_digits_plus_one = unsigned(floating_point_digits + 1);
+      BOOST_CONSTEXPR_OR_CONST unsigned unsigned_small_digits          = unsigned(std::numeric_limits<unsigned_small_type>::digits);
+
+      BOOST_CONSTEXPR_OR_CONST bool rounding_is_to_be_carried_out = (floating_point_digits_plus_one != unsigned_small_digits);
+
+      // Determine the number of digits needed for the conversion.
+      // * If rounding is to be done, this is the larger of [digits(FloatingPointType) + 1]
+      //   and digits(unsigned_small_type). 
+      // * If rounding is *not* to be done, this is the larger of digits(FloatingPointType)
+      //   and digits(unsigned_small_type). 
+
+      BOOST_CONSTEXPR_OR_CONST unsigned floating_point_conversion_digits =
+        (rounding_is_to_be_carried_out ? floating_point_digits_plus_one : floating_point_digits);
+
+      BOOST_CONSTEXPR_OR_CONST unsigned unsigned_conversion_digits =
+        ((floating_point_conversion_digits > unsigned_small_digits) ? floating_point_conversion_digits
+                                                                    : unsigned_small_digits);
+
+      // Define a local_unsigned_conversion_type.
       typedef
-      typename detail::integer_type_helper<
-        unsigned((fp_digits_plus_one > std::numeric_limits<unsigned_small_type>::digits)
-                    ? fp_digits_plus_one
-                    : std::numeric_limits<unsigned_small_type>::digits)>::exact_unsigned_type
-      local_unsigned_small_type;
+      typename detail::integer_type_helper<unsigned_conversion_digits>::exact_unsigned_type
+      local_unsigned_conversion_type;
 
       const bool is_neg = (f < FloatingPointType(0));
 
@@ -1213,30 +1228,25 @@
 
       // Here we scale the mantissa to an unsigned integer value
       // that is large enough to contain all the binary digits
-      // of the FloatingPointType representation.
-      local_unsigned_small_type u;
+      // of the FloatingPointType representation (plus potentially
+      // one extra rounding digit).
 
-      const FloatingPointType fp_shifted = ldexp(fp, fp_digits_plus_one);
+      const FloatingPointType fp_shifted = ldexp(fp, int(floating_point_conversion_digits));
 
-      detail::conversion_helper<local_unsigned_small_type,
+      local_unsigned_conversion_type u;
+
+      detail::conversion_helper<local_unsigned_conversion_type,
                                 FloatingPointType>::convert_floating_point_to_unsigned_integer(fp_shifted, u);
 
-      // Select the scale factor for the conversion to the fixed-point type.
+      const int total_left_shift = (radix_split + exp2) - floating_point_digits;
 
-      // Here, we use 1 extra binary digit for rounding.
-      // The extra rounding digit fits in unsigned_small_type
-      // because the value_type (even though just as wide as
-      // unsigned_small_type) reserves one bit for the sign.
-
-      const int total_left_shift =   (radix_split + exp2)
-                                   - (std::numeric_limits<FloatingPointType>::digits);
-
-      const local_unsigned_small_type u_round_local(detail::left_shift_helper(u, total_left_shift));
+      const local_unsigned_conversion_type u_round_local(detail::left_shift_helper(u, total_left_shift));
 
       unsigned_small_type u_round = static_cast<unsigned_small_type>(u_round_local);
 
-      // Round the result of the construction from FloatingPointType.
-      const boost::int_fast8_t rounding_result = binary_round(u_round);
+      // Round the result of the construction from FloatingPointType if needed.
+      const boost::int_fast8_t rounding_result =
+        (rounding_is_to_be_carried_out ? binary_round(u_round) : INT8_C(0));
 
       // Add or subtract the result of the rounding (-1, 0, or +1).
       if     (rounding_result == INT8_C(+1)) { ++u_round; }
@@ -1381,7 +1391,7 @@
 
       BOOST_CONSTEXPR_OR_CONST int total_right_shift = -(resolution + 1);
 
-      static const negatable the_epsilon(nothing(), radix_split_value() >> total_right_shift);
+      static const negatable the_epsilon(nothing(), static_cast<value_type>(radix_split_value() >> total_right_shift));
 
       return the_epsilon;
     }
@@ -1418,6 +1428,15 @@
       static const negatable the_value_pi = pi_helper<unsigned(-resolution)>::calculate_pi();
 
       return the_value_pi;
+    }
+
+    static const negatable& value_ln_two()
+    {
+      initialization_helper.force_premain_init_of_static_constants();
+
+      static const negatable the_value_ln_two = ln_two_helper<unsigned(-resolution)>::calculate_ln_two();
+
+      return the_value_ln_two;
     }
 
     template<const unsigned BitCount,
@@ -1476,7 +1495,7 @@
             int exp2;
             static_cast<void>(frexp(iterate_term, &exp2));
 
-            const bool iteration_term_is_zero = ((exp2 == 0) || (iterate_term == 0));
+            const bool iteration_term_is_zero = ((exp2 == 0) || (iterate_term == negatable(0)));
 
             const bool precision_goal_has_been_reached = (exp2 <= ((-int(BitCount) / 2) + 4));
 
@@ -1496,6 +1515,33 @@
       }
     };
 
+    template<const unsigned BitCount,
+             typename EnableType = void>
+    struct ln_two_helper
+    {
+      static negatable calculate_ln_two()
+      {
+        // TBD: This value is copied from pi. Calculate and use the proper number for ln_two.
+        BOOST_CONSTEXPR_OR_CONST value_type ln_two_data = value_type(UINT64_C(0x6487ED5110B4611A) >> (61 - int(BitCount)));
+
+        return negatable(nothing(), ln_two_data);
+      }
+    };
+
+    template<const unsigned BitCount>
+    struct ln_two_helper<BitCount,
+                         typename std::enable_if<(BitCount >= 64U)>::type>
+    {
+      static negatable calculate_ln_two()
+      {
+        // TBD: Implement a generic algorithm for computing ln_two.
+        // TBD: Should we use Gaus AGM methods (like in local_constants test)?
+        // TBD: Or would another method be better (like the one used
+        // in Boost.Math.Constants)?
+        return negatable(0);
+      }
+    };
+
     friend class std::numeric_limits<negatable>;
 
     friend struct negatable_constants<negatable>;
@@ -1512,6 +1558,7 @@
         static_cast<void>(negatable::value_min());
         static_cast<void>(negatable::value_max());
         static_cast<void>(negatable::value_pi());
+        static_cast<void>(negatable::value_ln_two());
         static_cast<void>(negatable::epsilon_maker());
       }
 
@@ -1590,59 +1637,59 @@
     friend inline negatable operator/(const negatable& u, const negatable& v) { return negatable(u) /= v; }
 
     //! Implementations of global binary add, sub, mul, div of [lhs(negatable)] operator [rhs(arithmetic_type)].
-    template<typename ArithmeticType,
-             typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr>
-    friend inline negatable operator+(const negatable& u, const ArithmeticType& v)
-    {
-      return negatable(u) += negatable(v);
-    }
-
-    template<typename ArithmeticType,
-             typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr>
-    friend inline negatable operator-(const negatable& u, const ArithmeticType& v)
-    {
-      return negatable(u) -= negatable(v);
-    }
-
-    template<typename ArithmeticType,
-             typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr>
-    friend inline negatable operator*(const negatable& u, const ArithmeticType& v)
-    {
-      return negatable(u) *= negatable(v);
-    }
-
-    template<typename ArithmeticType,
-             typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr>
-    friend inline negatable operator/(const negatable& u, const ArithmeticType& v)
-    {
-      return negatable(u) /= negatable(v);
-    }
-
-    //! Implementations of global binary add, sub, mul, div of [lhs(arithmetic_type)] operator [rhs(negatable)].
-    template<typename ArithmeticType,
-             typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr>
-    friend inline negatable operator+(const ArithmeticType& u, const negatable& v)
+    template<typename ArithmeticType>
+    friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type
+    operator+(const negatable& u, const ArithmeticType& v)
     {
       return negatable(u) += v;
     }
 
-    template<typename ArithmeticType,
-             typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr>
-    friend inline negatable operator-(const ArithmeticType& u, const negatable& v)
+    template<typename ArithmeticType>
+    friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type
+    operator-(const negatable& u, const ArithmeticType& v)
     {
       return negatable(u) -= v;
     }
 
-    template<typename ArithmeticType,
-             typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr>
-    friend inline negatable operator*(const ArithmeticType& u, const negatable& v)
+    template<typename ArithmeticType>
+    friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type
+    operator*(const negatable& u, const ArithmeticType& v)
     {
       return negatable(u) *= v;
     }
 
-    template<typename ArithmeticType,
-             typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr>
-    friend inline negatable operator/(const ArithmeticType& u, const negatable& v)
+    template<typename ArithmeticType>
+    friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type
+    operator/(const negatable& u, const ArithmeticType& v)
+    {
+      return negatable(u) /= v;
+    }
+
+    //! Implementations of global binary add, sub, mul, div of [lhs(arithmetic_type)] operator [rhs(negatable)].
+    template<typename ArithmeticType>
+    friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type
+    operator+(const ArithmeticType& u, const negatable& v)
+    {
+      return negatable(u) += v;
+    }
+
+    template<typename ArithmeticType>
+    friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type
+    operator-(const ArithmeticType& u, const negatable& v)
+    {
+      return negatable(u) -= v;
+    }
+
+    template<typename ArithmeticType>
+    friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type
+    operator*(const ArithmeticType& u, const negatable& v)
+    {
+      return negatable(u) *= v;
+    }
+
+    template<typename ArithmeticType>
+    friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type
+    operator/(const ArithmeticType& u, const negatable& v)
     {
       return negatable(u) /= v;
     }
@@ -1734,7 +1781,6 @@
     }
 
     //! Implementations of global comparison operators of negatable comparied with negatable.
-
     friend inline bool operator==(const negatable& u, const negatable& v) { return (u.data == v.data); }
     friend inline bool operator!=(const negatable& u, const negatable& v) { return (u.data != v.data); }
     friend inline bool operator> (const negatable& u, const negatable& v) { return (u.data >  v.data); }
@@ -1743,22 +1789,20 @@
     friend inline bool operator<=(const negatable& u, const negatable& v) { return (u.data <= v.data); }
 
     //! Implementations of global comparison operators of ArithmeticType comparied with negatable.
-
-    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> friend inline bool operator==(const negatable& u, const ArithmeticType& v) { return (u.data == negatable(v).data); }
-    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> friend inline bool operator!=(const negatable& u, const ArithmeticType& v) { return (u.data != negatable(v).data); }
-    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> friend inline bool operator> (const negatable& u, const ArithmeticType& v) { return (u.data >  negatable(v).data); }
-    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> friend inline bool operator< (const negatable& u, const ArithmeticType& v) { return (u.data <  negatable(v).data); }
-    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> friend inline bool operator>=(const negatable& u, const ArithmeticType& v) { return (u.data >= negatable(v).data); }
-    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> friend inline bool operator<=(const negatable& u, const ArithmeticType& v) { return (u.data <= negatable(v).data); }
+    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type const* = nullptr> friend inline bool operator==(const negatable& u, const ArithmeticType& v) { return (u.data == negatable(v).data); }
+    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type const* = nullptr> friend inline bool operator!=(const negatable& u, const ArithmeticType& v) { return (u.data != negatable(v).data); }
+    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type const* = nullptr> friend inline bool operator> (const negatable& u, const ArithmeticType& v) { return (u.data >  negatable(v).data); }
+    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type const* = nullptr> friend inline bool operator< (const negatable& u, const ArithmeticType& v) { return (u.data <  negatable(v).data); }
+    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type const* = nullptr> friend inline bool operator>=(const negatable& u, const ArithmeticType& v) { return (u.data >= negatable(v).data); }
+    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type const* = nullptr> friend inline bool operator<=(const negatable& u, const ArithmeticType& v) { return (u.data <= negatable(v).data); }
 
     //! Implementations of global comparison operators of negatable comparied with ArithmeticType.
-
-    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> friend inline bool operator==(const ArithmeticType& u, const negatable& v) { return (negatable(u).data == v.data); }
-    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> friend inline bool operator!=(const ArithmeticType& u, const negatable& v) { return (negatable(u).data != v.data); }
-    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> friend inline bool operator> (const ArithmeticType& u, const negatable& v) { return (negatable(u).data >  v.data); }
-    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> friend inline bool operator< (const ArithmeticType& u, const negatable& v) { return (negatable(u).data <  v.data); }
-    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> friend inline bool operator>=(const ArithmeticType& u, const negatable& v) { return (negatable(u).data >= v.data); }
-    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> friend inline bool operator<=(const ArithmeticType& u, const negatable& v) { return (negatable(u).data <= v.data); }
+    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type const* = nullptr> friend inline bool operator==(const ArithmeticType& u, const negatable& v) { return (negatable(u).data == v.data); }
+    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type const* = nullptr> friend inline bool operator!=(const ArithmeticType& u, const negatable& v) { return (negatable(u).data != v.data); }
+    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type const* = nullptr> friend inline bool operator> (const ArithmeticType& u, const negatable& v) { return (negatable(u).data >  v.data); }
+    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type const* = nullptr> friend inline bool operator< (const ArithmeticType& u, const negatable& v) { return (negatable(u).data <  v.data); }
+    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type const* = nullptr> friend inline bool operator>=(const ArithmeticType& u, const negatable& v) { return (negatable(u).data >= v.data); }
+    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type const* = nullptr> friend inline bool operator<=(const ArithmeticType& u, const negatable& v) { return (negatable(u).data <= v.data); }
 
     //! Implementations of mixed-math global comparison operators.
 
@@ -2092,17 +2136,31 @@
 
     friend inline negatable acos(negatable x)
     {
-      using std::acos;
+      // TBD: This version of acos is essentially non-functional because
+      // it returns a sensible value for one and only one argument (pi/2).
+      // This result is subsequently used in Boost.Math.Constants for the
+      // calculation of pi.
 
-      const float_type fx = x.convert_to_floating_point_type<float_type>();
+      // TBD: Make a complete and efficient version of acos.
 
-      const float_type result = acos(fx);
-
-      return negatable(result);
+      if(x == 0)
+      {
+        return value_pi() / 2;
+      }
+      else
+      {
+        return negatable(0);
+      }
     }
 
     friend inline negatable exp(negatable x)
     {
+      // TBD: This is a trivially lazy and inefficient version of exp()
+      // that simply calls the library function for the corresponding
+      // floating-point type.
+
+      // TBD: Develop a more efficient version of the exp() function.
+
       using std::exp;
 
       const float_type fx = x.convert_to_floating_point_type<float_type>();
@@ -2110,10 +2168,31 @@
       const float_type result = exp(fx);
 
       return negatable(result);
+/*
+      const bool is_neg = (x < 0);
+
+      if(is_neg())
+      {
+        return exp(1 / x);
+      }
+
+      negatable xx = ((!is_neg) ? x : -x);
+
+      const negatable nf = floor(xx / value_ln_two());
+
+      xx -= (value_ln_two() * nf);
+
+*/
     }
 
     friend inline negatable log(negatable x)
     {
+      // TBD: This is a trivially lazy and inefficient version of log()
+      // that simply calls the library function for the corresponding
+      // floating-point type.
+
+      // TBD: Develop a more efficient version of the log() function.
+
       using std::log;
 
       const float_type fx = x.convert_to_floating_point_type<float_type>();
@@ -2158,7 +2237,8 @@
                                             boost::fixed_point::overflow::undefined> negatable_type;
 
     public:
-      static BOOST_CONSTEXPR_OR_CONST negatable_type pi    () BOOST_NOEXCEPT { return negatable_type::value_pi(); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type pi    () { return negatable_type::value_pi(); }
+      static BOOST_CONSTEXPR_OR_CONST negatable_type ln_two() { return negatable_type::value_ln_two(); }
     };
 
   } } // namespace boost::fixed_point

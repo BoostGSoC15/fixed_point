@@ -8,7 +8,7 @@
 //
 
 //! \file
-//!\brief Test for a successful bare-metal configuration of fixed_point using up to 26-bit fixed_point.
+//!\brief Test for a successful bare-metal configuration of fixed_point using up to 32-bit fixed_point.
 
 // For further mathematical details pertaining to this file,
 // see C.M. Kormanyos, Real-Time C++: Efficient Object-Oriented and
@@ -58,7 +58,7 @@ namespace local
 
 BOOST_AUTO_TEST_CASE(test_negatable_bare_metal_config_32bit)
 {
-  typedef boost::fixed_point::negatable<6, -20> fixed_point_type;
+  typedef boost::fixed_point::negatable<6, -25> fixed_point_type;
 
   const fixed_point_type a = fixed_point_type(12) / 10;
   const fixed_point_type b = fixed_point_type(34) / 10;

@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_construct_nearest_even_round)
   {
     typedef boost::fixed_point::negatable<4, -2, boost::fixed_point::round::nearest_even> fixed_point_type_nearest_even_round;
     fixed_point_type_nearest_even_round x = fixed_point_type_nearest_even_round (-1.375);
-    fixed_point_type_nearest_even_round y = fixed_point_type_nearest_even_round(-1.5);    
+    fixed_point_type_nearest_even_round y = fixed_point_type_nearest_even_round(-1.5);
 
     BOOST_CHECK_EQUAL(x, y);
 

@@ -4,10 +4,12 @@ all : all_files cleanup
 CPPFLAGS    = -O2                                              \
               -Wall                                            \
               -Wextra                                          \
+              -Wno-unused-parameter                            \
+              -Wno-deprecated-declarations                     \
               -Wno-maybe-uninitialized                         \
               -std=c++11                                       \
               -I/d/boost_fixed_point/include                   \
-              -I/d/boost/boost_1_58_0
+              -I/d/boost/boost_1_59_0
 
 %.exe : %.cpp
 	@-echo +++compile $<
@@ -17,7 +19,7 @@ CPPFLAGS    = -O2                                              \
 
 all_files : test_negatable_arithmetic.exe                 \
             test_negatable_bare_metal_config.exe          \
-            test_negatable_bare_metal_config_26bit.exe    \
+            test_negatable_bare_metal_config_32bit.exe    \
             test_negatable_basic.exe                      \
             test_negatable_bernoullib2n.exe               \
             test_negatable_bit_pattern.exe                \
