@@ -75,7 +75,17 @@ namespace local
       + std::string(  "2420499568935992206602204654941510613918788574424557751020683703086661948089641218680779020818158858")
       + std::string(  "0001688115973056186676199187395200766719214592236720602539595436541655311295175989940056000366513567")
       + std::string(  "5690512459268257439464831683326249018038242408242314523061409638057007025513877026817851630690255137")
-      + std::string(  "0323405380214501901537402950994226299577964742713815736380172987394070424217997226696297993931270694")
+      + std::string(  "0323405380214501901537402950994226299577964742713815736380172987394070424217997226696297993931270693")
+      + std::string(  "5747240493386530879758721699645129446491883771156701678598804981838896784134938314014073166472765327")
+      + std::string(  "6359192335112333893387095132090592721854713289754707978913844454666761927028855334234298993218037691")
+      + std::string(  "5497334026754675887323677834291619181043011609169526554785973289176354555674286387746398710191243175")
+      + std::string(  "4255888301206779210280341206879759143081283307230300883494705792496591005860012341561757413272465943")
+      + std::string(  "0684354652111350215443415399553818565227502214245664400062761833032064727257219751529082785684213207")
+      + std::string(  "9598863896727711955221881904660395700977470651261950527893229608893140562543344255239206203034394177")
+      + std::string(  "7357945592125901992559114844024239012554259003129537051922061506434583787873002035414421785758013236")
+      + std::string(  "4516607099143831450049858966885772221486528821694181270488607589722032166631283783291567630749872985")
+      + std::string(  "7463892826937350984077804939500493399876264755070316221613903484529942491724837340613662263834936811")
+      + std::string(  "1684167056925214751383930638455371862687797328895558871634429756244755392366369488877823890174981027")
       ;
 
     return str_ln_two;
@@ -120,8 +130,8 @@ namespace local
       BOOST_CONSTEXPR_OR_CONST int large_fixed_point_resolution = ((FixedPointType::resolution <= -8) ? FixedPointType::resolution : -8);
 
       typedef boost::fixed_point::negatable<((-large_fixed_point_resolution) * 2) - 1,
-                                               large_fixed_point_resolution  * 2>
-      large_fixed_point_type;
+        large_fixed_point_resolution  * 2>
+        large_fixed_point_type;
 
       // Choose m > (N * 1.661), where N is the number of decimal digits requested.
       BOOST_CONSTEXPR_OR_CONST int m = static_cast<int>((((long(-large_fixed_point_resolution) * 301L) / 1000L) * 17L) / 10L);
@@ -163,11 +173,11 @@ namespace local
         }
       }
 
-      // The iteration is finished: Compute ln2 = pi / [2m * AGM(1, 4 / 2^m)].
+      // The iteration is finished: Compute ln2 = pi / [AGM(1, 4 / 2^m) * 2m].
       // Note that ak = bk = AGM(...).
 
       const large_fixed_point_type large_val_ln_two =
-        large_fixed_point_type(FloatingPointType(pi_helper_string())) / (ak * (2U * m));
+        large_fixed_point_type(FloatingPointType(pi_helper_string())) / (ak * (2 * m));
 
       const FixedPointType val_ln_two     = large_val_ln_two;
       const FixedPointType control_value  = FixedPointType(FloatingPointType(ln_two_helper_string()));
@@ -181,7 +191,7 @@ namespace local
     static FixedPointType tolerance_maker(const int fuzzy_bits)
     {
       return ldexp(FixedPointType(1),
-                   FixedPointType::resolution + fuzzy_bits);
+        FixedPointType::resolution + fuzzy_bits);
     }
   };
 
