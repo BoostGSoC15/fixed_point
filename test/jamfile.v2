@@ -57,6 +57,7 @@ test-suite "Fixed_point"
       [ run test_negatable_bare_metal_config.cpp boost_unit_test ]
       [ run test_negatable_bare_metal_config_32bit.cpp boost_unit_test ]
       [ run test_negatable_basic.cpp boost_unit_test ]
+      [ run test_negatable_bernoullib2n.cpp boost_unit_test ]
       [ run test_negatable_bit_pattern.cpp boost_unit_test ]
       [ run test_negatable_cbrt_fastest.cpp boost_unit_test ]
       [ run test_negatable_cbrt_nearest_even.cpp boost_unit_test ]
