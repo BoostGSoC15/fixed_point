@@ -489,7 +489,7 @@
       a built-in type such as @c int8_t, @c int16_t, @c int32_t, @c int64_t, etc.\n
       For larger digit counts, this will be a multiprecision signed integer type.
     */
-    typedef typename detail::integer_type_helper<all_bits>::exact_signed_type value_type;
+    typedef typename detail::integer_type_helper<boost::uint32_t(all_bits)>::exact_signed_type value_type;
 
     /*!
       The floating-point type that is guaranteed to be wide
@@ -512,7 +512,7 @@
       \endcode
 
     */
-   typedef typename detail::float_type_helper<all_bits - 1>::exact_float_type float_type;
+   typedef typename detail::float_type_helper<boost::uint32_t(all_bits - 1)>::exact_float_type float_type;
 
     // The public class constructors follow below.
 
@@ -1125,8 +1125,8 @@
   private:
     value_type data;
 
-    typedef typename detail::integer_type_helper<negatable::all_bits * 1>::exact_unsigned_type unsigned_small_type;
-    typedef typename detail::integer_type_helper<negatable::all_bits * 2>::exact_unsigned_type unsigned_large_type;
+    typedef typename detail::integer_type_helper<boost::uint32_t(negatable::all_bits * 1)>::exact_unsigned_type unsigned_small_type;
+    typedef typename detail::integer_type_helper<boost::uint32_t(negatable::all_bits * 2)>::exact_unsigned_type unsigned_large_type;
 
     static const unsigned_small_type& unsigned_small_mask() BOOST_NOEXCEPT
     {
@@ -1135,7 +1135,7 @@
       static const unsigned_small_type the_value =
         detail::bit_mask_helper<unsigned_small_type,
                                 0U,
-                                unsigned(IntegralRange - FractionalResolution)>::value();
+                                boost::uint32_t(IntegralRange - FractionalResolution)>::value();
 
       return the_value;
     }
@@ -1146,8 +1146,8 @@
 
       static const unsigned_small_type the_value =
         detail::bit_mask_helper<unsigned_small_type,
-                                unsigned(-FractionalResolution),
-                                unsigned(IntegralRange + 1)>::value();
+                                boost::uint32_t(-FractionalResolution),
+                                boost::uint32_t(IntegralRange + 1)>::value();
 
       return the_value;
     }
@@ -1192,9 +1192,9 @@
       // no additional information is available for rounding,
       // and no extra binary digit is reserved for rounding.
 
-      BOOST_CONSTEXPR_OR_CONST unsigned floating_point_digits          = unsigned(std::numeric_limits<FloatingPointType>::digits);
-      BOOST_CONSTEXPR_OR_CONST unsigned floating_point_digits_plus_one = unsigned(floating_point_digits + 1);
-      BOOST_CONSTEXPR_OR_CONST unsigned unsigned_small_digits          = unsigned(std::numeric_limits<unsigned_small_type>::digits);
+      BOOST_CONSTEXPR_OR_CONST boost::uint32_t floating_point_digits          = boost::uint32_t(std::numeric_limits<FloatingPointType>::digits);
+      BOOST_CONSTEXPR_OR_CONST boost::uint32_t floating_point_digits_plus_one = boost::uint32_t(floating_point_digits + 1);
+      BOOST_CONSTEXPR_OR_CONST boost::uint32_t unsigned_small_digits          = boost::uint32_t(std::numeric_limits<unsigned_small_type>::digits);
 
       BOOST_CONSTEXPR_OR_CONST bool rounding_is_to_be_carried_out = (floating_point_digits_plus_one != unsigned_small_digits);
 
@@ -1204,10 +1204,10 @@
       // * If rounding is *not* to be done, this is the larger of digits(FloatingPointType)
       //   and digits(unsigned_small_type). 
 
-      BOOST_CONSTEXPR_OR_CONST unsigned floating_point_conversion_digits =
+      BOOST_CONSTEXPR_OR_CONST boost::uint32_t floating_point_conversion_digits =
         (rounding_is_to_be_carried_out ? floating_point_digits_plus_one : floating_point_digits);
 
-      BOOST_CONSTEXPR_OR_CONST unsigned unsigned_conversion_digits =
+      BOOST_CONSTEXPR_OR_CONST boost::uint32_t unsigned_conversion_digits =
         ((floating_point_conversion_digits > unsigned_small_digits) ? floating_point_conversion_digits
                                                                     : unsigned_small_digits);
 
@@ -1424,7 +1424,7 @@
     {
       initialization_helper.force_premain_init_of_static_constants();
 
-      static const negatable the_value_pi = pi_helper<unsigned(-resolution)>::calculate_pi();
+      static const negatable the_value_pi = pi_helper<boost::uint32_t(-resolution)>::calculate_pi();
 
       return the_value_pi;
     }
@@ -1433,12 +1433,12 @@
     {
       initialization_helper.force_premain_init_of_static_constants();
 
-      static const negatable the_value_ln_two = ln_two_helper<unsigned(-resolution)>::calculate_ln_two();
+      static const negatable the_value_ln_two = ln_two_helper<boost::uint32_t(-resolution)>::calculate_ln_two();
 
       return the_value_ln_two;
     }
 
-    template<const unsigned BitCount,
+    template<const boost::uint32_t BitCount,
              typename EnableType = void>
     struct pi_helper
     {
@@ -1450,7 +1450,7 @@
       }
     };
 
-    template<const unsigned BitCount>
+    template<const boost::uint32_t BitCount>
     struct pi_helper<BitCount,
                      typename std::enable_if<(BitCount >= 62U)>::type>
     {
@@ -1514,22 +1514,22 @@
       }
     };
 
-    template<const unsigned BitCount,
+    template<const boost::uint32_t BitCount,
              typename EnableType = void>
     struct ln_two_helper
     {
       static negatable calculate_ln_two()
       {
         // TBD: This value is copied from pi. Calculate and use the proper number for ln_two.
-        BOOST_CONSTEXPR_OR_CONST value_type ln_two_data = value_type(UINT64_C(0x6487ED5110B4611A) >> (61 - int(BitCount)));
+        BOOST_CONSTEXPR_OR_CONST value_type ln_two_data = value_type(UINT64_C(0x6487ED5110B4611A) >> (UINT32_C(61) - (BitCount)));
 
         return negatable(nothing(), ln_two_data);
       }
     };
 
-    template<const unsigned BitCount>
+    template<const boost::uint32_t BitCount>
     struct ln_two_helper<BitCount,
-                         typename std::enable_if<(BitCount >= 64U)>::type>
+                         typename std::enable_if<(BitCount >= UINT32_C(64))>::type>
     {
       static negatable calculate_ln_two()
       {
