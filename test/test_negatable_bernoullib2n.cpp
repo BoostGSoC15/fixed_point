@@ -41,23 +41,52 @@ BOOST_AUTO_TEST_CASE(test_negatable_bernoullib2n)
   boost::math::bernoulli_b2n<fixed_point_type>(0, number_of_bernoulli_b2n, std::back_inserter(b2n_fixed));
   boost::math::bernoulli_b2n<float_point_type>(0, number_of_bernoulli_b2n, std::back_inserter(b2n_float));
 
+  // Create smaller fixed-point and floating-point types for the results.
+  typedef boost::fixed_point::negatable<255, -256> fixed_point_result_type;
+  typedef fixed_point_type::float_type             float_point_result_type;
+
+  std::vector<fixed_point_result_type> b2n_fixed_result(b2n_fixed.size());
+  std::vector<float_point_result_type> b2n_float_result(b2n_float.size());
+
+  // Transform the Bernoulli number arrays. Thereby testing the fixed-point class
+  // with yet another algorithm.
+  std::transform(b2n_fixed.cbegin(),
+                 b2n_fixed.cend(),
+                 b2n_fixed_result.begin(),
+                 [](const fixed_point_type& b2n) -> fixed_point_result_type
+                 {
+                   return fixed_point_result_type(b2n);
+                 });
+
+  std::transform(b2n_float.cbegin(),
+                 b2n_float.cend(),
+                 b2n_float_result.begin(),
+                 [](const float_point_type& b2n) -> float_point_result_type
+                 {
+                   return float_point_result_type(b2n);
+                 });
+
   // Set a judiciously selected tolerance for these tests.
-  const fixed_point_type tolerance = ldexp(fixed_point_type(1), -130);
+  const fixed_point_result_type tolerance = ldexp(fixed_point_result_type(1), -130);
 
   // Search for a potential mismatch between the fixed-point Bernoulli numbers
   // and the floatiing-point Bernoulli numbers
-  const std::pair<std::vector<fixed_point_type>::const_iterator,
-                  std::vector<float_point_type>::const_iterator> result_of_mismatch_search =
-    std::mismatch(b2n_fixed.cbegin(),
-                  b2n_fixed.cend(),
-                  b2n_float.cbegin(),
-                  [&tolerance](const fixed_point_type& a, const float_point_type& b) -> bool
+  const std::pair<std::vector<fixed_point_result_type>::const_iterator,
+                  std::vector<float_point_result_type>::const_iterator> result_of_mismatch_search =
+    std::mismatch(b2n_fixed_result.cbegin(),
+                  b2n_fixed_result.cend(),
+                  b2n_float_result.cbegin(),
+                  [&tolerance](const fixed_point_result_type& a, const float_point_result_type& b) -> bool
                   {
-                    const fixed_point_type fraction = fabs(a / fixed_point_type(b));
-                    const fixed_point_type delta    = fabs(1 - fraction);
+                    const fixed_point_result_type fraction = fabs(a / fixed_point_result_type(b));
+                    const fixed_point_result_type delta    = fabs(1 - fraction);
 
-                    return (delta <= tolerance);
+                    const bool comparison_is_ok = (delta <= tolerance);
+
+                    BOOST_CHECK(comparison_is_ok);
+
+                    return comparison_is_ok;
                   });
 
-  BOOST_CHECK_EQUAL(result_of_mismatch_search.first == b2n_fixed.cend(), true);
+  BOOST_CHECK_EQUAL(result_of_mismatch_search.first == b2n_fixed_result.cend(), true);
 }

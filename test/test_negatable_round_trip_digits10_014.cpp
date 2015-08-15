@@ -18,7 +18,7 @@
 #include <sstream>
 #include <string>
 
-#include <boost/cstdfloat.hpp>
+#include <boost/cstdint.hpp>
 #include <boost/fixed_point/fixed_point.hpp>
 #include <boost/generator_iterator.hpp>
 #include <boost/lexical_cast.hpp>

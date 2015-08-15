@@ -18,7 +18,6 @@
 #include <limits>
 #include <type_traits>
 
-#include <boost/cstdfloat.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/fixed_point/fixed_point.hpp>
 #include <boost/test/included/unit_test.hpp>
@@ -27,6 +26,7 @@ namespace local
 {
   const std::string pi_helper_string()
   {
+    // Store 3000 decimal digits of pi in the form of a static constant string.
     static const std::string str_pi =
         std::string("3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679")
       + std::string(  "8214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196")
@@ -47,7 +47,17 @@ namespace local
       + std::string(  "8164706001614524919217321721477235014144197356854816136115735255213347574184946843852332390739414333")
       + std::string(  "4547762416862518983569485562099219222184272550254256887671790494601653466804988627232791786085784383")
       + std::string(  "8279679766814541009538837863609506800642251252051173929848960841284886269456042419652850222106611863")
-      + std::string(  "0674427862203919494504712371378696095636437191728746776465757396241389086583264599581339047802759010")
+      + std::string(  "0674427862203919494504712371378696095636437191728746776465757396241389086583264599581339047802759009")
+      + std::string(  "9465764078951269468398352595709825822620522489407726719478268482601476990902640136394437455305068203")
+      + std::string(  "4962524517493996514314298091906592509372216964615157098583874105978859597729754989301617539284681382")
+      + std::string(  "6868386894277415599185592524595395943104997252468084598727364469584865383673622262609912460805124388")
+      + std::string(  "4390451244136549762780797715691435997700129616089441694868555848406353422072225828488648158456028506")
+      + std::string(  "0168427394522674676788952521385225499546667278239864565961163548862305774564980355936345681743241125")
+      + std::string(  "1507606947945109659609402522887971089314566913686722874894056010150330861792868092087476091782493858")
+      + std::string(  "9009714909675985261365549781893129784821682998948722658804857564014270477555132379641451523746234364")
+      + std::string(  "5428584447952658678210511413547357395231134271661021359695362314429524849371871101457654035902799344")
+      + std::string(  "0374200731057853906219838744780847848968332144571386875194350643021845319104848100537061468067491927")
+      + std::string(  "8191197939952061419663428754440643745123718192179998391015919561814675142691239748940907186494231962")
       ;
 
     return str_pi;
@@ -55,6 +65,7 @@ namespace local
 
   const std::string ln_two_helper_string()
   {
+    // Store 3000 decimal digits of ln_two in the form of a static constant string.
     static const std::string str_ln_two =
         std::string("0.6931471805599453094172321214581765680755001343602552541206800094933936219696947156058633269964186875")
       + std::string(  "4200148102057068573368552023575813055703267075163507596193072757082837143519030703862389167347112335")
@@ -99,14 +110,16 @@ namespace local
   public:
     static FixedPointType pi(const int fuzzy_bits)
     {
-      // Use at least as many bits as the sum of (bits of float32_t + 1).
-      // Use at least 4 range bits.
+      // Use at least 15 total significant bits.
+      // Use at least  4 range bits.
+      // Use at least  8 resolution bits.
 
-      BOOST_STATIC_ASSERT((FixedPointType::range - FixedPointType::resolution) >= (std::numeric_limits<boost::float32_t>::digits + 1));
+      BOOST_STATIC_ASSERT((FixedPointType::range - FixedPointType::resolution) >= 15);
       BOOST_STATIC_ASSERT( FixedPointType::range >= 4);
+      BOOST_STATIC_ASSERT(-FixedPointType::resolution >= 8);
 
-      const FixedPointType    val_pi         = boost::fixed_point::negatable_constants<FixedPointType>::pi();
-      const FixedPointType    control_value  = FixedPointType(FloatingPointType(pi_helper_string()));
+      const FixedPointType val_pi        = boost::fixed_point::negatable_constants<FixedPointType>::pi();
+      const FixedPointType control_value = FixedPointType(FloatingPointType(pi_helper_string()));
 
       BOOST_CHECK_CLOSE_FRACTION(val_pi, control_value, tolerance_maker(fuzzy_bits));
 
@@ -115,36 +128,38 @@ namespace local
 
     static FixedPointType ln_two(const int fuzzy_bits)
     {
-      // Use at least as many bits as the sum of (bits of float32_t + 1).
-      // Use at least 2 range bits.
+      // Use at least 15 total significant bits.
+      // Use at least  8 resolution bits.
 
-      BOOST_STATIC_ASSERT((FixedPointType::range - FixedPointType::resolution) >= (std::numeric_limits<boost::float32_t>::digits + 1));
-      BOOST_STATIC_ASSERT( FixedPointType::range >= 2);
+      BOOST_STATIC_ASSERT((FixedPointType::range - FixedPointType::resolution) >= 15);
+      BOOST_STATIC_ASSERT(-FixedPointType::resolution >= 8);
 
       // The calculation of ln_two requires significantly more precision
       // in both the range as well as the resolution in order to be
       // calculated with the Gauss AGM method. For this reason, we create
-      // a larger local fixed-point type that is large enough to compensate
+      // a large local fixed-point type that is large enough to compensate
       // for all the digit loss in the calculation.
 
-      BOOST_CONSTEXPR_OR_CONST int large_fixed_point_resolution = ((FixedPointType::resolution <= -8) ? FixedPointType::resolution : -8);
+      BOOST_CONSTEXPR_OR_CONST int large_local_fixed_point_resolution = -(((-FixedPointType::resolution) >= 8) ? (-FixedPointType::resolution) : 8);
 
-      typedef boost::fixed_point::negatable<((-large_fixed_point_resolution) * 2) - 1,
-        large_fixed_point_resolution  * 2>
-        large_fixed_point_type;
+      BOOST_STATIC_ASSERT(large_local_fixed_point_resolution < 0);
+
+      typedef boost::fixed_point::negatable<((-large_local_fixed_point_resolution) * 2) - 1,
+                                               large_local_fixed_point_resolution  * 2>
+      large_local_fixed_point_type;
 
       // Choose m > (N * 1.661), where N is the number of decimal digits requested.
-      BOOST_CONSTEXPR_OR_CONST int m = static_cast<int>((((long(-large_fixed_point_resolution) * 301L) / 1000L) * 17L) / 10L);
+      BOOST_CONSTEXPR_OR_CONST int m = static_cast<int>((((long(-large_local_fixed_point_resolution) * 301L) / 1000L) * 17L) / 10L);
 
       // Set a0 = 1.
       // Set b0 = 4 / (2^m) = 1 / 2^(m - 2).
-      large_fixed_point_type ak(1);
+      large_local_fixed_point_type ak(1);
 
-      large_fixed_point_type bk(ldexp(large_fixed_point_type(1), -(m - 2)));
+      large_local_fixed_point_type bk(ldexp(large_local_fixed_point_type(1), -(m - 2)));
 
       for(boost::uint_least8_t k = UINT8_C(0); k < UINT8_C(32); ++k)
       {
-        const large_fixed_point_type a(ak);
+        const large_local_fixed_point_type a(ak);
         ak += bk;
         ak /= 2U;
         bk  = sqrt(bk * a);
@@ -153,7 +168,7 @@ namespace local
 
         if(minimum_number_of_iterations_are_complete)
         {
-          const large_fixed_point_type delta_ak_bk = fabs(ak - bk);
+          const large_local_fixed_point_type delta_ak_bk = fabs(ak - bk);
 
           // Extract the exponent of the iteration term in order to
           // obtain a rough estimate of the number of base-2 digits
@@ -164,7 +179,7 @@ namespace local
 
           const bool delta_ak_bk_is_zero = ((exp2 == 0) || (delta_ak_bk == 0));
 
-          const bool precision_goal_has_been_reached = (exp2 <= ((large_fixed_point_resolution * 3) / 4));
+          const bool precision_goal_has_been_reached = (exp2 <= ((large_local_fixed_point_resolution * 3) / 4));
 
           if(precision_goal_has_been_reached || delta_ak_bk_is_zero)
           {
@@ -173,13 +188,15 @@ namespace local
         }
       }
 
+      // Define the large floating-point type that corresponds to the
+      // large fixed-point type.
+      typedef typename large_local_fixed_point_type::float_type large_local_float_point_type;
+
       // The iteration is finished: Compute ln2 = pi / [AGM(1, 4 / 2^m) * 2m].
       // Note that ak = bk = AGM(...).
+      const FixedPointType val_ln_two =
+        large_local_fixed_point_type(large_local_float_point_type(pi_helper_string())) / (ak * (2 * m));
 
-      const large_fixed_point_type large_val_ln_two =
-        large_fixed_point_type(FloatingPointType(pi_helper_string())) / (ak * (2 * m));
-
-      const FixedPointType val_ln_two     = large_val_ln_two;
       const FixedPointType control_value  = FixedPointType(FloatingPointType(ln_two_helper_string()));
 
       BOOST_CHECK_CLOSE_FRACTION(val_ln_two, control_value, tolerance_maker(fuzzy_bits));
