@@ -208,32 +208,6 @@
                                                  RoundMode,
                                                  OverflowMode> x);
 
-  // Forward declaration of ltrunc.
-  template<const int IntegralRange,
-           const int FractionalResolution,
-           typename RoundMode,
-           typename OverflowMode>
-  inline negatable<IntegralRange,
-                   FractionalResolution,
-                   RoundMode,
-                   OverflowMode> ltrunc(negatable<IntegralRange,
-                                                  FractionalResolution,
-                                                  RoundMode,
-                                                  OverflowMode> x);
-
-  // Forward declaration of lltrunc.
-  template<const int IntegralRange,
-           const int FractionalResolution,
-           typename RoundMode,
-           typename OverflowMode>
-  inline negatable<IntegralRange,
-                   FractionalResolution,
-                   RoundMode,
-                   OverflowMode> lltrunc(negatable<IntegralRange,
-                                                   FractionalResolution,
-                                                   RoundMode,
-                                                   OverflowMode> x);
-
   // Forward declaration of frexp.
   template<const int IntegralRange,
            const int FractionalResolution,
@@ -2090,16 +2064,6 @@
       return ((!(x < 0)) ? floor(x) : -floor(-x));
     }
 
-    friend inline negatable ltrunc(negatable x)
-    {
-      return trunc(x);
-    }
-
-    friend inline negatable lltrunc(negatable x)
-    {
-      return trunc(x);
-    }
-
     /*! @c std::frexp function \<cmath\> implementation for negatable types.\n
 
     TBD examples.\n
@@ -2396,8 +2360,6 @@
   using boost::fixed_point::floor;
   using boost::fixed_point::ceil;
   using boost::fixed_point::trunc;
-  using boost::fixed_point::ltrunc;
-  using boost::fixed_point::lltrunc;
   using boost::fixed_point::sqrt;
   using boost::fixed_point::acos;
   using boost::fixed_point::exp;
