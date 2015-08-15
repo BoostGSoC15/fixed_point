@@ -29,8 +29,8 @@
   #if defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
 
     // When I/O streaming is disabled:
+    //   * We must eliminate all I/O streaming and lexical conversions.
     //   * We must eliminate use of Boost.Multiprecision.
-    //   * We must eliminate use of Boost.Math.Constants (because these require I/O streams).
 
     #if !defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
       #error Error: BOOST_FIXED_POINT_DISABLE_IOSTREAM can not be set without also setting BOOST_FIXED_POINT_DISABLE_MULTIPRECISION.
@@ -56,13 +56,13 @@
     #include <string>
     #include <type_traits>
     #include <boost/lexical_cast.hpp>
-    #include <boost/math/constants/constants.hpp>
 
   #else
 
     // When multiprecision and I/O streaming are enabled:
-    //   * We eliminate nothing and include all overhead from
-    //     both Boost.Multiprecision as well as I/O streaming.
+    //   * We eliminate nothing and include all overhead from both
+    //     Boost.Multiprecision as well as I/O streaming and
+    //     lexical conversions.
 
     #include <algorithm>
     #include <cmath>
@@ -80,16 +80,14 @@
 
   #endif
 
-  #include <boost/cstdint.hpp>
-  #include <boost/fixed_point/detail/fixed_point_detail_cstdfloat.hpp>
   #include <boost/fixed_point/detail/fixed_point_detail.hpp>
   #include <boost/fixed_point/fixed_point_overflow.hpp>
   #include <boost/fixed_point/fixed_point_round.hpp>
 
-  static_assert(std::numeric_limits<boost::uint8_t >::digits ==  8, "Configuration error: the size of boost::uint8_t  must be 8  bits!");
-  static_assert(std::numeric_limits<boost::uint16_t>::digits == 16, "Configuration error: the size of boost::uint16_t must be 16 bits!");
-  static_assert(std::numeric_limits<boost::uint32_t>::digits == 32, "Configuration error: the size of boost::uint32_t must be 32 bits!");
-  static_assert(std::numeric_limits<boost::uint64_t>::digits == 64, "Configuration error: the size of boost::uint64_t must be 64 bits!");
+  static_assert(std::numeric_limits<boost::uint8_t >::digits ==  8, "Configuration error: The size of boost::uint8_t  must be 8  bits!");
+  static_assert(std::numeric_limits<boost::uint16_t>::digits == 16, "Configuration error: The size of boost::uint16_t must be 16 bits!");
+  static_assert(std::numeric_limits<boost::uint32_t>::digits == 32, "Configuration error: The size of boost::uint32_t must be 32 bits!");
+  static_assert(std::numeric_limits<boost::uint64_t>::digits == 64, "Configuration error: The size of boost::uint64_t must be 64 bits!");
 
   namespace boost { namespace fixed_point {
 
@@ -774,6 +772,7 @@
       return *this;
     }
 
+    // This is the move equality operator.
     negatable& operator=(negatable&& other)
     {
       data = static_cast<value_type&&>(other.data);
@@ -784,7 +783,6 @@
     /*! Equality operator of @c *this with another negatable type
     having @b different range and/or resolution parameters than @c *this.
     */
-/*
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution>
     negatable& operator=(const negatable<OtherIntegralRange,
@@ -801,7 +799,7 @@
 
       return *this;
     }
-*/
+
     //! Equality operators for built-in integral types.
     negatable& operator=(const signed char&        n) { make_from_signed_integral_type  (n); return *this; }
     negatable& operator=(const signed short&       n) { make_from_signed_integral_type  (n); return *this; }
@@ -817,10 +815,11 @@
     negatable& operator=(const double&             f) { make_from_floating_point_type   (f); return *this; }
     negatable& operator=(const long double&        f) { make_from_floating_point_type   (f); return *this; }
 
-    //! Unary pre-increment and post-increment operators.
+    //! Unary pre-increment and pre-decrement operators.
     negatable& operator++()   { data += value_type(unsigned_small_type(1) << radix_split); return *this; }
     negatable& operator--()   { data -= value_type(unsigned_small_type(1) << radix_split); return *this; }
 
+    //! Unary post-increment and post-decrement operators.
     negatable operator++(int) { const negatable tmp(*this); data += value_type(unsigned_small_type(1) << radix_split); return tmp; }
     negatable operator--(int) { const negatable tmp(*this); data -= value_type(unsigned_small_type(1) << radix_split); return tmp; }
 
@@ -1626,17 +1625,17 @@
     //! \cond DETAIL
     // Do not document the implementation details unless macro DETAIL is defined.
 
-    //! Implementations of global unary plus and minus.
+    //! Implementations of non-member unary plus and minus.
     friend inline negatable operator+(const negatable& self) { return negatable(self); }
     friend inline negatable operator-(const negatable& self) { negatable tmp(self); tmp.data = -tmp.data; return tmp; }
 
-    //! Implementations of global binary add, sub, mul, div of [lhs(negatable)] operator [rhs(negatable)].
+    //! Implementations of non-member binary add, sub, mul, div of [lhs(negatable)] operator [rhs(negatable)].
     friend inline negatable operator+(const negatable& u, const negatable& v) { return negatable(u) += v; }
     friend inline negatable operator-(const negatable& u, const negatable& v) { return negatable(u) -= v; }
     friend inline negatable operator*(const negatable& u, const negatable& v) { return negatable(u) *= v; }
     friend inline negatable operator/(const negatable& u, const negatable& v) { return negatable(u) /= v; }
 
-    //! Implementations of global binary add, sub, mul, div of [lhs(negatable)] operator [rhs(arithmetic_type)].
+    //! Implementations of non-member binary add, sub, mul, div of [lhs(negatable)] operator [rhs(arithmetic_type)].
     template<typename ArithmeticType>
     friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type
     operator+(const negatable& u, const ArithmeticType& v)
@@ -1665,7 +1664,7 @@
       return negatable(u) /= v;
     }
 
-    //! Implementations of global binary add, sub, mul, div of [lhs(arithmetic_type)] operator [rhs(negatable)].
+    //! Implementations of non-member binary add, sub, mul, div of [lhs(arithmetic_type)] operator [rhs(negatable)].
     template<typename ArithmeticType>
     friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type
     operator+(const ArithmeticType& u, const negatable& v)
@@ -1694,7 +1693,7 @@
       return negatable(u) /= v;
     }
 
-    //! Implementations of global binary add, sub, mul, div of [lhs(negatable)] operator [rhs(other_negatable)].
+    //! Implementations of non-member binary add, sub, mul, div of [lhs(negatable)] operator [rhs(other_negatable)].
 
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution,
@@ -1780,7 +1779,7 @@
       return higher_resolution_fixed_point_type(u) /= higher_resolution_fixed_point_type(v);
     }
 
-    //! Implementations of global comparison operators of negatable comparied with negatable.
+    //! Implementations of non-member comparison operators of negatable comparied with negatable.
     friend inline bool operator==(const negatable& u, const negatable& v) { return (u.data == v.data); }
     friend inline bool operator!=(const negatable& u, const negatable& v) { return (u.data != v.data); }
     friend inline bool operator> (const negatable& u, const negatable& v) { return (u.data >  v.data); }
@@ -1788,7 +1787,7 @@
     friend inline bool operator>=(const negatable& u, const negatable& v) { return (u.data >= v.data); }
     friend inline bool operator<=(const negatable& u, const negatable& v) { return (u.data <= v.data); }
 
-    //! Implementations of global comparison operators of negatable comparied with ArithmeticType.
+    //! Implementations of non-member comparison operators of negatable comparied with ArithmeticType.
     friend inline bool operator==(const negatable& u, const signed char&        v) { return (u.data == negatable(v).data); }
     friend inline bool operator==(const negatable& u, const signed short&       v) { return (u.data == negatable(v).data); }
     friend inline bool operator==(const negatable& u, const signed int&         v) { return (u.data == negatable(v).data); }
@@ -1868,7 +1867,7 @@
     friend inline bool operator<=(const negatable& u, const double&             v) { return (u.data <= negatable(v).data); }
     friend inline bool operator<=(const negatable& u, const long double&        v) { return (u.data <= negatable(v).data); }
 
-    //! Implementations of global comparison operators of ArithmeticType comparied with negatable.
+    //! Implementations of non-member comparison operators of ArithmeticType comparied with negatable.
     friend inline bool operator==(const signed char&        u, const negatable& v) { return (negatable(u).data == v.data); }
     friend inline bool operator==(const signed short&       u, const negatable& v) { return (negatable(u).data == v.data); }
     friend inline bool operator==(const signed int&         u, const negatable& v) { return (negatable(u).data == v.data); }
@@ -1948,7 +1947,7 @@
     friend inline bool operator<=(const double&             u, const negatable& v) { return (negatable(u).data <= v.data); }
     friend inline bool operator<=(const long double&        u, const negatable& v) { return (negatable(u).data <= v.data); }
 
-    //! Implementations of mixed-math global comparison operators.
+    //! Implementations of non-member mixed-math comparison operators.
 
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution>
@@ -2285,7 +2284,7 @@
       // This result is subsequently used in Boost.Math.Constants for the
       // calculation of pi.
 
-      // TBD: Make a complete and efficient version of acos.
+      // TBD: Make a complete (and efficient) version of acos.
 
       if(x == 0)
       {

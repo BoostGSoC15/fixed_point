@@ -12,6 +12,16 @@
 #ifndef FIXED_POINT_DETAIL_2015_05_23_HPP_
   #define FIXED_POINT_DETAIL_2015_05_23_HPP_
 
+  #include <boost/cstdint.hpp>
+  #include <boost/fixed_point/detail/fixed_point_detail_cstdfloat.hpp>
+
+  #if (   !defined(BOOST_FIXED_POINT_FLOAT32_C)  \
+       && !defined(BOOST_FIXED_POINT_FLOAT32_C)  \
+       && !defined(BOOST_FIXED_POINT_FLOAT32_C)  \
+       && !defined(BOOST_FIXED_POINT_FLOAT32_C))
+    #error Configuration error: Fixed_point can not detect any IEEE-754 built-in floating-point types!
+  #endif
+
   // Do not produce Doxygen indexing of items in namespace detail unless specifically required.
   // The section between \cond and \endcond can be included by adding its section label DETAIL
   // to the ENABLED_SECTIONS configuration option. 
@@ -407,79 +417,146 @@
                                             boost::multiprecision::et_off> exact_unsigned_type;
     };
 
-    #endif // !BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
+  #endif // !BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
 
-    #if !defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
+  #if !defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
 
-      template<const unsigned BitCount,
-               typename EnableType = void>
-      struct float_type_helper
-      {
-      private:
-        typedef boost::multiprecision::backends::cpp_bin_float<BitCount,
-                                                               boost::multiprecision::backends::digit_base_2>
-        floating_point_backend_type;
+    template<const unsigned BitCount,
+              typename EnableType = void>
+    struct float_type_helper
+    {
+    private:
+      typedef boost::multiprecision::backends::cpp_bin_float<BitCount,
+                                                             boost::multiprecision::backends::digit_base_2>
+      floating_point_backend_type;
 
-      public:
-        typedef boost::multiprecision::number<floating_point_backend_type,
-                                              boost::multiprecision::et_off> exact_float_type;
-      };
-
-    #else
-
-      template<const unsigned BitCount,
-                typename EnableType = void>
-      struct float_type_helper
-      {
-        typedef boost::fixed_point::detail::floatmax_t exact_float_type;
-      };
+    public:
+      typedef boost::multiprecision::number<floating_point_backend_type,
+                                            boost::multiprecision::et_off> exact_float_type;
+    };
 
   #endif // !BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
 
-  template<const unsigned BitCount>
-  struct float_type_helper<BitCount,
-                           typename std::enable_if<(BitCount <= 24U)>::type>
-  {
-    typedef boost::fixed_point::detail::float32_t exact_float_type;
-  };
+  #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
+
+    template<const unsigned BitCount,
+             typename EnableType = void>
+    struct float_type_helper
+    {
+      typedef boost::fixed_point::detail::floatmax_t exact_float_type;
+    };
+
+  #endif
+
+  #if defined(BOOST_FIXED_POINT_FLOAT32_C)
+
+    template<const unsigned BitCount>
+    struct float_type_helper<BitCount,
+                             typename std::enable_if<(BitCount <= 24U)>::type>
+    {
+      typedef boost::fixed_point::detail::float32_t exact_float_type;
+    };
+
+  #endif // BOOST_FIXED_POINT_FLOAT32_C
 
   #if defined(BOOST_FIXED_POINT_FLOAT64_C)
+
+    // For 64.bit float, we have two cases.
+    //
+    // * !float32_t : float64_t covers bits  0...53
+    // *  float32_t : float64_t covers bits 24...53
+
     template<const unsigned BitCount>
     struct float_type_helper<BitCount,
+    #if defined(BOOST_FIXED_POINT_FLOAT32_C)
                              typename std::enable_if<   (BitCount >  24U)
                                                      && (BitCount <= 53U)>::type>
-    {
-      typedef boost::fixed_point::detail::float64_t exact_float_type;
-    };
-  #endif // BOOST_FIXED_POINT_FLOAT64_C
-
-  #if defined(BOOST_FIXED_POINT_FLOAT80_C)
-    template<const unsigned BitCount>
-    struct float_type_helper<BitCount,
-    #if defined(BOOST_FIXED_POINT_FLOAT64_C)
-                             typename std::enable_if<   (BitCount >  53U)
-                                                     && (BitCount <= 64U)>::type>
     #else
-                             typename std::enable_if<   (BitCount >  24U)
-                                                     && (BitCount <= 64U)>::type>
+                             typename std::enable_if<   (BitCount <= 53U)>::type>
     #endif
     {
       typedef boost::fixed_point::detail::float64_t exact_float_type;
     };
+
+  #endif // BOOST_FIXED_POINT_FLOAT64_C
+
+  #if defined(BOOST_FIXED_POINT_FLOAT80_C)
+
+    // For 80.bit float, we have four cases (2^2 = 4). There are
+    // two redundant cases.
+    //
+    // * !float32_t && !float64_t : float80_t covers bits  0...64
+    // *  float32_t && !float64_t : float80_t covers bits 24...64
+    // *  float32_t &&  float64_t : float80_t covers bits 53...64
+    // * !float32_t &&  float64_t : float80_t covers bits 53...64
+
+    template<const unsigned BitCount>
+    struct float_type_helper<BitCount,
+    #if   (!defined(BOOST_FIXED_POINT_FLOAT32_C) && !defined(BOOST_FIXED_POINT_FLOAT64_C))
+                             typename std::enable_if<   (BitCount <= 64U)>::type>
+    #elif ( defined(BOOST_FIXED_POINT_FLOAT32_C) && !defined(BOOST_FIXED_POINT_FLOAT64_C))
+                             typename std::enable_if<   (BitCount >  24U)
+                                                     && (BitCount <= 64U)>::type>
+    #else
+                             typename std::enable_if<   (BitCount >  53U)
+                                                     && (BitCount <= 64U)>::type>
+    #endif
+    {
+      typedef boost::fixed_point::detail::float80_t exact_float_type;
+    };
+
   #endif // BOOST_FIXED_POINT_FLOAT80_C
+
+  #if defined(BOOST_FIXED_POINT_FLOAT128_C)
+
+    // For 128.bit float, we have eight cases (2^3 = 8). There are two groups
+    // of redundancies. These contain two and four redundant results, respectively.
+    //
+    // * !float32_t && !float64_t && !float80_t : float128_t covers bits  0...113
+    // *  float32_t && !float64_t && !float80_t : float128_t covers bits 24...113
+    // * !float32_t &&  float64_t && !float80_t : float128_t covers bits 53...113
+    // *  float32_t &&  float64_t && !float80_t : float128_t covers bits 53...113
+    // * !float32_t && !float64_t &&  float80_t : float128_t covers bits 64...113
+    // *  float32_t && !float64_t &&  float80_t : float128_t covers bits 64...113
+    // * !float32_t &&  float64_t &&  float80_t : float128_t covers bits 64...113
+    // *  float32_t &&  float64_t &&  float80_t : float128_t covers bits 64...113
+
+    template<const unsigned BitCount>
+    struct float_type_helper<BitCount,
+    #if   (!defined(BOOST_FIXED_POINT_FLOAT32_C) && !defined(BOOST_FIXED_POINT_FLOAT64_C) && !defined(BOOST_FIXED_POINT_FLOAT80_C))
+                             typename std::enable_if<   (BitCount <= 113U)>::type>
+    #elif ( defined(BOOST_FIXED_POINT_FLOAT32_C) && !defined(BOOST_FIXED_POINT_FLOAT64_C) && !defined(BOOST_FIXED_POINT_FLOAT80_C))
+                             typename std::enable_if<   (BitCount >   24U)
+                                                     && (BitCount <= 113U)>::type>
+    #elif ( defined(BOOST_FIXED_POINT_FLOAT64_C) && !defined(BOOST_FIXED_POINT_FLOAT80_C))
+                             typename std::enable_if<   (BitCount >   53U)
+                                                     && (BitCount <= 113U)>::type>
+    #else
+                             typename std::enable_if<   (BitCount >   64U)
+                                                     && (BitCount <= 113U)>::type>
+    #endif
+    {
+      typedef boost::fixed_point::detail::float128_t exact_float_type;
+    };
+
+  #endif // BOOST_FIXED_POINT_FLOAT128_C
 
   template<typename UnsignedIntegralType>
   struct msb_meta_helper_nonconstant
   {
     static std::size_t hi_bit(const UnsignedIntegralType& u)
     {
-      // Use binary-halving to find the most significant bit in an unsigned integral type.
-      // The binary-halving search is enabled and accelerated with template metaprogramming.
+      // Use binary-halving to find the most significant bit
+      // in an unsigned integral type. The binary-halving search
+      // is enabled and accelerated with template metaprogramming.
+
+      // TBD: Would a recursive function call here potentially be
+      // more efficient than template-metaprogramming?
 
       static_assert(std::numeric_limits<UnsignedIntegralType>::is_signed == false,
                     "The UnsignedIntegralType for msb_meta_helper_nonconstant must be an unsigned (integral) type.");
 
-      typedef typename integer_type_helper<std::numeric_limits<UnsignedIntegralType>::digits / 2 >::exact_unsigned_type
+      typedef typename integer_type_helper<std::numeric_limits<UnsignedIntegralType>::digits / 2>::exact_unsigned_type
       unsigned_integral_lo_type;
 
       typedef typename integer_type_helper<   std::numeric_limits<UnsignedIntegralType>::digits
@@ -522,8 +599,8 @@
 
       BOOST_CONSTEXPR_OR_CONST std::size_t hi_bit_value[16U] =
       {
-        // 0   1,  2,  3,  4,  5,  6,  7,  8,  9,  A,  B,  C,  D,  E,  F
-          0U, 0U, 1U, 1U, 2U, 2U, 2U, 2U, 3U, 3U, 3U, 3U, 3U, 3U, 3U, 3U
+        // x0  x1, x2, x3, x4, x5, x6, x7, x8, x9, xA, xB, xC, xD, xE, xF
+           0U, 0U, 1U, 1U, 2U, 2U, 2U, 2U, 3U, 3U, 3U, 3U, 3U, 3U, 3U, 3U
       };
 
       return ((hi_nibble != UINT8_C(0)) ? (std::size_t(4U) + hi_bit_value[hi_nibble])
@@ -532,6 +609,7 @@
   };
 
   #if !defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
+
     template<typename UnsignedIntegralType,
              typename FloatingPointType,
              typename EnableType = void>
@@ -541,56 +619,6 @@
                                                              UnsignedIntegralType& unsigned_destination)
       {
         unsigned_destination = floating_point_source.template convert_to<UnsignedIntegralType>();
-      }
-    };
-
-    #if defined(BOOST_FIXED_POINT_FLOAT80_C)
-    template<>
-    struct conversion_helper<boost::uint64_t,
-                             boost::fixed_point::detail::float80_t,
-                             typename std::enable_if<true>::type>
-    {
-      static void convert_floating_point_to_unsigned_integer(const boost::fixed_point::detail::float80_t& floating_point_source,
-                                                             boost::uint64_t& unsigned_destination)
-      {
-        unsigned_destination = static_cast<boost::uint64_t>(floating_point_source);
-      }
-    };
-    #endif
-
-    template<>
-    struct conversion_helper<boost::uint64_t,
-                             typename boost::fixed_point::detail::float_type_helper<128U>::exact_float_type,
-                             typename std::enable_if<true>::type>
-    {
-    private:
-      typedef boost::fixed_point::detail::float_type_helper<128U>::exact_float_type floating_point_type;
-
-    public:
-      static void convert_floating_point_to_unsigned_integer(const floating_point_type& floating_point_source,
-                                                             boost::uint64_t& unsigned_destination)
-      {
-        // Here is a somewhat significant workaround for the conversion of
-        // cpp_bin_float to uint64_t. It is used for cases when the digits
-        // in cpp_bin_float are fewer than the digits in uint64_t,
-        // but larger than the digits in float64_t.
-
-        // TBD: See the TODO in the comment at line 1113 of cpp_bin_float.hpp from Boost 1.58.
-
-        std::stringstream ss;
-
-        ss << std::fixed << floating_point_source;
-
-        std::string str(ss.str());
-
-        const std::string::size_type position_of_dot = str.find(".");
-
-        if(position_of_dot != std::string::npos)
-        {
-          str = str.substr(std::string::size_type(0U), position_of_dot);
-        }
-
-        unsigned_destination = boost::lexical_cast<boost::uint64_t>(str);
       }
     };
 
@@ -607,7 +635,55 @@
       }
     };
 
-  #else
+    #if !defined(BOOST_FIXED_POINT_FLOAT80_C)
+
+      // Here is a somewhat significant workaround for the conversion of
+      // cpp_bin_float to uint64_t. It is used for cases when the digits
+      // when float80_t is not available and we are trying to convert
+      // a small multiprecision floating point type to uint64_t.
+
+      // Say, for instsance, that float64_t is the largest width built-in
+      // floating-point type, but we are converting to uint64_t.
+      // In this case, we might have something like multiprecision
+      // cpp_bin_float<64, digit_base_2> being converted to uint64_t.
+      // But multiprecision does not yet handle this case. In particular,
+      // see the TODO in the comment at line 1113 of cpp_bin_float.hpp
+      // from Boost 1.58.
+
+      template<typename FloatingPointType>
+      struct conversion_helper<boost::uint64_t,
+                               FloatingPointType,
+                               typename std::enable_if<std::is_floating_point<FloatingPointType>::value == false>::type>
+      {
+      private:
+        typedef boost::fixed_point::detail::float_type_helper<64U>::exact_float_type floating_point_type;
+
+      public:
+        static void convert_floating_point_to_unsigned_integer(const floating_point_type& floating_point_source,
+                                                               boost::uint64_t& unsigned_destination)
+        {
+          std::stringstream ss;
+
+          ss << std::fixed << floating_point_source;
+
+          std::string str(ss.str());
+
+          const std::string::size_type position_of_dot = str.find(".");
+
+          if(position_of_dot != std::string::npos)
+          {
+            str = str.substr(std::string::size_type(0U), position_of_dot);
+          }
+
+          unsigned_destination = boost::lexical_cast<boost::uint64_t>(str);
+        }
+      };
+
+    #endif // !BOOST_FIXED_POINT_FLOAT80_C
+
+  #endif // !BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
+
+  #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
 
     template<typename UnsignedIntegralType,
              typename FloatingPointType,
@@ -621,21 +697,7 @@
       }
     };
 
-    #if defined(BOOST_FIXED_POINT_FLOAT80_C)
-    template<>
-    struct conversion_helper<boost::uint64_t,
-                             boost::fixed_point::detail::float80_t,
-                             typename std::enable_if<true>::type>
-    {
-      static void convert_floating_point_to_unsigned_integer(const boost::fixed_point::detail::float80_t& floating_point_source,
-                                                             boost::uint64_t& unsigned_destination)
-      {
-        unsigned_destination = static_cast<boost::uint64_t>(floating_point_source);
-      }
-    };
-    #endif
-
-  #endif // !BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
+  #endif // BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
 
   } } } // namespace boost::fixed_point::detail
   //! \endcond // DETAIL

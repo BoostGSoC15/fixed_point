@@ -53,9 +53,18 @@
                   "The 80-bit floating-point type in <cstdfloat> is not IEEE-754 conformant.");
   #endif
 
-  #if(   (BOOST_FIXED_POINT_STDFLOAT_HAS_FLOAT32_NATIVE_TYPE == 1) \
-      || (BOOST_FIXED_POINT_STDFLOAT_HAS_FLOAT64_NATIVE_TYPE == 1) \
-      || (BOOST_FIXED_POINT_STDFLOAT_HAS_FLOAT80_NATIVE_TYPE == 1))
+  #if(BOOST_FIXED_POINT_STDFLOAT_HAS_FLOAT128_NATIVE_TYPE == 1)
+    static_assert(   (std::numeric_limits<float128_t>::is_iec559    ==  true)
+                  && (std::numeric_limits<float128_t>::radix        ==     2)
+                  && (std::numeric_limits<float128_t>::digits       ==   113)
+                  && (std::numeric_limits<float128_t>::max_exponent == 16384),
+                  "The 128-bit floating-point type in <cstdfloat> is not IEEE-754 conformant.");
+  #endif
+
+  #if(   (BOOST_FIXED_POINT_STDFLOAT_HAS_FLOAT32_NATIVE_TYPE  == 1) \
+      || (BOOST_FIXED_POINT_STDFLOAT_HAS_FLOAT64_NATIVE_TYPE  == 1) \
+      || (BOOST_FIXED_POINT_STDFLOAT_HAS_FLOAT80_NATIVE_TYPE  == 1) \
+      || (BOOST_FIXED_POINT_STDFLOAT_HAS_FLOAT128_NATIVE_TYPE == 1))
   #else
     #error The maximum available floating-point width for <boost/fixed_point/detail/fixed_point_detailc_stdfloat.hpp> is undefined.
   #endif
@@ -63,6 +72,7 @@
   #undef BOOST_FIXED_POINT_STDFLOAT_HAS_FLOAT32_NATIVE_TYPE
   #undef BOOST_FIXED_POINT_STDFLOAT_HAS_FLOAT64_NATIVE_TYPE
   #undef BOOST_FIXED_POINT_STDFLOAT_HAS_FLOAT80_NATIVE_TYPE
+  #undef BOOST_FIXED_POINT_STDFLOAT_HAS_FLOAT128_NATIVE_TYPE
 
   } } } // namespace boost::fixed_point::detail
 
