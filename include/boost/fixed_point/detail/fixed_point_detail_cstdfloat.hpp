@@ -12,7 +12,7 @@
 // as described in N3626 (proposed for C++14).
 // See: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3626.pdf
 // This file has been adapted from <boost/cstdfloat.hpp>.
-// Support for float16_t and float128_t has been removed.
+// Support for float128_t has been removed.
 
 
 #ifndef FIXED_POINT_DETAIL_CSTDFLOAT_2015_08_14_HPP_
@@ -22,7 +22,7 @@
   #include <boost/fixed_point/detail/fixed_point_detail_stdfloat.hpp>
 
   // Here, we define floating-point typedefs having specified widths
-  // within the namespace std.
+  // within the namespace boost::fixed_point::detail.
 
   // In addition, a clear assessment of IEEE-754 comformance is
   // carried out using compile-time assertion.

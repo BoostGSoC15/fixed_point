@@ -81,6 +81,7 @@
   #endif
 
   #include <boost/fixed_point/detail/fixed_point_detail.hpp>
+  #include <boost/fixed_point/detail/fixed_point_detail_constants.hpp>
   #include <boost/fixed_point/fixed_point_overflow.hpp>
   #include <boost/fixed_point/fixed_point_round.hpp>
 
@@ -1346,7 +1347,7 @@
       return the_radix_split_value;
     }
 
-    /*! Compute machine epsilon (at compile time) for 
+    /*! Compute machine epsilon (during pre-main initialization) for
         @c std::numeric_limits<>::epsilon() function.
         Epsilon is defined as the smallest number that,
         when added to one, yields a result different from one.
@@ -1369,7 +1370,7 @@
       return the_epsilon;
     }
 
-    /*! Compute (at compile time) the minimum value that the type can represent.\n
+    /*! Compute (during pre-main initialization) the minimum value that the type can represent.\n
         Used to define function @c std::numeric_limits<>::min().
     */
     static const negatable& value_min() BOOST_NOEXCEPT
@@ -1381,7 +1382,7 @@
       return the_value_min;
     }
 
-    /*! Compute (at compile time) the maximum value that the type can represent.\n
+    /*! Compute (during pre-main initialization) the maximum value that the type can represent.\n
         Used to define function @c std::numeric_limits<>::max()
         and, when negated, @c std::numeric_limits<>::lowest().
     */
@@ -1394,6 +1395,8 @@
       return the_value_max;
     }
 
+    /*! Compute (during pre-main initialization) the representation of the mathematical constant pi.\n
+    */
     static const negatable& value_pi()
     {
       initialization_helper.force_premain_init_of_static_constants();
@@ -1403,6 +1406,8 @@
       return the_value_pi;
     }
 
+    /*! Compute (during pre-main initialization) the representation of the mathematical constant log(2).\n
+    */
     static const negatable& value_ln_two()
     {
       initialization_helper.force_premain_init_of_static_constants();
@@ -1418,73 +1423,21 @@
     {
       static negatable calculate_pi()
       {
-        BOOST_CONSTEXPR_OR_CONST value_type pi_data = value_type(UINT64_C(0x6487ED5110B4611A) >> (61 - int(BitCount)));
+        const float_type val_pi_floating_point_rep = boost::fixed_point::detail::calculate_pi<float_type>();
 
-        return negatable(nothing(), pi_data);
+        return negatable(val_pi_floating_point_rep);
       }
     };
 
     template<const boost::uint32_t BitCount>
     struct pi_helper<BitCount,
-                     typename std::enable_if<(BitCount >= 62U)>::type>
+                     typename std::enable_if<(BitCount < 62U)>::type>
     {
       static negatable calculate_pi()
       {
-        negatable val_pi;
+        BOOST_CONSTEXPR_OR_CONST value_type pi_data = value_type(UINT64_C(0x6487ED5110B4611A) >> (61 - int(BitCount)));
 
-        negatable a (1);
-        negatable bB(negatable(1) / 2);
-        negatable s (negatable(1) / 2);
-        negatable t (negatable(3) / 8);
-
-        // This loop is designed for computing a maximum of a few million
-        // decimal digits of pi. The number of digits roughly doubles
-        // with each iteration of the loop. After 20 iterations,
-        // the precision is about 2.8 million decimal digits.
-        // We are not using that many digits in these tests,
-        // only up to a few thousand at most.
-
-        for(boost::uint_least8_t k = UINT8_C(1); k < UINT8_C(32); ++k)
-        {
-          // Perform the iteration steps of the Gauss AGM.
-
-          a      += sqrt(bB);
-          a      /= 2U;
-          val_pi  = (a * a);
-          bB      = (val_pi - t) * 2U;
-
-          const negatable iterate_term((bB - val_pi) * (UINT32_C(1) << k));
-
-          s += iterate_term;
-
-          const bool minimum_number_of_iterations_are_complete = (k > UINT8_C(2));
-
-          if(minimum_number_of_iterations_are_complete)
-          {
-            // Extract the exponent of the iteration term in order to
-            // obtain a rough estimate of the number of base-2 digits
-            // that have been obtained in this iteration.
-
-            int exp2;
-            static_cast<void>(frexp(iterate_term, &exp2));
-
-            const bool iteration_term_is_zero = ((exp2 == 0) || (iterate_term == 0));
-
-            const bool precision_goal_has_been_reached = (exp2 <= ((-int(BitCount) / 2) + 4));
-
-            if(precision_goal_has_been_reached || iteration_term_is_zero)
-            {
-              break;
-            }
-          }
-
-          t = (val_pi + bB) / 4U;
-        }
-
-        val_pi += bB;
-        val_pi /= s;
-
-        return val_pi;
+        return negatable(nothing(), pi_data);
       }
     };
 
@@ -1494,24 +1447,21 @@
     {
       static negatable calculate_ln_two()
       {
-        // TBD: This value is copied from pi. Calculate and use the proper number for ln_two.
-        BOOST_CONSTEXPR_OR_CONST value_type ln_two_data = value_type(UINT64_C(0x6487ED5110B4611A) >> (UINT32_C(61) - (BitCount)));
+        const float_type val_ln_two_floating_point_rep = boost::fixed_point::detail::calculate_ln_two<float_type>();
 
-        return negatable(nothing(), ln_two_data);
+        return negatable(val_ln_two_floating_point_rep);
       }
     };
 
     template<const boost::uint32_t BitCount>
     struct ln_two_helper<BitCount,
-                         typename std::enable_if<(BitCount >= UINT32_C(64))>::type>
+                         typename std::enable_if<(BitCount < UINT32_C(64))>::type>
     {
       static negatable calculate_ln_two()
       {
-        // TBD: Implement a generic algorithm for computing ln_two.
-        // TBD: Should we use Gaus AGM methods (like in local_constants test)?
-        // TBD: Or would another method be better (like the one used
-        // in Boost.Math.Constants)?
-        return negatable(0);
+        BOOST_CONSTEXPR_OR_CONST value_type ln_two_data = value_type(UINT64_C(0x58B90BFBE8E7BCD6) >> (UINT32_C(63) - (BitCount)));
+
+        return negatable(nothing(), ln_two_data);
       }
     };
 
@@ -2341,11 +2291,29 @@
       typedef boost::fixed_point::negatable<IntegralRange,
                                             FractionalResolution,
                                             boost::fixed_point::round::fastest,
-                                            boost::fixed_point::overflow::undefined> negatable_type;
+                                            boost::fixed_point::overflow::undefined> local_negatable_type;
 
     public:
-      static BOOST_CONSTEXPR_OR_CONST negatable_type pi    () { return negatable_type::value_pi(); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type ln_two() { return negatable_type::value_ln_two(); }
+      static BOOST_CONSTEXPR_OR_CONST local_negatable_type pi    () { return local_negatable_type::value_pi(); }
+      static BOOST_CONSTEXPR_OR_CONST local_negatable_type ln_two() { return local_negatable_type::value_ln_two(); }
+    };
+
+    template<const int IntegralRange,
+             const int FractionalResolution>
+    struct negatable_constants<boost::fixed_point::negatable<IntegralRange,
+                                                             FractionalResolution,
+                                                             boost::fixed_point::round::nearest_even,
+                                                             boost::fixed_point::overflow::undefined>>
+    {
+    private:
+      typedef boost::fixed_point::negatable<IntegralRange,
+                                            FractionalResolution,
+                                            boost::fixed_point::round::nearest_even,
+                                            boost::fixed_point::overflow::undefined> local_negatable_type;
+
+    public:
+      static BOOST_CONSTEXPR_OR_CONST local_negatable_type pi    () { return local_negatable_type::value_pi(); }
+      static BOOST_CONSTEXPR_OR_CONST local_negatable_type ln_two() { return local_negatable_type::value_ln_two(); }
     };
 
   } } // namespace boost::fixed_point
@@ -2390,20 +2358,20 @@
       typedef boost::fixed_point::negatable<IntegralRange,
                                             FractionalResolution,
                                             boost::fixed_point::round::fastest,
-                                            boost::fixed_point::overflow::undefined> negatable_type;
+                                            boost::fixed_point::overflow::undefined> local_negatable_type;
 
     public:
       static BOOST_CONSTEXPR_OR_CONST bool                    is_specialized    = true;
-      static BOOST_CONSTEXPR_OR_CONST int                     digits            = negatable_type::all_bits - 1;
+      static BOOST_CONSTEXPR_OR_CONST int                     digits            = local_negatable_type::all_bits - 1;
       static BOOST_CONSTEXPR_OR_CONST int                     digits10          = static_cast<int>((static_cast<boost::uintmax_t>(digits - 1) * UINTMAX_C(3010)) / UINTMAX_C(10000));
       static BOOST_CONSTEXPR_OR_CONST int                     max_digits10      = static_cast<int>((static_cast<boost::uintmax_t>(digits - 0) * UINTMAX_C(3010)) / UINTMAX_C(10000)) + 2;
       static BOOST_CONSTEXPR_OR_CONST bool                    is_signed         = true;
       static BOOST_CONSTEXPR_OR_CONST bool                    is_integer        = false;
       static BOOST_CONSTEXPR_OR_CONST bool                    is_exact          = false;
       static BOOST_CONSTEXPR_OR_CONST int                     radix             = 2;
-      static BOOST_CONSTEXPR_OR_CONST int                     min_exponent      = -negatable_type::radix_split;
+      static BOOST_CONSTEXPR_OR_CONST int                     min_exponent      = -local_negatable_type::radix_split;
       static BOOST_CONSTEXPR_OR_CONST int                     min_exponent10    = -static_cast<int>((static_cast<boost::uintmax_t>(-min_exponent) * UINTMAX_C(3010)) / UINTMAX_C(10000));
-      static BOOST_CONSTEXPR_OR_CONST int                     max_exponent      = digits - negatable_type::radix_split;
+      static BOOST_CONSTEXPR_OR_CONST int                     max_exponent      = digits - local_negatable_type::radix_split;
       static BOOST_CONSTEXPR_OR_CONST int                     max_exponent10    = +static_cast<int>((static_cast<boost::uintmax_t>(+max_exponent) * UINTMAX_C(3010)) / UINTMAX_C(10000));
       static BOOST_CONSTEXPR_OR_CONST bool                    has_infinity      = false;
       static BOOST_CONSTEXPR_OR_CONST bool                    has_quiet_NaN     = false;
@@ -2417,15 +2385,15 @@
       static BOOST_CONSTEXPR_OR_CONST bool                    tinyness_before   = false;
       static BOOST_CONSTEXPR_OR_CONST std::float_round_style  round_style       = std::round_indeterminate;
 
-      static BOOST_CONSTEXPR_OR_CONST negatable_type (min)        () BOOST_NOEXCEPT { return negatable_type::value_min(); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type (max)        () BOOST_NOEXCEPT { return negatable_type::value_max(); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type lowest       () BOOST_NOEXCEPT { return -(max)(); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type epsilon      () BOOST_NOEXCEPT { return negatable_type::epsilon_maker(); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type round_error  () BOOST_NOEXCEPT { return negatable_type(1); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type infinity     () BOOST_NOEXCEPT { return negatable_type(0); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type quiet_NaN    () BOOST_NOEXCEPT { return negatable_type(0); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type signaling_NaN() BOOST_NOEXCEPT { return negatable_type(0); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type denorm_min   () BOOST_NOEXCEPT { return (min)(); }
+      static BOOST_CONSTEXPR_OR_CONST local_negatable_type (min)        () BOOST_NOEXCEPT { return local_negatable_type::value_min(); }
+      static BOOST_CONSTEXPR_OR_CONST local_negatable_type (max)        () BOOST_NOEXCEPT { return local_negatable_type::value_max(); }
+      static BOOST_CONSTEXPR_OR_CONST local_negatable_type lowest       () BOOST_NOEXCEPT { return -(max)(); }
+      static BOOST_CONSTEXPR_OR_CONST local_negatable_type epsilon      () BOOST_NOEXCEPT { return local_negatable_type::epsilon_maker(); }
+      static BOOST_CONSTEXPR_OR_CONST local_negatable_type round_error  () BOOST_NOEXCEPT { return local_negatable_type(1); }
+      static BOOST_CONSTEXPR_OR_CONST local_negatable_type infinity     () BOOST_NOEXCEPT { return local_negatable_type(0); }
+      static BOOST_CONSTEXPR_OR_CONST local_negatable_type quiet_NaN    () BOOST_NOEXCEPT { return local_negatable_type(0); }
+      static BOOST_CONSTEXPR_OR_CONST local_negatable_type signaling_NaN() BOOST_NOEXCEPT { return local_negatable_type(0); }
+      static BOOST_CONSTEXPR_OR_CONST local_negatable_type denorm_min   () BOOST_NOEXCEPT { return (min)(); }
     };
 
     template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_specialized;
@@ -2466,20 +2434,20 @@
       typedef boost::fixed_point::negatable<IntegralRange,
                                             FractionalResolution,
                                             boost::fixed_point::round::nearest_even,
-                                            boost::fixed_point::overflow::undefined> negatable_type;
+                                            boost::fixed_point::overflow::undefined> local_negatable_type;
 
     public:
       static BOOST_CONSTEXPR_OR_CONST bool                    is_specialized    = true;
-      static BOOST_CONSTEXPR_OR_CONST int                     digits            = negatable_type::all_bits - 1;
+      static BOOST_CONSTEXPR_OR_CONST int                     digits            = local_negatable_type::all_bits - 1;
       static BOOST_CONSTEXPR_OR_CONST int                     digits10          = static_cast<int>((static_cast<boost::uintmax_t>(digits - 1) * UINTMAX_C(3010)) / UINTMAX_C(10000));
       static BOOST_CONSTEXPR_OR_CONST int                     max_digits10      = static_cast<int>((static_cast<boost::uintmax_t>(digits - 0) * UINTMAX_C(3010)) / UINTMAX_C(10000)) + 2;
       static BOOST_CONSTEXPR_OR_CONST bool                    is_signed         = true;
       static BOOST_CONSTEXPR_OR_CONST bool                    is_integer        = false;
       static BOOST_CONSTEXPR_OR_CONST bool                    is_exact          = false;
       static BOOST_CONSTEXPR_OR_CONST int                     radix             = 2;
-      static BOOST_CONSTEXPR_OR_CONST int                     min_exponent      = -negatable_type::radix_split;
+      static BOOST_CONSTEXPR_OR_CONST int                     min_exponent      = -local_negatable_type::radix_split;
       static BOOST_CONSTEXPR_OR_CONST int                     min_exponent10    = -static_cast<int>((static_cast<boost::uintmax_t>(-min_exponent) * UINTMAX_C(3010)) / UINTMAX_C(10000));
-      static BOOST_CONSTEXPR_OR_CONST int                     max_exponent      = digits - negatable_type::radix_split;
+      static BOOST_CONSTEXPR_OR_CONST int                     max_exponent      = digits - local_negatable_type::radix_split;
       static BOOST_CONSTEXPR_OR_CONST int                     max_exponent10    = +static_cast<int>((static_cast<boost::uintmax_t>(+max_exponent) * UINTMAX_C(3010)) / UINTMAX_C(10000));
       static BOOST_CONSTEXPR_OR_CONST bool                    has_infinity      = false;
       static BOOST_CONSTEXPR_OR_CONST bool                    has_quiet_NaN     = false;
@@ -2493,15 +2461,15 @@
       static BOOST_CONSTEXPR_OR_CONST bool                    tinyness_before   = false;
       static BOOST_CONSTEXPR_OR_CONST std::float_round_style  round_style       = std::round_to_nearest;
 
-      static BOOST_CONSTEXPR_OR_CONST negatable_type (min)        () BOOST_NOEXCEPT { return negatable_type::value_min(); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type (max)        () BOOST_NOEXCEPT { return negatable_type::value_max(); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type lowest       () BOOST_NOEXCEPT { return -(max)(); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type epsilon      () BOOST_NOEXCEPT { return negatable_type::epsilon_maker(); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type round_error  () BOOST_NOEXCEPT { return negatable_type(1) / 2; }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type infinity     () BOOST_NOEXCEPT { return negatable_type(0); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type quiet_NaN    () BOOST_NOEXCEPT { return negatable_type(0); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type signaling_NaN() BOOST_NOEXCEPT { return negatable_type(0); }
-      static BOOST_CONSTEXPR_OR_CONST negatable_type denorm_min   () BOOST_NOEXCEPT { return (min)(); }
+      static BOOST_CONSTEXPR_OR_CONST local_negatable_type (min)        () BOOST_NOEXCEPT { return local_negatable_type::value_min(); }
+      static BOOST_CONSTEXPR_OR_CONST local_negatable_type (max)        () BOOST_NOEXCEPT { return local_negatable_type::value_max(); }
+      static BOOST_CONSTEXPR_OR_CONST local_negatable_type lowest       () BOOST_NOEXCEPT { return -(max)(); }
+      static BOOST_CONSTEXPR_OR_CONST local_negatable_type epsilon      () BOOST_NOEXCEPT { return local_negatable_type::epsilon_maker(); }
+      static BOOST_CONSTEXPR_OR_CONST local_negatable_type round_error  () BOOST_NOEXCEPT { return local_negatable_type(1) / 2; }
+      static BOOST_CONSTEXPR_OR_CONST local_negatable_type infinity     () BOOST_NOEXCEPT { return local_negatable_type(0); }
+      static BOOST_CONSTEXPR_OR_CONST local_negatable_type quiet_NaN    () BOOST_NOEXCEPT { return local_negatable_type(0); }
+      static BOOST_CONSTEXPR_OR_CONST local_negatable_type signaling_NaN() BOOST_NOEXCEPT { return local_negatable_type(0); }
+      static BOOST_CONSTEXPR_OR_CONST local_negatable_type denorm_min   () BOOST_NOEXCEPT { return (min)(); }
     };
 
     template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_specialized;

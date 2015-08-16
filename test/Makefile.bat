@@ -25,8 +25,11 @@ g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-unin
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_frexp_ldexp.cpp -o test_negatable_frexp_ldexp.exe
 .\test_negatable_frexp_ldexp.exe
 
-g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_local_constants.cpp -o test_negatable_local_constants.exe
-.\test_negatable_local_constants.exe
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_local_constants_ln_two.cpp -o test_negatable_local_constants_ln_two.exe
+.\test_negatable_local_constants_ln_two.exe
+
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_local_constants_pi.cpp -o test_negatable_local_constants_pi.exe
+.\test_negatable_local_constants_pi.exe
 
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_mixed_constructors.cpp -o test_negatable_mixed_constructors.exe
 .\test_negatable_mixed_constructors.exe
