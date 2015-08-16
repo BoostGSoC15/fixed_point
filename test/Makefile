@@ -21,7 +21,7 @@ all_files : test_negatable_arithmetic.exe                 \
             test_negatable_bare_metal_config.exe          \
             test_negatable_bare_metal_config_32bit.exe    \
             test_negatable_basic.exe                      \
-            test_negatable_bernoullib2n.exe               \
+            test_negatable_bernoulli_b2n.exe              \
             test_negatable_bit_pattern.exe                \
             test_negatable_cbrt_fastest.exe               \
             test_negatable_cbrt_nearest_even.exe          \
@@ -32,6 +32,8 @@ all_files : test_negatable_arithmetic.exe                 \
             test_negatable_mixed_constructors.exe         \
             test_negatable_multiply.exe                   \
             test_negatable_round_trip_digits02_005m2.exe  \
+            test_negatable_round_trip_digits10_001.exe    \
+            test_negatable_round_trip_digits10_002.exe    \
             test_negatable_round_trip_digits10_003.exe    \
             test_negatable_round_trip_digits10_005.exe    \
             test_negatable_round_trip_digits10_006.exe    \

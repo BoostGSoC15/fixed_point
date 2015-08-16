@@ -353,12 +353,13 @@
       // a small multiprecision floating point type to uint64_t.
 
       // Say, for instsance, that float64_t is the largest width built-in
-      // floating-point type, but we are converting to uint64_t.
-      // In this case, we might have something like multiprecision
-      // cpp_bin_float<64, digit_base_2> being converted to uint64_t.
-      // But multiprecision does not yet handle this case. In particular,
+      // floating-point type. It only has, however, 53 bits of precision.
+      // In this case, we might use a multiprecision type for precision
+      // ranging from 54...64 bits such as cpp_bin_float<64, digit_base_2>.
+      // When being converted to uint64_t in this precision range,
+      // multiprecision does not yet handle this case. In particular,
       // see the TODO in the comment at line 1113 of cpp_bin_float.hpp
-      // from Boost 1.58.
+      // from Boost 1.58. Hence we need this work-around.0
 
       template<typename FloatingPointType>
       struct conversion_helper<boost::uint64_t,
@@ -418,8 +419,8 @@
       // in an unsigned integral type. The binary-halving search
       // is enabled and accelerated with template metaprogramming.
 
-      // TBD: Would a recursive function call here potentially be
-      // more efficient than template-metaprogramming?
+      // TBD: Might a recursive function call be potentially
+      // more efficient than template-metaprogramming here?
 
       static_assert(std::numeric_limits<UnsignedIntegralType>::is_signed == false,
                     "The UnsignedIntegralType for msb_meta_helper_nonconstant must be an unsigned (integral) type.");

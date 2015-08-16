@@ -10,8 +10,8 @@ g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-unin
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_basic.cpp -o test_negatable_basic.exe
 .\test_negatable_basic.exe
 
-g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_bernoullib2n.cpp -o test_negatable_bernoullib2n.exe
-.\test_negatable_bernoullib2n.exe
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_bernoulli_b2n.cpp -o test_negatable_bernoulli_b2n.exe
+.\test_negatable_bernoulli_b2n.exe
 
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_cbrt_fastest.cpp -o test_negatable_cbrt_fastest.exe
 .\test_negatable_cbrt_fastest.exe
@@ -36,6 +36,12 @@ g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-unin
 
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_round_trip_digits02_005m2.cpp -o test_negatable_round_trip_digits02_005m2.exe
 .\test_negatable_round_trip_digits02_005m2.exe
+
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_round_trip_digits10_001.cpp -o test_negatable_round_trip_digits10_001.exe
+.\test_negatable_round_trip_digits10_001.exe
+
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_round_trip_digits10_002.cpp -o test_negatable_round_trip_digits10_002.exe
+.\test_negatable_round_trip_digits10_002.exe
 
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_round_trip_digits10_003.cpp -o test_negatable_round_trip_digits10_003.exe
 .\test_negatable_round_trip_digits10_003.exe
