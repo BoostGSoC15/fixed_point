@@ -42,19 +42,6 @@ namespace local
 
     using boost::math::cbrt;
 
-    #if defined(ENABLE_LOCAL_TEST_DEBUG_MESSAGES)
-
-      std::cout << "Testing cbrt for negatable<"
-                << std::setw(4)
-                << FixedPointType::range
-                << ", "
-                << std::setw(5)
-                << FixedPointType::resolution
-                << ">."
-                << std::endl;
-
-    #endif // ENABLE_LOCAL_TEST_DEBUG_MESSAGES
-
     const FixedPointType a1 (  2L    );                                      const FloatPointType b1(  2L    );
     const FixedPointType a2 (  3L    );                                      const FloatPointType b2(  3L    );
     const FixedPointType a3 (  8.375L);                                      const FloatPointType b3(  8.375L);
@@ -80,21 +67,12 @@ namespace local
 BOOST_AUTO_TEST_CASE(test_negatable_cbrt_fastest)
 {
   // Test cbrt() for negatable round::fastest in various key digit
-  // regions such as 16, 24, 32, 53, 64, 113, 128, etc.
+  // regions such as 16, 24, 32, 53, 64, 113.
 
-  { typedef boost::fixed_point::negatable<   8,    -7, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable<  11,   -12, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 2) / 10); }
-  { typedef boost::fixed_point::negatable<  15,   -16, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 2) / 10); }
-  { typedef boost::fixed_point::negatable<  26,   -26, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 1) / 10); }
-  { typedef boost::fixed_point::negatable<  31,   -32, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 1) / 10); }
-  { typedef boost::fixed_point::negatable<  56,   -56, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 1) / 10); }
-  { typedef boost::fixed_point::negatable<  63,   -64, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 1) / 10); }
-  { typedef boost::fixed_point::negatable< 119,  -120, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 1) / 10); }
-  { typedef boost::fixed_point::negatable< 127,  -128, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 1) / 10); }
-  { typedef boost::fixed_point::negatable< 219,  -220, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 1) / 10); }
-  { typedef boost::fixed_point::negatable< 255,  -256, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 1) / 10); }
-  { typedef boost::fixed_point::negatable< 511,  -512, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 1) / 10); }
-  { typedef boost::fixed_point::negatable<1023, -1024, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 1) / 10); }
-  { typedef boost::fixed_point::negatable<2047, -2048, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 1) / 10); }
-  { typedef boost::fixed_point::negatable<4095, -4096, boost::fixed_point::round::fastest>      fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 1) / 10); }
+  { typedef boost::fixed_point::negatable< 8,  -7, boost::fixed_point::round::fastest> fixed_point_type; local::test_cbrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable<11, -12, boost::fixed_point::round::fastest> fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 2) / 10); }
+  { typedef boost::fixed_point::negatable<15, -16, boost::fixed_point::round::fastest> fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 2) / 10); }
+  { typedef boost::fixed_point::negatable<26, -26, boost::fixed_point::round::fastest> fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 1) / 10); }
+  { typedef boost::fixed_point::negatable<31, -32, boost::fixed_point::round::fastest> fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 1) / 10); }
+  { typedef boost::fixed_point::negatable<56, -56, boost::fixed_point::round::fastest> fixed_point_type; local::test_cbrt<fixed_point_type>(((-fixed_point_type::resolution + 9) * 1) / 10); }
 }

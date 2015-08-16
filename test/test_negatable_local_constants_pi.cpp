@@ -7,11 +7,12 @@
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 //! \file
-//!\brief Perform local computations of pi and ln_two for fixed_point. Use quadratically convergent Gauss AGM methods.
+//!\brief Perform local computations of pi for fixed_point. Use a quadratically convergent Gauss-AGM method.
 
 #define BOOST_TEST_MODULE test_negatable_local_constants_pi
 #define BOOST_LIB_DIAGNOSTIC
 
+#include <string>
 #include <type_traits>
 
 #include <boost/cstdint.hpp>

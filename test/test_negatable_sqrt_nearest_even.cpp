@@ -42,19 +42,6 @@ namespace local
 
     using std::sqrt;
 
-    #if defined(ENABLE_LOCAL_TEST_DEBUG_MESSAGES)
-
-      std::cout << "Testing sqrt for negatable<"
-                << std::setw(4)
-                << FixedPointType::range
-                << ", "
-                << std::setw(5)
-                << FixedPointType::resolution
-                << ">."
-                << std::endl;
-
-    #endif // ENABLE_LOCAL_TEST_DEBUG_MESSAGES
-
     const FixedPointType a1 (  2L    );                                      const FloatPointType b1(  2L    );
     const FixedPointType a2 (  3L    );                                      const FloatPointType b2(  3L    );
     const FixedPointType a3 (  8.375L);                                      const FloatPointType b3(  8.375L);
@@ -75,54 +62,18 @@ namespace local
     BOOST_CHECK_CLOSE_FRACTION(sqrt(a8), FixedPointType(sqrt(b8)), tolerance_maker<FixedPointType>(fuzzy_bits));
     BOOST_CHECK_CLOSE_FRACTION(sqrt(a9), FixedPointType(sqrt(b9)), tolerance_maker<FixedPointType>(fuzzy_bits));
   }
-
-  template<typename FixedPointType,
-           typename FloatPointType = typename FixedPointType::float_type>
-  void test_big_sqrt_zeta_three(const int fuzzy_bits)
-  {
-    // Use at least 6000 resolution bits.
-    // Use at least 2000 range bits.
-
-    BOOST_STATIC_ASSERT(-FixedPointType::resolution >= 6000);
-    BOOST_STATIC_ASSERT( FixedPointType::range      >= 2000);
-
-    #if defined(ENABLE_LOCAL_TEST_DEBUG_MESSAGES)
-
-      std::cout << "Testing sqrt for negatable<"
-                << std::setw(4)
-                << FixedPointType::range
-                << ", "
-                << std::setw(5)
-                << FixedPointType::resolution
-                << ">."
-                << std::endl;
-
-    #endif // ENABLE_LOCAL_TEST_DEBUG_MESSAGES
-
-    const FixedPointType a(boost::math::constants::zeta_three<FixedPointType>());
-    const FloatPointType b(boost::math::constants::zeta_three<FloatPointType>());
-
-    BOOST_CHECK_CLOSE_FRACTION(sqrt(a), FixedPointType(sqrt(b)), tolerance_maker<FixedPointType>(fuzzy_bits));
-  }
 }
 
 BOOST_AUTO_TEST_CASE(test_negatable_sqrt_nearest_even)
 {
-  // Test sqrt() for negatable round::nearest_even in various key digit
-  // regions such as 16, 24, 32, 53, 64, 113, 128, and also in randomly
-  // selected higher digit regions.
+  // Test sqrt() round::fastest for negatable in various key digit
+  // regions such as 16, 24, 32, 53, 64, 113.
 
-  { typedef boost::fixed_point::negatable<   8,    -7, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable<   8,   -15, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable<   8,   -23, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable<   8,   -44, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable<   8,   -55, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable<   8,  -104, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable<   8,  -119, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable<  20,   -10, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable< 100,   -10, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable<  20,  -100, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable< 100,  -100, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable< 119,  -120, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(8); }
-  { typedef boost::fixed_point::negatable<  20,  -491, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(8); }
+  { typedef boost::fixed_point::negatable<8,   -7, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable<8,  -15, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable<8,  -23, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable<8,  -44, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable<8,  -55, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable<8, -104, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable<8, -247, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(8); }
 }

@@ -1,5 +1,9 @@
-g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_arithmetic.cpp -o test_negatable_arithmetic.exe
-.\test_negatable_arithmetic.exe
+
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_arithmetic_fastest.cpp -o test_negatable_arithmetic_fastest.exe
+.\test_negatable_arithmetic_fastest.exe
+
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_arithmetic_nearest_even.cpp -o test_negatable_arithmetic_nearest_even.exe
+.\test_negatable_arithmetic_nearest_even.exe
 
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_bare_metal_config.cpp -o test_negatable_bare_metal_config.exe
 .\test_negatable_bare_metal_config.exe
@@ -31,8 +35,11 @@ g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-unin
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_local_constants_pi.cpp -o test_negatable_local_constants_pi.exe
 .\test_negatable_local_constants_pi.exe
 
-g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_mixed_constructors.cpp -o test_negatable_mixed_constructors.exe
-.\test_negatable_mixed_constructors.exe
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_mixed_constructors_part1.cpp -o test_negatable_mixed_constructors_part1.exe
+.\test_negatable_mixed_constructors_part1.exe
+
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_mixed_constructors_part2.cpp -o test_negatable_mixed_constructors_part2.exe
+.\test_negatable_mixed_constructors_part2.exe
 
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++11 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_multiply.cpp -o test_negatable_multiply.exe
 .\test_negatable_multiply.exe
