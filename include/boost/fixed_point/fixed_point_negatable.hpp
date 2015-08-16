@@ -2011,7 +2011,9 @@
 
     friend inline negatable trunc(negatable x)
     {
-      return ((!(x < 0)) ? floor(x) : -floor(-x));
+      const bool is_neg = (x.data < 0);
+
+      return ((!is_neg) ? floor(x) : -floor(-x));
     }
 
     /*! @c std::frexp function \<cmath\> implementation for negatable types.\n
