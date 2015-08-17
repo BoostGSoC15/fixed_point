@@ -29,6 +29,7 @@ all_files : test_negatable_arithmetic_fastest.exe              \
             test_negatable_construct.exe                       \
             test_negatable_floor_ceil.exe                      \
             test_negatable_frexp_ldexp.exe                     \
+            test_negatable_limits.exe                          \
             test_negatable_local_constants_ln_two.exe          \
             test_negatable_local_constants_pi.exe              \
             test_negatable_mixed_constructors_part1.exe        \

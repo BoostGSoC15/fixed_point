@@ -30,14 +30,14 @@ namespace local
   boost::fixed_point::negatable<0,
                                 -25,
                                 boost::fixed_point::round::nearest_even>
-  fixed_point_type_decimal_digits_007;
+  fixed_point_type;
 
-  bool round_trip(const fixed_point_type_decimal_digits_007& x);
+  bool round_trip(const fixed_point_type& x);
 }
 
-bool local::round_trip(const local::fixed_point_type_decimal_digits_007& x)
+bool local::round_trip(const local::fixed_point_type& x)
 {
-  typedef local::fixed_point_type_decimal_digits_007 fixed_point_type;
+  using local::fixed_point_type;
 
   std::stringstream ss1;
 
@@ -57,18 +57,19 @@ bool local::round_trip(const local::fixed_point_type_decimal_digits_007& x)
 
 BOOST_AUTO_TEST_CASE(test_negatable_round_trip_digits10_007)
 {
-  typedef local::fixed_point_type_decimal_digits_007 fixed_point_type;
+  using local::fixed_point_type;
+
   typedef fixed_point_type::float_type floating_point_type;
 
   boost::uint_fast32_t count;
 
-  BOOST_CONSTEXPR_OR_CONST boost::uint_fast32_t range_of_test_cases = UINT32_C(9999998);
+  BOOST_CONSTEXPR_OR_CONST boost::uint_fast32_t range_of_test_cases = UINT32_C(9999996);
 
   bool b = true;
 
-  // Test every seventh value with 7 decimal digits of precision
-  // ranging from 0.0000001, 0.0000008, 0.0000015, ... 0.9999998.
-  for(count = UINT32_C(1); ((count < range_of_test_cases) && b); count += UINT32_C(7))
+  // Test every 17th value with 7 decimal digits of precision
+  // ranging from 0.0000001, 0.00000018, 0.0000035, ... 0.9999996.
+  for(count = UINT32_C(1); ((count < range_of_test_cases) && b); count += UINT32_C(17))
   {
     std::stringstream ss1;
 
@@ -82,7 +83,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_round_trip_digits10_007)
 
     const fixed_point_type x(boost::lexical_cast<floating_point_type>(str.insert(std::string::size_type(0U), "0.")));
 
-    const bool next_test_result = local::round_trip(local::fixed_point_type_decimal_digits_007(x));
+    const bool next_test_result = local::round_trip(local::fixed_point_type(x));
 
     b = (b && next_test_result);
   }

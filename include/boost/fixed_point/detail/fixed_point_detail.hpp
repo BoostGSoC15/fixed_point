@@ -347,7 +347,7 @@
 
     #if !defined(BOOST_FIXED_POINT_FLOAT80_C)
 
-      // Here is a somewhat significant workaround for the conversion of
+      // Here is a somewhat significant work-around for the conversion of
       // cpp_bin_float to uint64_t. It is used for cases when the digits
       // when float80_t is not available and we are trying to convert
       // a small multiprecision floating point type to uint64_t.

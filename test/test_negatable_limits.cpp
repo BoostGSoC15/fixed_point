@@ -14,6 +14,7 @@
 
 #include <limits>
 #include <iostream>
+#include <type_traits>
 
 #include <boost/test/included/unit_test.hpp>
 #include <boost/fixed_point/fixed_point.hpp>
@@ -42,7 +43,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_numeric_limits_min)
     #endif
 
     BOOST_CHECK_EQUAL(m.bit_pattern(), "00000001");
-    BOOST_CHECK_EQUAL(m.bit_pattern().size(), x.range + (-x.resolution) + 1); // 8 bits.
+    BOOST_CHECK_EQUAL(m.bit_pattern().size(), std::size_t(x.range + (-x.resolution) + 1)); // 8 bits.
     BOOST_CHECK_EQUAL(x, m);
     int e;
     fixed_point_type_2m5 s = frexp(x, &e);
@@ -68,7 +69,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_numeric_limits_min)
     #endif
 
     BOOST_CHECK_EQUAL(m.bit_pattern(), "00000000000000000000000000000001");
-    BOOST_CHECK_EQUAL(m.bit_pattern().size(), x.range + (-x.resolution) + 1); // 32 bits.
+    BOOST_CHECK_EQUAL(m.bit_pattern().size(), std::size_t(x.range + (-x.resolution) + 1)); // 32 bits.
     BOOST_CHECK_EQUAL(x, m);
     int e;
     fixed_point_type_15m16 s = frexp(x, &e);
@@ -101,7 +102,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_numeric_limits_max)
     #endif
 
     BOOST_CHECK_EQUAL(m.bit_pattern(), "01111111"); // All except sign bit set.
-    BOOST_CHECK_EQUAL(m.bit_pattern().size(), x.range + (-x.resolution) + 1); // 8 bits.
+    BOOST_CHECK_EQUAL(m.bit_pattern().size(), std::size_t(x.range + (-x.resolution) + 1)); // 8 bits.
     BOOST_CHECK_EQUAL(x, m);
     int e;
     fixed_point_type_2m5 s = frexp(x, &e);
@@ -138,7 +139,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_numeric_limits_max)
     #endif
 
     BOOST_CHECK_EQUAL(m.bit_pattern(), "01111111111111111111111111111111"); // All except sign bit set.
-    BOOST_CHECK_EQUAL(m.bit_pattern().size(), x.range + (-x.resolution) + 1); // 32 bits.
+    BOOST_CHECK_EQUAL(m.bit_pattern().size(), std::size_t(x.range + (-x.resolution) + 1)); // 32 bits.
     BOOST_CHECK_EQUAL(x, m);
     fixed_point_type_15m16 eps = std::numeric_limits<fixed_point_type_15m16>::epsilon();
     fixed_point_type_15m16 ulp = eps / 2;
@@ -175,7 +176,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_numeric_limits_lowest)
     //#endif
 
     //BOOST_CHECK_EQUAL(m.bit_pattern(), "01111111"); // All except sign bit set.
-    //BOOST_CHECK_EQUAL(m.bit_pattern().size(), x.range + (-x.resolution) + 1); // 8 bits.
+    //BOOST_CHECK_EQUAL(m.bit_pattern().size(), std::size_t(x.range + (-x.resolution) + 1)); // 8 bits.
     //BOOST_CHECK_EQUAL(x, m);
     //int e;
     //fixed_point_type_2m5 s = frexp(x, &e);
@@ -226,13 +227,19 @@ BOOST_AUTO_TEST_CASE(test_negatable_numeric_limits_value_float)
     std::cout << typeid(fixed_point_type_2m5::value_type).name() << std::endl;
     #endif
 
-    BOOST_CHECK_EQUAL(typeid(fixed_point_type_2m5::value_type).name(), "signed char");
+    bool type_traits_result;
+
+    type_traits_result = std::is_same<fixed_point_type_2m5::value_type, signed char>::value;
+
+    BOOST_CHECK_EQUAL(type_traits_result, true);
 
     #if defined(ENABLE_LOCAL_TEST_DEBUG_MESSAGES)
     std::cout << typeid(fixed_point_type_2m5::float_type).name() << std::endl;
     #endif
 
-    BOOST_CHECK_EQUAL(typeid(fixed_point_type_2m5::float_type).name(), "float");
+    type_traits_result = std::is_same<fixed_point_type_2m5::float_type, float>::value;
+
+    BOOST_CHECK_EQUAL(type_traits_result, true);
   }
 
   { // negatable<0, -31>
@@ -242,13 +249,19 @@ BOOST_AUTO_TEST_CASE(test_negatable_numeric_limits_value_float)
     std::cout << typeid(fixed_point_type_0m31::value_type).name() << std::endl;
     #endif
 
-    BOOST_CHECK_EQUAL(typeid(fixed_point_type_0m31::value_type).name(), "int");
+    bool type_traits_result;
+
+    type_traits_result = std::is_same<fixed_point_type_0m31::value_type, int>::value;
+
+    BOOST_CHECK_EQUAL(type_traits_result, true);
 
     #if defined(ENABLE_LOCAL_TEST_DEBUG_MESSAGES)
     std::cout << typeid(fixed_point_type_0m31::float_type).name() << std::endl;
     #endif
 
-    BOOST_CHECK_EQUAL(typeid(fixed_point_type_0m31::float_type).name(), "double");
+    type_traits_result = std::is_same<fixed_point_type_0m31::float_type, double>::value;
+
+    BOOST_CHECK_EQUAL(type_traits_result, true);
   }
   // More example here needed.
 
@@ -301,12 +314,15 @@ BOOST_AUTO_TEST_CASE(test_negatable_numeric_limits_epsilon)
     BOOST_CHECK_EQUAL((std::numeric_limits<negatable<6, -1> >::epsilon()), 1); //
   }
   { // Big resolutions that will use multiprecision.
-    // Wolfram alpha 2^-2543.454467422037777850154540745120159828446400145774512554 × 10^-77
-    negatable<0, -255> e;
-    e = 3.454467422037777850154540745120159828446400145774512554e-77L;
+    // Wolfram alpha 2^-254 = 3.454467422037777850154540745120159828446400145774512554 × 10^-77
+    typedef negatable<0, -255>                 large_fixed_point_type;
+    typedef large_fixed_point_type::float_type large_float_point_type;
 
-    BOOST_CHECK_EQUAL((std::numeric_limits<negatable<0, -255> >::epsilon()), e);
-    BOOST_CHECK_EQUAL((std::numeric_limits<negatable<0, -255> >::epsilon()), 3.45446742203777785015454074512015982844640014577451255400948138806743672126497e-77L); // 2^-(255-1) = 2^254 = 
+    const large_fixed_point_type e(large_float_point_type("3.45446742203777785015454074512015982844640014577451255400948138806743672126497e-77"));
+
+    BOOST_CHECK_EQUAL((std::numeric_limits<large_fixed_point_type>::epsilon()), e);
+    BOOST_CHECK_EQUAL((std::numeric_limits<large_fixed_point_type>::epsilon()), large_float_point_type("3.45446742203777785015454074512015982844640014577451255400948138806743672126497e-77"));
+    // 2^-(255-1) = 2^254 = 
   }
   { // Default constructor clears data member so value is zero.
     negatable<0, -255> x;

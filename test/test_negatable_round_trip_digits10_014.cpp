@@ -32,14 +32,14 @@ namespace local
   boost::fixed_point::negatable<0,
                                 -48,
                                 boost::fixed_point::round::nearest_even>
-  fixed_point_type_decimal_digits_014;
+  fixed_point_type;
 
-  bool round_trip(const fixed_point_type_decimal_digits_014& x);
+  bool round_trip(const fixed_point_type& x);
 }
 
-bool local::round_trip(const local::fixed_point_type_decimal_digits_014& x)
+bool local::round_trip(const local::fixed_point_type& x)
 {
-  typedef local::fixed_point_type_decimal_digits_014 fixed_point_type;
+  using local::fixed_point_type;
 
   std::stringstream ss1;
 
@@ -59,7 +59,8 @@ bool local::round_trip(const local::fixed_point_type_decimal_digits_014& x)
 
 BOOST_AUTO_TEST_CASE(test_negatable_round_trip_digits10_014)
 {
-  typedef local::fixed_point_type_decimal_digits_014 fixed_point_type;
+  using local::fixed_point_type;
+
   typedef fixed_point_type::float_type floating_point_type;
 
   typedef boost::mt19937 random_generator_type;
@@ -72,7 +73,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_round_trip_digits10_014)
 
   boost::uint_fast32_t count;
 
-  BOOST_CONSTEXPR_OR_CONST boost::uint_fast32_t number_of_test_cases = UINT32_C(200000);
+  BOOST_CONSTEXPR_OR_CONST boost::uint_fast32_t number_of_test_cases = UINT32_C(50000);
 
   bool b = true;
 
@@ -91,9 +92,11 @@ BOOST_AUTO_TEST_CASE(test_negatable_round_trip_digits10_014)
                std::string::size_type(14U) - ((std::min)(std::string::size_type(14U), str.length())),
                char('0'));
 
-    const fixed_point_type x(boost::lexical_cast<floating_point_type>(str.insert(std::string::size_type(0U), "0.")));
+    str.insert(std::string::size_type(0U), "0.");
 
-    const bool next_test_result = local::round_trip(local::fixed_point_type_decimal_digits_014(x));
+    const fixed_point_type x(boost::lexical_cast<floating_point_type>(str));
+
+    const bool next_test_result = local::round_trip(x);
 
     b = (b && next_test_result);
   }

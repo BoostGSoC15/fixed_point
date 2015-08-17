@@ -35,7 +35,7 @@ namespace local
   fixed_point_type;
 
   BOOST_CONSTEXPR_OR_CONST std::string::size_type digits10_string_length =
-    ((long(std::numeric_limits<fixed_point_type>::digits) - 2L) * 301L) / 1000L;
+    ((long(std::numeric_limits<fixed_point_type>::digits) - 1L) * 301L) / 1000L;
 
   bool round_trip(const fixed_point_type& x);
 }
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_round_trip_digits10_999)
 
   boost::uint_fast32_t count = UINT32_C(0);
 
-  BOOST_CONSTEXPR_OR_CONST boost::uint_fast32_t number_of_test_cases = UINT16_C(5000);
+  BOOST_CONSTEXPR_OR_CONST boost::uint_fast32_t number_of_test_cases = UINT16_C(2000);
 
   bool b = true;
 
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_round_trip_digits10_999)
 
     unsigned_integral_type u(0);
 
-    for(int i = 0; i < int(local::digits10_string_length); ++i)
+    for(int i = 0; i < int((-fixed_point_type::resolution - 2)); ++i)
     {
       u |= unsigned_integral_type(radom_bit_maker()) << i;
     }
@@ -104,9 +104,11 @@ BOOST_AUTO_TEST_CASE(test_negatable_round_trip_digits10_999)
                local::digits10_string_length - (std::min)(local::digits10_string_length, str.length()),
                char('0'));
 
-    const fixed_point_type x(boost::lexical_cast<floating_point_type>(str.insert(std::string::size_type(0U), "0.")));
+    str.insert(std::string::size_type(0U), "0.");
 
-    const bool next_test_result = local::round_trip(fixed_point_type(x));
+    const fixed_point_type x(boost::lexical_cast<floating_point_type>(str));
+
+    const bool next_test_result = local::round_trip(x);
 
     b = (b && next_test_result);
   }

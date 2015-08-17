@@ -30,14 +30,14 @@ namespace local
   boost::fixed_point::negatable<0,
                                 -5,
                                 boost::fixed_point::round::nearest_even>
-  fixed_point_type_decimal_digits_001;
+  fixed_point_type;
 
-  bool round_trip(const fixed_point_type_decimal_digits_001& x);
+  bool round_trip(const fixed_point_type& x);
 }
 
-bool local::round_trip(const local::fixed_point_type_decimal_digits_001& x)
+bool local::round_trip(const local::fixed_point_type& x)
 {
-  typedef local::fixed_point_type_decimal_digits_001 fixed_point_type;
+  using local::fixed_point_type;
 
   std::stringstream ss1;
 
@@ -57,7 +57,8 @@ bool local::round_trip(const local::fixed_point_type_decimal_digits_001& x)
 
 BOOST_AUTO_TEST_CASE(test_negatable_round_trip_digits10_001)
 {
-  typedef local::fixed_point_type_decimal_digits_001 fixed_point_type;
+  using local::fixed_point_type;
+
   typedef fixed_point_type::float_type floating_point_type;
 
   boost::uint_fast16_t count;
@@ -82,7 +83,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_round_trip_digits10_001)
 
     const fixed_point_type x(boost::lexical_cast<floating_point_type>(str.insert(std::string::size_type(0U), "0.")));
 
-    const bool next_test_result = local::round_trip(local::fixed_point_type_decimal_digits_001(x));
+    const bool next_test_result = local::round_trip(x);
 
     b = (b && next_test_result);
   }

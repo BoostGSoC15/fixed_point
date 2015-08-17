@@ -65,6 +65,7 @@ test-suite "Fixed_point"
       [ run test_negatable_construct.cpp boost_unit_test ]
       [ run test_negatable_floor_ceil.cpp boost_unit_test ]
       [ run test_negatable_frexp_ldexp.cpp boost_unit_test ]
+      [ run test_negatable_limits.cpp boost_unit_test ]
       [ run test_negatable_local_constants_ln_two.cpp boost_unit_test ]
       [ run test_negatable_local_constants_pi.cpp boost_unit_test ]
       [ run test_negatable_mixed_constructors_part1.cpp boost_unit_test ]
