@@ -28,10 +28,12 @@ project checks
       <include>. # .cpp files in fixed_point/test.
       <include>../include/ # fixed_point .hpp files.
       <library>boost_unit_test
-
       <link>static
       <toolset>gcc:<cxxflags>-std=gnu++11
       <toolset>gcc:<cxxflags>-Wno-unused-local-typedefs
+      <toolset>gcc:<cxxflags>-Wno-deprecated-declarations
+      <toolset>gcc:<cxxflags>-Wno-long-long
+      <toolset>gcc:<cxxflags>-ftrack-macro-expansion=0 # Suppress note: in expansion of macro
       <toolset>clang:<cxxflags>-std=c++11
       <toolset>msvc:<asynch-exceptions>on # Needed for Boost.Test
       <toolset>msvc:<warnings>all
