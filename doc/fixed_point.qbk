@@ -178,27 +178,41 @@ rational and floating-point types requiring extended range and precision.
 The value of a binary fixed-point type is an integral value that has a fixed number of binary digits before the binary point,
 and another fixed number of fractional binary digits after the point.
 
+The integer part is located as more significant than the fractional part.
+This means that if there is a carry from an addition to the fractional part,
+it simply carrys into the integer part, which means that fast integer instructions can be used.
+(There is no normalization that is required by floating-point).
+
+So fixed-point trades range and precision for (potentially) improved efficiency using integer computation.
+
 The __Q_format is often used to specify the number of bits used.
 
 For example, a G15.16 representation has  a sign bit,
 15 bits before the binary point and 16 bits for the fractional part after the point.
 This format fits neatly into a 32-bit two's complement signed integer.
+[/Giving a total spread of values from 1.526e-005 to 3.277e+004  in steps of 1.526e-005.]
+Giving a total spread of signed values from about 0.000015 to 32770  in steps of 0.000015.[br]
+Use `boost::fixed_point::negatable<15, -16>` for this fixed-point type.
 
-A tiny G7.8 representation has a sign bit, 7 bits of integer part before the binary point,
-and 8 bits for the fractional part.
+A small G7.8 representation has a sign bit, 7 bits of integer part before the binary point,
+and 8 bits for the fractional part that can fit into a 16-bit `short`.
 
-The Q7.8 represent can hold integer part values from 0 to 2[super 2] = 127,
-and fraction part from 0 to 1/2[super 8] = 1/256 = 0.00390625
+The Q7.8 represent can hold integer part values from 0 to 2[super 7] = 127,
+and fraction part from 0 to 1/2[super 8] = 1/256 = 0.00390625.
+[/Giving a total spread of values from  0.00396 to 127.996 in steps of 0.00396.]
+Giving a total spread of values from  about 0.004 to 128 in steps of 0.004.[br]
+Use `boost::fixed_point::negatable<7, -8>` for this fixed-point type.
 
-Giving a total spread of values from about 0.004 to 127.996.
+A tiny byte-sized Q2.5 representation has a sign bit, 2 bits of integer part before the binary point,
+and 5 bits for the fractional part that can fit into a 8-bit `signed char`.
 
-[[<7,-8>] [7] [-8] [15] [16] [1.17e-002] [-1.3e+002] [0.0039] [1.3e+002]] ????????????????? eps correct?
+[[<2,-5>] [2] [-5] [7] [8] [6.25e-002] [-3.969] [0.03125] [3.969]]
 
-The integer part is located as more significant than the fractional part.
-This means that if there is a carry from an addition to the fractional part,
-it simply carrys into the integer part, which means that fast integer instructions can be used.
-
-So fixed-point trades range and precision for (potentially) improved efficiency using integer computation.
+The Q7.8 represent can hold integer part values from 0 to 2[super 2] = 4,
+and fraction part from 0 to 1/2[super 5] = 1/32 = 0.003125.
+[/Giving a total spread of values from  0.003125 to 3.696 in steps of 0.003125.]
+Giving a total spread of values from  about 0.003 to 4 in steps of 0.003.[br]
+Use `boost::fixed_point::negatable<2, -5>` for this fixed-point type.
 
 [section:why_fixed_point Why Fixed-Point?]
 
@@ -232,7 +246,7 @@ or uses more power than integral operations use by a fixed-point.
 Memory is cheap, but using less can speed data transfer and reduce cache misses.
 So if an entire array of data can be stored as a `negatable`
 using a small integral type ,`byte` or `short int`, in a very fast memory cache,
-it might be processed more quickly.
+it is probably processed more quickly.
 
 * If a resolution greater than `double` is required, `fixed_point` may prove faster.[br]
 Software like __multiprecision can provide much higher resolution and higher exponent ranges,
@@ -273,7 +287,7 @@ will be chosen automatically.
 * Extends to use __multiprecision when the resolution and/or range specified are too big to
 fit into the largest of the __fundamental_types.
 This allows fixed-point type with much higher resolution and/or range
-than any other library.
+than any other library.  This is a unique feature.
 
 [endsect] [/section:why_this_fixed_point  Why use Boost.Fixed_point]
 
@@ -310,7 +324,7 @@ so that the total is a power of 2 is very sensible. [br]
 Choosing just one extra bit would mean
 that the underlying __fundamental_types will be twice as wide![br]
 ]
-[warning Choosing a combination that does not fit into the largest available integral type
+[warning Choosing a combination that does not quite fit into the largest available integral type
 (usually 32 or 64 bits) can have a dramatic effect because a __multiprecision type will be used.]
 
 We can show the __numeric_limits for this type thus:
