@@ -22,20 +22,20 @@
 
 // Below are snippets of code that are included into Quickbook file fixed_point.qbk.
 
+#include <cmath>
+#include <limits>
+#include <iomanip>
+#include <iostream>
+
 #include <boost/fixed_point/fixed_point.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/multiprecision/cpp_bin_float.hpp>
 // http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/tut/floats/cpp_bin_float.html
 
-#include <iomanip>
-#include <iostream>
-#include <limits>
-#include <cmath>
-
 int main()
 {
 //[bin_float_50_pi
-  // Construct a 50 decimal digit string version of pi for reference.
+  // Construct a 50 decimal digit multiprecision floating-point version of pi for reference.
   using boost::multiprecision::cpp_bin_float_50;  // 50 decimal digits precision.
 
   std::cout << std::setprecision(std::numeric_limits<cpp_bin_float_50>::digits10)
@@ -56,7 +56,7 @@ int main()
     << std::endl;
 //] [/fixed_point__constant]
 
-  // Use a tiny (and so very imprecise) fixed_point type that will fit into a single byte.
+  // Use a small (and so very imprecise) fixed_point type that will fit into a single byte.
 //[fixed_point_imprecise_constant
   typedef boost::fixed_point::negatable<2, -5> tiny_fixed_point_type;
 
@@ -83,10 +83,10 @@ int main()
 
 /*
 
-Note that large digit counts rely on the
-arc-cosine function is used for pi(). 
-And since this function 
-is not included in the negatable realm yet,
-the constant pi() does not work for negatable in all digit ranges.
+Note that large digit counts rely on the arc-cosine function for
+calculating pi. At the moment, this function is supported in
+the negatable realm, but for one and only one argument 0,
+returning pi/2 which, in turn uses the class-local representation
+of pi based on a quadratically convergent Gauss-AGM method.
 
 */

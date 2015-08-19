@@ -1,28 +1,41 @@
-///////////////////////////////////////////////////////////////////////////////
-//  Copyright Christopher Kormanyos 2015.
-//  Copyright Nikhar Agrawal 2015.
-//  Copyright Paul Bristow 2015.
-//  Distributed under the Boost Software License,
-//  Version 1.0. (See accompanying file LICENSE_1_0.txt
-//  or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+// Use, modification and distribution are subject to the
+// Boost Software License, Version 1.0.
+// (See accompanying file LICENSE_1_0.txt
+// or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+// Copyright Paul A. Bristow 2015.
+// Copyright Christopher Kormanyos 2015.
+
+// This file is written to be included from a Quickbook .qbk document.
+// It can be compiled by the C++ compiler, and run. Any output can
+// also be added here as comment or included or pasted in elsewhere.
+// Caution: this file contains Quickbook markup as well as code
+// and comments: don't change any of the special comment markups!
+
+// This file also includes Doxygen-style documentation about the function of the code.
+// See http://www.doxygen.org for details.
 
 //! \file
-//!\brief Tests for bernoulli_b2n(fixed_point). Along the way, also test numerous fixed_point arithmetic operations.
 
-#define BOOST_TEST_MODULE test_negatable_bernoulli_b2n
-#define BOOST_LIB_DIAGNOSTIC
+//! \brief Example program showing non-trivial use of negatable with math special functions.
+
+// Below are snippets of code that are included into Quickbook file fixed_point.qbk.
+
 
 #include <algorithm>
 #include <limits>
+#include <iomanip>
+#include <iostream>
+#include <iterator>
 #include <vector>
-#include <utility>
 
 #include <boost/fixed_point/fixed_point.hpp>
 #include <boost/math/special_functions/bernoulli.hpp>
 #include <boost/multiprecision/cpp_bin_float.hpp>
-#include <boost/test/included/unit_test.hpp>
+// http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/tut/floats/cpp_bin_float.html
 
-BOOST_AUTO_TEST_CASE(test_negatable_bernoulli_b2n)
+int main()
 {
   // Test bernoulli_b2n() for negatable. Compute an array of
   // fixed-point Bernoulli numbers and test them with
@@ -72,29 +85,23 @@ BOOST_AUTO_TEST_CASE(test_negatable_bernoulli_b2n)
                    return fixed_point_result_type(b2n);
                  });
 
+  // Set a judiciously selected precision and fixed format on the output stream.
 
-  // Set a judiciously selected tolerance for these tests.
-  const fixed_point_result_type tolerance = ldexp(fixed_point_result_type(1), -160);
+  BOOST_CONSTEXPR_OR_CONST std::streamsize precision_of_ostream =
+    std::streamsize(((long(-resolution_of_bernoulli_b2n) - 1L) * 301L) / 1000L);
 
-  // Search for a potential mismatch between the fixed-point
-  // Bernoulli numbers and the floating-point Bernoulli numbers
+  std::cout.precision(precision_of_ostream);
+  std::cout.setf(std::ios::fixed);
 
-  const std::pair<std::vector<fixed_point_result_type>::const_iterator,
-                  std::vector<float_point_result_type>::const_iterator> result_of_mismatch_search =
-    std::mismatch(b2n_fixed_result.cbegin(),
-                  b2n_fixed_result.cend(),
-                  b2n_float_control.cbegin(),
-                  [&tolerance](const fixed_point_result_type& a, const float_point_result_type& b) -> bool
-                  {
-                    const fixed_point_result_type fraction = fabs(a / fixed_point_result_type(b));
-                    const fixed_point_result_type delta    = fabs(1 - fraction);
+  // Print the fixed-point results to the output stream.
+  std::cout << std::endl << "Fixed-point results:" << std::endl << std::endl;
+  std::copy(b2n_fixed_result.cbegin(),
+            b2n_fixed_result.cend(),
+            std::ostream_iterator<fixed_point_result_type>(std::cout, "\n"));
 
-                    const bool comparison_is_ok = (delta <= tolerance);
-
-                    BOOST_CHECK_EQUAL(comparison_is_ok, true);
-
-                    return comparison_is_ok;
-                  });
-
-  BOOST_CHECK_EQUAL(result_of_mismatch_search.first == b2n_fixed_result.cend(), true);
+  // Print the floating-point control values to the output stream.
+  std::cout << std::endl << "Floating-point-point control values:" << std::endl << std::endl;
+  std::copy(b2n_float_control.cbegin(),
+            b2n_float_control.cend(),
+            std::ostream_iterator<float_point_result_type>(std::cout, "\n"));
 }

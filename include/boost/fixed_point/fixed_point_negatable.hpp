@@ -1615,7 +1615,7 @@
       return negatable(u) /= v;
     }
 
-    //! Implementations of non-member binary add, sub, mul, div of [lhs(negatable)] operator [rhs(other_negatable)].
+    //! Implementations of non-member mixed-math binary add, sub, mul, div of [lhs(negatable)] operator [rhs(other_negatable)].
 
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution,
