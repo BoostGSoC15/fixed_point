@@ -33,23 +33,17 @@
   #if defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
 
     // When I/O streaming is disabled:
+    //   * We must eliminate all I/O streaming and lexical conversions.
     //   * We must eliminate use of Boost.Multiprecision.
-    //   * We must eliminate use of Boost.Math.Constants (because these require istreaming).
-    //   * We must eliminate the parts of <boost/cstdfloat.hpp> that require I/O streams.
 
     #if !defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
       #error Error: BOOST_FIXED_POINT_DISABLE_IOSTREAM can not be set without also setting BOOST_FIXED_POINT_DISABLE_MULTIPRECISION.
     #endif
 
-    #define BOOST_CSTDFLOAT_NO_LIBQUADMATH_COMPLEX
-    #define BOOST_CSTDFLOAT_NO_LIBQUADMATH_IOSTREAM
-
     #include <algorithm>
     #include <cmath>
     #include <limits>
     #include <type_traits>
-    #include <boost/cstdfloat.hpp>
-    #include <boost/cstdint.hpp>
 
   #elif defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION) && !defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
 
@@ -65,16 +59,14 @@
     #include <sstream>
     #include <string>
     #include <type_traits>
-    #include <boost/cstdfloat.hpp>
-    #include <boost/cstdint.hpp>
     #include <boost/lexical_cast.hpp>
-    #include <boost/math/constants/constants.hpp>
 
   #else
 
     // When multiprecision and I/O streaming are enabled:
-    //   * We eliminate nothing and include all overhead from
-    //     both Boost.Multiprecision as well as I/O streaming.
+    //   * We eliminate nothing and include all overhead from both
+    //     Boost.Multiprecision as well as I/O streaming and
+    //     lexical conversions.
 
     #include <algorithm>
     #include <cmath>
@@ -85,8 +77,6 @@
     #include <sstream>
     #include <string>
     #include <type_traits>
-    #include <boost/cstdfloat.hpp>
-    #include <boost/cstdint.hpp>
     #include <boost/lexical_cast.hpp>
     #include <boost/math/constants/constants.hpp>
     #include <boost/multiprecision/cpp_bin_float.hpp>
@@ -95,13 +85,14 @@
   #endif
 
   #include <boost/fixed_point/detail/fixed_point_detail.hpp>
+  #include <boost/fixed_point/detail/fixed_point_detail_constants.hpp>
   #include <boost/fixed_point/fixed_point_overflow.hpp>
   #include <boost/fixed_point/fixed_point_round.hpp>
 
-  static_assert(std::numeric_limits<boost::uint8_t >::digits ==  8, "Configuration error: the size of boost::uint8_t  must be 8  bits!");
-  static_assert(std::numeric_limits<boost::uint16_t>::digits == 16, "Configuration error: the size of boost::uint16_t must be 16 bits!");
-  static_assert(std::numeric_limits<boost::uint32_t>::digits == 32, "Configuration error: the size of boost::uint32_t must be 32 bits!");
-  static_assert(std::numeric_limits<boost::uint64_t>::digits == 64, "Configuration error: the size of boost::uint64_t must be 64 bits!");
+  static_assert(std::numeric_limits<boost::uint8_t >::digits ==  8, "Configuration error: The size of boost::uint8_t  must be 8  bits!");
+  static_assert(std::numeric_limits<boost::uint16_t>::digits == 16, "Configuration error: The size of boost::uint16_t must be 16 bits!");
+  static_assert(std::numeric_limits<boost::uint32_t>::digits == 32, "Configuration error: The size of boost::uint32_t must be 32 bits!");
+  static_assert(std::numeric_limits<boost::uint64_t>::digits == 64, "Configuration error: The size of boost::uint64_t must be 64 bits!");
 
   namespace boost { namespace fixed_point {
 
