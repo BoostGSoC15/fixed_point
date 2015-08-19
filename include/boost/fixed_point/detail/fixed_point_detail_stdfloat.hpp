@@ -12,7 +12,7 @@
 // as described in N1703 (proposed for C via JTC1/SC22/WG14).
 // See: http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1703.pdf
 // This file has been adapted from <boost/math/cstdfloat/cstdfloat_types.hpp>.
-// Support for float128_t has been removed.
+// Support for float16_t has been removed.
 
 
 #ifndef BOOST_FIXED_POINT_STDFLOAT_2015_08_14_HPP_

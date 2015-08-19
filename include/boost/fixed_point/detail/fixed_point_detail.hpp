@@ -220,7 +220,7 @@
              typename EnableType = void>
     struct float_type_helper
     {
-      typedef boost::fixed_point::detail::floatmax_t exact_float_type;
+      typedef long double exact_float_type;
     };
 
   #endif
