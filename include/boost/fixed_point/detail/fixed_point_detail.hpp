@@ -411,62 +411,51 @@
   #endif // BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
 
   template<typename UnsignedIntegralType>
-  struct msb_meta_helper_nonconstant
+  boost::uint_fast16_t msb_helper(UnsignedIntegralType& u,
+                                  UnsignedIntegralType& mask,
+                                  const boost::uint_fast16_t bit_count)
   {
-    static boost::uint32_t hi_bit(const UnsignedIntegralType& u)
+    // Use binary-halving to find the most significant bit
+    // in an unsigned integral type. The binary-halving search
+    // uses a recursive function call.
+
+    static_assert(std::numeric_limits<UnsignedIntegralType>::is_signed == false,
+                  "The UnsignedIntegralType for msb_meta_helper_nonconstant must be an unsigned (integral) type.");
+
+    if(u < 2U)
     {
-      // Use binary-halving to find the most significant bit
-      // in an unsigned integral type. The binary-halving search
-      // is enabled and accelerated with template metaprogramming.
-
-      // TBD: Might a recursive function call be potentially
-      // more efficient than template-metaprogramming here?
-
-      static_assert(std::numeric_limits<UnsignedIntegralType>::is_signed == false,
-                    "The UnsignedIntegralType for msb_meta_helper_nonconstant must be an unsigned (integral) type.");
-
-      typedef typename integer_type_helper<boost::uint32_t(std::numeric_limits<UnsignedIntegralType>::digits / 2)>::exact_unsigned_type
-      unsigned_integral_lo_type;
-
-      typedef typename integer_type_helper<boost::uint32_t(   std::numeric_limits<UnsignedIntegralType>::digits
-                                                           - (std::numeric_limits<UnsignedIntegralType>::digits / 2))>::exact_unsigned_type
-      unsigned_integral_hi_type;
-
-      if(u == 0U)
-      {
-        return UINT32_C(0);
-      }
-      else
-      {
-        BOOST_CONSTEXPR_OR_CONST boost::uint32_t digits_lo =
-          static_cast<boost::uint32_t>(std::numeric_limits<unsigned_integral_lo_type>::digits);
-
-        const unsigned_integral_hi_type hi_part = static_cast<unsigned_integral_hi_type>(u >> digits_lo);
-
-        if(hi_part != 0U)
-        {
-          return   boost::uint32_t(std::numeric_limits<unsigned_integral_lo_type>::digits)
-                 + msb_meta_helper_nonconstant<unsigned_integral_hi_type>::hi_bit(hi_part);
-        }
-        else
-        {
-          const unsigned_integral_lo_type lo_part = static_cast<unsigned_integral_lo_type>(u);
-
-          return msb_meta_helper_nonconstant<unsigned_integral_lo_type>::hi_bit(lo_part);
-        }
-      }
+      return UINT32_C(0);
     }
-  };
+
+    const UnsignedIntegralType hi_part = (u >> (bit_count / 2U));
+
+    mask = (mask >> (bit_count / 2U));
+
+    if((hi_part & mask) != 0)
+    {
+      u = hi_part;
+
+      return (bit_count / 2U) + msb_helper(u, mask, boost::uint_fast16_t(bit_count / 2U));
+    }
+    else
+    {
+      u = (u & mask);
+
+      return msb_helper(u, mask, (bit_count / 2U));
+    }
+  }
 
   template<>
-  struct msb_meta_helper_nonconstant<boost::uint8_t>
+  boost::uint_fast16_t msb_helper(boost::uint8_t& u,
+                                  boost::uint8_t&,
+                                  const boost::uint_fast16_t)
   {
-    static boost::uint32_t hi_bit(const boost::uint8_t& u)
-    {
-      const boost::uint_fast8_t lo_nibble( u       & UINT8_C(0x0F));
-      const boost::uint_fast8_t hi_nibble((u >> 4) & UINT8_C(0x0F));
+      const boost::uint_fast8_t u8 = static_cast<boost::uint_fast8_t>(u);
 
-      BOOST_CONSTEXPR_OR_CONST boost::uint32_t hi_bit_value[16U] =
+      const boost::uint_fast8_t lo_nibble( u8       & UINT8_C(0x0F));
+      const boost::uint_fast8_t hi_nibble((u8 >> 4) & UINT8_C(0x0F));
+
+      BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t hi_bit_value[16U] =
       {
         // x0  x1, x2, x3, x4, x5, x6, x7, x8, x9, xA, xB, xC, xD, xE, xF
            0U, 0U, 1U, 1U, 2U, 2U, 2U, 2U, 3U, 3U, 3U, 3U, 3U, 3U, 3U, 3U
@@ -474,9 +463,71 @@
 
       return ((hi_nibble != UINT8_C(0)) ? (UINT32_C(4) + hi_bit_value[hi_nibble])
                                         : hi_bit_value[lo_nibble]);
-    }
-  };
+  }
 
+  template<>
+  boost::uint_fast16_t msb_helper(boost::uint16_t& u,
+                                  boost::uint16_t&,
+                                  const boost::uint_fast16_t)
+  {
+    boost::uint8_t lo_byte = static_cast<boost::uint8_t>(u);
+    boost::uint8_t hi_byte = static_cast<boost::uint8_t>(u >> 8);
+
+    boost::uint8_t mask;
+
+    return ((hi_byte != UINT8_C(0)) ? 8U + msb_helper(hi_byte, mask, UINT32_C(0))
+                                    : 0U + msb_helper(lo_byte, mask, UINT32_C(0)));
+  }
+
+  template<>
+  boost::uint_fast16_t msb_helper(boost::uint32_t& u,
+                                  boost::uint32_t&,
+                                  const boost::uint_fast16_t)
+  {
+    boost::uint16_t lo_word = static_cast<boost::uint16_t>(u);
+    boost::uint16_t hi_word = static_cast<boost::uint16_t>(u >> 16);
+
+    boost::uint16_t mask;
+
+    return ((hi_word != UINT16_C(0)) ? 16U + msb_helper(hi_word, mask, UINT32_C(0))
+                                     :  0U + msb_helper(lo_word, mask, UINT32_C(0)));
+  }
+
+  template<typename ArithmeticType>
+  ArithmeticType power_of_two_helper(int p2)
+  {
+    if(p2 == 0)
+    {
+      return ArithmeticType(1);
+    }
+    else if(p2 < 0)
+    {
+      return 1 / power_of_two_helper<ArithmeticType>(-p2);
+    }
+    else
+    {
+      // The variable xn stores the binary powers of x.
+      ArithmeticType the_result(((p2 % 2) != 0) ? ArithmeticType(2) : ArithmeticType(1));
+
+      ArithmeticType xn(2);
+
+      while((p2 /= 2) != 0)
+      {
+        // Square xn for each binary power.
+        xn *= xn;
+
+        const bool has_binary_power = ((p2 % 2) != 0);
+
+        if(has_binary_power)
+        {
+          // Multiply the result with each binary power contained in the exponent.
+          the_result *= xn;
+        }
+      }
+
+      return the_result;
+    }
+  }
   } } } // namespace boost::fixed_point::detail
   //! \endcond // DETAIL
 

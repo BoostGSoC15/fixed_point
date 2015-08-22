@@ -82,6 +82,7 @@
 
   #include <boost/fixed_point/detail/fixed_point_detail.hpp>
   #include <boost/fixed_point/detail/fixed_point_detail_constants.hpp>
+  #include <boost/fixed_point/detail/fixed_point_detail_hypergeometric.hpp>
   #include <boost/fixed_point/fixed_point_overflow.hpp>
   #include <boost/fixed_point/fixed_point_round.hpp>
 
@@ -93,279 +94,56 @@
   namespace boost { namespace fixed_point {
 
   // Forward declaration of the negatable class.
-  template<const int IntegralRange,
-           const int FractionalResolution,
-           typename RoundMode,
-           typename OverflowMode>
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
   class negatable;
 
-  // Forward declaration of the negatable_constants struct.
+  // Forward declaration of the negatable_constants structures.
   template<typename NonSpecializedParameter>
   struct negatable_constants { };
 
-  template<const int IntegralRange,
-           const int FractionalResolution,
-           typename RoundMode,
-           typename OverflowMode>
-  struct negatable_constants<negatable<IntegralRange,
-                                       FractionalResolution,
-                                       RoundMode,
-                                       OverflowMode>>;
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
+  struct negatable_constants<negatable<Crng, Crsl, Crnd, Covf>>;
 
   #if !defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
 
-    template<typename char_type,
-             typename traits_type,
-             const int IntegralRange,
-             const int FractionalResolution,
-             typename RoundMode,
-             typename OverflowMode>
-    inline std::basic_ostream<char_type,
-                              traits_type>& operator<<(std::basic_ostream<char_type, traits_type>& out,
-                                                       const negatable<IntegralRange,
-                                                                       FractionalResolution,
-                                                                       RoundMode,
-                                                                       OverflowMode>& x);
+    // Forward declarations of I/O streaming functions.
+    template<typename char_type, typename traits_type,
+             const int Crng, const int Crsl, typename Crnd, typename Covf>
+    std::basic_ostream<char_type, traits_type>& operator<<(std::basic_ostream<char_type, traits_type>& out, const negatable<Crng, Crsl, Crnd, Covf>& x);
 
-    template<typename char_type,
-             typename traits_type,
-             const int IntegralRange,
-             const int FractionalResolution,
-             typename RoundMode,
-             typename OverflowMode>
-    inline std::basic_istream<char_type,
-                              traits_type>& operator>>(std::basic_istream<char_type, traits_type>& in,
-                                                       negatable<IntegralRange,
-                                                                 FractionalResolution,
-                                                                 RoundMode,
-                                                                 OverflowMode>& x);
+    template<typename char_type, typename traits_type,
+             const int Crng, const int Crsl, typename Crnd, typename Covf>
+    std::basic_istream<char_type, traits_type>& operator>>(std::basic_istream<char_type, traits_type>& in, negatable<Crng, Crsl, Crnd, Covf>& x);
 
   #endif
 
   // What follows are forward declarations of elementary transcendental functions mainly from <cmath>.
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> abs  (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> fabs (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> floor(negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> ceil (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> trunc(negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> frexp(negatable<Crng, Crsl, Crnd, Covf> x, int* exp2);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> ldexp(negatable<Crng, Crsl, Crnd, Covf> x, int  exp2);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> sqrt (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> exp  (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> log  (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> acos (negatable<Crng, Crsl, Crnd, Covf> x);
 
-  // Forward declaration of abs.
-  template<const int IntegralRange,
-           const int FractionalResolution,
-           typename RoundMode,
-           typename OverflowMode>
-  inline negatable<IntegralRange,
-                   FractionalResolution,
-                   RoundMode,
-                   OverflowMode> abs(negatable<IntegralRange,
-                                               FractionalResolution,
-                                               RoundMode,
-                                               OverflowMode> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> fixed_next     (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> fixed_prior    (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> fixed_distance (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> fixed_advance  (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> fixed_nextafter(negatable<Crng, Crsl, Crnd, Covf> x);
 
-  // Forward declaration of fabs.
-  template<const int IntegralRange,
-            const int FractionalResolution,
-            typename RoundMode,
-            typename OverflowMode>
-  inline negatable<IntegralRange,
-                   FractionalResolution,
-                   RoundMode,
-                   OverflowMode> fabs(negatable<IntegralRange,
-                                                FractionalResolution,
-                                                RoundMode,
-                                                OverflowMode> x);
-
-  // Forward declaration of floor.
-  template<const int IntegralRange,
-           const int FractionalResolution,
-           typename RoundMode,
-           typename OverflowMode>
-  inline negatable<IntegralRange,
-                   FractionalResolution,
-                   RoundMode,
-                   OverflowMode> floor(negatable<IntegralRange,
-                                                 FractionalResolution,
-                                                 RoundMode,
-                                                 OverflowMode> x);
-
-  // Forward declaration of ceil.
-  template<const int IntegralRange,
-           const int FractionalResolution,
-           typename RoundMode,
-           typename OverflowMode>
-  inline negatable<IntegralRange,
-                   FractionalResolution,
-                   RoundMode,
-                   OverflowMode> ceil(negatable<IntegralRange,
-                                                FractionalResolution,
-                                                RoundMode,
-                                                OverflowMode> x);
-
-  // Forward declaration of trunc.
-  template<const int IntegralRange,
-           const int FractionalResolution,
-           typename RoundMode,
-           typename OverflowMode>
-  inline negatable<IntegralRange,
-                   FractionalResolution,
-                   RoundMode,
-                   OverflowMode> trunc(negatable<IntegralRange,
-                                                 FractionalResolution,
-                                                 RoundMode,
-                                                 OverflowMode> x);
-
-  // Forward declaration of frexp.
-  template<const int IntegralRange,
-           const int FractionalResolution,
-           typename RoundMode,
-           typename OverflowMode>
-  inline negatable<IntegralRange,
-                   FractionalResolution,
-                   RoundMode,
-                   OverflowMode> frexp(negatable<IntegralRange,
-                                                 FractionalResolution,
-                                                 RoundMode,
-                                                 OverflowMode> x, int* exp2);
-
-  // Forward declaration of ldexp.
-  template<const int IntegralRange,
-           const int FractionalResolution,
-           typename RoundMode,
-           typename OverflowMode>
-  inline negatable<IntegralRange,
-                   FractionalResolution,
-                   RoundMode,
-                   OverflowMode> ldexp(negatable<IntegralRange,
-                                                 FractionalResolution,
-                                                 RoundMode,
-                                                 OverflowMode> x, int exp2);
-
-  // Forward declaration of fixed_next.
-  template<const int IntegralRange,
-           const int FractionalResolution,
-           typename RoundMode,
-           typename OverflowMode>
-  inline negatable<IntegralRange,
-                   FractionalResolution,
-                   RoundMode,
-                   OverflowMode> fixed_next(negatable<IntegralRange,
-                                                      FractionalResolution,
-                                                      RoundMode,
-                                                      OverflowMode> x);
-
-  // Forward declaration of fixed_prior.
-  template<const int IntegralRange,
-           const int FractionalResolution,
-           typename RoundMode,
-           typename OverflowMode>
-  inline negatable<IntegralRange,
-                   FractionalResolution,
-                   RoundMode,
-                   OverflowMode> fixed_prior(negatable<IntegralRange,
-                                                       FractionalResolution,
-                                                       RoundMode,
-                                                       OverflowMode> x);
-
-  // Forward declaration of fixed_distance.
-  template<const int IntegralRange,
-           const int FractionalResolution,
-           typename RoundMode,
-           typename OverflowMode>
-  inline negatable<IntegralRange,
-                   FractionalResolution,
-                   RoundMode,
-                   OverflowMode> fixed_distance(negatable<IntegralRange,
-                                                          FractionalResolution,
-                                                          RoundMode,
-                                                          OverflowMode> x);
-
-  // Forward declaration of fixed_advance.
-  template<const int IntegralRange,
-           const int FractionalResolution,
-           typename RoundMode,
-           typename OverflowMode>
-  inline negatable<IntegralRange,
-                   FractionalResolution,
-                   RoundMode,
-                   OverflowMode> fixed_advance(negatable<IntegralRange,
-                                                         FractionalResolution,
-                                                         RoundMode,
-                                                         OverflowMode> x,
-                                                         int distance);
-
-  // Forward declaration of fixed_nextafter.
-  template<const int IntegralRange,
-           const int FractionalResolution,
-           typename RoundMode,
-           typename OverflowMode>
-  inline negatable<IntegralRange,
-                   FractionalResolution,
-                   RoundMode,
-                   OverflowMode> fixed_nextafter(negatable<IntegralRange,
-                                                           FractionalResolution,
-                                                           RoundMode,
-                                                           OverflowMode> x);
-
-  // Forward declaration of sqrt.
-  template<const int IntegralRange,
-           const int FractionalResolution,
-           typename RoundMode,
-           typename OverflowMode>
-  inline negatable<IntegralRange,
-                   FractionalResolution,
-                   RoundMode,
-                   OverflowMode> sqrt(negatable<IntegralRange,
-                                                FractionalResolution,
-                                                RoundMode,
-                                                OverflowMode> x);
-
-  // Forward declaration of exp.
-  template<const int IntegralRange,
-           const int FractionalResolution,
-           typename RoundMode,
-           typename OverflowMode>
-  inline negatable<IntegralRange,
-                   FractionalResolution,
-                   RoundMode,
-                   OverflowMode> exp(negatable<IntegralRange,
-                                               FractionalResolution,
-                                               RoundMode,
-                                               OverflowMode> x);
-
-  // Forward declaration of acos.
-  template<const int IntegralRange,
-           const int FractionalResolution,
-           typename RoundMode,
-           typename OverflowMode>
-  inline negatable<IntegralRange,
-                   FractionalResolution,
-                   RoundMode,
-                   OverflowMode> acos(negatable<IntegralRange,
-                                                FractionalResolution,
-                                                RoundMode,
-                                                OverflowMode> x);
-
-  // Forward declaration of log.
-  template<const int IntegralRange,
-           const int FractionalResolution,
-           typename RoundMode,
-           typename OverflowMode>
-  inline negatable<IntegralRange,
-                   FractionalResolution,
-                   RoundMode,
-                   OverflowMode> log(negatable<IntegralRange,
-                                               FractionalResolution,
-                                               RoundMode,
-                                               OverflowMode> x);
   } } // namespace boost::fixed_point:
   // End of forward declaration of transcendental and cmath functions.
 
   namespace std
   {
     // Forward declaration of the specialization of std::numeric_limits<negatable>.
-    template<const int IntegralRange,
-             const int FractionalResolution,
-             typename RoundMode,
-             typename OverflowMode>
-    class numeric_limits<boost::fixed_point::negatable<IntegralRange,
-                                                       FractionalResolution,
-                                                       RoundMode,
-                                                       OverflowMode>>;
+    template<const int Crng, const int Crsl, typename Crnd, typename Covf>
+    class numeric_limits<boost::fixed_point::negatable<Crng, Crsl, Crnd, Covf>>;
   }
 
   namespace boost { namespace fixed_point {
@@ -383,51 +161,51 @@
       @c negatable<10,  -53> @c y; // 64-bit \n
       @c negatable<10, -245> @c y; // 256-bit (requires use of @c cpp_bin_float)\n
 
-    \tparam IntegralRange integer >= 0, defines a range of signed number n that is 2^-IntegralRange < n < 2^IntegralRange.
-    \tparam FractionalResolution integer <= -1, defines resolution. 
-      The resolution of a fractional number is 2^FractionalResolution.
-    \tparam RoundMode struct defining the rounding behaviour, default @c round::fastest.\n
-    \tparam OverflowMode struct defining the behaviour from rounding, default @c overflow::undefined.
+    \tparam Crng integer >= 0, defines a range of signed number n that is 2^-Crng < n < 2^Crng.
+    \tparam Crsl integer <= -1, defines resolution. 
+      The resolution of a fractional number is 2^Crsl.
+    \tparam Crnd struct defining the rounding behaviour, default @c round::fastest.\n
+    \tparam Covf struct defining the behaviour from rounding, default @c overflow::undefined.
     \note  Not all rounding or all overflow modes proposed in N3352 are yet implemented.
     \sa http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html
   */
 
-  template<const int IntegralRange,
-           const int FractionalResolution,
-           typename RoundMode = round::fastest,
-           typename OverflowMode = overflow::undefined>
+  template<const int Crng,
+           const int Crsl,
+           typename Crnd = round::fastest,
+           typename Covf = overflow::undefined>
   class negatable
   {
   public:
     // The negatable class must have at least one fractional digit.
     // Pure integer instantiations of negatable allowed
-    static_assert(FractionalResolution < 0,
+    static_assert(Crsl < 0,
                   "Error: The fractional resolution of negatable must be negative and include at least 1 fractional bit.");
 
     // The negatable class can not have a negative integral range.
-    static_assert(IntegralRange >= 0,
+    static_assert(Crng >= 0,
                   "Error: The integral range of negatable must be 0 or more.");
 
-    static_assert(   std::is_same<RoundMode, round::fastest>::value
-                  || std::is_same<RoundMode, round::nearest_even>::value,
+    static_assert(   std::is_same<Crnd, round::fastest>::value
+                  || std::is_same<Crnd, round::nearest_even>::value,
                   "Error: Only fastest and nearest_even round modes are supported at the moment.");
 
-    static_assert(   std::is_same<OverflowMode, overflow::undefined>::value,
+    static_assert(   std::is_same<Covf, overflow::undefined>::value,
                   "Error: Only undefined overflow mode is supported at the moment.");
 
     // Make the range, resolution and total number of bits available to the user.
     // These just echo the values of the template parameters.
 
-    /*! Value of template parameter IntegralRange for the negatable type.\n
+    /*! Value of template parameter Crng for the negatable type.\n
     Example: boost::fixed_point::negatable<2, -5> x; x.range == 2;
     */
-    static BOOST_CONSTEXPR_OR_CONST int range = IntegralRange;
+    static BOOST_CONSTEXPR_OR_CONST int range = Crng;
 
-    /*! Value of template parameter FractionalResolution for the negatable type.\n
+    /*! Value of template parameter Crsl for the negatable type.\n
     Example: boost::fixed_point::negatable<2, -5> x; x.resolution == -5;
     \note The value of resolution is always negative.
     */
-    static BOOST_CONSTEXPR_OR_CONST int resolution = FractionalResolution;
+    static BOOST_CONSTEXPR_OR_CONST int resolution = Crsl;
 
     /*! Total number of bits in the negatable type, including sign.\n
         For example:
@@ -445,15 +223,15 @@
     #endif
 
     //! See also public static data items range and resolution.
-    static BOOST_CONSTEXPR_OR_CONST int radix_split = -FractionalResolution;
+    static BOOST_CONSTEXPR_OR_CONST int radix_split = -Crsl;
 
     // Friend forward declaration of another negatable class
     // with different template parameters.
 
-    template<const int OtherIntegralRange,
-             const int OtherFractionalResolution,
-             typename OtherRoundMode,
-             typename OtherOverflowMode>
+    template<const int OtherCrng,
+             const int OtherCrsl,
+             typename OtherCrnd,
+             typename OtherCovf>
     friend class negatable;
 
     // Here we declare two convenient class-local type definitions.
@@ -548,10 +326,10 @@
         having @b different range and/or resolution.\n
         Copying a value of same type is simple.\n
         We can identify four mixed-math cases:\n
-        1) smaller : smaller --> ( OtherIntegralRange <= IntegralRange) && (|OtherFractionalResolution| <= |FractionalResolution|)\n
-        2) larger  : smaller --> ( OtherIntegralRange >  IntegralRange) && (|OtherFractionalResolution| <= |FractionalResolution|)\n
-        3) smaller : larger  --> ( OtherIntegralRange <= IntegralRange) && (|OtherFractionalResolution| >  |FractionalResolution|)\n
-        4) larger  : larger  --> ( OtherIntegralRange >  IntegralRange) && (|OtherFractionalResolution| >  |FractionalResolution|)\n
+        1) smaller : smaller --> ( OtherCrng <= Crng) && (|OtherCrsl| <= |Crsl|)\n
+        2) larger  : smaller --> ( OtherCrng >  Crng) && (|OtherCrsl| <= |Crsl|)\n
+        3) smaller : larger  --> ( OtherCrng <= Crng) && (|OtherCrsl| >  |Crsl|)\n
+        4) larger  : larger  --> ( OtherCrng >  Crng) && (|OtherCrsl| >  |Crsl|)\n
 
         Design choices were made that the result of @c (a+b) has the type of @c a.
     */
@@ -561,35 +339,35 @@
     // having different range and/or resolution.
 
     // We can identify four cases:
-    // 1) smaller : smaller -->    ( OtherIntegralRange         <=  IntegralRange)
-    //                          && (|OtherFractionalResolution| <= |FractionalResolution|)
-    // 2) larger  : smaller -->    ( OtherIntegralRange         >   IntegralRange)
-    //                          && (|OtherFractionalResolution| <= |FractionalResolution|)
-    // 3) smaller : larger  -->    ( OtherIntegralRange         <=  IntegralRange)
-    //                          && (|OtherFractionalResolution| >  |FractionalResolution|)
-    // 4) larger  : larger  -->    ( OtherIntegralRange         >   IntegralRange)
-    //                          && (|OtherFractionalResolution| >  |FractionalResolution|)
+    // 1) smaller : smaller -->    ( OtherCrng  <=  Crng)
+    //                          && (|OtherCrsl| <= |Crsl|)
+    // 2) larger  : smaller -->    ( OtherCrng  >   Crng)
+    //                          && (|OtherCrsl| <= |Crsl|)
+    // 3) smaller : larger  -->    ( OtherCrng  <=  Crng)
+    //                          && (|OtherCrsl| >  |Crsl|)
+    // 4) larger  : larger  -->    ( OtherCrng  >   Crng)
+    //                          && (|OtherCrsl| >  |Crsl|)
 
     // Here is the mixed-math class constructor for case 1).
     // There is less range and less resolution in the other type.
-    template<const int OtherIntegralRange,
-             const int OtherFractionalResolution>
-    negatable(const negatable<OtherIntegralRange,
-                              OtherFractionalResolution,
-                              RoundMode,
-                              OverflowMode>& other,
-              typename std::enable_if<   (   ( OtherIntegralRange        <   IntegralRange)
-                                          && (-OtherFractionalResolution <  -FractionalResolution))
-                                      || (   ( OtherIntegralRange        <=  IntegralRange)
-                                          && (-OtherFractionalResolution <  -FractionalResolution))
-                                      || (   ( OtherIntegralRange        <   IntegralRange)
-                                          && (-OtherFractionalResolution <= -FractionalResolution))>::type* = nullptr)
+    template<const int OtherCrng,
+             const int OtherCrsl>
+    negatable(const negatable<OtherCrng,
+                              OtherCrsl,
+                              Crnd,
+                              Covf>& other,
+              typename std::enable_if<   (   ( OtherCrng <   Crng)
+                                          && (-OtherCrsl <  -Crsl))
+                                      || (   ( OtherCrng <=  Crng)
+                                          && (-OtherCrsl <  -Crsl))
+                                      || (   ( OtherCrng <   Crng)
+                                          && (-OtherCrsl <= -Crsl))>::type* = nullptr)
        : data()
     {
-      typedef negatable<OtherIntegralRange,
-                        OtherFractionalResolution,
-                        RoundMode,
-                        OverflowMode> other_negatable_type;
+      typedef negatable<OtherCrng,
+                        OtherCrsl,
+                        Crnd,
+                        Covf> other_negatable_type;
 
       typedef unsigned_small_type superior_unsigned_small_type;
 
@@ -609,20 +387,20 @@
 
     // Here is the mixed-math class constructor for case 2).
     // There is more range and less resolution in the other type.
-    template<const int OtherIntegralRange,
-             const int OtherFractionalResolution>
-    negatable(const negatable<OtherIntegralRange,
-                              OtherFractionalResolution,
-                              RoundMode,
-                              OverflowMode>& other,
-              typename std::enable_if<   ( OtherIntegralRange        >  IntegralRange)
-                                      && (-OtherFractionalResolution < -FractionalResolution)>::type* = nullptr)
+    template<const int OtherCrng,
+             const int OtherCrsl>
+    negatable(const negatable<OtherCrng,
+                              OtherCrsl,
+                              Crnd,
+                              Covf>& other,
+              typename std::enable_if<   ( OtherCrng >  Crng)
+                                      && (-OtherCrsl < -Crsl)>::type* = nullptr)
       : data()
     {
-      typedef negatable<OtherIntegralRange,
-                        OtherFractionalResolution,
-                        RoundMode,
-                        OverflowMode> other_negatable_type;
+      typedef negatable<OtherCrng,
+                        OtherCrsl,
+                        Crnd,
+                        Covf> other_negatable_type;
 
       typedef unsigned_small_type superior_unsigned_small_type;
 
@@ -644,20 +422,20 @@
 
     // Here is the mixed-math class constructor for case 3).
     // There is less range and more resolution in the other type.
-    template<const int OtherIntegralRange,
-             const int OtherFractionalResolution>
-    negatable(const negatable<OtherIntegralRange,
-                              OtherFractionalResolution,
-                              RoundMode,
-                              OverflowMode>& other,
-              typename std::enable_if<   ( OtherIntegralRange        <   IntegralRange)
-                                      && (-OtherFractionalResolution >  -FractionalResolution)>::type* = nullptr)
+    template<const int OtherCrng,
+             const int OtherCrsl>
+    negatable(const negatable<OtherCrng,
+                              OtherCrsl,
+                              Crnd,
+                              Covf>& other,
+              typename std::enable_if<   ( OtherCrng <   Crng)
+                                      && (-OtherCrsl >  -Crsl)>::type* = nullptr)
       : data()
     {
-      typedef negatable<OtherIntegralRange,
-                        OtherFractionalResolution,
-                        RoundMode,
-                        OverflowMode> other_negatable_type;
+      typedef negatable<OtherCrng,
+                        OtherCrsl,
+                        Crnd,
+                        Covf> other_negatable_type;
 
       typedef typename other_negatable_type::unsigned_small_type superior_unsigned_small_type;
 
@@ -684,24 +462,24 @@
 
     // Here is the mixed-math class constructor for case 4).
     // There is more range and more resolution in the other type.
-    template<const int OtherIntegralRange,
-             const int OtherFractionalResolution>
-    negatable(const negatable<OtherIntegralRange,
-                              OtherFractionalResolution,
-                              RoundMode,
-                              OverflowMode>& other,
-              typename std::enable_if<   (   ( OtherIntegralRange        >   IntegralRange)
-                                          && (-OtherFractionalResolution >  -FractionalResolution))
-                                      || (   ( OtherIntegralRange        >=  IntegralRange)
-                                          && (-OtherFractionalResolution >  -FractionalResolution))
-                                      || (   ( OtherIntegralRange        >   IntegralRange)
-                                          && (-OtherFractionalResolution >= -FractionalResolution))>::type* = nullptr)
+    template<const int OtherCrng,
+             const int OtherCrsl>
+    negatable(const negatable<OtherCrng,
+                              OtherCrsl,
+                              Crnd,
+                              Covf>& other,
+              typename std::enable_if<   (   ( OtherCrng >   Crng)
+                                          && (-OtherCrsl >  -Crsl))
+                                      || (   ( OtherCrng >=  Crng)
+                                          && (-OtherCrsl >  -Crsl))
+                                      || (   ( OtherCrng >   Crng)
+                                          && (-OtherCrsl >= -Crsl))>::type* = nullptr)
       : data()
     {
-      typedef negatable<OtherIntegralRange,
-                        OtherFractionalResolution,
-                        RoundMode,
-                        OverflowMode> other_negatable_type;
+      typedef negatable<OtherCrng,
+                        OtherCrsl,
+                        Crnd,
+                        Covf> other_negatable_type;
 
       typedef typename other_negatable_type::unsigned_small_type superior_unsigned_small_type;
 
@@ -758,12 +536,12 @@
     /*! Equality operator of @c *this with another negatable type
     having @b different range and/or resolution parameters than @c *this.
     */
-    template<const int OtherIntegralRange,
-             const int OtherFractionalResolution>
-    negatable& operator=(const negatable<OtherIntegralRange,
-                                         OtherFractionalResolution,
-                                         RoundMode,
-                                         OverflowMode>& other)
+    template<const int OtherCrng,
+             const int OtherCrsl>
+    negatable& operator=(const negatable<OtherCrng,
+                                         OtherCrsl,
+                                         Crnd,
+                                         Covf>& other)
     {
       // Use a relatively lazy method that creates an intermediate temporary object.
       // The temporary object is subsequently used to initialize the data field of *this.
@@ -1110,7 +888,7 @@
       static const unsigned_small_type the_value =
         detail::bit_mask_helper<unsigned_small_type,
                                 0U,
-                                boost::uint32_t(IntegralRange - FractionalResolution)>::value();
+                                boost::uint32_t(Crng - Crsl)>::value();
 
       return the_value;
     }
@@ -1121,8 +899,8 @@
 
       static const unsigned_small_type the_value =
         detail::bit_mask_helper<unsigned_small_type,
-                                boost::uint32_t(-FractionalResolution),
-                                boost::uint32_t(IntegralRange + 1)>::value();
+                                boost::uint32_t(-Crsl),
+                                boost::uint32_t(Crng + 1)>::value();
 
       return the_value;
     }
@@ -1296,10 +1074,10 @@
       return ((!is_neg) ? f : -f);
     }
 
-    template<typename LocalRoundMode = RoundMode>
+    template<typename LocalCrnd = Crnd>
     static boost::int_fast8_t
       binary_round(unsigned_small_type& u_round,
-                   typename std::enable_if<std::is_same<LocalRoundMode, round::fastest>::value>::type* = nullptr)
+                   typename std::enable_if<std::is_same<LocalCrnd, round::fastest>::value>::type* = nullptr)
     {
       /*! Here, @c u_round contains the value to be rounded whereby
        this value is left-shifted one binary digit larger than
@@ -1319,15 +1097,15 @@
        For @c round::nearest_even, the value is rounded to larger
        absolute value when both 1/2-ULP as well as 1-ULP are 1,
        representing round odd 1-ULP to higher value.
-    \tparam LocalRoundMode Rounding mode for this operation.
+    \tparam LocalCrnd Rounding mode for this operation.
      \param u_round contains the value to be rounded whereby
        this value is left-shifted one binary digit larger than
        the final result will be.
     */
-    template<typename LocalRoundMode = RoundMode>
+    template<typename LocalCrnd = Crnd>
     static boost::int_fast8_t
       binary_round(unsigned_small_type& u_round,
-                   typename std::enable_if<std::is_same<LocalRoundMode, round::nearest_even>::value>::type* = nullptr)
+                   typename std::enable_if<std::is_same<LocalCrnd, round::nearest_even>::value>::type* = nullptr)
     {
    
       const bool round_up =   ((boost::uint_fast8_t(u_round & UINT8_C(1)) == UINT8_C(1))
@@ -1490,60 +1268,6 @@
 
     static initializer initialization_helper;
 
-    #if !defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
-
-      /*! @c std::ostream output @c operator\<\< \n
-          Send a fixed-point number to the output stream by first
-          expressing the fixed-point number as a floating-point number.\n
-
-          \note Macro BOOST_FIXED_POINT_DISABLE_IOSTREAM can be defined to 
-          disable all I/O streaming and the inclusion of associated standard
-          library headers. This is intended to eliminate I/O stream
-          overhead in particular for bare-metal microcontroller projects.
-      */
-      template<typename char_type,
-               typename traits_type>
-      friend inline std::basic_ostream<char_type,
-                                       traits_type>& operator<<(std::basic_ostream<char_type, traits_type>& out,
-                                                                const negatable& x)
-      {
-        // Send a fixed-point number to the output stream.
-        // Express the fixed-point number as a floating-point number.
-
-        std::basic_ostringstream<char_type, traits_type> ostr;
-
-        ostr.flags    (out.flags());
-        ostr.imbue    (out.getloc());
-        ostr.precision(out.precision());
-
-        static_cast<void>(ostr << x.convert_to_floating_point_type<float_type>());
-
-        return (out << ostr.str());
-      } // operator<<
-
-      /*! @c std::istream input @c operator>>
-          Receive a floating-point number from the input stream.
-          Subsequently make a fixed-point object from it.
-      */
-      template<typename char_type,
-               typename traits_type>
-      friend inline std::basic_istream<char_type,
-                                       traits_type>& operator>>(std::basic_istream<char_type, traits_type>& in,
-                                                                negatable& x)
-      {
-        float_type v;
-
-        // Receive a floating-point number from the input stream.
-        static_cast<void>(in >> v);
-
-        // Subsequently make a fixed-point object from it.
-        x.make_from_floating_point_type(v);
-
-        return in;
-      }
-
-    #endif // !BOOST_FIXED_POINT_DISABLE_IOSTREAM
-
     //! \cond DETAIL
     // Do not document the implementation details unless macro DETAIL is defined.
 
@@ -1617,86 +1341,86 @@
 
     //! Implementations of non-member mixed-math binary add, sub, mul, div of [lhs(negatable)] operator [rhs(other_negatable)].
 
-    template<const int OtherIntegralRange,
-             const int OtherFractionalResolution,
-             typename std::enable_if<   (FractionalResolution != OtherFractionalResolution)
-                                     || (IntegralRange        != OtherIntegralRange)>::type* = nullptr>
-    friend inline negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
-                            ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                            RoundMode,
-                            OverflowMode>
-    operator+(const negatable& u, const negatable<OtherIntegralRange,
-                                                  OtherFractionalResolution,
-                                                  RoundMode,
-                                                  OverflowMode>& v)
+    template<const int OtherCrng,
+             const int OtherCrsl,
+             typename std::enable_if<   (Crsl != OtherCrsl)
+                                     || (Crng != OtherCrng)>::type* = nullptr>
+    friend inline negatable<((-Crsl > -OtherCrsl) ? Crng : OtherCrng),
+                            ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
+                            Crnd,
+                            Covf>
+    operator+(const negatable& u, const negatable<OtherCrng,
+                                                  OtherCrsl,
+                                                  Crnd,
+                                                  Covf>& v)
     {
-      typedef negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
-                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                        RoundMode,
-                        OverflowMode> higher_resolution_fixed_point_type;
+      typedef negatable<((-Crsl > -OtherCrsl) ? Crng : OtherCrng),
+                        ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
+                        Crnd,
+                        Covf> higher_resolution_fixed_point_type;
 
       return higher_resolution_fixed_point_type(u) += higher_resolution_fixed_point_type(v);
     }
 
-    template<const int OtherIntegralRange,
-             const int OtherFractionalResolution,
-             typename std::enable_if<   (FractionalResolution != OtherFractionalResolution)
-                                     || (IntegralRange        != OtherIntegralRange)>::type* = nullptr>
-    friend inline negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
-                            ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                            RoundMode,
-                            OverflowMode>
-    operator-(const negatable& u, const negatable<OtherIntegralRange,
-                                                  OtherFractionalResolution,
-                                                  RoundMode,
-                                                  OverflowMode>& v)
+    template<const int OtherCrng,
+             const int OtherCrsl,
+             typename std::enable_if<   (Crsl != OtherCrsl)
+                                     || (Crng != OtherCrng)>::type* = nullptr>
+    friend inline negatable<((-Crsl > -OtherCrsl) ? Crng        : OtherCrng),
+                            ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
+                            Crnd,
+                            Covf>
+    operator-(const negatable& u, const negatable<OtherCrng,
+                                                  OtherCrsl,
+                                                  Crnd,
+                                                  Covf>& v)
     {
-      typedef negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
-                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                        RoundMode,
-                        OverflowMode> higher_resolution_fixed_point_type;
+      typedef negatable<((-Crsl > -OtherCrsl) ? Crng : OtherCrng),
+                        ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
+                        Crnd,
+                        Covf> higher_resolution_fixed_point_type;
 
       return higher_resolution_fixed_point_type(u) -= higher_resolution_fixed_point_type(v);
     }
 
-    template<const int OtherIntegralRange,
-             const int OtherFractionalResolution,
-             typename std::enable_if<   (FractionalResolution != OtherFractionalResolution)
-                                     || (IntegralRange        != OtherIntegralRange)>::type* = nullptr>
-    friend inline negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
-                            ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                            RoundMode,
-                            OverflowMode>
-    operator*(const negatable& u, const negatable<OtherIntegralRange,
-                                                  OtherFractionalResolution,
-                                                  RoundMode,
-                                                  OverflowMode>& v)
+    template<const int OtherCrng,
+             const int OtherCrsl,
+             typename std::enable_if<   (Crsl != OtherCrsl)
+                                     || (Crng != OtherCrng)>::type* = nullptr>
+    friend inline negatable<((-Crsl > -OtherCrsl) ? Crng : OtherCrng),
+                            ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
+                            Crnd,
+                            Covf>
+    operator*(const negatable& u, const negatable<OtherCrng,
+                                                  OtherCrsl,
+                                                  Crnd,
+                                                  Covf>& v)
     {
-      typedef negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
-                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                        RoundMode,
-                        OverflowMode> higher_resolution_fixed_point_type;
+      typedef negatable<((-Crsl > -OtherCrsl) ? Crng : OtherCrng),
+                        ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
+                        Crnd,
+                        Covf> higher_resolution_fixed_point_type;
 
       return higher_resolution_fixed_point_type(u) *= higher_resolution_fixed_point_type(v);
     }
 
-    template<const int OtherIntegralRange,
-             const int OtherFractionalResolution,
-             typename std::enable_if<   (FractionalResolution != OtherFractionalResolution)
-                                     || (IntegralRange        != OtherIntegralRange)>::type* = nullptr>
-    friend inline negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
-                            ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                            RoundMode,
-                            OverflowMode>
-    operator/(const negatable& u, const negatable<OtherIntegralRange,
-                                                  OtherFractionalResolution,
-                                                  RoundMode,
-                                                  OverflowMode>& v)
+    template<const int OtherCrng,
+             const int OtherCrsl,
+             typename std::enable_if<   (Crsl != OtherCrsl)
+                                     || (Crng != OtherCrng)>::type* = nullptr>
+    friend inline negatable<((-Crsl > -OtherCrsl) ? Crng : OtherCrng),
+                            ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
+                            Crnd,
+                            Covf>
+    operator/(const negatable& u, const negatable<OtherCrng,
+                                                  OtherCrsl,
+                                                  Crnd,
+                                                  Covf>& v)
     {
-      typedef negatable<((-FractionalResolution > -OtherFractionalResolution) ? IntegralRange        : OtherIntegralRange),
-                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                        RoundMode,
-                        OverflowMode> higher_resolution_fixed_point_type;
+      typedef negatable<((-Crsl > -OtherCrsl) ? Crng : OtherCrng),
+                        ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
+                        Crnd,
+                        Covf> higher_resolution_fixed_point_type;
 
       return higher_resolution_fixed_point_type(u) /= higher_resolution_fixed_point_type(v);
     }
@@ -1871,469 +1595,217 @@
 
     //! Implementations of non-member mixed-math comparison operators.
 
-    template<const int OtherIntegralRange,
-             const int OtherFractionalResolution>
-    friend inline bool operator==(const negatable& u, const negatable<OtherIntegralRange,
-                                                                      OtherFractionalResolution,
-                                                                      RoundMode,
-                                                                      OverflowMode>& v)
+    template<const int OtherCrng,
+             const int OtherCrsl>
+    friend inline bool operator==(const negatable& u, const negatable<OtherCrng,
+                                                                      OtherCrsl,
+                                                                      Crnd,
+                                                                      Covf>& v)
     {
-      typedef negatable<(( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange),
-                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                        RoundMode,
-                        OverflowMode> supra_fixed_point_type;
+      typedef negatable<(( Crng >  OtherCrng) ? Crng : OtherCrng),
+                        ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
+                        Crnd,
+                        Covf> supra_fixed_point_type;
 
       return (supra_fixed_point_type(u) == supra_fixed_point_type(v));
     }
 
-    template<const int OtherIntegralRange,
-             const int OtherFractionalResolution>
-    friend inline bool operator!=(const negatable& u, const negatable<OtherIntegralRange,
-                                                                      OtherFractionalResolution,
-                                                                      RoundMode,
-                                                                      OverflowMode>& v)
+    template<const int OtherCrng,
+             const int OtherCrsl>
+    friend inline bool operator!=(const negatable& u, const negatable<OtherCrng,
+                                                                      OtherCrsl,
+                                                                      Crnd,
+                                                                      Covf>& v)
     {
-      typedef negatable<(( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange),
-                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                        RoundMode,
-                        OverflowMode> supra_fixed_point_type;
+      typedef negatable<(( Crng >  OtherCrng) ? Crng : OtherCrng),
+                        ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
+                        Crnd,
+                        Covf> supra_fixed_point_type;
 
       return (supra_fixed_point_type(u) != supra_fixed_point_type(v));
     }
 
-    template<const int OtherIntegralRange,
-             const int OtherFractionalResolution>
-    friend inline bool operator>(const negatable& u, const negatable<OtherIntegralRange,
-                                                                     OtherFractionalResolution,
-                                                                     RoundMode,
-                                                                     OverflowMode>& v)
+    template<const int OtherCrng,
+             const int OtherCrsl>
+    friend inline bool operator>(const negatable& u, const negatable<OtherCrng,
+                                                                     OtherCrsl,
+                                                                     Crnd,
+                                                                     Covf>& v)
     {
-      typedef negatable<(( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange),
-                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                        RoundMode,
-                        OverflowMode> supra_fixed_point_type;
+      typedef negatable<(( Crng >  OtherCrng) ? Crng : OtherCrng),
+                        ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
+                        Crnd,
+                        Covf> supra_fixed_point_type;
 
       return (supra_fixed_point_type(u) > supra_fixed_point_type(v));
     }
 
-    template<const int OtherIntegralRange,
-             const int OtherFractionalResolution>
-    friend inline bool operator<(const negatable& u, const negatable<OtherIntegralRange,
-                                                                     OtherFractionalResolution,
-                                                                     RoundMode,
-                                                                     OverflowMode>& v)
+    template<const int OtherCrng,
+             const int OtherCrsl>
+    friend inline bool operator<(const negatable& u, const negatable<OtherCrng,
+                                                                     OtherCrsl,
+                                                                     Crnd,
+                                                                     Covf>& v)
     {
-      typedef negatable<(( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange),
-                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                        RoundMode,
-                        OverflowMode> supra_fixed_point_type;
+      typedef negatable<(( Crng >  OtherCrng) ? Crng : OtherCrng),
+                        ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
+                        Crnd,
+                        Covf> supra_fixed_point_type;
 
       return (supra_fixed_point_type(u) < supra_fixed_point_type(v));
     }
 
-    template<const int OtherIntegralRange,
-             const int OtherFractionalResolution>
-    friend inline bool operator>=(const negatable& u, const negatable<OtherIntegralRange,
-                                                                      OtherFractionalResolution,
-                                                                      RoundMode,
-                                                                      OverflowMode>& v)
+    template<const int OtherCrng,
+             const int OtherCrsl>
+    friend inline bool operator>=(const negatable& u, const negatable<OtherCrng,
+                                                                      OtherCrsl,
+                                                                      Crnd,
+                                                                      Covf>& v)
     {
-      typedef negatable<(( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange),
-                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                        RoundMode,
-                        OverflowMode> supra_fixed_point_type;
+      typedef negatable<(( Crng >  OtherCrng) ? Crng : OtherCrng),
+                        ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
+                        Crnd,
+                        Covf> supra_fixed_point_type;
 
       return (supra_fixed_point_type(u) >= supra_fixed_point_type(v));
     }
 
-    template<const int OtherIntegralRange,
-             const int OtherFractionalResolution>
-    friend inline bool operator<=(const negatable& u, const negatable<OtherIntegralRange,
-                                                                      OtherFractionalResolution,
-                                                                      RoundMode,
-                                                                      OverflowMode>& v)
+    template<const int OtherCrng,
+             const int OtherCrsl>
+    friend inline bool operator<=(const negatable& u, const negatable<OtherCrng,
+                                                                      OtherCrsl,
+                                                                      Crnd,
+                                                                      Covf>& v)
     {
-      typedef negatable<(( IntegralRange        >  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange),
-                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution),
-                        RoundMode,
-                        OverflowMode> supra_fixed_point_type;
+      typedef negatable<(( Crng >  OtherCrng) ? Crng : OtherCrng),
+                        ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
+                        Crnd,
+                        Covf> supra_fixed_point_type;
 
       return (supra_fixed_point_type(u) <= supra_fixed_point_type(v));
     }
 
     //! \endcond // DETAIL
 
-    //! @c std::abs function.
-    friend inline negatable  abs(negatable x) { return ((x.data < 0) ? -x : x); }
-
-    //! @c std::fabs function (identical to abs and provided for completeness).
-    friend inline negatable fabs(negatable x) { return ((x.data < 0) ? -x : x); }
-
-    // TBD implement C++11 copysign and other floating-point manipulation functions.
-
-    friend inline negatable floor(negatable x)
-    {
-      if(x < 0)
-      {
-        const unsigned_small_type u(-x.data);
-
-        const unsigned_small_type u_mask(u & unsigned_integer_part_mask());
-
-        return ((u == u_mask) ? x : (negatable(nothing(), -value_type(u_mask)) - 1));
-      }
-      else
-      {
-        const unsigned_small_type u_mask(unsigned_small_type(x.data) & unsigned_integer_part_mask());
-
-        return negatable(nothing(), u_mask);
-      }
-    }
-
-    friend inline negatable ceil(negatable x)
-    {
-      if(x < 0)
-      {
-        const unsigned_small_type u_mask(unsigned_small_type(-x.data) & unsigned_integer_part_mask());
-
-        return negatable(nothing(), -value_type(u_mask));
-      }
-      else
-      {
-        const unsigned_small_type u(x.data);
-
-        const unsigned_small_type u_mask(u & unsigned_integer_part_mask());
-
-        return ((u == u_mask) ? x : (negatable(nothing(), value_type(u_mask)) + 1));
-      }
-    }
-
-    friend inline negatable trunc(negatable x)
-    {
-      const bool is_neg = (x.data < 0);
-
-      return ((!is_neg) ? floor(x) : -floor(-x));
-    }
-
-    /*! @c std::frexp function \<cmath\> implementation for negatable types.\n
-
-    TBD examples.\n
-        \param x Fixed-point value to decompose into fraction and integral power of 2.
-        \param exp2 Pointer to integer value to store the exponent to. 
-        \returns fraction part as a @c negatable type.
-    */
-    friend inline negatable frexp(negatable x, int* exp2)
-    {
-      if(x.data == 0)
-      {
-        *exp2 = 0;
-
-        return negatable(0);
-      }
-      else
-      {
-        const bool is_neg = (x.data < 0);
-
-        // Extract the unsigned representation of the data field.
-        unsigned_small_type result((!is_neg) ? unsigned_small_type(x.data) : unsigned_small_type(-x.data));
-
-        // Use a binary-halving mechanism to obtain the most significant bit.
-        const int msb = static_cast<int>(detail::msb_meta_helper_nonconstant<unsigned_small_type>::hi_bit(result));
-
-        // Evaluate the necessary amount of right-shift.
-        const int total_right_shift = (msb - radix_split) + 1;
-
-        // Compute the (still unsigned) data field and the exponent.
-        result = detail::right_shift_helper(result, total_right_shift);
-
-        *exp2 = total_right_shift;
-
-        // Create and return the signed fixed-point result.
-        return negatable(nothing(), value_type((!is_neg) ?  value_type(result)
-                                                         : -value_type(result)));
-      }
-    } // negatable frexp(negatable x, int* exp2)
-
-    /*! @c std::ldexp function \<cmath\> implementation for negatable type.\n
-        Multiplies a floating point value x by the number 2 raised to the exp2 power.\n
-        TBD examples.\n
-
-        \param x Fixed-point value to multiply by @c exp2 integral power of 2.
-        \param exp2 power of 2 to use to multiply.
-        \return x * 2^exp2.
-    */
-
-    friend inline negatable ldexp(negatable x, int exp2)
-    {
-      if(exp2 > 0)
-      {
-        return negatable(nothing(), value_type(x.data << exp2));
-      }
-      else if(exp2 < 0)
-      {
-        const bool is_neg = (x.data < 0);
-
-        unsigned_small_type result((!is_neg) ? unsigned_small_type(x.data) : unsigned_small_type(-x.data));
-
-        result = (result >> -exp2);
-
-        return negatable(nothing(), value_type((!is_neg) ? value_type(result) : -value_type(result)));
-      }
-      else
-      {
-        return x;
-      }
-    } // negatable ldexp(negatable x, int exp2)
-
-    /*! Provide next, prior and distance for fixed_point types.
-    */
-
-    friend inline negatable fixed_next(negatable x)
-    {
-      // TBD overflow?
-      return x + (std::numeric_limits<negatable>::min)();
-    }
-
-    friend inline negatable fixed_prior(negatable x)
-    { // TBD underflow?
-      return x - (std::numeric_limits<negatable>::min)();
-    }
-
-    friend inline negatable fixed_distance(negatable x, negatable y)
-    {
-      // TBD over/underflow?
-      // TBD no account of sign of x or y - see complex logic in boost.math next.hpp.
-      // Not sure if return should not be an integer?
-      // float_distance in next.hpp returns type T
-      if(x == y)
-      {
-        return 0;
-      }
-      else
-      {
-        return (y - x) / (std::numeric_limits<negatable>::min)();
-      }
-    }
-
-    friend inline negatable fixed_advance(negatable x, int distance)
-    {
-      // TBD over/underflow?
-      return x + (distance * (std::numeric_limits<negatable>::min)());
-    }
-
-    friend inline negatable fixed_nextafter(negatable val, int direction)
-    {
-      // TBD over and underflow?
-      return ((val < direction)
-        ? val + (std::numeric_limits<negatable>::min)()
-        : ((val == direction) ? val
-                              : val - (std::numeric_limits<negatable>::min)()));  // val > direction 
-    }
-
-    friend inline negatable sqrt(negatable x)
-    {
-      // TBD: This implementation of square root seems to fail
-      // for low digit counts.
-
-      // TBD: This implementation of square root may be too inefficient
-      // for low digit counts such as 5...16 digits. Consider optimization
-      // (such as table-lookup of initial root estimate) for low digit counts.
-
-      if(x.data <= 0)
-      {
-        return negatable(0);
-      }
-      else if(unsigned_small_type(x.data) < radix_split_value())
-      {
-        return 1U / (sqrt(1U / x));
-      }
-      else
-      {
-        // Get the initial estimate of the square root.
-
-        // TBD: Is there a more efficient way to do this?
-        // TBD: Is this initial guess accurate enough in all situations?
-        // TBD: Compute some initial guesses and tabulate them as constant values.
-
-        int exp_value;
-        negatable mantissa = frexp(x, &exp_value);
-
-        if((exp_value & 1) != 0)
-        {
-          mantissa.data <<= 1;
-          --exp_value;
-        }
-
-        negatable result(ldexp(mantissa, exp_value / 2));
-
-        // Estimate the zeroth term of the iteration = 1 / (2 * result).
-        negatable vi = 1U / (result * 2U);
-
-        // Compute the square root of x using coupled Newton iteration.
-        // Here we use a conservative calculation of the digits of precision.
-        // We begin with an estimate of 1/2 digit of precision and double
-        // the number of digits with each iteration.
-
-        // TBD: Here we are using too many Newton-Raphson steps.
-        // TBD: Improve the accuracy of the initial estimate of the
-        // square root and subsequently use a tighter tolerance
-        // on the number of iterations in the Newton-Raphson loop.
-
-        for(boost::uint_fast16_t i = UINT16_C(1); boost::uint_fast16_t(i / 2U) <= boost::uint_fast16_t(negatable::all_bits); i *= UINT16_C(2))
-        {
-          // Perform the next iteration of vi.
-          vi += vi * (-((result * vi) * 2U) + 1U);
-
-          // Perform the next iteration of the result.
-          result += (vi * (-((result) * (result)) + x));
-        }
-
-        return result;
-      }// negatable sqrt(negatable x)
-    }
-
-    friend inline negatable acos(negatable x)
-    {
-      // TBD: This version of acos is essentially non-functional because
-      // it returns a sensible value for one and only one argument (pi/2).
-      // This result is subsequently used in Boost.Math.Constants for the
-      // calculation of pi.
-
-      // TBD: Make a complete (and efficient) version of acos.
-
-      if(x == 0)
-      {
-        return value_pi() / 2;
-      }
-      else
-      {
-        return negatable(0);
-      }
-    }
-
-    friend inline negatable exp(negatable x)
-    {
-      // TBD: This is a trivially lazy and inefficient version of exp()
-      // that simply calls the library function for the corresponding
-      // floating-point type.
-
-      // TBD: Develop a more efficient version of the exp() function.
-
-      using std::exp;
-
-      const float_type fx = x.convert_to_floating_point_type<float_type>();
-
-      const float_type result = exp(fx);
-
-      return negatable(result);
-/*
-      const bool is_neg = (x < 0);
-
-      if(is_neg())
-      {
-        return exp(1 / x);
-      }
-
-      negatable xx = ((!is_neg) ? x : -x);
-
-      const negatable nf = floor(xx / value_ln_two());
-
-      xx -= (value_ln_two() * nf);
-
-*/
-    }
-
-    friend inline negatable log(negatable x)
-    {
-      // TBD: This is a trivially lazy and inefficient version of log()
-      // that simply calls the library function for the corresponding
-      // floating-point type.
-
-      // TBD: Develop a more efficient version of the log() function.
-
-      using std::log;
-
-      const float_type fx = x.convert_to_floating_point_type<float_type>();
-
-      const float_type result = log(fx);
-
-      return negatable(result);
-    }
+    #if !defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
+
+      template<typename char_type, typename traits_type, const int Crng2, const int Crsl2, typename Crnd2, typename Covf2>
+      friend std::basic_ostream<char_type, traits_type>& operator<<(std::basic_ostream<char_type, traits_type>& out,
+                                                                    const negatable<Crng2, Crsl2, Crnd2, Covf2>& x);
+
+      template<typename char_type, typename traits_type, const int Crng2, const int Crsl2, typename Crnd2, typename Covf2>
+      friend std::basic_istream<char_type, traits_type>& operator>>(std::basic_istream<char_type, traits_type>& in,
+                                                                    negatable<Crng2, Crsl2, Crnd2, Covf2>& x);
+
+    #endif // !BOOST_FIXED_POINT_DISABLE_IOSTREAM
+
+    template<const int Crng2, const int Crsl2, typename Crnd2, typename Covf2> friend negatable<Crng2, Crsl2, Crnd2, Covf2> abs  (negatable<Crng2, Crsl2, Crnd2, Covf2> x);
+    template<const int Crng2, const int Crsl2, typename Crnd2, typename Covf2> friend negatable<Crng2, Crsl2, Crnd2, Covf2> fabs (negatable<Crng2, Crsl2, Crnd2, Covf2> x);
+    template<const int Crng2, const int Crsl2, typename Crnd2, typename Covf2> friend negatable<Crng2, Crsl2, Crnd2, Covf2> floor(negatable<Crng2, Crsl2, Crnd2, Covf2> x);
+    template<const int Crng2, const int Crsl2, typename Crnd2, typename Covf2> friend negatable<Crng2, Crsl2, Crnd2, Covf2> ceil (negatable<Crng2, Crsl2, Crnd2, Covf2> x);
+    template<const int Crng2, const int Crsl2, typename Crnd2, typename Covf2> friend negatable<Crng2, Crsl2, Crnd2, Covf2> trunc(negatable<Crng2, Crsl2, Crnd2, Covf2> x);
+    template<const int Crng2, const int Crsl2, typename Crnd2, typename Covf2> friend negatable<Crng2, Crsl2, Crnd2, Covf2> frexp(negatable<Crng2, Crsl2, Crnd2, Covf2> x, int* exp2);
+    template<const int Crng2, const int Crsl2, typename Crnd2, typename Covf2> friend negatable<Crng2, Crsl2, Crnd2, Covf2> ldexp(negatable<Crng2, Crsl2, Crnd2, Covf2> x, int  exp2);
+    template<const int Crng2, const int Crsl2, typename Crnd2, typename Covf2> friend negatable<Crng2, Crsl2, Crnd2, Covf2> sqrt (negatable<Crng2, Crsl2, Crnd2, Covf2> x);
+    template<const int Crng2, const int Crsl2, typename Crnd2, typename Covf2> friend negatable<Crng2, Crsl2, Crnd2, Covf2> exp  (negatable<Crng2, Crsl2, Crnd2, Covf2> x);
+    template<const int Crng2, const int Crsl2, typename Crnd2, typename Covf2> friend negatable<Crng2, Crsl2, Crnd2, Covf2> log  (negatable<Crng2, Crsl2, Crnd2, Covf2> x);
+    template<const int Crng2, const int Crsl2, typename Crnd2, typename Covf2> friend negatable<Crng2, Crsl2, Crnd2, Covf2> acos (negatable<Crng2, Crsl2, Crnd2, Covf2> x);
   };
 
   // Once-only instances of static constant variables of the negative class.
-  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::range;
-  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::resolution;
-  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::all_bits;
-  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::radix_split;
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> BOOST_CONSTEXPR_OR_CONST int negatable<Crng, Crsl, Crnd, Covf>::range;
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> BOOST_CONSTEXPR_OR_CONST int negatable<Crng, Crsl, Crnd, Covf>::resolution;
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> BOOST_CONSTEXPR_OR_CONST int negatable<Crng, Crsl, Crnd, Covf>::all_bits;
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> BOOST_CONSTEXPR_OR_CONST int negatable<Crng, Crsl, Crnd, Covf>::radix_split;
 
   //! Once-only instance of static constant variables of the negative class.
-  template<const int IntegralRange,
-           const int FractionalResolution,
-           typename RoundMode,
-           typename OverflowMode>
-  typename negatable<IntegralRange,
-                     FractionalResolution,
-                     RoundMode,
-                     OverflowMode>::initializer
-  negatable<IntegralRange,
-            FractionalResolution,
-            RoundMode,
-            OverflowMode>::initialization_helper;
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
+  typename negatable<Crng, Crsl, Crnd, Covf>::initializer negatable<Crng, Crsl, Crnd, Covf>::initialization_helper;
 
-  template<const int IntegralRange,
-           const int FractionalResolution>
-  struct negatable_constants<negatable<IntegralRange,
-                                       FractionalResolution,
-                                       round::fastest,
-                                       overflow::undefined>>
+  template<const int Crng, const int Crsl>
+  struct negatable_constants<negatable<Crng, Crsl, round::fastest, overflow::undefined>>
   {
   private:
-    typedef negatable<IntegralRange,
-                      FractionalResolution,
-                      round::fastest,
-                      overflow::undefined> local_negatable_type;
+    typedef negatable<Crng, Crsl, round::fastest, overflow::undefined> local_negatable_type;
 
   public:
     static BOOST_CONSTEXPR_OR_CONST local_negatable_type pi    () { return local_negatable_type::value_pi(); }
     static BOOST_CONSTEXPR_OR_CONST local_negatable_type ln_two() { return local_negatable_type::value_ln_two(); }
   };
 
-  template<const int IntegralRange,
-           const int FractionalResolution>
-  struct negatable_constants<negatable<IntegralRange,
-                                       FractionalResolution,
-                                       round::nearest_even,
-                                       overflow::undefined>>
+  template<const int Crng, const int Crsl>
+  struct negatable_constants<negatable<Crng, Crsl, round::nearest_even, overflow::undefined>>
   {
   private:
-    typedef negatable<IntegralRange,
-                      FractionalResolution,
-                      round::nearest_even,
-                      overflow::undefined> local_negatable_type;
+    typedef negatable<Crng, Crsl, round::fastest, overflow::undefined> local_negatable_type;
 
   public:
     static BOOST_CONSTEXPR_OR_CONST local_negatable_type pi    () { return local_negatable_type::value_pi(); }
     static BOOST_CONSTEXPR_OR_CONST local_negatable_type ln_two() { return local_negatable_type::value_ln_two(); }
   };
+
+  #if !defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
+
+    /*! @c std::ostream output @c operator\<\< \n
+        Send a fixed-point number to the output stream by first
+        expressing the fixed-point number as a floating-point number.\n
+
+        \note Macro BOOST_FIXED_POINT_DISABLE_IOSTREAM can be defined to 
+        disable all I/O streaming and the inclusion of associated standard
+        library headers. This is intended to eliminate I/O stream
+        overhead in particular for bare-metal microcontroller projects.
+    */
+    template<typename char_type, typename traits_type, const int Crng, const int Crsl, typename Crnd, typename Covf>
+    std::basic_ostream<char_type, traits_type>& operator<<(std::basic_ostream<char_type, traits_type>& out,
+                                                           const negatable<Crng, Crsl, Crnd, Covf>& x)
+    {
+      typedef negatable<Crng, Crsl, Crnd, Covf> negatable_type;
+
+      typedef typename negatable_type::float_type local_float_type;
+
+      // Send a fixed-point number to the output stream.
+      // Express the fixed-point number as a floating-point number.
+
+      std::basic_ostringstream<char_type, traits_type> ostr;
+
+      ostr.flags    (out.flags());
+      ostr.imbue    (out.getloc());
+      ostr.precision(out.precision());
+
+      static_cast<void>(ostr << x.template convert_to_floating_point_type<local_float_type>());
+
+      return (out << ostr.str());
+    }
+
+    /*! @c std::istream input @c operator>>
+        Receive a floating-point number from the input stream.
+        Subsequently make a fixed-point object from it.
+    */
+    template<typename char_type, typename traits_type, const int Crng, const int Crsl, typename Crnd, typename Covf>
+    std::basic_istream<char_type, traits_type>& operator>>(std::basic_istream<char_type, traits_type>& in,
+                                                           negatable<Crng, Crsl, Crnd, Covf>& x)
+    {
+      typedef negatable<Crng, Crsl, Crnd, Covf> negatable_type;
+
+      typedef typename negatable_type::float_type local_float_type;
+
+      local_float_type v;
+
+      // Receive a floating-point number from the input stream.
+      static_cast<void>(in >> v);
+
+      // Subsequently make a fixed-point object from it.
+      x.make_from_floating_point_type(v);
+
+      return in;
+    }
+
+  #endif // !BOOST_FIXED_POINT_DISABLE_IOSTREAM
 
   } } // namespace boost::fixed_point
 
-  //! Effectively inject all defined cmath functions into the global namespace.
-  //! So users can write sqrt(negatable) without requiring any namespace decoration.
-
-  using boost::fixed_point::abs;
-  using boost::fixed_point::fabs;
-  using boost::fixed_point::frexp;
-  using boost::fixed_point::ldexp;
-  using boost::fixed_point::floor;
-  using boost::fixed_point::ceil;
-  using boost::fixed_point::trunc;
-  using boost::fixed_point::sqrt;
-  using boost::fixed_point::acos;
-  using boost::fixed_point::exp;
-  using boost::fixed_point::log;
-
-  // TBD: Ensure that ALL std:: added functions are also listed in this section.
+  // Here we include all <cmath> functions for the negatable type.
+  #include <boost/fixed_point/fixed_point_negatable_cmath.hpp>
 
   namespace std {
 
@@ -2347,18 +1819,12 @@
   /*!template specialization of std::numeric_limits<negatable>
       for @c round::fastest and @c overflow::undefined.
   */
-  template<const int IntegralRange,
-            const int FractionalResolution>
-  class numeric_limits<boost::fixed_point::negatable<IntegralRange,
-                                                      FractionalResolution,
-                                                      boost::fixed_point::round::fastest,
-                                                      boost::fixed_point::overflow::undefined>>
+  template<const int Crng, const int Crsl>
+  class numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>
   {
   private:
-    typedef boost::fixed_point::negatable<IntegralRange,
-                                          FractionalResolution,
-                                          boost::fixed_point::round::fastest,
-                                          boost::fixed_point::overflow::undefined> local_negatable_type;
+    typedef boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>
+    local_negatable_type;
 
   public:
     static BOOST_CONSTEXPR_OR_CONST bool                    is_specialized    = true;
@@ -2396,45 +1862,39 @@
     static BOOST_CONSTEXPR_OR_CONST local_negatable_type denorm_min   () BOOST_NOEXCEPT { return (min)(); }
   };
 
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_specialized;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::digits;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::digits10;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::max_digits10;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_signed;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_integer;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_exact;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::radix;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::min_exponent;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::min_exponent10;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::max_exponent;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::max_exponent10;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::has_infinity;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::has_quiet_NaN;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::has_signaling_NaN;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST std::float_denorm_style numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::has_denorm;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::has_denorm_loss;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_iec559;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_bounded;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_modulo;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::traps;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::tinyness_before;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST std::float_round_style  numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::round_style;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_specialized;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::digits;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::digits10;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::max_digits10;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_signed;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_integer;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_exact;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::radix;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::min_exponent;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::min_exponent10;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::max_exponent;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::max_exponent10;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::has_infinity;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::has_quiet_NaN;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::has_signaling_NaN;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST std::float_denorm_style numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::has_denorm;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::has_denorm_loss;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_iec559;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_bounded;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_modulo;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::traps;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::tinyness_before;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST std::float_round_style  numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::round_style;
 
   /*!template specialization of std::numeric_limits<negatable>
       for @c round::nearest_even and @c overflow::undefined.
   */
-  template<const int IntegralRange,
-            const int FractionalResolution>
-  class numeric_limits<boost::fixed_point::negatable<IntegralRange,
-                                                      FractionalResolution,
-                                                      boost::fixed_point::round::nearest_even,
-                                                      boost::fixed_point::overflow::undefined>>
+  template<const int Crng, const int Crsl>
+  class numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>
   {
   private:
-    typedef boost::fixed_point::negatable<IntegralRange,
-                                          FractionalResolution,
-                                          boost::fixed_point::round::nearest_even,
-                                          boost::fixed_point::overflow::undefined> local_negatable_type;
+    typedef boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>
+    local_negatable_type;
 
   public:
     static BOOST_CONSTEXPR_OR_CONST bool                    is_specialized    = true;
@@ -2472,29 +1932,29 @@
     static BOOST_CONSTEXPR_OR_CONST local_negatable_type denorm_min   () BOOST_NOEXCEPT { return (min)(); }
   };
 
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_specialized;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::digits;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::digits10;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::max_digits10;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_signed;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_integer;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_exact;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::radix;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::min_exponent;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::min_exponent10;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::max_exponent;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::max_exponent10;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::has_infinity;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::has_quiet_NaN;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::has_signaling_NaN;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST std::float_denorm_style numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::has_denorm;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::has_denorm_loss;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_iec559;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_bounded;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_modulo;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::traps;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::tinyness_before;
-  template<const int IntegralRange, const int FractionalResolution> BOOST_CONSTEXPR_OR_CONST std::float_round_style  numeric_limits<boost::fixed_point::negatable<IntegralRange, FractionalResolution, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::round_style;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_specialized;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::digits;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::digits10;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::max_digits10;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_signed;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_integer;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_exact;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::radix;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::min_exponent;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::min_exponent10;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::max_exponent;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::max_exponent10;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::has_infinity;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::has_quiet_NaN;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::has_signaling_NaN;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST std::float_denorm_style numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::has_denorm;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::has_denorm_loss;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_iec559;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_bounded;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_modulo;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::traps;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::tinyness_before;
+  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST std::float_round_style  numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::round_style;
   } // namespace std
 
 #endif // FIXED_POINT_NEGATABLE_2015_03_06_HPP_

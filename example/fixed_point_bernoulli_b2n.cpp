@@ -18,17 +18,16 @@
 
 //! \file
 
-//! \brief Example program showing non-trivial use of negatable with math special functions.
+//! \brief Example program showing non-trivial use of negatable with a special function from Boost.Math.
 
 // Below are snippets of code that are included into Quickbook file fixed_point.qbk.
 
 
-#include <algorithm>
-#include <limits>
+#include <array>
+#include <cstddef>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
-#include <vector>
 
 #include <boost/fixed_point/fixed_point.hpp>
 #include <boost/math/special_functions/bernoulli.hpp>
@@ -37,55 +36,28 @@
 
 int main()
 {
-  // Test bernoulli_b2n() for negatable. Compute an array of
-  // fixed-point Bernoulli numbers and test them with
-  // multiprecision floating-point control values.
+  // Example: Compute an array of fixed-point Bernoulli numbers.
 
   BOOST_CONSTEXPR_OR_CONST std::size_t number_of_bernoulli_b2n = 22U;
+  BOOST_CONSTEXPR_OR_CONST int         resolution_of_bernoulli_b2n = -280;
 
-  BOOST_CONSTEXPR_OR_CONST int resolution_of_bernoulli_b2n = -280;
-
-  // Make a very large fixed-point type with an unusually asymetric large integral range.
+  // Make a very large fixed-point type with an asymetrically large integral range.
   typedef boost::fixed_point::negatable<2047 + resolution_of_bernoulli_b2n,
                                         resolution_of_bernoulli_b2n,
                                         boost::fixed_point::round::nearest_even>
   fixed_point_type;
 
-  // Define a fixed-point vector for storing the Bernoulli numbers.
-  std::vector<fixed_point_type> b2n_fixed;
+  // Define a fixed-point array for storing the Bernoulli numbers.
+  std::array<fixed_point_type, number_of_bernoulli_b2n> b2n_fixed;
 
-  // Fill the the fixed-point vector with even Bernoulli numbers.
-  boost::math::bernoulli_b2n<fixed_point_type>(0, number_of_bernoulli_b2n, std::back_inserter(b2n_fixed));
+  // Fill the fixed-point array with even Bernoulli numbers.
+  for(int i = 0U; i < int(number_of_bernoulli_b2n); ++i)
+  {
+    b2n_fixed[i] = boost::math::bernoulli_b2n<fixed_point_type>(i);
+  }
 
-  // Define a less-wide fixed-point type for manipulating the results.
-  typedef boost::fixed_point::negatable<511 + resolution_of_bernoulli_b2n,
-                                        resolution_of_bernoulli_b2n,
-                                        boost::fixed_point::round::nearest_even>
-  fixed_point_result_type;
-
-  // Define a less-wide floating-point type for verifying the results.
-  typedef fixed_point_type::float_type float_point_result_type;
-
-  std::vector<fixed_point_result_type> b2n_fixed_result(number_of_bernoulli_b2n);
-
-  // Define storage for multiprecision floating-point control values.
-  std::vector<float_point_result_type> b2n_float_control;
-
-  // Fill the the floating-point vector with control values.
-  boost::math::bernoulli_b2n<float_point_result_type>(0, number_of_bernoulli_b2n, std::back_inserter(b2n_float_control));
-
-  // Transform the Bernoulli number arrays. This tests the fixed-point
-  // class populating an STL container in combination with an algorithm
-  // and a lambda function.
-  std::transform(b2n_fixed.cbegin(),
-                 b2n_fixed.cend(),
-                 b2n_fixed_result.begin(),
-                 [](const fixed_point_type& b2n) -> fixed_point_result_type
-                 {
-                   return fixed_point_result_type(b2n);
-                 });
-
-  // Set a judiciously selected precision and fixed format on the output stream.
+  // Set a judiciously selected precision and also fixed format
+  // on the output stream.
 
   BOOST_CONSTEXPR_OR_CONST std::streamsize precision_of_ostream =
     std::streamsize(((long(-resolution_of_bernoulli_b2n) - 1L) * 301L) / 1000L);
@@ -94,14 +66,23 @@ int main()
   std::cout.setf(std::ios::fixed);
 
   // Print the fixed-point results to the output stream.
-  std::cout << std::endl << "Fixed-point results:" << std::endl << std::endl;
-  std::copy(b2n_fixed_result.cbegin(),
-            b2n_fixed_result.cend(),
-            std::ostream_iterator<fixed_point_result_type>(std::cout, "\n"));
+  std::cout << std::endl << "Fixed-point results of bernoulli_b2n:" << std::endl << std::endl;
+  std::copy(b2n_fixed.cbegin(),
+            b2n_fixed.cend(),
+            std::ostream_iterator<fixed_point_type>(std::cout, "\n"));
 
-  // Print the floating-point control values to the output stream.
-  std::cout << std::endl << "Floating-point-point control values:" << std::endl << std::endl;
-  std::copy(b2n_float_control.cbegin(),
-            b2n_float_control.cend(),
-            std::ostream_iterator<float_point_result_type>(std::cout, "\n"));
+  // Define a floating-point array for storing the control values.
+  std::array<fixed_point_type::float_type, number_of_bernoulli_b2n> b2n_float;
+
+  // Fill the floating-point array with even Bernoulli numbers.
+  for(int i = 0U; i < int(number_of_bernoulli_b2n); ++i)
+  {
+    b2n_float[i] = boost::math::bernoulli_b2n<fixed_point_type::float_type>(i);
+  }
+
+  // Print the fixed-point results to the output stream.
+  std::cout << std::endl << "Floating-point results of bernoulli_b2n:" << std::endl << std::endl;
+  std::copy(b2n_float.cbegin(),
+            b2n_float.cend(),
+            std::ostream_iterator<fixed_point_type::float_type>(std::cout, "\n"));
 }

@@ -24,7 +24,8 @@
   {
     // Use a quadratically converging Gauss-AGM method for computing pi.
 
-    using std::frexp;
+    using std::fabs;
+    using std::ldexp;
     using std::sqrt;
 
     NumericType val_pi;
@@ -40,6 +41,8 @@
     // the precision is about 2.8 million decimal digits.
     // We are not using that many digits in these tests,
     // only up to a few thousand at most.
+
+    const NumericType tolerance = ldexp(NumericType(1), -int((long(std::numeric_limits<NumericType>::digits) * 3L) / 4L));
 
     for(boost::uint_least8_t k = UINT8_C(1); k < UINT8_C(32); ++k)
     {
@@ -62,16 +65,9 @@
         // obtain a rough estimate of the number of base-2 digits
         // that have been obtained in this iteration.
 
-        int exp2;
-        static_cast<void>(frexp(iterate_term, &exp2));
+        const bool precision_goal_has_been_reached = (fabs(iterate_term) < tolerance);
 
-        const bool iteration_term_is_zero = ((exp2 == 0) || (iterate_term == 0));
-
-        BOOST_CONSTEXPR_OR_CONST int precision_goal = -int((long(std::numeric_limits<NumericType>::digits) * 3L) / 4L);
-
-        const bool precision_goal_has_been_reached = (exp2 <= precision_goal);
-
-        if(precision_goal_has_been_reached || iteration_term_is_zero)
+        if(precision_goal_has_been_reached)
         {
           break;
         }
@@ -91,7 +87,7 @@
   {
     // Use a quadratically converging Gauss-AGM method for computing log(2).
 
-    using std::frexp;
+    using std::ldexp;
     using std::sqrt;
 
     // Choose m > (N * 1.661), where N is the number of decimal digits requested.
@@ -102,6 +98,8 @@
     NumericType ak(1);
 
     NumericType bk(ldexp(NumericType(1), -(m - 2)));
+
+    const NumericType tolerance = ldexp(NumericType(1), -int((long(std::numeric_limits<NumericType>::digits) * 3L) / 4L));
 
     for(boost::uint_least8_t k = UINT8_C(0); k < UINT8_C(32); ++k)
     {
@@ -120,16 +118,9 @@
         // obtain a rough estimate of the number of base-2 digits
         // that have been obtained in this iteration.
 
-        int exp2;
-        static_cast<void>(frexp(delta_ak_bk, &exp2));
+        const bool precision_goal_has_been_reached = (fabs(delta_ak_bk) < tolerance);
 
-        const bool delta_ak_bk_is_zero = ((exp2 == 0) || (delta_ak_bk == 0));
-
-        BOOST_CONSTEXPR_OR_CONST int precision_goal = -int((long(std::numeric_limits<NumericType>::digits) * 3L) / 4L);
-
-        const bool precision_goal_has_been_reached = (exp2 <= precision_goal);
-
-        if(precision_goal_has_been_reached || delta_ak_bk_is_zero)
+        if(precision_goal_has_been_reached)
         {
           break;
         }
