@@ -65,7 +65,7 @@
         // obtain a rough estimate of the number of base-2 digits
         // that have been obtained in this iteration.
 
-        const bool precision_goal_has_been_reached = (fabs(iterate_term) < tolerance);
+        const bool precision_goal_has_been_reached = (fabs(iterate_term) <= tolerance);
 
         if(precision_goal_has_been_reached)
         {
@@ -118,7 +118,7 @@
         // obtain a rough estimate of the number of base-2 digits
         // that have been obtained in this iteration.
 
-        const bool precision_goal_has_been_reached = (fabs(delta_ak_bk) < tolerance);
+        const bool precision_goal_has_been_reached = (fabs(delta_ak_bk) <= tolerance);
 
         if(precision_goal_has_been_reached)
         {

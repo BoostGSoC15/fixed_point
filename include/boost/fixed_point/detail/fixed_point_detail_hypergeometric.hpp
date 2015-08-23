@@ -51,7 +51,7 @@
 
       if(minimum_number_of_iterations_is_complete)
       {
-        if(fabs(x_pow_n_div_n_fact) < std::numeric_limits<NumericType>::epsilon())
+        if(fabs(x_pow_n_div_n_fact) <= std::numeric_limits<NumericType>::epsilon())
         {
           break;
         }
@@ -106,7 +106,7 @@
 
       if(minimum_number_of_iterations_is_complete)
       {
-        if(fabs(x_pow_n_div_n_fact) < std::numeric_limits<NumericType>::epsilon())
+        if(fabs(x_pow_n_div_n_fact) <= std::numeric_limits<NumericType>::epsilon())
         {
           break;
         }
