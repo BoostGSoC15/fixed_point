@@ -59,18 +59,9 @@
 
       const bool minimum_number_of_iterations_is_complete = (k > UINT8_C(2));
 
-      if(minimum_number_of_iterations_is_complete)
+      if((minimum_number_of_iterations_is_complete) && (fabs(iterate_term) <= tolerance))
       {
-        // Extract the exponent of the iteration term in order to
-        // obtain a rough estimate of the number of base-2 digits
-        // that have been obtained in this iteration.
-
-        const bool precision_goal_has_been_reached = (fabs(iterate_term) <= tolerance);
-
-        if(precision_goal_has_been_reached)
-        {
-          break;
-        }
+        break;
       }
 
       t = (val_pi + bB) / 4U;
@@ -110,20 +101,9 @@
 
       const bool minimum_number_of_iterations_is_complete = (k > UINT8_C(4));
 
-      if(minimum_number_of_iterations_is_complete)
+      if((minimum_number_of_iterations_is_complete) && (fabs(ak - bk) <= tolerance))
       {
-        const NumericType delta_ak_bk = fabs(ak - bk);
-
-        // Extract the exponent of the iteration term in order to
-        // obtain a rough estimate of the number of base-2 digits
-        // that have been obtained in this iteration.
-
-        const bool precision_goal_has_been_reached = (fabs(delta_ak_bk) <= tolerance);
-
-        if(precision_goal_has_been_reached)
-        {
-          break;
-        }
+        break;
       }
     }
 

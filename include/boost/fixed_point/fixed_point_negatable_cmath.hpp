@@ -329,12 +329,9 @@
 
         const bool minimum_number_of_iterations_is_complete = (n > UINT16_C(4));
 
-        if(minimum_number_of_iterations_is_complete)
+        if((minimum_number_of_iterations_is_complete) && (fabs(term) <= tolerance))
         {
-          if(fabs(term) <= tolerance)
-          {
-            break;
-          }
+          break;
         }
 
         term_is_negative = (!term_is_negative);

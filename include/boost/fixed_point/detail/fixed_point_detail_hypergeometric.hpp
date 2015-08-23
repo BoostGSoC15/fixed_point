@@ -47,14 +47,12 @@
       x_pow_n_div_n_fact *= x;
       x_pow_n_div_n_fact /= n;
 
-      const bool minimum_number_of_iterations_is_complete = (n > UINT16_C(2));
+      const bool minimum_number_of_iterations_is_complete = (n > UINT16_C(4));
 
-      if(minimum_number_of_iterations_is_complete)
+      if(   (minimum_number_of_iterations_is_complete)
+         && (fabs(x_pow_n_div_n_fact) <= std::numeric_limits<NumericType>::epsilon()))
       {
-        if(fabs(x_pow_n_div_n_fact) <= std::numeric_limits<NumericType>::epsilon())
-        {
-          break;
-        }
+        break;
       }
 
       h0f0 += x_pow_n_div_n_fact;
@@ -102,14 +100,12 @@
 
       const NumericType term = ((pochham_a * pochham_b) / pochham_c) * x_pow_n_div_n_fact;
 
-      const bool minimum_number_of_iterations_is_complete = (n > UINT16_C(2));
+      const bool minimum_number_of_iterations_is_complete = (n > UINT16_C(4));
 
-      if(minimum_number_of_iterations_is_complete)
+      if(   (minimum_number_of_iterations_is_complete)
+         && (fabs(x_pow_n_div_n_fact) <= std::numeric_limits<NumericType>::epsilon()))
       {
-        if(fabs(x_pow_n_div_n_fact) <= std::numeric_limits<NumericType>::epsilon())
-        {
-          break;
-        }
+        break;
       }
 
       h2f1 += term;
