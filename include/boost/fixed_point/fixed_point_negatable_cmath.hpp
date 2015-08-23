@@ -33,8 +33,6 @@
     return ((x.data < 0) ? -x : x);
   }
 
-  // TBD implement C++11 copysign and other floating-point manipulation functions.
-
   template<const int Crng, const int Crsl, typename Crnd, typename Covf>
   negatable<Crng, Crsl, Crnd, Covf> floor(negatable<Crng, Crsl, Crnd, Covf> x)
   {
@@ -143,9 +141,9 @@
 
       // Create and return the signed fixed-point result.
       return local_negatable_type(local_nothing(), local_value_type((!is_neg) ?  local_value_type(result)
-                                                                        : -local_value_type(result)));
+                                                                              : -local_value_type(result)));
     }
-  } // negatable frexp(negatable x, int* exp2)
+  }
 
   /*! @c std::ldexp function \<cmath\> implementation for negatable type.\n
       Multiplies a floating point value x by the number 2 raised to the exp2 power.\n
@@ -155,7 +153,6 @@
       \param exp2 power of 2 to use to multiply.
       \return x * 2^exp2.
   */
-
   template<const int Crng, const int Crsl, typename Crnd, typename Covf>
   negatable<Crng, Crsl, Crnd, Covf> ldexp(negatable<Crng, Crsl, Crnd, Covf> x, int exp2)
   {
@@ -330,9 +327,9 @@
 
         ((!term_is_negative) ? (log_series += term) : (log_series -= term));
 
-        const bool minimum_number_of_iterations_are_complete = (n > UINT16_C(4));
+        const bool minimum_number_of_iterations_is_complete = (n > UINT16_C(4));
 
-        if(minimum_number_of_iterations_are_complete)
+        if(minimum_number_of_iterations_is_complete)
         {
           if(fabs(term) < tolerance)
           {
@@ -357,9 +354,9 @@
     typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
 
     // TBD: This version of acos is essentially non-functional because
-    // it returns a sensible value for one and only one argument (pi/2).
-    // This result is subsequently used in Boost.Math.Constants for the
-    // calculation of pi.
+    // it merely returns a sensible value for one and only one argument
+    // (at x == 0). This result is subsequently used in Boost.Math.Constants
+    // for the calculation of pi.
 
     // TBD: Make a complete (and efficient) version of acos.
 

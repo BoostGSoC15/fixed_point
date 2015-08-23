@@ -97,7 +97,7 @@
   template<const int Crng, const int Crsl, typename Crnd, typename Covf>
   class negatable;
 
-  // Forward declaration of the negatable_constants structures.
+  // Forward declarations of the negatable_constants structures.
   template<typename NonSpecializedParameter>
   struct negatable_constants { };
 
@@ -107,6 +107,7 @@
   #if !defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
 
     // Forward declarations of I/O streaming functions.
+
     template<typename char_type, typename traits_type,
              const int Crng, const int Crsl, typename Crnd, typename Covf>
     std::basic_ostream<char_type, traits_type>& operator<<(std::basic_ostream<char_type, traits_type>& out, const negatable<Crng, Crsl, Crnd, Covf>& x);
@@ -117,7 +118,8 @@
 
   #endif
 
-  // What follows are forward declarations of elementary transcendental functions mainly from <cmath>.
+  // What follows are forward declarations of <cmath> transcendental functions.
+
   template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> abs  (negatable<Crng, Crsl, Crnd, Covf> x);
   template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> fabs (negatable<Crng, Crsl, Crnd, Covf> x);
   template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> floor(negatable<Crng, Crsl, Crnd, Covf> x);
@@ -130,14 +132,11 @@
   template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> log  (negatable<Crng, Crsl, Crnd, Covf> x);
   template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> acos (negatable<Crng, Crsl, Crnd, Covf> x);
 
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> fixed_next     (negatable<Crng, Crsl, Crnd, Covf> x);
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> fixed_prior    (negatable<Crng, Crsl, Crnd, Covf> x);
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> fixed_distance (negatable<Crng, Crsl, Crnd, Covf> x);
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> fixed_advance  (negatable<Crng, Crsl, Crnd, Covf> x);
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> fixed_nextafter(negatable<Crng, Crsl, Crnd, Covf> x);
+  // TBD: Implement all <cmath> transcendental functions.
+
+  // End of forward declaration of <cmath> transcendental functions.
 
   } } // namespace boost::fixed_point:
-  // End of forward declaration of transcendental and cmath functions.
 
   namespace std
   {
@@ -179,12 +178,10 @@
   public:
     // The negatable class must have at least one fractional digit.
     // Pure integer instantiations of negatable allowed
-    static_assert(Crsl < 0,
-                  "Error: The fractional resolution of negatable must be negative and include at least 1 fractional bit.");
+    static_assert(Crsl < 0, "Error: The fractional resolution of negatable must be negative and include at least 1 fractional bit.");
 
     // The negatable class can not have a negative integral range.
-    static_assert(Crng >= 0,
-                  "Error: The integral range of negatable must be 0 or more.");
+    static_assert(Crng >= 0, "Error: The integral range of negatable must be 0 or more.");
 
     static_assert(   std::is_same<Crnd, round::fastest>::value
                   || std::is_same<Crnd, round::nearest_even>::value,
@@ -216,7 +213,7 @@
     */
     static BOOST_CONSTEXPR_OR_CONST int all_bits = (range + 1) + (-resolution); // +1 for the sign bit.
 
-    static_assert(all_bits <= 32768, "Error: At the moment, the width of fixed_point negatable can not exceed 32768 bits (limitation of details section).");
+    static_assert(all_bits < 32768, "Error: At the moment, the width of fixed_point negatable can not exceed 32767 bits.");
 
     #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
       static_assert(all_bits <= 32, "Error: The width of fixed_point negatable can not exceed 32 bits when multiprecision is disabled.");
@@ -228,10 +225,7 @@
     // Friend forward declaration of another negatable class
     // with different template parameters.
 
-    template<const int OtherCrng,
-             const int OtherCrsl,
-             typename OtherCrnd,
-             typename OtherCovf>
+    template<const int OtherCrng, const int OtherCrsl, typename OtherCrnd, typename OtherCovf>
     friend class negatable;
 
     // Here we declare two convenient class-local type definitions.
@@ -352,10 +346,7 @@
     // There is less range and less resolution in the other type.
     template<const int OtherCrng,
              const int OtherCrsl>
-    negatable(const negatable<OtherCrng,
-                              OtherCrsl,
-                              Crnd,
-                              Covf>& other,
+    negatable(const negatable<OtherCrng, OtherCrsl, Crnd, Covf>& other,
               typename std::enable_if<   (   ( OtherCrng <   Crng)
                                           && (-OtherCrsl <  -Crsl))
                                       || (   ( OtherCrng <=  Crng)
@@ -364,10 +355,7 @@
                                           && (-OtherCrsl <= -Crsl))>::type* = nullptr)
        : data()
     {
-      typedef negatable<OtherCrng,
-                        OtherCrsl,
-                        Crnd,
-                        Covf> other_negatable_type;
+      typedef negatable<OtherCrng, OtherCrsl, Crnd, Covf> other_negatable_type;
 
       typedef unsigned_small_type superior_unsigned_small_type;
 
@@ -389,18 +377,12 @@
     // There is more range and less resolution in the other type.
     template<const int OtherCrng,
              const int OtherCrsl>
-    negatable(const negatable<OtherCrng,
-                              OtherCrsl,
-                              Crnd,
-                              Covf>& other,
+    negatable(const negatable<OtherCrng, OtherCrsl, Crnd, Covf>& other,
               typename std::enable_if<   ( OtherCrng >  Crng)
                                       && (-OtherCrsl < -Crsl)>::type* = nullptr)
       : data()
     {
-      typedef negatable<OtherCrng,
-                        OtherCrsl,
-                        Crnd,
-                        Covf> other_negatable_type;
+      typedef negatable<OtherCrng, OtherCrsl, Crnd, Covf> other_negatable_type;
 
       typedef unsigned_small_type superior_unsigned_small_type;
 
@@ -424,18 +406,12 @@
     // There is less range and more resolution in the other type.
     template<const int OtherCrng,
              const int OtherCrsl>
-    negatable(const negatable<OtherCrng,
-                              OtherCrsl,
-                              Crnd,
-                              Covf>& other,
+    negatable(const negatable<OtherCrng, OtherCrsl, Crnd, Covf>& other,
               typename std::enable_if<   ( OtherCrng <   Crng)
                                       && (-OtherCrsl >  -Crsl)>::type* = nullptr)
       : data()
     {
-      typedef negatable<OtherCrng,
-                        OtherCrsl,
-                        Crnd,
-                        Covf> other_negatable_type;
+      typedef negatable<OtherCrng, OtherCrsl, Crnd, Covf> other_negatable_type;
 
       typedef typename other_negatable_type::unsigned_small_type superior_unsigned_small_type;
 
@@ -464,10 +440,7 @@
     // There is more range and more resolution in the other type.
     template<const int OtherCrng,
              const int OtherCrsl>
-    negatable(const negatable<OtherCrng,
-                              OtherCrsl,
-                              Crnd,
-                              Covf>& other,
+    negatable(const negatable<OtherCrng, OtherCrsl, Crnd, Covf>& other,
               typename std::enable_if<   (   ( OtherCrng >   Crng)
                                           && (-OtherCrsl >  -Crsl))
                                       || (   ( OtherCrng >=  Crng)
@@ -476,10 +449,7 @@
                                           && (-OtherCrsl >= -Crsl))>::type* = nullptr)
       : data()
     {
-      typedef negatable<OtherCrng,
-                        OtherCrsl,
-                        Crnd,
-                        Covf> other_negatable_type;
+      typedef negatable<OtherCrng, OtherCrsl, Crnd, Covf> other_negatable_type;
 
       typedef typename other_negatable_type::unsigned_small_type superior_unsigned_small_type;
 
@@ -538,10 +508,7 @@
     */
     template<const int OtherCrng,
              const int OtherCrsl>
-    negatable& operator=(const negatable<OtherCrng,
-                                         OtherCrsl,
-                                         Crnd,
-                                         Covf>& other)
+    negatable& operator=(const negatable<OtherCrng, OtherCrsl, Crnd, Covf>& other)
     {
       // Use a relatively lazy method that creates an intermediate temporary object.
       // The temporary object is subsequently used to initialize the data field of *this.
@@ -1087,7 +1054,6 @@
        For @c round::fastest, there is simply no rounding at all;
        the value is truncated.
      */
-
       u_round = (u_round >> 1);
 
       return INT8_C(0);
@@ -1125,7 +1091,7 @@
       return the_radix_split_value;
     }
 
-    /*! Compute (during pre-main initialization) the maximum value that the type can represent.\n
+    /*! Compute (during pre-main static initialization) the maximum value that the type can represent.\n
         Used to define function @c std::numeric_limits<>::max()
         and, when negated, @c std::numeric_limits<>::lowest().
     */
@@ -1138,7 +1104,7 @@
       return the_value_max;
     }
 
-    /*! Compute (during pre-main initialization) the minimum value that the type can represent.\n
+    /*! Compute (during pre-main static initialization) the minimum value that the type can represent.\n
         Used to define function @c std::numeric_limits<>::min().
     */
     static const negatable& value_min() BOOST_NOEXCEPT
@@ -1150,8 +1116,8 @@
       return the_value_min;
     }
 
-    /*! Compute machine epsilon (during pre-main initialization) for
-        @c std::numeric_limits<>::epsilon() function.
+    /*! Compute machine epsilon (during pre-main static initialization) 
+        for @c std::numeric_limits<>::epsilon() function.
         Epsilon is defined as the smallest number that,
         when added to one, yields a result different from one.
         By this definition, epsilon equals the value of the unit
@@ -1173,7 +1139,7 @@
       return the_epsilon;
     }
 
-    /*! Compute (during pre-main initialization) the representation of the mathematical constant pi.\n
+    /*! Compute (during pre-main static initialization) the representation of the mathematical constant pi.\n
     */
     static const negatable& value_pi()
     {
@@ -1184,7 +1150,7 @@
       return the_value_pi;
     }
 
-    /*! Compute (during pre-main initialization) the representation of the mathematical constant log(2).\n
+    /*! Compute (during pre-main static initialization) the representation of the mathematical constant log(2).\n
     */
     static const negatable& value_ln_two()
     {
@@ -1349,10 +1315,7 @@
                             ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
                             Crnd,
                             Covf>
-    operator+(const negatable& u, const negatable<OtherCrng,
-                                                  OtherCrsl,
-                                                  Crnd,
-                                                  Covf>& v)
+    operator+(const negatable& u, const negatable<OtherCrng, OtherCrsl, Crnd, Covf>& v)
     {
       typedef negatable<((-Crsl > -OtherCrsl) ? Crng : OtherCrng),
                         ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
@@ -1370,10 +1333,7 @@
                             ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
                             Crnd,
                             Covf>
-    operator-(const negatable& u, const negatable<OtherCrng,
-                                                  OtherCrsl,
-                                                  Crnd,
-                                                  Covf>& v)
+    operator-(const negatable& u, const negatable<OtherCrng, OtherCrsl, Crnd, Covf>& v)
     {
       typedef negatable<((-Crsl > -OtherCrsl) ? Crng : OtherCrng),
                         ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
@@ -1391,10 +1351,7 @@
                             ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
                             Crnd,
                             Covf>
-    operator*(const negatable& u, const negatable<OtherCrng,
-                                                  OtherCrsl,
-                                                  Crnd,
-                                                  Covf>& v)
+    operator*(const negatable& u, const negatable<OtherCrng, OtherCrsl, Crnd, Covf>& v)
     {
       typedef negatable<((-Crsl > -OtherCrsl) ? Crng : OtherCrng),
                         ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
@@ -1412,10 +1369,7 @@
                             ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
                             Crnd,
                             Covf>
-    operator/(const negatable& u, const negatable<OtherCrng,
-                                                  OtherCrsl,
-                                                  Crnd,
-                                                  Covf>& v)
+    operator/(const negatable& u, const negatable<OtherCrng, OtherCrsl, Crnd, Covf>& v)
     {
       typedef negatable<((-Crsl > -OtherCrsl) ? Crng : OtherCrng),
                         ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
@@ -1597,10 +1551,7 @@
 
     template<const int OtherCrng,
              const int OtherCrsl>
-    friend inline bool operator==(const negatable& u, const negatable<OtherCrng,
-                                                                      OtherCrsl,
-                                                                      Crnd,
-                                                                      Covf>& v)
+    friend inline bool operator==(const negatable& u, const negatable<OtherCrng, OtherCrsl, Crnd, Covf>& v)
     {
       typedef negatable<(( Crng >  OtherCrng) ? Crng : OtherCrng),
                         ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
@@ -1612,10 +1563,7 @@
 
     template<const int OtherCrng,
              const int OtherCrsl>
-    friend inline bool operator!=(const negatable& u, const negatable<OtherCrng,
-                                                                      OtherCrsl,
-                                                                      Crnd,
-                                                                      Covf>& v)
+    friend inline bool operator!=(const negatable& u, const negatable<OtherCrng, OtherCrsl, Crnd, Covf>& v)
     {
       typedef negatable<(( Crng >  OtherCrng) ? Crng : OtherCrng),
                         ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
@@ -1627,10 +1575,7 @@
 
     template<const int OtherCrng,
              const int OtherCrsl>
-    friend inline bool operator>(const negatable& u, const negatable<OtherCrng,
-                                                                     OtherCrsl,
-                                                                     Crnd,
-                                                                     Covf>& v)
+    friend inline bool operator>(const negatable& u, const negatable<OtherCrng, OtherCrsl, Crnd, Covf>& v)
     {
       typedef negatable<(( Crng >  OtherCrng) ? Crng : OtherCrng),
                         ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
@@ -1642,10 +1587,7 @@
 
     template<const int OtherCrng,
              const int OtherCrsl>
-    friend inline bool operator<(const negatable& u, const negatable<OtherCrng,
-                                                                     OtherCrsl,
-                                                                     Crnd,
-                                                                     Covf>& v)
+    friend inline bool operator<(const negatable& u, const negatable<OtherCrng, OtherCrsl, Crnd, Covf>& v)
     {
       typedef negatable<(( Crng >  OtherCrng) ? Crng : OtherCrng),
                         ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
@@ -1657,10 +1599,7 @@
 
     template<const int OtherCrng,
              const int OtherCrsl>
-    friend inline bool operator>=(const negatable& u, const negatable<OtherCrng,
-                                                                      OtherCrsl,
-                                                                      Crnd,
-                                                                      Covf>& v)
+    friend inline bool operator>=(const negatable& u, const negatable<OtherCrng, OtherCrsl, Crnd, Covf>& v)
     {
       typedef negatable<(( Crng >  OtherCrng) ? Crng : OtherCrng),
                         ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
@@ -1672,10 +1611,7 @@
 
     template<const int OtherCrng,
              const int OtherCrsl>
-    friend inline bool operator<=(const negatable& u, const negatable<OtherCrng,
-                                                                      OtherCrsl,
-                                                                      Crnd,
-                                                                      Covf>& v)
+    friend inline bool operator<=(const negatable& u, const negatable<OtherCrng, OtherCrsl, Crnd, Covf>& v)
     {
       typedef negatable<(( Crng >  OtherCrng) ? Crng : OtherCrng),
                         ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),

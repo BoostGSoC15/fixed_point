@@ -47,9 +47,9 @@
       x_pow_n_div_n_fact *= x;
       x_pow_n_div_n_fact /= n;
 
-      const bool minimum_number_of_iterations_are_complete = (n > UINT16_C(2));
+      const bool minimum_number_of_iterations_is_complete = (n > UINT16_C(2));
 
-      if(minimum_number_of_iterations_are_complete)
+      if(minimum_number_of_iterations_is_complete)
       {
         if(fabs(x_pow_n_div_n_fact) < std::numeric_limits<NumericType>::epsilon())
         {
@@ -102,9 +102,9 @@
 
       const NumericType term = ((pochham_a * pochham_b) / pochham_c) * x_pow_n_div_n_fact;
 
-      const bool minimum_number_of_iterations_are_complete = (n > UINT16_C(2));
+      const bool minimum_number_of_iterations_is_complete = (n > UINT16_C(2));
 
-      if(minimum_number_of_iterations_are_complete)
+      if(minimum_number_of_iterations_is_complete)
       {
         if(fabs(x_pow_n_div_n_fact) < std::numeric_limits<NumericType>::epsilon())
         {
