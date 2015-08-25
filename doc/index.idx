@@ -10,31 +10,42 @@
 #
 !define-scanner class_name "^[[:space:]]*(template[[:space:]]*<[^;:{]+>[[:space:]]*)?(class|struct)[[:space:]]*(\<\w+\>([[:blank:]]*\([^)]*\))?[[:space:]]*)*(\<\w*\>)[[:space:]]*(<[^;:{]+>)?[[:space:]]*(\{|:[^;\{()]*\{)" "(?:class|struct)[^;{]+\\<\5\\>\\s*[;{]" \5
 
-!scan-path ../include/boost/fixed_point fixed_point.hpp true
-
+!scan-path ../include/boost/fixed_point fixed_point.hpp
+!scan-path ../include/boost/fixed_point fixed_point_negatable.hpp
+!scan-path ../include/boost/fixed_point fixed_point.nonnegative.hpp
+!scan-path ../include/boost/fixed_point fixed_point_overflow.hpp
+!scan-path ../include/boost/fixed_point fixed_point_round.hpp
 
 # Might be useful to Doxygen document everything for maintainance?
-#!scan "../include/boost/detail/" "*.hpp" true
+#!scan "../include/boost/fixed_point/detail/" "*.hpp" true
 
-!scan ../example/fixed_point_demo.cpp
+# Index all examples.
+!scan-path "../example" ".*\.cpp" true
 
-base \<\w*\base\w*\>
-boolalpha \<\w*boolalpha\w*\>
-fixed \<\w*fixed\w*\>
-floating-point \<\w*float\w*\>
-fixed-point \<\w*fixed\w*\>
+
 dec
-encryption \<\w*(encryption|decryption)\w*\>
 hex
-leading
-locale \<\w*\locale\w*\>
 precision
 oct
 scientific
-skipws  \<skip\w*\>
-transformation \<transform\w*\>
-user-defined types (UDT)  \<\w*user\w*\>
-whitespace \<white\w*\>
+# All BOOST_FIXED_POINT macros
+BOOST_FIXED_POINT_DISABLE_IOSTREAM
+BOOST_FIXED_POINT_DISABLE_CPP11
+BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
+BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH
+
+#  Misc terms to index.
+acknowledgement \<acknowledgement\w*\>
+Arduino
+bare-metal \<\w*(bare|metal)\w*\>
+derivative
+example \<example\w*\>
+FAQ
+header
+history
+microcontroller
+pi
+reference \<reference\w*\>
 
 
 

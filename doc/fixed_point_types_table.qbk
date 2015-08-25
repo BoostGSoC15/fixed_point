@@ -1,0 +1,30 @@
+[/
+Copyright 2015 Paul A. Bristow.
+Copyright 2015 Christopher Kormanyos.
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt).
+]
+
+[section:fixed_point_limits Numeric limits for various fixed_point types]
+
+[table:fixed_point_types_table Numeric limits for Fixed_point types
+[[negatable] [range] [resolution] [digits] [bits] [epsilon] [lowest] [min] [max]]
+[[<15,-16>] [15] [-16] [31] [32] [3.05e-005] [-3.277e+004] [1.526e-005] [3.277e+004]]
+[[<11,-20>] [11] [-20] [31] [32] [1.91e-006] [-2048] [9.537e-007] [2048]]
+[[<0,-31>] [0] [-31] [31] [32] [9.31e-010] [-1] [4.657e-010] [1]]
+[[<30,-1>] [30] [-1] [31] [32] [1.00e+000] [-1.074e+009] [0.5] [1.074e+009]]
+[[<15,-240>] [15] [-240] [255] [256] [1.13e-72] [-3.277e+04] [5.66e-73] [3.277e+04]]
+[[<0,-255>] [0] [-255] [255] [256] [3.45e-77] [-1] [1.727e-77] [1]]
+[[<200,-55>] [200] [-55] [255] [256] [5.55e-17] [-1.607e+60] [2.776e-17] [1.607e+60]]
+[[<7,-8>] [7] [-8] [15] [16] [7.81e-003] [-128] [0.003906] [128]]
+[[<0,-7>] [0] [-7] [7] [8] [1.56e-002] [-0.9922] [0.007813] [0.9922]]
+[[<2,-5>] [2] [-5] [7] [8] [6.25e-002] [-3.969] [0.03125] [3.969]]
+[[<4,-11>] [4] [-11] [15] [16] [9.77e-004] [-16] [0.0004883] [16]]
+[[<7,-24>] [7] [-24] [31] [32] [1.19e-007] [-128] [5.96e-008] [128]]
+[[<10,-53>] [10] [-53] [63] [64] [2.22e-16] [-1024] [1.11e-16] [1024]]
+[[<14,-113>] [14] [-113] [127] [128] [1.93e-34] [-1.638e+04] [9.63e-35] [1.638e+04]]
+] [/table:fixed_point_types_table]
+
+[endsect] [/section:fixed_point_limits  Numeric limits for various fixed_point types]
+

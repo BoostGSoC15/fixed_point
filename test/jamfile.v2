@@ -28,10 +28,12 @@ project checks
       <include>. # .cpp files in fixed_point/test.
       <include>../include/ # fixed_point .hpp files.
       <library>boost_unit_test
-
       <link>static
       <toolset>gcc:<cxxflags>-std=gnu++11
       <toolset>gcc:<cxxflags>-Wno-unused-local-typedefs
+      <toolset>gcc:<cxxflags>-Wno-deprecated-declarations
+      <toolset>gcc:<cxxflags>-Wno-long-long
+      <toolset>gcc:<cxxflags>-ftrack-macro-expansion=0 # Suppress note: in expansion of macro
       <toolset>clang:<cxxflags>-std=c++11
       <toolset>msvc:<asynch-exceptions>on # Needed for Boost.Test
       <toolset>msvc:<warnings>all
@@ -53,9 +55,38 @@ project checks
 
 test-suite "Fixed_point"
     :
-      [ run test_fixed_point_basic.cpp boost_unit_test ]
-      [ run test_fixed_point_multiply.cpp boost_unit_test ]
-      [ run test_fixed_point_construct.cpp boost_unit_test ]
-      [ run test_fixed_point_bit_pattern.cpp boost_unit_test ]
-      [ run test_fixed_point_arithmetic.cpp boost_unit_test ]
+      [ run test_negatable_arithmetic_fastest.cpp boost_unit_test ]
+      [ run test_negatable_arithmetic_nearest_even.cpp boost_unit_test ]
+      [ run test_negatable_bare_metal_config.cpp boost_unit_test ]
+      [ run test_negatable_bare_metal_config_32bit.cpp boost_unit_test ]
+      [ run test_negatable_basic.cpp boost_unit_test ]
+      [ run test_negatable_bernoulli_b2n.cpp boost_unit_test ]
+      [ run test_negatable_bit_pattern.cpp boost_unit_test ]
+      [ run test_negatable_cbrt_fastest.cpp boost_unit_test ]
+      [ run test_negatable_cbrt_nearest_even.cpp boost_unit_test ]
+      [ run test_negatable_construct.cpp boost_unit_test ]
+      [ run test_negatable_floor_ceil.cpp boost_unit_test ]
+      [ run test_negatable_frexp_ldexp.cpp boost_unit_test ]
+      [ run test_negatable_limits.cpp boost_unit_test ]
+      [ run test_negatable_local_constants_ln_two.cpp boost_unit_test ]
+      [ run test_negatable_local_constants_pi.cpp boost_unit_test ]
+      [ run test_negatable_mixed_constructors_part1.cpp boost_unit_test ]
+      [ run test_negatable_mixed_constructors_part2.cpp boost_unit_test ]
+      [ run test_negatable_multiply.cpp boost_unit_test ]
+      [ run test_negatable_round_trip_digits02_005m2.cpp boost_unit_test ]
+      [ run test_negatable_round_trip_digits10_001.cpp boost_unit_test ]
+      [ run test_negatable_round_trip_digits10_002.cpp boost_unit_test ]
+      [ run test_negatable_round_trip_digits10_003.cpp boost_unit_test ]
+      [ run test_negatable_round_trip_digits10_005.cpp boost_unit_test ]
+      [ run test_negatable_round_trip_digits10_006.cpp boost_unit_test ]
+      [ run test_negatable_round_trip_digits10_007.cpp boost_unit_test ]
+      [ run test_negatable_round_trip_digits10_014.cpp boost_unit_test ]
+      [ run test_negatable_round_trip_digits10_018.cpp boost_unit_test ]
+      [ run test_negatable_round_trip_digits10_050.cpp boost_unit_test ]
+      [ run test_negatable_round_trip_digits10_100.cpp boost_unit_test ]
+      [ run test_negatable_round_trip_digits10_999.cpp boost_unit_test ]
+      [ run test_negatable_sqrt_big.cpp boost_unit_test ]
+      [ run test_negatable_sqrt_fastest.cpp boost_unit_test ]
+      [ run test_negatable_sqrt_nearest_even.cpp boost_unit_test ]
+
     ;

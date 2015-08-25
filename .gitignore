@@ -1,12 +1,30 @@
 # .gitignore for fixed-point, ignoring all generated docs and log files.
+* Ignore all log files in any folder in the sub-module.
+/**/*.log
+doc/html/boost
+doc/html/boost_fixed_point
+doc/html/header
+doc/html/std
+doc/html/standalone_HTML.manifest
 doc/html/*.html
+doc/doxygen/*.html
+doc/doxygen/*.js
+* latex should not be generated if setting in doxyfile is correct (but is the default).
+doc/doxygen/latex/
 #  Also ignore the results of Boost Inspect program that check for bad html links in documentation.
 doc/inspect.htm
+doc/inspect.html
+# Generated xml before html is derived.
+doc/autodoc.xml
+
+# Files that we DO want in GIT.
 # Do not ignore the redirect from /doc/index.html to doc/html/index.html
 !doc/index.html
-# Do not ignore math.css (until this is automatically copied to doc/html/
-!doc/html/math.css
-# All log files in any folder.
-/**/*.log
-doc/autodoc.xml
+# Do not ignore fixed_point.css (until this is automatically copied to doc/html/)
+!doc/fixed_point.css
+!doc/boostbook.css
+!doc/html/fixed_point.css
+!doc/html/boostbook.css
+!doc/doxygen/fixed_point_doxyfile.txt
+
 
