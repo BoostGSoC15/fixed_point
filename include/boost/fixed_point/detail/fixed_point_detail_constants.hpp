@@ -39,8 +39,8 @@
     // decimal digits of pi. The number of digits roughly doubles
     // with each iteration of the loop. After 20 iterations,
     // the precision is about 2.8 million decimal digits.
-    // We are not using that many digits in these tests,
-    // only up to a few thousand at most.
+    // We are, however, not using that many digits in this
+    // application --- only up to a few thousand at most.
 
     const NumericType tolerance = ldexp(NumericType(1), -int((long(std::numeric_limits<NumericType>::digits) * 3L) / 4L));
 
@@ -57,20 +57,11 @@
 
       s += iterate_term;
 
-      const bool minimum_number_of_iterations_are_complete = (k > UINT8_C(2));
+      const bool minimum_number_of_iterations_is_complete = (k > UINT8_C(2));
 
-      if(minimum_number_of_iterations_are_complete)
+      if((minimum_number_of_iterations_is_complete) && (fabs(iterate_term) <= tolerance))
       {
-        // Extract the exponent of the iteration term in order to
-        // obtain a rough estimate of the number of base-2 digits
-        // that have been obtained in this iteration.
-
-        const bool precision_goal_has_been_reached = (fabs(iterate_term) < tolerance);
-
-        if(precision_goal_has_been_reached)
-        {
-          break;
-        }
+        break;
       }
 
       t = (val_pi + bB) / 4U;
@@ -108,22 +99,11 @@
       ak /= 2U;
       bk  = sqrt(bk * a);
 
-      const bool minimum_number_of_iterations_are_complete = (k > UINT8_C(4));
+      const bool minimum_number_of_iterations_is_complete = (k > UINT8_C(4));
 
-      if(minimum_number_of_iterations_are_complete)
+      if((minimum_number_of_iterations_is_complete) && (fabs(ak - bk) <= tolerance))
       {
-        const NumericType delta_ak_bk = fabs(ak - bk);
-
-        // Extract the exponent of the iteration term in order to
-        // obtain a rough estimate of the number of base-2 digits
-        // that have been obtained in this iteration.
-
-        const bool precision_goal_has_been_reached = (fabs(delta_ak_bk) < tolerance);
-
-        if(precision_goal_has_been_reached)
-        {
-          break;
-        }
+        break;
       }
     }
 
@@ -131,7 +111,7 @@
     // large fixed-point type.
 
     // The iteration is finished: Compute ln2 = pi / [AGM(1, 4 / 2^m) * 2m].
-    // Note that ak = bk = AGM(...).
+    // Note that the result of the AGM iteration is: ak = bk = AGM(...).
     const NumericType val_ln_two = calculate_pi<NumericType>() / (ak * (2 * m));
 
     return val_ln_two;

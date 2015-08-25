@@ -33,8 +33,6 @@
     return ((x.data < 0) ? -x : x);
   }
 
-  // TBD implement C++11 copysign and other floating-point manipulation functions.
-
   template<const int Crng, const int Crsl, typename Crnd, typename Covf>
   negatable<Crng, Crsl, Crnd, Covf> floor(negatable<Crng, Crsl, Crnd, Covf> x)
   {
@@ -143,9 +141,9 @@
 
       // Create and return the signed fixed-point result.
       return local_negatable_type(local_nothing(), local_value_type((!is_neg) ?  local_value_type(result)
-                                                                        : -local_value_type(result)));
+                                                                              : -local_value_type(result)));
     }
-  } // negatable frexp(negatable x, int* exp2)
+  }
 
   /*! @c std::ldexp function \<cmath\> implementation for negatable type.\n
       Multiplies a floating point value x by the number 2 raised to the exp2 power.\n
@@ -155,7 +153,6 @@
       \param exp2 power of 2 to use to multiply.
       \return x * 2^exp2.
   */
-
   template<const int Crng, const int Crsl, typename Crnd, typename Covf>
   negatable<Crng, Crsl, Crnd, Covf> ldexp(negatable<Crng, Crsl, Crnd, Covf> x, int exp2)
   {
@@ -299,12 +296,12 @@
     }
     else if(x > 1)
     {
-      // Use frexp() to reduce the argument to x = y * 2^n. See also the eval_log()
-      // function in Boost.Multiprecision.
-      // Then use log(x) = (n * log(2)) + [(y - 1) - (y - 1)^2 / 2 + (y - 1)^3 / 3 ...].
+      // Use frexp() to reduce the argument to x = y * 2^n, where 0.5 <= y < 1.
+      // Then use log(x) = [n * log(2)] + [(y - 1) - (y - 1)^2 / 2 + (y - 1)^3 / 3 ...].
+      // This method is similar to the eval_log() function in Boost.Multiprecision.
 
-      int n;
-      const local_negatable_type y = frexp(x, &n);
+      int exp2;
+      const local_negatable_type y = frexp(x, &exp2);
 
       BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t maximum_number_of_iterations = UINT16_C(10000);
 
@@ -315,14 +312,14 @@
 
       bool term_is_negative = true;
 
-      const local_negatable_type tolerance = ldexp(local_negatable_type(1), -std::numeric_limits<local_negatable_type>::digits + 2);
+      const local_negatable_type tolerance = ldexp(local_negatable_type(1), local_negatable_type::resolution + 1);
 
       // Perform the series expansion of the logarithmic function.
 
       // TBD: It is probably more efficient here to use Newton
-      // iteration in combination with the exponenticl function.
+      // iteration in combination with the exponential function.
       // Consider determining the optimization potential here.
-      for(n = UINT16_C(2); n < maximum_number_of_iterations; ++n)
+      for(boost::uint_fast16_t n = UINT16_C(2); n < maximum_number_of_iterations; ++n)
       {
         y_minus_one_pow_n *= y_minus_one;
 
@@ -330,20 +327,17 @@
 
         ((!term_is_negative) ? (log_series += term) : (log_series -= term));
 
-        const bool minimum_number_of_iterations_are_complete = (n > UINT16_C(4));
+        const bool minimum_number_of_iterations_is_complete = (n > UINT16_C(4));
 
-        if(minimum_number_of_iterations_are_complete)
+        if((minimum_number_of_iterations_is_complete) && (fabs(term) <= tolerance))
         {
-          if(fabs(term) < tolerance)
-          {
-            break;
-          }
+          break;
         }
 
         term_is_negative = (!term_is_negative);
       }
 
-      return log_series + (n * local_negatable_type::value_ln_two());
+      return log_series + (exp2 * local_negatable_type::value_ln_two());
     }
     else
     {
@@ -357,9 +351,9 @@
     typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
 
     // TBD: This version of acos is essentially non-functional because
-    // it returns a sensible value for one and only one argument (pi/2).
-    // This result is subsequently used in Boost.Math.Constants for the
-    // calculation of pi.
+    // it merely returns a sensible value for one and only one argument
+    // (at x == 0). This result is subsequently used in Boost.Math.Constants
+    // for the calculation of pi.
 
     // TBD: Make a complete (and efficient) version of acos.
 
