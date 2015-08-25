@@ -706,6 +706,7 @@ and replies from the current author Christopher Kormanyos
 (that provided the basis for the implementation here) were:
 
 First up, one might want to consider some top-level requirements.
+
 * How might fixed-point fit with an extended complex class?
 - If Boost.Multiprecision or a multiprecision type is ever
 specified, how might fixed-point fit with it.
@@ -804,7 +805,7 @@ make them orthogonal, but compatible, concepts. "
 
 [h4 nonnegative and the sign bit]
 Is it right that we don't get any more resolution for the unsigned version
-'nonnegative' even though we are not using a bit for sign?
+`nonnegative` even though we are not using a bit for sign?
 
 This is a tough design choice. It's a bit tricky
 for the following reason. The `negatable` class performs

@@ -130,11 +130,13 @@
   template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> log  (negatable<Crng, Crsl, Crnd, Covf> x);
   template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> acos (negatable<Crng, Crsl, Crnd, Covf> x);
 
+  // Some additional fixed-point manipulation functions providing analogs to <cmath nextafter etc and float_next, float_prior, float_advance in Boost.Math. 
+  // http://www.cplusplus.com/reference/cmath/
   template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> fixed_next     (negatable<Crng, Crsl, Crnd, Covf> x);
   template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> fixed_prior    (negatable<Crng, Crsl, Crnd, Covf> x);
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> fixed_distance (negatable<Crng, Crsl, Crnd, Covf> x);
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> fixed_advance  (negatable<Crng, Crsl, Crnd, Covf> x);
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> fixed_nextafter(negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> fixed_distance(negatable<Crng, Crsl, Crnd, Covf> x, negatable<Crng, Crsl, Crnd, Covf> y);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> fixed_advance(negatable<Crng, Crsl, Crnd, Covf> x, int y);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> fixed_nextafter(negatable<Crng, Crsl, Crnd, Covf> x, negatable<Crng, Crsl, Crnd, Covf> y);
 
   } } // namespace boost::fixed_point:
   // End of forward declaration of transcendental and cmath functions.
