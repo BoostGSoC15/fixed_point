@@ -34,6 +34,7 @@ all_files : test_negatable_arithmetic_fastest.exe              \
             test_negatable_local_constants_pi.exe              \
             test_negatable_mixed_constructors_part1.exe        \
             test_negatable_mixed_constructors_part2.exe        \
+            test_negatable_mixed_math.exe                      \
             test_negatable_multiply.exe                        \
             test_negatable_round_trip_digits02_005m2.exe       \
             test_negatable_round_trip_digits10_001.exe         \

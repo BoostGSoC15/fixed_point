@@ -368,21 +368,4 @@
   }
   } } // namespace boost::fixed_point
 
-  //! Effectively inject all defined cmath functions into the global namespace.
-  //! So users can write sqrt(negatable) without requiring any namespace decoration.
-
-  using boost::fixed_point::abs;
-  using boost::fixed_point::fabs;
-  using boost::fixed_point::frexp;
-  using boost::fixed_point::ldexp;
-  using boost::fixed_point::floor;
-  using boost::fixed_point::ceil;
-  using boost::fixed_point::trunc;
-  using boost::fixed_point::sqrt;
-  using boost::fixed_point::exp;
-  using boost::fixed_point::log;
-  using boost::fixed_point::acos;
-
-  // TBD: Ensure that ALL std:: added functions are also listed in this section.
-
 #endif // FIXED_POINT_NEGATABLE_CMATH_2015_08_21_HPP_
