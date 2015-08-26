@@ -18,22 +18,53 @@
 
 //! \file
 
-//! \brief Example program showing fixed-point text-based Mandelbrot calculation with low resolution.
+//! \brief Example program showing fixed-point text-based Mandelbrot calculation with high resolution.
 
 // Below are snippets of code that are included into Quickbook file fixed_point.qbk.
 
-#include <fstream>
+#include <algorithm>
+#include <ctime>
+#include <iterator>
+#include <vector>
 #include <boost/cstdint.hpp>
 #include <boost/fixed_point/fixed_point.hpp>
+#include <drv/vgx_drv_windows.h>
 
-typedef boost::fixed_point::negatable<16, -14>      fixed_point_type;
+typedef boost::fixed_point::negatable<16, -15> fixed_point_type;
+
 #define BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE fixed_point_type
 
 #include <boost/math/cstdfloat/cstdfloat_complex_std.hpp>
 
+vgx::head::windows<32 * 4,
+                   16 * 4,
+                   32 * 4,
+                   16 * 4>
+head(0, 0, 100, 100, 8, 16);
 
-template<typename NumericType>
-void generate_mandelbrot_image(std::ostream& out)
+boost::uint32_t inline red_black_with_fade   (const boost::uint8_t a) { return boost::uint32_t(((  2U * boost::uint32_t((a)))      << 16)); }
+boost::uint32_t inline hot_pink_bar_and_black(const boost::uint8_t a) { return boost::uint32_t(((255U * boost::uint32_t((a) / 15)) << 16)) | boost::uint32_t(((255U * boost::uint32_t((a) / 15)) <<  0)); }
+boost::uint32_t inline red_bars_and_black    (const boost::uint8_t a) { return boost::uint32_t(((255U * boost::uint32_t((a) / 20)) << 16)); }
+boost::uint32_t inline black_and_white_bars  (const boost::uint8_t a) { return boost::uint32_t(((255U * boost::uint32_t((a) / 10)) << 16)) | boost::uint32_t(((255U * boost::uint32_t((a) / 10)) <<  8)) | boost::uint32_t(((255U * boost::uint32_t((a) / 10)) <<  0)); }
+boost::uint32_t inline black_and_purple_fade (const boost::uint8_t a) { return boost::uint32_t(((  2U * boost::uint32_t((a) /  1)) << 16)) | boost::uint32_t(((  1U * boost::uint32_t((a) /  1)) <<  8)) | boost::uint32_t(((  2U * boost::uint32_t((a) /  1)) <<  0)); }
+
+template<typename NumericType,
+         const boost::uint_fast16_t MaxIterations = UINT16_C(1000)>
+boost::uint32_t get_color(const boost::uint_least16_t i)
+{
+  BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t max_iterations = MaxIterations;
+
+  // Select a color scheme.
+  boost::uint8_t a = static_cast<boost::uint8_t>(255 * (NumericType(i)) / int(max_iterations / 4U));
+
+  return black_and_purple_fade(a);
+}
+
+template<typename NumericType,
+         const int ResolutionX,
+         const int ResolutionY,
+         const boost::uint_fast16_t MaxIterations = UINT16_C(1000)>
+void generate_mandelbrot_image()
 {
   const NumericType x_lo = NumericType(-2);
   const NumericType x_hi = NumericType(+1) / 2;
@@ -41,37 +72,83 @@ void generate_mandelbrot_image(std::ostream& out)
   const NumericType y_lo = NumericType(-1);
   const NumericType y_hi = NumericType(+1);
 
-  const NumericType delta_x = ldexp(NumericType(1), - 5);
-  const NumericType delta_y = ldexp(NumericType(1), - 4);
+  const NumericType x_step = ldexp(NumericType(1), ResolutionX);
+  const NumericType y_step = ldexp(NumericType(1), ResolutionY);
 
-  for(NumericType y = y_hi; y > y_lo; y -= delta_y)
+  const boost::uint_fast16_t width  = static_cast<boost::uint_fast16_t>((x_hi - x_lo) / x_step);
+  const boost::uint_fast16_t height = static_cast<boost::uint_fast16_t>((y_hi - y_lo) / y_step);
+
+  BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t max_iterations = MaxIterations;
+
+  NumericType y = y_hi;
+
+  for(boost::uint32_t row = UINT16_C(0); row < height; ++row, y -= y_step)
   {
-    for(NumericType x = x_lo; x < x_hi; x += delta_x)
+    std::vector<boost::uint32_t> color_values(width);
+
+    NumericType x = x_lo;
+
+    for(boost::uint_fast16_t col = UINT16_C(0); col < width; ++col, x += x_step)
     {
       std::complex<NumericType> z(NumericType(0));
 
-      for(unsigned i = 0U; i < 20U; ++i)
+      const std::complex<NumericType> c(x, y);
+
+      boost::uint_fast16_t i = UINT16_C(0);
+
+      NumericType zr_sqr = (z.real() * z.real());
+      NumericType zi_sqr = (z.imag() * z.imag());
+
+      for( ; (((zr_sqr + zi_sqr) < 4) && (i < max_iterations)); ++i)
       {
-        z = (z * z) + std::complex<NumericType>(x, y);
+        z.imag(z.real() * z.imag());
+        z.imag(z.imag() + z.imag());
+        z.imag(z.imag() + c.imag());
+
+        z.real((zr_sqr - zi_sqr) + c.real());
+
+        zr_sqr = z.real() * z.real();
+        zi_sqr = z.imag() * z.imag();
       }
 
-      const boost::uint_fast16_t color = static_cast<boost::uint_fast16_t>(std::abs(z));
-
-      out.put((color < UINT16_C(2)) ? char('#') : char('.'));
+      color_values[col] = get_color<NumericType, max_iterations>(i);
     }
 
-    out << std::endl;
+    // Write the entire row of colors to the output.
+    {
+      boost::int16_t col_index = INT16_C(0);
+
+      std::for_each(color_values.cbegin(),
+                    color_values.cend(),
+                    [&col_index, &row](const boost::uint32_t the_color)
+                    {
+                      head.drv_pixel_set_color(col_index, row, the_color);
+
+                      ++col_index;
+                    });
+    }
+
+    head.drv_primitive_done();
   }
 }
 
 int main()
 {
-  std::ofstream out("mandelbrot.txt");
+  head.init();
 
-  if(out.is_open())
-  {
-    generate_mandelbrot_image<fixed_point_type>(out);
+  std::cout << "Calculating Mandelbrot image. Please have patience..." << std::endl;
 
-    out.close();
-  }
+  const std::clock_t start = std::clock();
+
+  generate_mandelbrot_image<fixed_point_type, -5, -4, 20>();
+
+  const std::clock_t stop = std::clock();
+
+  std::cout << "Time for calculation: "
+            << (double(stop) - double(start)) / double(CLOCKS_PER_SEC)
+            << "s"
+            << std::endl;
+
+  char c;
+  std::cin >> c;
 }
