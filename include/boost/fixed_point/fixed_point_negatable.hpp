@@ -130,7 +130,22 @@
   template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> sqrt (negatable<Crng, Crsl, Crnd, Covf> x);
   template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> exp  (negatable<Crng, Crsl, Crnd, Covf> x);
   template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> log  (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> log2 (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> log10(negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> pow  (negatable<Crng, Crsl, Crnd, Covf> x, negatable<Crng, Crsl, Crnd, Covf> a);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> sin  (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> cos  (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> tan  (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> asin (negatable<Crng, Crsl, Crnd, Covf> x);
   template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> acos (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> atan (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> atan2(negatable<Crng, Crsl, Crnd, Covf> y, negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> sinh (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> cosh (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> tanh (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> asinh(negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> acosh(negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> atanh(negatable<Crng, Crsl, Crnd, Covf> x);
 
   // TBD: Implement all <cmath> transcendental functions.
 
@@ -635,7 +650,7 @@
     {
       if(v.data == 0)
       {
-        data = value_type((std::numeric_limits<value_type>::max)());
+        data = 0;
       }
       else
       {
@@ -891,8 +906,8 @@
     template<typename SignedIntegralType>
     void make_from_signed_integral_type(const SignedIntegralType& n)
     {
-      data = ((!(n < 0)) ? +value_type(unsigned_small_type(unsigned_small_type(+n) << radix_split) & unsigned_small_mask())
-                         : -value_type(unsigned_small_type(unsigned_small_type(-n) << radix_split) & unsigned_small_mask()));
+      data = ((!(n < 0)) ? +value_type((unsigned_small_type(+n) << radix_split) & unsigned_small_mask())
+                         : -value_type((unsigned_small_type(-n) << radix_split) & unsigned_small_mask()));
     }
 
     template<typename FloatingPointType>
@@ -1721,106 +1736,7 @@
   // Here we include all <cmath> functions for the negatable type.
   #include <boost/fixed_point/fixed_point_negatable_cmath.hpp>
 
-  namespace std {
-
-  //! Provide specializations of std::numeric_limits<negatable>.
-
-  /*! \note Individual template specializations need to be provided
-    for each different rounding mode and overflow mode.
-    This might be 7 rounding * 5 overflow, a total of 35 specializations!
-  */
-
-  /*!template specialization of std::numeric_limits<negatable>
-      for @c round::fastest and @c overflow::undefined.
-  */
-  template<const int Crng, const int Crsl>
-  class numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>
-  {
-  private:
-    typedef boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>
-    local_negatable_type;
-
-  public:
-    BOOST_STATIC_CONSTEXPR bool                    is_specialized    = true;
-    BOOST_STATIC_CONSTEXPR int                     digits            = local_negatable_type::all_bits - 1;
-    BOOST_STATIC_CONSTEXPR int                     digits10          = static_cast<int>((static_cast<boost::uintmax_t>(digits - 1) * UINTMAX_C(301)) / UINTMAX_C(1000));
-    BOOST_STATIC_CONSTEXPR int                     max_digits10      = static_cast<int>((static_cast<boost::uintmax_t>(digits - 0) * UINTMAX_C(301)) / UINTMAX_C(1000)) + 2;
-    BOOST_STATIC_CONSTEXPR bool                    is_signed         = true;
-    BOOST_STATIC_CONSTEXPR bool                    is_integer        = false;
-    BOOST_STATIC_CONSTEXPR bool                    is_exact          = false;
-    BOOST_STATIC_CONSTEXPR int                     radix             = 2;
-    BOOST_STATIC_CONSTEXPR int                     min_exponent      = -local_negatable_type::radix_split;
-    BOOST_STATIC_CONSTEXPR int                     min_exponent10    = -static_cast<int>((static_cast<boost::uintmax_t>(-min_exponent) * UINTMAX_C(301)) / UINTMAX_C(1000));
-    BOOST_STATIC_CONSTEXPR int                     max_exponent      = digits - local_negatable_type::radix_split;
-    BOOST_STATIC_CONSTEXPR int                     max_exponent10    = +static_cast<int>((static_cast<boost::uintmax_t>(+max_exponent) * UINTMAX_C(301)) / UINTMAX_C(1000));
-    BOOST_STATIC_CONSTEXPR bool                    has_infinity      = false;
-    BOOST_STATIC_CONSTEXPR bool                    has_quiet_NaN     = false;
-    BOOST_STATIC_CONSTEXPR bool                    has_signaling_NaN = false;
-    BOOST_STATIC_CONSTEXPR std::float_denorm_style has_denorm        = std::denorm_absent;
-    BOOST_STATIC_CONSTEXPR bool                    has_denorm_loss   = false;
-    BOOST_STATIC_CONSTEXPR bool                    is_iec559         = false;
-    BOOST_STATIC_CONSTEXPR bool                    is_bounded        = true;
-    BOOST_STATIC_CONSTEXPR bool                    is_modulo         = false;
-    BOOST_STATIC_CONSTEXPR bool                    traps             = false;
-    BOOST_STATIC_CONSTEXPR bool                    tinyness_before   = false;
-    BOOST_STATIC_CONSTEXPR std::float_round_style  round_style       = std::round_indeterminate;
-
-    BOOST_STATIC_CONSTEXPR local_negatable_type (min)        () BOOST_NOEXCEPT { return local_negatable_type::value_min(); }
-    BOOST_STATIC_CONSTEXPR local_negatable_type (max)        () BOOST_NOEXCEPT { return local_negatable_type::value_max(); }
-    BOOST_STATIC_CONSTEXPR local_negatable_type lowest       () BOOST_NOEXCEPT { return -(max)(); }
-    BOOST_STATIC_CONSTEXPR local_negatable_type epsilon      () BOOST_NOEXCEPT { return local_negatable_type::epsilon_maker(); }
-    BOOST_STATIC_CONSTEXPR local_negatable_type round_error  () BOOST_NOEXCEPT { return local_negatable_type(1); }
-    BOOST_STATIC_CONSTEXPR local_negatable_type infinity     () BOOST_NOEXCEPT { return local_negatable_type(0); }
-    BOOST_STATIC_CONSTEXPR local_negatable_type quiet_NaN    () BOOST_NOEXCEPT { return local_negatable_type(0); }
-    BOOST_STATIC_CONSTEXPR local_negatable_type signaling_NaN() BOOST_NOEXCEPT { return local_negatable_type(0); }
-    BOOST_STATIC_CONSTEXPR local_negatable_type denorm_min   () BOOST_NOEXCEPT { return (min)(); }
-  };
-
-  /*!template specialization of std::numeric_limits<negatable>
-      for @c round::nearest_even and @c overflow::undefined.
-  */
-  template<const int Crng, const int Crsl>
-  class numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>
-  {
-  private:
-    typedef boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>
-    local_negatable_type;
-
-  public:
-    BOOST_STATIC_CONSTEXPR bool                    is_specialized    = true;
-    BOOST_STATIC_CONSTEXPR int                     digits            = local_negatable_type::all_bits - 1;
-    BOOST_STATIC_CONSTEXPR int                     digits10          = static_cast<int>((static_cast<boost::uintmax_t>(digits - 1) * UINTMAX_C(301)) / UINTMAX_C(1000));
-    BOOST_STATIC_CONSTEXPR int                     max_digits10      = static_cast<int>((static_cast<boost::uintmax_t>(digits - 0) * UINTMAX_C(301)) / UINTMAX_C(1000)) + 2;
-    BOOST_STATIC_CONSTEXPR bool                    is_signed         = true;
-    BOOST_STATIC_CONSTEXPR bool                    is_integer        = false;
-    BOOST_STATIC_CONSTEXPR bool                    is_exact          = false;
-    BOOST_STATIC_CONSTEXPR int                     radix             = 2;
-    BOOST_STATIC_CONSTEXPR int                     min_exponent      = -local_negatable_type::radix_split;
-    BOOST_STATIC_CONSTEXPR int                     min_exponent10    = -static_cast<int>((static_cast<boost::uintmax_t>(-min_exponent) * UINTMAX_C(301)) / UINTMAX_C(1000));
-    BOOST_STATIC_CONSTEXPR int                     max_exponent      = digits - local_negatable_type::radix_split;
-    BOOST_STATIC_CONSTEXPR int                     max_exponent10    = +static_cast<int>((static_cast<boost::uintmax_t>(+max_exponent) * UINTMAX_C(301)) / UINTMAX_C(1000));
-    BOOST_STATIC_CONSTEXPR bool                    has_infinity      = false;
-    BOOST_STATIC_CONSTEXPR bool                    has_quiet_NaN     = false;
-    BOOST_STATIC_CONSTEXPR bool                    has_signaling_NaN = false;
-    BOOST_STATIC_CONSTEXPR std::float_denorm_style has_denorm        = std::denorm_absent;
-    BOOST_STATIC_CONSTEXPR bool                    has_denorm_loss   = false;
-    BOOST_STATIC_CONSTEXPR bool                    is_iec559         = false;
-    BOOST_STATIC_CONSTEXPR bool                    is_bounded        = true;
-    BOOST_STATIC_CONSTEXPR bool                    is_modulo         = false;
-    BOOST_STATIC_CONSTEXPR bool                    traps             = false;
-    BOOST_STATIC_CONSTEXPR bool                    tinyness_before   = false;
-    BOOST_STATIC_CONSTEXPR std::float_round_style  round_style       = std::round_to_nearest;
-
-    BOOST_STATIC_CONSTEXPR local_negatable_type (min)        () BOOST_NOEXCEPT { return local_negatable_type::value_min(); }
-    BOOST_STATIC_CONSTEXPR local_negatable_type (max)        () BOOST_NOEXCEPT { return local_negatable_type::value_max(); }
-    BOOST_STATIC_CONSTEXPR local_negatable_type lowest       () BOOST_NOEXCEPT { return -(max)(); }
-    BOOST_STATIC_CONSTEXPR local_negatable_type epsilon      () BOOST_NOEXCEPT { return local_negatable_type::epsilon_maker(); }
-    BOOST_STATIC_CONSTEXPR local_negatable_type round_error  () BOOST_NOEXCEPT { return local_negatable_type(1) / 2; }
-    BOOST_STATIC_CONSTEXPR local_negatable_type infinity     () BOOST_NOEXCEPT { return local_negatable_type(0); }
-    BOOST_STATIC_CONSTEXPR local_negatable_type quiet_NaN    () BOOST_NOEXCEPT { return local_negatable_type(0); }
-    BOOST_STATIC_CONSTEXPR local_negatable_type signaling_NaN() BOOST_NOEXCEPT { return local_negatable_type(0); }
-    BOOST_STATIC_CONSTEXPR local_negatable_type denorm_min   () BOOST_NOEXCEPT { return (min)(); }
-  };
-  } // namespace std
+  // Here we include specializations of std::numeric_limits<negatable>.
+  #include <boost/fixed_point/fixed_point_negatable_limits.hpp>
 
 #endif // FIXED_POINT_NEGATABLE_2015_03_06_HPP_

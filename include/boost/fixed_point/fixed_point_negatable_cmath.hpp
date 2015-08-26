@@ -173,9 +173,8 @@
 
       result = (result >> -exp2);
 
-      return local_negatable_type(local_nothing(), local_value_type((!is_neg)
-        ?  local_value_type(result)
-        : -local_value_type(result)));
+      return local_negatable_type(local_nothing(), local_value_type((!is_neg) ?  local_value_type(result)
+                                                                              : -local_value_type(result)));
     }
     else
     {
@@ -346,6 +345,60 @@
   }
 
   template<const int Crng, const int Crsl, typename Crnd, typename Covf>
+  negatable<Crng, Crsl, Crnd, Covf> log2(negatable<Crng, Crsl, Crnd, Covf> x)
+  {
+    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+
+    return log(x) / local_negatable_type::value_ln_two();
+  }
+
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
+  negatable<Crng, Crsl, Crnd, Covf> log10(negatable<Crng, Crsl, Crnd, Covf> x)
+  {
+    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+
+    return log(x) / log(local_negatable_type(10));
+  }
+
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
+  negatable<Crng, Crsl, Crnd, Covf> pow(negatable<Crng, Crsl, Crnd, Covf> x, negatable<Crng, Crsl, Crnd, Covf> a)
+  {
+    return exp(a * log(x));
+  }
+
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
+  negatable<Crng, Crsl, Crnd, Covf> sin(negatable<Crng, Crsl, Crnd, Covf> x)
+  {
+    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+
+    return local_negatable_type(0);
+  }
+
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
+  negatable<Crng, Crsl, Crnd, Covf> cos(negatable<Crng, Crsl, Crnd, Covf> x)
+  {
+    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+
+    return local_negatable_type(0);
+  }
+
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
+  negatable<Crng, Crsl, Crnd, Covf> tan(negatable<Crng, Crsl, Crnd, Covf> x)
+  {
+    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+
+    return local_negatable_type(0);
+  }
+
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
+  negatable<Crng, Crsl, Crnd, Covf> asin(negatable<Crng, Crsl, Crnd, Covf> x)
+  {
+    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+
+    return local_negatable_type(0);
+  }
+
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
   negatable<Crng, Crsl, Crnd, Covf> acos(negatable<Crng, Crsl, Crnd, Covf> x)
   {
     typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
@@ -365,6 +418,79 @@
     {
       return local_negatable_type(0);
     }
+  }
+
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
+  negatable<Crng, Crsl, Crnd, Covf> atan(negatable<Crng, Crsl, Crnd, Covf> x)
+  {
+    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+
+    return local_negatable_type(0);
+  }
+
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
+  negatable<Crng, Crsl, Crnd, Covf> atan2(negatable<Crng, Crsl, Crnd, Covf> y, negatable<Crng, Crsl, Crnd, Covf> x)
+  {
+    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+
+    return local_negatable_type(0);
+  }
+
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
+  negatable<Crng, Crsl, Crnd, Covf> sinh(negatable<Crng, Crsl, Crnd, Covf> x)
+  {
+    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+
+    const local_negatable_type ep = exp(x);
+    const local_negatable_type em = 1 / ep;
+
+    return (ep - em) / 2;
+  }
+
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
+  negatable<Crng, Crsl, Crnd, Covf> cosh(negatable<Crng, Crsl, Crnd, Covf> x)
+  {
+    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+
+    const local_negatable_type ep = exp(x);
+    const local_negatable_type em = 1 / ep;
+
+    return (ep + em) / 2;
+  }
+
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
+  negatable<Crng, Crsl, Crnd, Covf> tanh(negatable<Crng, Crsl, Crnd, Covf> x)
+  {
+    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+
+    const local_negatable_type ep = exp(x);
+    const local_negatable_type em = 1 / ep;
+
+    return (ep - em) / (ep + em);
+  }
+
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
+  negatable<Crng, Crsl, Crnd, Covf> asinh(negatable<Crng, Crsl, Crnd, Covf> x)
+  {
+    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+
+    return local_negatable_type(0);
+  }
+
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
+  negatable<Crng, Crsl, Crnd, Covf> acosh(negatable<Crng, Crsl, Crnd, Covf> x)
+  {
+    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+
+    return local_negatable_type(0);
+  }
+
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
+  negatable<Crng, Crsl, Crnd, Covf> atanh(negatable<Crng, Crsl, Crnd, Covf> x)
+  {
+    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+
+    return local_negatable_type(0);
   }
   } } // namespace boost::fixed_point
 
