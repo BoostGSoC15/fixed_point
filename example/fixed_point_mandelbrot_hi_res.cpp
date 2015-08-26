@@ -30,7 +30,7 @@
 #include <boost/fixed_point/fixed_point.hpp>
 #include <drv/vgx_drv_windows.h>
 
-typedef boost::fixed_point::negatable<16, -111>     fixed_point_type;
+typedef boost::fixed_point::negatable<16, -495>     fixed_point_type;
 #define BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE fixed_point_type
 
 #include <boost/math/cstdfloat/cstdfloat_complex_std.hpp>
@@ -143,4 +143,7 @@ int main()
             << (double(stop) - double(start)) / double(CLOCKS_PER_SEC)
             << "s"
             << std::endl;
+
+  char c;
+  std::cin >> c;
 }
