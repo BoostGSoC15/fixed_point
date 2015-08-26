@@ -30,12 +30,16 @@
 #include <boost/fixed_point/fixed_point.hpp>
 #include <drv/vgx_drv_windows.h>
 
-typedef boost::fixed_point::negatable<16, -495>     fixed_point_type;
+typedef boost::fixed_point::negatable<16, -(53 - 16)>     fixed_point_type;
 #define BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE fixed_point_type
 
 #include <boost/math/cstdfloat/cstdfloat_complex_std.hpp>
 
-vgx::head::windows<2048, 1586, 2048, 1586> head(0, 0, 100, 100, 1, 2);
+vgx::head::windows<2048 * 2,
+                   1586 * 2,
+                   2048 * 2,
+                   1586 * 2>
+head(0, 0, 100, 100, 1, 2);
 
 boost::uint32_t inline red_black_with_fade   (const boost::uint8_t a) { return boost::uint32_t(((  2U * boost::uint32_t((a)))      << 16)); }
 boost::uint32_t inline hot_pink_bar_and_black(const boost::uint8_t a) { return boost::uint32_t(((255U * boost::uint32_t((a) / 15)) << 16)) | boost::uint32_t(((255U * boost::uint32_t((a) / 15)) <<  0)); }
@@ -135,7 +139,7 @@ int main()
 
   const std::clock_t start = std::clock();
 
-  generate_mandelbrot_image<fixed_point_type, -9, -8, 1000>();
+  generate_mandelbrot_image<fixed_point_type, -10, -9, 1000>();
 
   const std::clock_t stop = std::clock();
 
