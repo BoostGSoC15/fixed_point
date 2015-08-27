@@ -253,11 +253,16 @@
   {
     typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
 
+    if(x == 0)
+    {
+      return local_negatable_type(1);
+    }
+
     const bool is_neg = (x < 0);
 
     if(is_neg)
     {
-      return exp(1 / x);
+      return exp(1 / -x);
     }
 
     local_negatable_type xx = ((!is_neg) ? x : -x);
@@ -285,7 +290,7 @@
   {
     typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
 
-    if(x < 0)
+    if(x <= 0)
     {
       return local_negatable_type(0);
     }
@@ -340,6 +345,7 @@
     }
     else
     {
+      // The argument is exactly 1.
       return local_negatable_type(0);
     }
   }
@@ -363,7 +369,16 @@
   template<const int Crng, const int Crsl, typename Crnd, typename Covf>
   negatable<Crng, Crsl, Crnd, Covf> pow(negatable<Crng, Crsl, Crnd, Covf> x, negatable<Crng, Crsl, Crnd, Covf> a)
   {
-    return exp(a * log(x));
+    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+
+    if(x == 0)
+    {
+      return local_negatable_type(0);
+    }
+    else
+    {
+      return exp(a * log(x));
+    }
   }
 
   template<const int Crng, const int Crsl, typename Crnd, typename Covf>
