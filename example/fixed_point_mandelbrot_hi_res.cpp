@@ -31,8 +31,8 @@
 #include <boost/fixed_point/fixed_point.hpp>
 #include <drv/vgx_drv_windows.h>
 
-typedef boost::fixed_point::negatable<16, -(53 - 16)>     fixed_point_type;
-#define BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE fixed_point_type
+typedef boost::fixed_point::negatable<16, -(53 - 16)> fixed_point_type;
+#define BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE   fixed_point_type
 
 #include <boost/math/cstdfloat/cstdfloat_complex_std.hpp>
 
@@ -42,22 +42,29 @@ vgx::head::windows<2048 * 2,
                    1586 * 2>
 head(0, 0, 100, 100, 1, 2);
 
-boost::uint32_t inline red_black_with_fade   (const boost::uint8_t a) { return boost::uint32_t(((  2U * boost::uint32_t((a)))      << 16)); }
-boost::uint32_t inline hot_pink_bar_and_black(const boost::uint8_t a) { return boost::uint32_t(((255U * boost::uint32_t((a) / 15)) << 16)) | boost::uint32_t(((255U * boost::uint32_t((a) / 15)) <<  0)); }
-boost::uint32_t inline red_bars_and_black    (const boost::uint8_t a) { return boost::uint32_t(((255U * boost::uint32_t((a) / 20)) << 16)); }
-boost::uint32_t inline black_and_white_bars  (const boost::uint8_t a) { return boost::uint32_t(((255U * boost::uint32_t((a) / 10)) << 16)) | boost::uint32_t(((255U * boost::uint32_t((a) / 10)) <<  8)) | boost::uint32_t(((255U * boost::uint32_t((a) / 10)) <<  0)); }
-boost::uint32_t inline black_and_purple_fade (const boost::uint8_t a) { return boost::uint32_t(((  2U * boost::uint32_t((a) /  1)) << 16)) | boost::uint32_t(((  1U * boost::uint32_t((a) /  1)) <<  8)) | boost::uint32_t(((  2U * boost::uint32_t((a) /  1)) <<  0)); }
-
-template<typename NumericType,
-         const boost::uint_fast16_t MaxIterations = UINT16_C(1000)>
+template<const boost::uint_fast16_t MaxIterations = UINT16_C(1000)>
 boost::uint32_t get_color(const boost::uint_least16_t i)
 {
   BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t max_iterations = MaxIterations;
 
-  // Select a color scheme.
-  boost::uint8_t a = static_cast<boost::uint8_t>(255 * (NumericType(i)) / int(max_iterations / 4U));
+  // Blend a pretty color scheme.
+  const double t = double(i) / float(max_iterations);
 
-  return red_black_with_fade(a);
+  using std::pow;
+  const double factor = pow(t, 0.2);
+
+  const boost::uint8_t pigment_mix_green  = static_cast<boost::uint8_t>(double(0xFF) * (1.0 - factor));
+  const boost::uint8_t pigment_mix_purple = static_cast<boost::uint8_t>(double(0xFF) * factor);
+
+  const boost::uint32_t color_mix_green   =   (UINT32_C(0x00) <<  0)
+                                            | (boost::uint32_t(pigment_mix_green)  <<  8)
+                                            | (UINT32_C(0x00) <<  16);
+
+  const boost::uint32_t color_mix_purple  =   (boost::uint32_t(pigment_mix_purple) <<  0)
+                                            | (UINT32_C(0x00) <<  8)
+                                            | (boost::uint32_t(pigment_mix_purple) << 16);
+
+  return color_mix_green + color_mix_purple;
 }
 
 template<typename NumericType,
@@ -111,7 +118,7 @@ void generate_mandelbrot_image()
         zi_sqr = z.imag() * z.imag();
       }
 
-      color_values[col] = get_color<NumericType, max_iterations>(i);
+      color_values[col] = get_color<max_iterations>(i);
     }
 
     // Write the entire row of colors to the output.
