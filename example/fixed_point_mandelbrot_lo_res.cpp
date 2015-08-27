@@ -18,12 +18,13 @@
 
 //! \file
 
-//! \brief Example program showing fixed-point text-based Mandelbrot calculation with high resolution.
+//! \brief Example program showing fixed-point text-based Mandelbrot calculation with low resolution.
 
 // Below are snippets of code that are included into Quickbook file fixed_point.qbk.
 
 #include <algorithm>
 #include <ctime>
+#include <iostream>
 #include <iterator>
 #include <vector>
 #include <boost/cstdint.hpp>
@@ -36,10 +37,10 @@ typedef boost::fixed_point::negatable<16, -15> fixed_point_type;
 
 #include <boost/math/cstdfloat/cstdfloat_complex_std.hpp>
 
-vgx::head::windows<32 * 4,
-                   16 * 4,
-                   32 * 4,
-                   16 * 4>
+vgx::head::windows<32 * 2,
+                   16 * 2,
+                   32 * 2,
+                   16 * 2>
 head(0, 0, 100, 100, 8, 16);
 
 boost::uint32_t inline red_black_with_fade   (const boost::uint8_t a) { return boost::uint32_t(((  2U * boost::uint32_t((a)))      << 16)); }
@@ -82,7 +83,7 @@ void generate_mandelbrot_image()
 
   NumericType y = y_hi;
 
-  for(boost::uint32_t row = UINT16_C(0); row < height; ++row, y -= y_step)
+  for(boost::uint_fast16_t row = UINT16_C(0); row < height; ++row, y -= y_step)
   {
     std::vector<boost::uint32_t> color_values(width);
 
@@ -96,8 +97,8 @@ void generate_mandelbrot_image()
 
       boost::uint_fast16_t i = UINT16_C(0);
 
-      NumericType zr_sqr = (z.real() * z.real());
-      NumericType zi_sqr = (z.imag() * z.imag());
+      NumericType zr_sqr(0);
+      NumericType zi_sqr(0);
 
       for( ; (((zr_sqr + zi_sqr) < 4) && (i < max_iterations)); ++i)
       {
@@ -140,7 +141,7 @@ int main()
 
   const std::clock_t start = std::clock();
 
-  generate_mandelbrot_image<fixed_point_type, -5, -4, 20>();
+  generate_mandelbrot_image<fixed_point_type, -4, -3, 20>();
 
   const std::clock_t stop = std::clock();
 
@@ -149,6 +150,7 @@ int main()
             << "s"
             << std::endl;
 
+  std::cout << "Enter any character to quit: ";
   char c;
   std::cin >> c;
 }

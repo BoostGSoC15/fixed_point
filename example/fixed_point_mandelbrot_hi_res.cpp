@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <ctime>
+#include <iostream>
 #include <iterator>
 #include <vector>
 #include <boost/cstdint.hpp>
@@ -81,7 +82,7 @@ void generate_mandelbrot_image()
 
   NumericType y = y_hi;
 
-  for(boost::uint32_t row = UINT16_C(0); row < height; ++row, y -= y_step)
+  for(boost::uint_fast16_t row = UINT16_C(0); row < height; ++row, y -= y_step)
   {
     std::vector<boost::uint32_t> color_values(width);
 
@@ -95,8 +96,8 @@ void generate_mandelbrot_image()
 
       boost::uint_fast16_t i = UINT16_C(0);
 
-      NumericType zr_sqr = (z.real() * z.real());
-      NumericType zi_sqr = (z.imag() * z.imag());
+      NumericType zr_sqr(0);
+      NumericType zi_sqr(0);
 
       for( ; (((zr_sqr + zi_sqr) < 4) && (i < max_iterations)); ++i)
       {
@@ -148,6 +149,7 @@ int main()
             << "s"
             << std::endl;
 
+  std::cout << "Enter any character to quit: ";
   char c;
   std::cin >> c;
 }
