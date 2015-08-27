@@ -31,7 +31,7 @@
 #include <boost/fixed_point/fixed_point.hpp>
 #include <drv/vgx_drv_windows.h>
 
-typedef boost::fixed_point::negatable<16, -(53 - 16)> fixed_point_type;
+typedef boost::fixed_point::negatable<16, -(63 - 16)> fixed_point_type;
 #define BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE   fixed_point_type
 
 #include <boost/math/cstdfloat/cstdfloat_complex_std.hpp>
