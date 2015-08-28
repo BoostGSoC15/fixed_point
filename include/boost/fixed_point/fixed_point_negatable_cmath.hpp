@@ -262,7 +262,7 @@
 
     if(is_neg)
     {
-      return exp(1 / -x);
+      return 1 / exp(-x);
     }
 
     local_negatable_type xx = ((!is_neg) ? x : -x);
