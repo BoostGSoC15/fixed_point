@@ -18,53 +18,83 @@
 
 //! \file
 
-//! \brief Example program showing fixed-point text-based Mandelbrot calculation with low resolution.
+//! \brief Example program showing fixed-point text-based Mandelbrot calculation with high resolution.
 
 // Below are snippets of code that are included into Quickbook file fixed_point.qbk.
 
 #include <algorithm>
 #include <ctime>
 #include <iostream>
+#include <iomanip>
 #include <iterator>
 #include <vector>
 #include <boost/cstdint.hpp>
 #include <boost/fixed_point/fixed_point.hpp>
 #include <drv/vgx_drv_windows.h>
 
-typedef boost::fixed_point::negatable<16, -15> fixed_point_type;
-
+typedef boost::fixed_point::negatable<16, -15>      fixed_point_type;
 #define BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE fixed_point_type
 
 #include <boost/math/cstdfloat/cstdfloat_complex_std.hpp>
 
-vgx::head::windows<32 * 2,
-                   16 * 2,
-                   32 * 2,
-                   16 * 2>
-head(0, 0, 100, 100, 8, 16);
-
-boost::uint32_t inline red_black_with_fade   (const boost::uint8_t a) { return boost::uint32_t(((  2U * boost::uint32_t((a)))      << 16)); }
-boost::uint32_t inline hot_pink_bar_and_black(const boost::uint8_t a) { return boost::uint32_t(((255U * boost::uint32_t((a) / 15)) << 16)) | boost::uint32_t(((255U * boost::uint32_t((a) / 15)) <<  0)); }
-boost::uint32_t inline red_bars_and_black    (const boost::uint8_t a) { return boost::uint32_t(((255U * boost::uint32_t((a) / 20)) << 16)); }
-boost::uint32_t inline black_and_white_bars  (const boost::uint8_t a) { return boost::uint32_t(((255U * boost::uint32_t((a) / 10)) << 16)) | boost::uint32_t(((255U * boost::uint32_t((a) / 10)) <<  8)) | boost::uint32_t(((255U * boost::uint32_t((a) / 10)) <<  0)); }
-boost::uint32_t inline black_and_purple_fade (const boost::uint8_t a) { return boost::uint32_t(((  2U * boost::uint32_t((a) /  1)) << 16)) | boost::uint32_t(((  1U * boost::uint32_t((a) /  1)) <<  8)) | boost::uint32_t(((  2U * boost::uint32_t((a) /  1)) <<  0)); }
-
-template<typename NumericType,
-         const boost::uint_fast16_t MaxIterations = UINT16_C(1000)>
-boost::uint32_t get_color(const boost::uint_least16_t i)
+struct graphics_maker
 {
-  BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t max_iterations = MaxIterations;
+  BOOST_STATIC_CONSTEXPR boost::uint_fast16_t max_iterations = 20;
 
-  // Select a color scheme.
-  boost::uint8_t a = static_cast<boost::uint8_t>(255 * (NumericType(i)) / int(max_iterations / 4U));
+  BOOST_STATIC_CONSTEXPR int fractional_resolution = -4;
 
-  return black_and_purple_fade(a);
+  BOOST_STATIC_CONSTEXPR boost::uint16_t width  = boost::uint16_t(2.5F * (1 << -fractional_resolution));
+  BOOST_STATIC_CONSTEXPR boost::uint16_t height = boost::uint16_t(2.0F * (1 << -fractional_resolution));
+
+  static vgx::head::windows<width, height,
+                            width, height>& head();
+};
+
+
+vgx::head::windows<graphics_maker::width, graphics_maker::height,
+                   graphics_maker::width, graphics_maker::height>&
+graphics_maker::head()
+{
+  static vgx::head::windows<graphics_maker::width, graphics_maker::height,
+                            graphics_maker::width, graphics_maker::height>
+  the_head(0, 0, 128, 128, 16, 16);
+
+  return the_head;
 }
 
-template<typename NumericType,
-         const int ResolutionX,
-         const int ResolutionY,
-         const boost::uint_fast16_t MaxIterations = UINT16_C(1000)>
+template<typename NumericType>
+boost::uint32_t get_color(const boost::uint_least16_t i)
+{
+  // Blend a classic black-and-white color scheme.
+
+  static std::vector<NumericType> scale_factors;
+
+  // Initialize the color scale factors.
+  // TBD: Do this once only before pre-main static initialization.
+  if(scale_factors.empty())
+  {
+    scale_factors.resize(static_cast<std::size_t>(graphics_maker::max_iterations + 1U), NumericType(0));
+
+    const NumericType one_fifth = NumericType(1) / 5;
+
+    for(std::size_t fi = UINT16_C(1); fi < scale_factors.size(); ++fi)
+    {
+      using std::pow;
+
+      scale_factors[fi] = pow(NumericType(fi) / graphics_maker::max_iterations, one_fifth);
+    }
+  }
+
+  const boost::uint8_t scaled_color = static_cast<boost::uint8_t>(float(0xFF) * (1.0F - scale_factors[i]));
+
+  const boost::uint32_t gray_tone =   (boost::uint32_t(scaled_color) <<  0)
+                                    | (boost::uint32_t(scaled_color) <<  8)
+                                    | (boost::uint32_t(scaled_color) << 16);
+
+  return boost::uint32_t(gray_tone);
+}
+
+template<typename NumericType>
 void generate_mandelbrot_image()
 {
   const NumericType x_lo = NumericType(-2);
@@ -73,80 +103,108 @@ void generate_mandelbrot_image()
   const NumericType y_lo = NumericType(-1);
   const NumericType y_hi = NumericType(+1);
 
-  const NumericType x_step = ldexp(NumericType(1), ResolutionX);
-  const NumericType y_step = ldexp(NumericType(1), ResolutionY);
+  const NumericType step = ldexp(NumericType(1), graphics_maker::fractional_resolution);
 
-  const boost::uint_fast16_t width  = static_cast<boost::uint_fast16_t>((x_hi - x_lo) / x_step);
-  const boost::uint_fast16_t height = static_cast<boost::uint_fast16_t>((y_hi - y_lo) / y_step);
+  // Setup the x-axis coordinates.
+  std::vector<NumericType> x_values(graphics_maker::width);
 
-  BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t max_iterations = MaxIterations;
+  // Initialize the x-axis coordinates (one time only).
+  {
+    NumericType x = x_lo;
+    for(boost::uint_fast16_t col = UINT16_C(0); col < graphics_maker::width; ++col, x += step)
+    {
+      x_values[col] = x;
+    }
+  }
 
+  // Create storage for the row pixel results.
+  std::vector<boost::uint32_t> row_pixel_color_values(graphics_maker::width);
+
+  // Initialize the y-axis coordinate.
   NumericType y = y_hi;
 
-  for(boost::uint_fast16_t row = UINT16_C(0); row < height; ++row, y -= y_step)
+  // Loop through all the rows of pixels on the vertical y-axis
+  // in the direction of decrementing the y-value.
+  for(boost::uint_fast16_t row = UINT16_C(0); row < graphics_maker::height; ++row, y -= step)
   {
-    std::vector<boost::uint32_t> color_values(width);
+    auto row_pixel_color_iterator = row_pixel_color_values.begin();
 
-    NumericType x = x_lo;
+    // Loop through this column of pixels on the horizontal x-axis
+    // in the direction of incrementing the x-value.
+    std::for_each(x_values.cbegin(),
+                  x_values.cend(),
+                  [&y, &row_pixel_color_iterator](const NumericType& x)
+                  {
+                    std::complex<NumericType> z(NumericType(0));
 
-    for(boost::uint_fast16_t col = UINT16_C(0); col < width; ++col, x += x_step)
-    {
-      std::complex<NumericType> z(NumericType(0));
+                    const std::complex<NumericType> c(x, y);
 
-      const std::complex<NumericType> c(x, y);
+                    boost::uint_fast16_t i = UINT16_C(0);
 
-      boost::uint_fast16_t i = UINT16_C(0);
+                    NumericType zr_sqr(0);
+                    NumericType zi_sqr(0);
 
-      NumericType zr_sqr(0);
-      NumericType zi_sqr(0);
+                    for( ; (((zr_sqr + zi_sqr) < 4) && (i < graphics_maker::max_iterations)); ++i)
+                    {
+                      z.imag(z.real() * z.imag());
+                      z.imag(z.imag() + z.imag() + c.imag());
 
-      for( ; (((zr_sqr + zi_sqr) < 4) && (i < max_iterations)); ++i)
-      {
-        z.imag(z.real() * z.imag());
-        z.imag(z.imag() + z.imag());
-        z.imag(z.imag() + c.imag());
+                      z.real((zr_sqr - zi_sqr) + c.real());
 
-        z.real((zr_sqr - zi_sqr) + c.real());
+                      zr_sqr = z.real() * z.real();
+                      zi_sqr = z.imag() * z.imag();
+                    }
 
-        zr_sqr = z.real() * z.real();
-        zi_sqr = z.imag() * z.imag();
-      }
+                    *row_pixel_color_iterator = get_color<NumericType>(i);
 
-      color_values[col] = get_color<NumericType, max_iterations>(i);
-    }
+                    ++row_pixel_color_iterator;
+                  });
 
-    // Write the entire row of colors to the output.
+    std::cout << "Calculating Mandelbrot image at row "
+              << std::setw(6)
+              << row + 1U
+              << " of "
+              << std::setw(6)
+              << graphics_maker::height
+              << " total. Have patience."
+              << "\r";
+
+    // Write this entire row of colors to the output.
     {
       boost::int16_t col_index = INT16_C(0);
 
-      std::for_each(color_values.cbegin(),
-                    color_values.cend(),
+      // Set the pixels in memory before driving them to the output.
+      std::for_each(row_pixel_color_values.cbegin(),
+                    row_pixel_color_values.cend(),
                     [&col_index, &row](const boost::uint32_t the_color)
                     {
-                      head.drv_pixel_set_color(col_index, row, the_color);
+                      graphics_maker::head().drv_pixel_set_color(col_index, row, the_color);
 
                       ++col_index;
                     });
-    }
 
-    head.drv_primitive_done();
+      // Drive this row of pixels to the output.
+      graphics_maker::head().drv_primitive_done();
+    }
   }
+
+  std::cout << std::endl;
 }
 
 int main()
 {
-  head.init();
-
-  std::cout << "Calculating Mandelbrot image. Please have patience..." << std::endl;
+  graphics_maker::head().init();
 
   const std::clock_t start = std::clock();
 
-  generate_mandelbrot_image<fixed_point_type, -4, -3, 20>();
+  generate_mandelbrot_image<fixed_point_type>();
 
   const std::clock_t stop = std::clock();
 
+  const float elapsed = (float(stop) - float(start)) / float(CLOCKS_PER_SEC);
+
   std::cout << "Time for calculation: "
-            << (double(stop) - double(start)) / double(CLOCKS_PER_SEC)
+            << elapsed
             << "s"
             << std::endl;
 
@@ -154,3 +212,18 @@ int main()
   char c;
   std::cin >> c;
 }
+
+/*
+#define png_infopp_NULL (png_infopp)NULL
+#define int_p_NULL (int*)NULL
+#include <boost/gil/gil_all.hpp>
+#include <boost/gil/extension/io/png_dynamic_io.hpp>
+using namespace boost::gil;
+int main()
+{
+    rgb8_image_t img(512, 512);
+    rgb8_pixel_t red(255, 0, 0);
+    fill_pixels(view(img), red);
+    png_write_view("redsquare.png", const_view(img));
+}
+*/
