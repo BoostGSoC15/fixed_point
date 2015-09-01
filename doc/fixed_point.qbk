@@ -304,7 +304,7 @@ in the realm of near-integral math.
 
 [endsect] [/section:why_fixed_point Why Fixed-Point?]
 
-[section:why_this_fixed_point  Why use Boost.Fixed-point]
+[section:why_this_fixed_point  Why use Boost.Fixed-point?]
 
 A number of fixed_point libraries have been written; why would one choose this library?
 
@@ -1057,7 +1057,7 @@ possibly much quicker.
 
 This documentation is prepared using the Boost __quickbook, __boostbook, __doxygen, __autoindex toolchain.
 
-Start with the
+Start your search with the
 
 * Table of Contents, but see also:
 
@@ -1065,8 +1065,11 @@ Start with the
 Considerable work has been put into providing extensive links, so please use them!
 
 * Indexes that link directly to both words in the text and to reference documentation.
+Sometimes there are separate indexes for functions, class, macros, but often just one index.
+These are automatically produced, so there is some 'clutter'.
+If you know you are looking for a function, then a specific index will avoid most clutter.
 
-* Doxygen-derived C++ Reference.[br]
+* Doxygen-derived C++ Reference section.[br]
 [tip The colored class and function names are links will lead you to an individual class, function etc
 are the key to finding what an item does,
 and its parameter, template parameters, pre and post conditions, and returns.]
@@ -1080,11 +1083,11 @@ The information given is derived from Doxygen-syntax comments in the include fil
 [@../../include/boost/fixed_point/fixed_point.hpp fixed_point.hpp].
 
 * Examples will often be your quickest way to find what you need to know.
-Examples often deliberately use many features, often in contrived fashion.
+Examples often deliberately use many features, often in a contrived fashion.
 Snippets of syntax-colored code are used in the text.
 You can also use links to display the entire source code of examples in the `example` folder.
 You should be able to run these examples without modification
-and are often a good starting point to write your own code.
+and are often a very good starting point to write your own code.
 
 * Tests will also give examples of use. Like examples, there will be links to tests in the `test` folder.
 
@@ -1214,7 +1217,6 @@ instructions vcvtph2ps and vcvtps2ph are provided to convert to and from 32-bit 
 [/todo Need more background references?]
 
 [endsect] [/section:ack References]
-
 
 [xinclude autodoc.xml] [/ Using Doxygen reference documentation.]
 
