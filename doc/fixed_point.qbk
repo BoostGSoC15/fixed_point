@@ -66,7 +66,6 @@
 [def __boost [@http://www.boost.org/ Boost]]
 [def __boost_archives [@http://lists.boost.org/Archives/boost/ Boost archives]]
 [def __boostroot [@boost: Boost root ./modular-boost]]
-[def __boost_license [@http://www.boost.org/LICENSE_1_0.txt Boost License]]
 [def __multiprecision [@boost:/libs/multiprecision/doc/html/index.html Boost.Multiprecision]]
 [def __serialization [@http://www.boost.org/doc/libs/1_58_0/libs/serialization/doc/index.html Boost.Serialization]]
 [def __cpp_int [@http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/tut/ints/cpp_int.html cpp_int]]
@@ -328,7 +327,7 @@ than any other library. This is a unique feature.
 
 * Convenient header-only implementation (even when extended to __multiprecision).
 
-* Visible tests.
+* Transparent testing.
 
 [endsect] [/section:why_this_fixed_point  Why use Boost.Fixed-point]
 
@@ -386,19 +385,15 @@ We can inspect the __significand or fraction (also called  mantissa but this ter
 and the exponent parts using the using __cmath function __frexp, and alter the exponent using __ldexp.
 
 Of course, other __cmath functions such as trigonometric, exponential, logarithmic, etc.
-(`#include <cmath>`) are available. These have been injected into the global namespace
-via `using` directive. Thus the user can simply call, for example,
+(`#include <cmath>`) are available. Thus the user can simply call, for example,
 `sqrt(negatable)` without requiring any namespace decoration.
 
 TODO Examples snippet needed here.
-
-(See rationale for more details on this).
 
 [warning Some __cmath functions are not applicable to `fixed_point` values;
 others may not yet be implemented.]
 
 The full code is at  [@../../example/fixed_point_constants.cpp  fixed_point_constants.cpp].
-
 
 [endsect] [/section:numeric_limits Example of a fixed_point type and its numeric_limits]
 
@@ -406,7 +401,7 @@ The full code is at  [@../../example/fixed_point_constants.cpp  fixed_point_cons
 
 [import ../example/fixed_point_bare_metal_derivative_example.cpp]
 
-This example shows how a fixed_point type can be used in an 8-bit micrcontroller
+This example shows how a fixed_point type can be used in an 8-bit microcontroller
 to evaluate the first derivative (and that can be used, for example, to trigger some action).
 
 It evaluates the first derivative of a real function
@@ -458,6 +453,54 @@ Template Microcontroller Programming (Springer, Heidelberg, 2013).
 in Section 12.7 and [@http://link.springer.com/chapter/10.1007/978-3-642-34688-0_13 Chapter 13].
 
 [endsect] [/section:bare_derivative Example of a bare-metal fixed_point type evaluating  derivative.]
+
+[section:mandelbrot Example of computing images of a Mandelbrot set at low and high-resolution]
+
+This example shows how the famous
+[@https://en.wikipedia.org/wiki/Mandelbrot_set Mandelbrot set]
+can be generated both using a low resolution
+`boost::fixed_point::negatable<16, -15>`  (32-bit),
+but equally easily using the same code but using
+a much higher resolution `boost::fixed_point::negatable<16, -111>`  (128-bit).
+Even higher resolution is only limited by ones memory and patience.
+
+Full code is at [@../../example/fixed_point_mandelbrot_lo_res.cpp fixed_point_mandelbrot_lo_res.cpp]
+and  [@../../example/fixed_point_mandelbrot_hi_res.cpp fixed_point_mandelbrot_hi_res.cpp].
+
+[endsect] [/section:mandelbrot Example of evaluating a Mandelbrot function at low and high-precision]
+
+[section:bernoulli_numbers Example of computing Bernoulli numbers]
+
+[import ../example/fixed_point_bernoulli_b2n.cpp] [/For snippets]
+
+Example program showing non-trivial use of __negatable computing an array of
+[@https://en.wikipedia.org/wiki/Bernoulli_number Bernoulli numbers]
+(very useful in real-life for computing functions using several series expansions).
+
+The compution of an array of fixed-point Bernoulli numbers uses the
+[@http://www.boost.org/doc/libs/release/libs/math/doc/html/special.html  Boost.math special function]
+[@http://www.boost.org/doc/libs/release/libs/math/doc/html/math_toolkit/number_series/bernoulli_numbers.html bernoulli]
+(code at [@http://www.boost.org/doc/libs/release/boost/math/special_functions/bernoulli.hpp bernoulli.hpp])
+in exactly the same was as the floating-point example
+[@http://www.boost.org/doc/libs/release/libs/math/example/bernoulli_example.cpp bernoulli_example.cpp]
+but using a fixed-point type instead.
+
+This example uses a very large fixed-point type with an asymetrically large-integral-range (and a resolution of 280).
+
+[bernoulli_1]
+
+Outputting the numbers shows that the computed using fixed-point and using floating-point are identical.
+
+[bernoulli_output_1]
+
+[/Could also show]
+[/bernoulli_output_2]
+[/but seems a bit obvious?]
+
+Full code (inlcuding showing some output) is at [@../../example/fixed_point_bernoulli_b2n.cpp fixed_point_bernoulli_b2n.cpp ].
+[warning This example requires VS 2015 or GCC 5.1.0 to compile, and takes some time to compute.]
+
+[endsect] [/section:bernoulli_numbers Example of computing Bernoulli numbers]
 
 [endsect] [/section:examples Examples]
 
@@ -802,6 +845,21 @@ Phil Endecott observed on overflow:
 I would prefer to decouple. Fixed-point arithmetic without saturation
 is useful, as is integer arithmetic with saturation. So I'd prefer to
 make them orthogonal, but compatible, concepts. "
+
+[h4:naming What names should be used for the template parameters?]
+
+Crowl's paper uses `Crng` and `Crsl` (`Crnd` and `Covf`)
+but some believe that `Resolution` and `Resolution` (`Round` and `Overflow`)
+are much more reader-friendly.
+
+Views on names?
+
+(This is easily changed because the C++ reference is automatically produced from the C++).
+
+[h4:negative_resolution Should the resolution parameter be required to be negative?]
+
+At present the sign of the resolution is required  to be negative.  The rationale for this
+seems unconvincing.  Should it be positive?
 
 [h4 nonnegative and the sign bit]
 Is it right that we don't get any more resolution for the unsigned version

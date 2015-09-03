@@ -18,7 +18,7 @@
 
 //! \file
 
-//! \brief Example program showing fixed-point text-based Mandelbrot calculation with high resolution.
+//! \brief Example program showing fixed-point text-based Mandelbrot calculation with low resolution.
 
 // Below are snippets of code that are included into Quickbook file fixed_point.qbk.
 
@@ -29,12 +29,17 @@
 #include <iterator>
 #include <vector>
 #include <boost/cstdint.hpp>
+
 #include <boost/fixed_point/fixed_point.hpp>
+
+// VGX(Video or Visual GraphiX) library for driving displays(and LCDs)
+// https://github.com/mpaland/vgx
 #include <drv/vgx_drv_windows.h>
 
 typedef boost::fixed_point::negatable<16, -15>      fixed_point_type;
-#define BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE fixed_point_type
 
+// Override the default COMPLEX_FLOAT_TYPE to use our fixed_point.
+#define BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE fixed_point_type
 #include <boost/math/cstdfloat/cstdfloat_complex_std.hpp>
 
 struct graphics_maker
