@@ -4,8 +4,7 @@
     "authors": [
         "Christopher Kormanyos",
 				"Nikhar Agrawal",
-				"Paul A. Bristow",
-	      "John Maddock"		
+				"Paul A. Bristow"
     ],
     "description": "Arithmetic types for Fixed-point arithmetic.",
     "category": [
@@ -13,8 +12,7 @@
     ],
     "maintainers": [
         "Nikhar Agrawal <nikharagrawal2006 -at- gmail.com>",
-				"John Maddock <john -at- johnmaddock.co.uk>",
-        "christopher Kormanyos <e_float -at- yahoo.com>",
+				"Christopher Kormanyos <e_float -at- yahoo.com>",
 				"Paul A. Bristow <pbristow -at- hetlp-u-net.com>"
     ]
 }

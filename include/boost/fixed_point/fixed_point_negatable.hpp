@@ -130,7 +130,22 @@
   template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> sqrt (negatable<Crng, Crsl, Crnd, Covf> x);
   template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> exp  (negatable<Crng, Crsl, Crnd, Covf> x);
   template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> log  (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> log2 (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> log10(negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> pow  (negatable<Crng, Crsl, Crnd, Covf> x, negatable<Crng, Crsl, Crnd, Covf> a);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> sin  (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> cos  (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> tan  (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> asin (negatable<Crng, Crsl, Crnd, Covf> x);
   template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> acos (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> atan (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> atan2(negatable<Crng, Crsl, Crnd, Covf> y, negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> sinh (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> cosh (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> tanh (negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> asinh(negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> acosh(negatable<Crng, Crsl, Crnd, Covf> x);
+  template<const int Crng, const int Crsl, typename Crnd, typename Covf> negatable<Crng, Crsl, Crnd, Covf> atanh(negatable<Crng, Crsl, Crnd, Covf> x);
 
   // TBD: Implement all <cmath> transcendental functions.
 
@@ -196,13 +211,13 @@
     /*! Value of template parameter Crng for the negatable type.\n
     Example: boost::fixed_point::negatable<2, -5> x; x.range == 2;
     */
-    static BOOST_CONSTEXPR_OR_CONST int range = Crng;
+    BOOST_STATIC_CONSTEXPR int range = Crng;
 
     /*! Value of template parameter Crsl for the negatable type.\n
     Example: boost::fixed_point::negatable<2, -5> x; x.resolution == -5;
     \note The value of resolution is always negative.
     */
-    static BOOST_CONSTEXPR_OR_CONST int resolution = Crsl;
+    BOOST_STATIC_CONSTEXPR int resolution = Crsl;
 
     /*! Total number of bits in the negatable type, including sign.\n
         For example:
@@ -211,7 +226,7 @@
         x.range + (-x.resolution) + 1 == 2 + (-(-5)) + 1 == 8.
         \endcode
     */
-    static BOOST_CONSTEXPR_OR_CONST int all_bits = (range + 1) + (-resolution); // +1 for the sign bit.
+    BOOST_STATIC_CONSTEXPR int all_bits = (range + 1) + (-resolution); // +1 for the sign bit.
 
     static_assert(all_bits < 32768, "Error: At the moment, the width of fixed_point negatable can not exceed 32767 bits.");
 
@@ -220,7 +235,7 @@
     #endif
 
     //! See also public static data items range and resolution.
-    static BOOST_CONSTEXPR_OR_CONST int radix_split = -Crsl;
+    BOOST_STATIC_CONSTEXPR int radix_split = -Crsl;
 
     // Friend forward declaration of another negatable class
     // with different template parameters.
@@ -635,7 +650,7 @@
     {
       if(v.data == 0)
       {
-        data = value_type((std::numeric_limits<value_type>::max)());
+        data = 0;
       }
       else
       {
@@ -891,8 +906,8 @@
     template<typename SignedIntegralType>
     void make_from_signed_integral_type(const SignedIntegralType& n)
     {
-      data = ((!(n < 0)) ? +value_type(unsigned_small_type(unsigned_small_type(+n) << radix_split) & unsigned_small_mask())
-                         : -value_type(unsigned_small_type(unsigned_small_type(-n) << radix_split) & unsigned_small_mask()));
+      data = ((!(n < 0)) ? +value_type((unsigned_small_type(+n) << radix_split) & unsigned_small_mask())
+                         : -value_type((unsigned_small_type(-n) << radix_split) & unsigned_small_mask()));
     }
 
     template<typename FloatingPointType>
@@ -1241,12 +1256,6 @@
     friend inline negatable operator+(const negatable& self) { return negatable(self); }
     friend inline negatable operator-(const negatable& self) { negatable tmp(self); tmp.data = -tmp.data; return tmp; }
 
-    //! Implementations of non-member binary add, sub, mul, div of [lhs(negatable)] operator [rhs(negatable)].
-    friend inline negatable operator+(const negatable& u, const negatable& v) { return negatable(u) += v; }
-    friend inline negatable operator-(const negatable& u, const negatable& v) { return negatable(u) -= v; }
-    friend inline negatable operator*(const negatable& u, const negatable& v) { return negatable(u) *= v; }
-    friend inline negatable operator/(const negatable& u, const negatable& v) { return negatable(u) /= v; }
-
     //! Implementations of non-member binary add, sub, mul, div of [lhs(negatable)] operator [rhs(arithmetic_type)].
     template<typename ArithmeticType>
     friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type
@@ -1303,80 +1312,6 @@
     operator/(const ArithmeticType& u, const negatable& v)
     {
       return negatable(u) /= v;
-    }
-
-    //! Implementations of non-member mixed-math binary add, sub, mul, div of [lhs(negatable)] operator [rhs(other_negatable)].
-
-    template<const int OtherCrng,
-             const int OtherCrsl,
-             typename std::enable_if<   (Crsl != OtherCrsl)
-                                     || (Crng != OtherCrng)>::type* = nullptr>
-    friend inline negatable<((-Crsl > -OtherCrsl) ? Crng : OtherCrng),
-                            ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
-                            Crnd,
-                            Covf>
-    operator+(const negatable& u, const negatable<OtherCrng, OtherCrsl, Crnd, Covf>& v)
-    {
-      typedef negatable<((-Crsl > -OtherCrsl) ? Crng : OtherCrng),
-                        ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
-                        Crnd,
-                        Covf> higher_resolution_fixed_point_type;
-
-      return higher_resolution_fixed_point_type(u) += higher_resolution_fixed_point_type(v);
-    }
-
-    template<const int OtherCrng,
-             const int OtherCrsl,
-             typename std::enable_if<   (Crsl != OtherCrsl)
-                                     || (Crng != OtherCrng)>::type* = nullptr>
-    friend inline negatable<((-Crsl > -OtherCrsl) ? Crng        : OtherCrng),
-                            ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
-                            Crnd,
-                            Covf>
-    operator-(const negatable& u, const negatable<OtherCrng, OtherCrsl, Crnd, Covf>& v)
-    {
-      typedef negatable<((-Crsl > -OtherCrsl) ? Crng : OtherCrng),
-                        ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
-                        Crnd,
-                        Covf> higher_resolution_fixed_point_type;
-
-      return higher_resolution_fixed_point_type(u) -= higher_resolution_fixed_point_type(v);
-    }
-
-    template<const int OtherCrng,
-             const int OtherCrsl,
-             typename std::enable_if<   (Crsl != OtherCrsl)
-                                     || (Crng != OtherCrng)>::type* = nullptr>
-    friend inline negatable<((-Crsl > -OtherCrsl) ? Crng : OtherCrng),
-                            ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
-                            Crnd,
-                            Covf>
-    operator*(const negatable& u, const negatable<OtherCrng, OtherCrsl, Crnd, Covf>& v)
-    {
-      typedef negatable<((-Crsl > -OtherCrsl) ? Crng : OtherCrng),
-                        ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
-                        Crnd,
-                        Covf> higher_resolution_fixed_point_type;
-
-      return higher_resolution_fixed_point_type(u) *= higher_resolution_fixed_point_type(v);
-    }
-
-    template<const int OtherCrng,
-             const int OtherCrsl,
-             typename std::enable_if<   (Crsl != OtherCrsl)
-                                     || (Crng != OtherCrng)>::type* = nullptr>
-    friend inline negatable<((-Crsl > -OtherCrsl) ? Crng : OtherCrng),
-                            ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
-                            Crnd,
-                            Covf>
-    operator/(const negatable& u, const negatable<OtherCrng, OtherCrsl, Crnd, Covf>& v)
-    {
-      typedef negatable<((-Crsl > -OtherCrsl) ? Crng : OtherCrng),
-                        ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
-                        Crnd,
-                        Covf> higher_resolution_fixed_point_type;
-
-      return higher_resolution_fixed_point_type(u) /= higher_resolution_fixed_point_type(v);
     }
 
     //! Implementations of non-member comparison operators of negatable comparied with negatable.
@@ -1547,78 +1482,65 @@
     friend inline bool operator<=(const double&             u, const negatable& v) { return (negatable(u).data <= v.data); }
     friend inline bool operator<=(const long double&        u, const negatable& v) { return (negatable(u).data <= v.data); }
 
-    //! Implementations of non-member mixed-math comparison operators.
-
-    template<const int OtherCrng,
-             const int OtherCrsl>
-    friend inline bool operator==(const negatable& u, const negatable<OtherCrng, OtherCrsl, Crnd, Covf>& v)
+    //! Implementations of non-member comparison operators.
+    template<const int OtherCrng, const int OtherCrsl>
+    friend inline bool operator==(const negatable& u,
+                                  const negatable<OtherCrng, OtherCrsl>& v)
     {
       typedef negatable<(( Crng >  OtherCrng) ? Crng : OtherCrng),
-                        ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
-                        Crnd,
-                        Covf> supra_fixed_point_type;
+                        ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl)> supra_negatable_type;
 
-      return (supra_fixed_point_type(u) == supra_fixed_point_type(v));
+      return (supra_negatable_type(u).data == supra_negatable_type(v).data);
     }
 
-    template<const int OtherCrng,
-             const int OtherCrsl>
-    friend inline bool operator!=(const negatable& u, const negatable<OtherCrng, OtherCrsl, Crnd, Covf>& v)
+    template<const int OtherCrng, const int OtherCrsl>
+    friend inline bool operator!=(const negatable& u,
+                                  const negatable<OtherCrng, OtherCrsl>& v)
     {
       typedef negatable<(( Crng >  OtherCrng) ? Crng : OtherCrng),
-                        ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
-                        Crnd,
-                        Covf> supra_fixed_point_type;
+                        ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl)> supra_negatable_type;
 
-      return (supra_fixed_point_type(u) != supra_fixed_point_type(v));
+      return (supra_negatable_type(u).data != supra_negatable_type(v).data);
     }
 
-    template<const int OtherCrng,
-             const int OtherCrsl>
-    friend inline bool operator>(const negatable& u, const negatable<OtherCrng, OtherCrsl, Crnd, Covf>& v)
+    template<const int OtherCrng, const int OtherCrsl>
+    friend inline bool operator> (const negatable& u,
+                                  const negatable<OtherCrng, OtherCrsl>& v)
     {
       typedef negatable<(( Crng >  OtherCrng) ? Crng : OtherCrng),
-                        ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
-                        Crnd,
-                        Covf> supra_fixed_point_type;
+                        ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl)> supra_negatable_type;
 
-      return (supra_fixed_point_type(u) > supra_fixed_point_type(v));
+      return (supra_negatable_type(u).data > supra_negatable_type(v).data);
     }
 
-    template<const int OtherCrng,
-             const int OtherCrsl>
-    friend inline bool operator<(const negatable& u, const negatable<OtherCrng, OtherCrsl, Crnd, Covf>& v)
+    template<const int OtherCrng, const int OtherCrsl>
+    friend inline bool operator< (const negatable& u,
+                                  const negatable<OtherCrng, OtherCrsl>& v)
     {
       typedef negatable<(( Crng >  OtherCrng) ? Crng : OtherCrng),
-                        ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
-                        Crnd,
-                        Covf> supra_fixed_point_type;
+                        ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl)> supra_negatable_type;
 
-      return (supra_fixed_point_type(u) < supra_fixed_point_type(v));
+      return (supra_negatable_type(u).data < supra_negatable_type(v).data);
     }
 
-    template<const int OtherCrng,
-             const int OtherCrsl>
-    friend inline bool operator>=(const negatable& u, const negatable<OtherCrng, OtherCrsl, Crnd, Covf>& v)
+    template<const int OtherCrng, const int OtherCrsl>
+    friend inline bool operator>=(const negatable& u,
+                                  const negatable<OtherCrng, OtherCrsl>& v)
     {
       typedef negatable<(( Crng >  OtherCrng) ? Crng : OtherCrng),
-                        ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
-                        Crnd,
-                        Covf> supra_fixed_point_type;
+                        ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl)> supra_negatable_type;
 
-      return (supra_fixed_point_type(u) >= supra_fixed_point_type(v));
+      return (supra_negatable_type(u).data >= supra_negatable_type(v).data);
     }
 
-    template<const int OtherCrng,
-             const int OtherCrsl>
-    friend inline bool operator<=(const negatable& u, const negatable<OtherCrng, OtherCrsl, Crnd, Covf>& v)
+    template<const int OtherCrng, const int OtherCrsl>
+    friend inline bool operator<=(const negatable& u,
+                                  const negatable<OtherCrng, OtherCrsl>& v)
     {
       typedef negatable<(( Crng >  OtherCrng) ? Crng : OtherCrng),
-                        ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl),
-                        Crnd,
-                        Covf> supra_fixed_point_type;
+                        ((-Crsl > -OtherCrsl) ? Crsl : OtherCrsl)> supra_negatable_type;
 
-      return (supra_fixed_point_type(u) <= supra_fixed_point_type(v));
+      return (supra_negatable_type(u).data <= supra_negatable_type(v).data);
     }
 
     //! \endcond // DETAIL
@@ -1665,8 +1587,8 @@
     typedef negatable<Crng, Crsl, round::fastest, overflow::undefined> local_negatable_type;
 
   public:
-    static BOOST_CONSTEXPR_OR_CONST local_negatable_type pi    () { return local_negatable_type::value_pi(); }
-    static BOOST_CONSTEXPR_OR_CONST local_negatable_type ln_two() { return local_negatable_type::value_ln_two(); }
+    BOOST_STATIC_CONSTEXPR local_negatable_type pi    () { return local_negatable_type::value_pi(); }
+    BOOST_STATIC_CONSTEXPR local_negatable_type ln_two() { return local_negatable_type::value_ln_two(); }
   };
 
   template<const int Crng, const int Crsl>
@@ -1676,9 +1598,80 @@
     typedef negatable<Crng, Crsl, round::fastest, overflow::undefined> local_negatable_type;
 
   public:
-    static BOOST_CONSTEXPR_OR_CONST local_negatable_type pi    () { return local_negatable_type::value_pi(); }
-    static BOOST_CONSTEXPR_OR_CONST local_negatable_type ln_two() { return local_negatable_type::value_ln_two(); }
+    BOOST_STATIC_CONSTEXPR local_negatable_type pi    () { return local_negatable_type::value_pi(); }
+    BOOST_STATIC_CONSTEXPR local_negatable_type ln_two() { return local_negatable_type::value_ln_two(); }
   };
+
+  //! Implementations of non-member mixed-math binary add, sub, mul, div of [lhs(any_negatable)] operator [rhs(any_other_negatable)].
+  //! This includes non-member binary add, sub, mul, div of [lhs(negatable)] operator [rhs(negatable)].
+
+  template <const int Crng1, const int Crsl1,
+            const int Crng2, const int Crsl2,
+            typename Crnd,
+            typename Covf>
+  negatable<((-Crsl1 > -Crsl2) ? Crng1 : Crng2),
+            ((-Crsl1 > -Crsl2) ? Crsl1 : Crsl2),
+            Crnd,
+            Covf>
+  operator+(const negatable<Crng1, Crsl1, Crnd, Covf>& a,
+            const negatable<Crng2, Crsl2, Crnd, Covf>& b)
+  {
+    return negatable<((-Crsl1 > -Crsl2) ? Crng1 : Crng2),
+                     ((-Crsl1 > -Crsl2) ? Crsl1 : Crsl2),
+                     Crnd,
+                     Covf>(a) += b;
+  }
+
+  template <const int Crng1, const int Crsl1,
+            const int Crng2, const int Crsl2,
+            typename Crnd,
+            typename Covf>
+  negatable<((-Crsl1 > -Crsl2) ? Crng1 : Crng2),
+            ((-Crsl1 > -Crsl2) ? Crsl1 : Crsl2),
+            Crnd,
+            Covf>
+  operator-(const negatable<Crng1, Crsl1, Crnd, Covf>& a,
+            const negatable<Crng2, Crsl2, Crnd, Covf>& b)
+  {
+    return negatable<((-Crsl1 > -Crsl2) ? Crng1 : Crng2),
+                     ((-Crsl1 > -Crsl2) ? Crsl1 : Crsl2),
+                     Crnd,
+                     Covf>(a) -= b;
+  }
+
+  template <const int Crng1, const int Crsl1,
+            const int Crng2, const int Crsl2,
+            typename Crnd,
+            typename Covf>
+  negatable<((-Crsl1 > -Crsl2) ? Crng1 : Crng2),
+            ((-Crsl1 > -Crsl2) ? Crsl1 : Crsl2),
+            Crnd,
+            Covf>
+  operator*(const negatable<Crng1, Crsl1, Crnd, Covf>& a,
+            const negatable<Crng2, Crsl2, Crnd, Covf>& b)
+  {
+    return negatable<((-Crsl1 > -Crsl2) ? Crng1 : Crng2),
+                     ((-Crsl1 > -Crsl2) ? Crsl1 : Crsl2),
+                     Crnd,
+                     Covf>(a) *= b;
+  }
+
+  template <const int Crng1, const int Crsl1,
+            const int Crng2, const int Crsl2,
+            typename Crnd,
+            typename Covf>
+  negatable<((-Crsl1 > -Crsl2) ? Crng1 : Crng2),
+            ((-Crsl1 > -Crsl2) ? Crsl1 : Crsl2),
+            Crnd,
+            Covf>
+  operator/(const negatable<Crng1, Crsl1, Crnd, Covf>& a,
+            const negatable<Crng2, Crsl2, Crnd, Covf>& b)
+  {
+    return negatable<((-Crsl1 > -Crsl2) ? Crng1 : Crng2),
+                     ((-Crsl1 > -Crsl2) ? Crsl1 : Crsl2),
+                     Crnd,
+                     Covf>(a) /= b;
+  }
 
   #if !defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
 
@@ -1743,154 +1736,7 @@
   // Here we include all <cmath> functions for the negatable type.
   #include <boost/fixed_point/fixed_point_negatable_cmath.hpp>
 
-  namespace std {
-
-  //! Provide specializations of std::numeric_limits<negatable>.
-
-  /*! \note Individual template specializations need to be provided
-    for each different rounding mode and overflow mode.
-    This might be 7 rounding * 5 overflow, a total of 35 specializations!
-  */
-
-  /*!template specialization of std::numeric_limits<negatable>
-      for @c round::fastest and @c overflow::undefined.
-  */
-  template<const int Crng, const int Crsl>
-  class numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>
-  {
-  private:
-    typedef boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>
-    local_negatable_type;
-
-  public:
-    static BOOST_CONSTEXPR_OR_CONST bool                    is_specialized    = true;
-    static BOOST_CONSTEXPR_OR_CONST int                     digits            = local_negatable_type::all_bits - 1;
-    static BOOST_CONSTEXPR_OR_CONST int                     digits10          = static_cast<int>((static_cast<boost::uintmax_t>(digits - 1) * UINTMAX_C(301)) / UINTMAX_C(1000));
-    static BOOST_CONSTEXPR_OR_CONST int                     max_digits10      = static_cast<int>((static_cast<boost::uintmax_t>(digits - 0) * UINTMAX_C(301)) / UINTMAX_C(1000)) + 2;
-    static BOOST_CONSTEXPR_OR_CONST bool                    is_signed         = true;
-    static BOOST_CONSTEXPR_OR_CONST bool                    is_integer        = false;
-    static BOOST_CONSTEXPR_OR_CONST bool                    is_exact          = false;
-    static BOOST_CONSTEXPR_OR_CONST int                     radix             = 2;
-    static BOOST_CONSTEXPR_OR_CONST int                     min_exponent      = -local_negatable_type::radix_split;
-    static BOOST_CONSTEXPR_OR_CONST int                     min_exponent10    = -static_cast<int>((static_cast<boost::uintmax_t>(-min_exponent) * UINTMAX_C(301)) / UINTMAX_C(1000));
-    static BOOST_CONSTEXPR_OR_CONST int                     max_exponent      = digits - local_negatable_type::radix_split;
-    static BOOST_CONSTEXPR_OR_CONST int                     max_exponent10    = +static_cast<int>((static_cast<boost::uintmax_t>(+max_exponent) * UINTMAX_C(301)) / UINTMAX_C(1000));
-    static BOOST_CONSTEXPR_OR_CONST bool                    has_infinity      = false;
-    static BOOST_CONSTEXPR_OR_CONST bool                    has_quiet_NaN     = false;
-    static BOOST_CONSTEXPR_OR_CONST bool                    has_signaling_NaN = false;
-    static BOOST_CONSTEXPR_OR_CONST std::float_denorm_style has_denorm        = std::denorm_absent;
-    static BOOST_CONSTEXPR_OR_CONST bool                    has_denorm_loss   = false;
-    static BOOST_CONSTEXPR_OR_CONST bool                    is_iec559         = false;
-    static BOOST_CONSTEXPR_OR_CONST bool                    is_bounded        = true;
-    static BOOST_CONSTEXPR_OR_CONST bool                    is_modulo         = false;
-    static BOOST_CONSTEXPR_OR_CONST bool                    traps             = false;
-    static BOOST_CONSTEXPR_OR_CONST bool                    tinyness_before   = false;
-    static BOOST_CONSTEXPR_OR_CONST std::float_round_style  round_style       = std::round_indeterminate;
-
-    static BOOST_CONSTEXPR_OR_CONST local_negatable_type (min)        () BOOST_NOEXCEPT { return local_negatable_type::value_min(); }
-    static BOOST_CONSTEXPR_OR_CONST local_negatable_type (max)        () BOOST_NOEXCEPT { return local_negatable_type::value_max(); }
-    static BOOST_CONSTEXPR_OR_CONST local_negatable_type lowest       () BOOST_NOEXCEPT { return -(max)(); }
-    static BOOST_CONSTEXPR_OR_CONST local_negatable_type epsilon      () BOOST_NOEXCEPT { return local_negatable_type::epsilon_maker(); }
-    static BOOST_CONSTEXPR_OR_CONST local_negatable_type round_error  () BOOST_NOEXCEPT { return local_negatable_type(1); }
-    static BOOST_CONSTEXPR_OR_CONST local_negatable_type infinity     () BOOST_NOEXCEPT { return local_negatable_type(0); }
-    static BOOST_CONSTEXPR_OR_CONST local_negatable_type quiet_NaN    () BOOST_NOEXCEPT { return local_negatable_type(0); }
-    static BOOST_CONSTEXPR_OR_CONST local_negatable_type signaling_NaN() BOOST_NOEXCEPT { return local_negatable_type(0); }
-    static BOOST_CONSTEXPR_OR_CONST local_negatable_type denorm_min   () BOOST_NOEXCEPT { return (min)(); }
-  };
-
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_specialized;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::digits;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::digits10;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::max_digits10;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_signed;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_integer;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_exact;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::radix;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::min_exponent;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::min_exponent10;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::max_exponent;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::max_exponent10;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::has_infinity;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::has_quiet_NaN;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::has_signaling_NaN;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST std::float_denorm_style numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::has_denorm;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::has_denorm_loss;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_iec559;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_bounded;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::is_modulo;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::traps;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::tinyness_before;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST std::float_round_style  numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::fastest, boost::fixed_point::overflow::undefined>>::round_style;
-
-  /*!template specialization of std::numeric_limits<negatable>
-      for @c round::nearest_even and @c overflow::undefined.
-  */
-  template<const int Crng, const int Crsl>
-  class numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>
-  {
-  private:
-    typedef boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>
-    local_negatable_type;
-
-  public:
-    static BOOST_CONSTEXPR_OR_CONST bool                    is_specialized    = true;
-    static BOOST_CONSTEXPR_OR_CONST int                     digits            = local_negatable_type::all_bits - 1;
-    static BOOST_CONSTEXPR_OR_CONST int                     digits10          = static_cast<int>((static_cast<boost::uintmax_t>(digits - 1) * UINTMAX_C(301)) / UINTMAX_C(1000));
-    static BOOST_CONSTEXPR_OR_CONST int                     max_digits10      = static_cast<int>((static_cast<boost::uintmax_t>(digits - 0) * UINTMAX_C(301)) / UINTMAX_C(1000)) + 2;
-    static BOOST_CONSTEXPR_OR_CONST bool                    is_signed         = true;
-    static BOOST_CONSTEXPR_OR_CONST bool                    is_integer        = false;
-    static BOOST_CONSTEXPR_OR_CONST bool                    is_exact          = false;
-    static BOOST_CONSTEXPR_OR_CONST int                     radix             = 2;
-    static BOOST_CONSTEXPR_OR_CONST int                     min_exponent      = -local_negatable_type::radix_split;
-    static BOOST_CONSTEXPR_OR_CONST int                     min_exponent10    = -static_cast<int>((static_cast<boost::uintmax_t>(-min_exponent) * UINTMAX_C(301)) / UINTMAX_C(1000));
-    static BOOST_CONSTEXPR_OR_CONST int                     max_exponent      = digits - local_negatable_type::radix_split;
-    static BOOST_CONSTEXPR_OR_CONST int                     max_exponent10    = +static_cast<int>((static_cast<boost::uintmax_t>(+max_exponent) * UINTMAX_C(301)) / UINTMAX_C(1000));
-    static BOOST_CONSTEXPR_OR_CONST bool                    has_infinity      = false;
-    static BOOST_CONSTEXPR_OR_CONST bool                    has_quiet_NaN     = false;
-    static BOOST_CONSTEXPR_OR_CONST bool                    has_signaling_NaN = false;
-    static BOOST_CONSTEXPR_OR_CONST std::float_denorm_style has_denorm        = std::denorm_absent;
-    static BOOST_CONSTEXPR_OR_CONST bool                    has_denorm_loss   = false;
-    static BOOST_CONSTEXPR_OR_CONST bool                    is_iec559         = false;
-    static BOOST_CONSTEXPR_OR_CONST bool                    is_bounded        = true;
-    static BOOST_CONSTEXPR_OR_CONST bool                    is_modulo         = false;
-    static BOOST_CONSTEXPR_OR_CONST bool                    traps             = false;
-    static BOOST_CONSTEXPR_OR_CONST bool                    tinyness_before   = false;
-    static BOOST_CONSTEXPR_OR_CONST std::float_round_style  round_style       = std::round_to_nearest;
-
-    static BOOST_CONSTEXPR_OR_CONST local_negatable_type (min)        () BOOST_NOEXCEPT { return local_negatable_type::value_min(); }
-    static BOOST_CONSTEXPR_OR_CONST local_negatable_type (max)        () BOOST_NOEXCEPT { return local_negatable_type::value_max(); }
-    static BOOST_CONSTEXPR_OR_CONST local_negatable_type lowest       () BOOST_NOEXCEPT { return -(max)(); }
-    static BOOST_CONSTEXPR_OR_CONST local_negatable_type epsilon      () BOOST_NOEXCEPT { return local_negatable_type::epsilon_maker(); }
-    static BOOST_CONSTEXPR_OR_CONST local_negatable_type round_error  () BOOST_NOEXCEPT { return local_negatable_type(1) / 2; }
-    static BOOST_CONSTEXPR_OR_CONST local_negatable_type infinity     () BOOST_NOEXCEPT { return local_negatable_type(0); }
-    static BOOST_CONSTEXPR_OR_CONST local_negatable_type quiet_NaN    () BOOST_NOEXCEPT { return local_negatable_type(0); }
-    static BOOST_CONSTEXPR_OR_CONST local_negatable_type signaling_NaN() BOOST_NOEXCEPT { return local_negatable_type(0); }
-    static BOOST_CONSTEXPR_OR_CONST local_negatable_type denorm_min   () BOOST_NOEXCEPT { return (min)(); }
-  };
-
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_specialized;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::digits;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::digits10;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::max_digits10;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_signed;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_integer;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_exact;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::radix;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::min_exponent;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::min_exponent10;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::max_exponent;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST int                     numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::max_exponent10;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::has_infinity;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::has_quiet_NaN;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::has_signaling_NaN;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST std::float_denorm_style numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::has_denorm;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::has_denorm_loss;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_iec559;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_bounded;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::is_modulo;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::traps;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST bool                    numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::tinyness_before;
-  template<const int Crng, const int Crsl> BOOST_CONSTEXPR_OR_CONST std::float_round_style  numeric_limits<boost::fixed_point::negatable<Crng, Crsl, boost::fixed_point::round::nearest_even, boost::fixed_point::overflow::undefined>>::round_style;
-  } // namespace std
+  // Here we include specializations of std::numeric_limits<negatable>.
+  #include <boost/fixed_point/fixed_point_negatable_limits.hpp>
 
 #endif // FIXED_POINT_NEGATABLE_2015_03_06_HPP_
