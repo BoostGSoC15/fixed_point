@@ -1,4 +1,7 @@
+/* Start with the Boost standard Cascades Style sheet */
 @import url('../../../../doc/src/boostbook.css');
+
+/* and then add different coloring and new features for fixed-point library. */
 
 /*=============================================================================
 Copyright (c) 2004 Joel de Guzman
@@ -40,11 +43,58 @@ Program listings
     }
 		@media screen
     {
-       /* Syntax Highlighting */
-				.comment { color: green; }
-				/* .comment { color: #008000; }	*/
-		}						
-    /* Program listings in tables don't get borders */
+			body 
+			{
+            background-color: white;
+            color: black;
+       }
+       /* Syntax Highlighting and decoration like:
+			 text-decoration: underline;
+			 font-weight: bold;
+			 See, for example: 
+			 https://css-tricks.com/snippets/css/named-colors-and-hex-equivalents/
+			 */
+        .keyword { color: blue; }
+        .identifier { color: black; }
+        .special { color: black; } /* brackets and other squiggles */
+        .preprocessor { color: navy; }
+        .char { color: teal; }
+        .comment { color: green; }
+        .string { color: maroon; }
+        .number { color: darkred; }
+        .white_bkd { background-color: white; } /* FFFFFF */
+        .dk_grey_bkd { background-color: #999999; }
+				
+				/* Non-code Links, making only a small redish difference when visited. */
+        a
+				{
+					color: darkblue ;
+				}
+				a:visited { color: indigo ; }
+				
+				/* C++ links */
+				a .keyword, a .identifier, a .special, a .preprocessor,  a .char, a .comment, a .string, a .number
+               {
+           color: indigo ; font-weight: bold; /* color: #005a9c; */
+        }
+
+        a:visited .keyword, a:visited .identifier,
+        a:visited .special, a:visited .preprocessor a:visited .char,
+        a:visited .comment, a:visited .string, a:visited .number
+               {
+            color : indigo ; /* was color: #9c5a9c; */
+        }
+        /* All headings */
+        h1 a, h2 a, h3 a, h4 a, h5 a, h6 a, /* Unvisited */
+        h1 a:hover, h2 a:hover, h3 a:hover, h4 a:hover, h5 a:hover, h6 a:hover,
+        h1 a:visited, h2 a:visited, h3 a:visited, h4 a:visited, h5 a:visited, h6 a:visited
+               {
+            text-decoration: none; /* no underline */
+            color: black ;  /* black 000000 */
+        }
+		}				 /* end media screen */
+		
+    /* Program listings in tables don't get borders. */
     td .programlisting,
     td .screen
     {

@@ -80,6 +80,7 @@
 [template image[]'''&#x2111;'''] [/  I blackletter capital I = imaginary part]
 [template real[]'''&#x211C;'''] [/  R blackletter capital R = real part math symbol]
 [template negative[]'''&#x2115;'''] [/  N blackletter capital N = Negative number math symbol]
+[template bigo[]'''&#x1D476;'''] [/  O blackletter capital O = big O symbol]
 [template trade[]'''&#x2122;'''] [/  ™ trade mark sign]
 [template alefsym[]'''&#x2135;'''] [/  ? alef symbol = first transfinite cardinal]
 [template larr[]'''&#x2190;'''] [/  ? leftwards arrow]
