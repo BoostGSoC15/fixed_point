@@ -32,6 +32,11 @@
 #include <boost/fixed_point/fixed_point.hpp>
 #include <drv/vgx_drv_windows.h>
 
+// TBD: The template architecture is not yet finished.
+// The template granularity is not intuitively clear
+// and there the width and height parameters have
+// redundancies with x_lo and x_hi.
+
 template<const int TotalDigits,
          const boost::uint_fast16_t MaxIterations,
          const int MandelbrotFractionalResolution>
@@ -58,7 +63,7 @@ struct mandelbrot_configuration
 };
 
 // This line configures the Mandelbrot generator.
-typedef mandelbrot_configuration<128, UINT16_C(1000), -10> mandelbrot_configuration_type;
+typedef mandelbrot_configuration<128, UINT16_C(600), -10> mandelbrot_configuration_type;
 
 #define BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE mandelbrot_configuration_type::fixed_point_type
 #include <boost/math/cstdfloat/cstdfloat_complex_std.hpp>
@@ -118,18 +123,23 @@ public:
 
                       const std::complex<NumericType> c(x, y);
 
-                      boost::uint_fast16_t i = UINT16_C(0);
-
                       NumericType zr_sqr(0);
                       NumericType zi_sqr(0);
 
-                      // Use a highly optimized complex-numbered multiplication scheme here.
-                      // Thereby reduce the main work of complex multiplication to
-                      // only 3 real-valued multiplication operations and 4 real-valued
-                      // addition/subtraction operations.
+                      // Use a highly optimized complex-numbered multiplication
+                      // scheme here. Thereby reduce the main work of complex
+                      // multiplication to three real-valued multiplication
+                      // and several real-valued addition/subtraction operations.
 
-                      for( ; (((zr_sqr + zi_sqr) < 4) && (i < mandelbrot_configuration_type::max_iterations)); ++i)
+                      boost::uint_fast16_t i = UINT16_C(0);
+
+                      for( ; i < mandelbrot_configuration_type::max_iterations; ++i)
                       {
+                        if((zr_sqr + zi_sqr) >= 4)
+                        {
+                          break;
+                        }
+
                         z.imag(z.real() * z.imag());
                         z.imag(z.imag() + z.imag() + c.imag());
 
