@@ -18,191 +18,206 @@
 
 //! \file
 
-//! \brief Example program showing fixed-point text-based Mandelbrot calculation with low resolution.
+//! \brief Example program showing fixed-point text-based Mandelbrot calculation with high resolution.
 
 // Below are snippets of code that are included into Quickbook file fixed_point.qbk.
 
 #include <algorithm>
 #include <ctime>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 #include <iterator>
 #include <vector>
 #include <boost/cstdint.hpp>
-
 #include <boost/fixed_point/fixed_point.hpp>
-
-// VGX(Video or Visual GraphiX) library for driving displays(and LCDs)
-// https://github.com/mpaland/vgx
 #include <drv/vgx_drv_windows.h>
 
-typedef boost::fixed_point::negatable<16, -15>      fixed_point_type;
-
-// Override the default COMPLEX_FLOAT_TYPE to use our fixed_point.
-#define BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE fixed_point_type
-#include <boost/math/cstdfloat/cstdfloat_complex_std.hpp>
-
-struct graphics_maker
+template<const int TotalDigits,
+         const boost::uint_fast16_t MaxIterations,
+         const int MandelbrotFractionalResolution>
+struct mandelbrot_configuration
 {
-  BOOST_STATIC_CONSTEXPR boost::uint_fast16_t max_iterations = 20;
+  typedef boost::fixed_point::negatable<16, 16 + 1 - TotalDigits> fixed_point_type;
 
-  BOOST_STATIC_CONSTEXPR int fractional_resolution = -5;
+  BOOST_STATIC_CONSTEXPR boost::uint_fast16_t max_iterations = MaxIterations;
 
-  BOOST_STATIC_CONSTEXPR boost::uint16_t width  = boost::uint16_t(2.5F * (1 << -fractional_resolution));
-  BOOST_STATIC_CONSTEXPR boost::uint16_t height = boost::uint16_t(2.0F * (1 << -fractional_resolution));
+  BOOST_STATIC_CONSTEXPR int mandelbrot_fractional_resolution = MandelbrotFractionalResolution;
+
+  BOOST_STATIC_CONSTEXPR boost::uint16_t width  = static_cast<boost::uint16_t>(2.5L * static_cast<long double>(1UL << (-mandelbrot_fractional_resolution)));
+  BOOST_STATIC_CONSTEXPR boost::uint16_t height = static_cast<boost::uint16_t>(2.0L * static_cast<long double>(1UL << (-mandelbrot_fractional_resolution)));
 
   static vgx::head::windows<width, height,
-                            width, height>& head();
+                            width, height>& head()
+  {
+    static vgx::head::windows<width, height,
+                              width, height>
+    the_head(0, 0, 128, 128, 1, 1);
+
+    return the_head;
+  }
 };
 
+// This line configures the Mandelbrot generator.
+typedef mandelbrot_configuration<32, UINT16_C(20), -5> mandelbrot_configuration_type;
 
-vgx::head::windows<graphics_maker::width, graphics_maker::height,
-                   graphics_maker::width, graphics_maker::height>&
-graphics_maker::head()
+#define BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE mandelbrot_configuration_type::fixed_point_type
+#include <boost/math/cstdfloat/cstdfloat_complex_std.hpp>
+#undef BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE
+
+template<typename NumericType,
+         typename AllocatorType = std::allocator<NumericType>>
+class mandelbrot_generator
 {
-  static vgx::head::windows<graphics_maker::width, graphics_maker::height,
-                            graphics_maker::width, graphics_maker::height>
-  the_head(0, 0, 128, 128, 16, 16);
+public:
+  static_assert(std::is_same<typename AllocatorType::value_type, NumericType>::value,
+                "Error: Something is wrong with the allocator type provided to the mandelbrot_generator template class.");
 
-  return the_head;
-}
-
-template<typename NumericType>
-boost::uint32_t get_color(const boost::uint_least16_t i)
-{
-  // Blend a classic black-and-white color scheme.
-
-  static std::vector<NumericType> scale_factors;
-
-  // Initialize the color scale factors.
-  // TBD: Do this once only before pre-main static initialization.
-  if(scale_factors.empty())
+  static void generate_mandelbrot_image()
   {
-    scale_factors.resize(static_cast<std::size_t>(graphics_maker::max_iterations + 1U), NumericType(0));
+    const NumericType x_lo = NumericType(-2);
+    const NumericType x_hi = NumericType(+1) / 2;
 
-    const NumericType one_fifth = NumericType(1) / 5;
+    const NumericType y_lo = NumericType(-1);
+    const NumericType y_hi = NumericType(+1);
 
-    for(std::size_t fi = UINT16_C(1); fi < scale_factors.size(); ++fi)
+    const NumericType step = ldexp(NumericType(1), mandelbrot_configuration_type::mandelbrot_fractional_resolution);
+
+    // Setup the x-axis coordinates.
+    std::vector<NumericType> x_values(mandelbrot_configuration_type::width);
+
+    // Initialize the x-axis coordinates (one time only).
     {
-      using std::pow;
-
-      scale_factors[fi] = pow(NumericType(fi) / graphics_maker::max_iterations, one_fifth);
+      NumericType x = x_lo;
+      for(boost::uint_fast16_t col = UINT16_C(0); col < mandelbrot_configuration_type::width; ++col, x += step)
+      {
+        x_values[col] = x;
+      }
     }
-  }
 
-  const boost::uint8_t scaled_color = static_cast<boost::uint8_t>(float(0xFF) * (1.0F - scale_factors[i]));
+    // Create storage for the row pixel results.
+    std::vector<boost::uint32_t> row_pixel_color_values(mandelbrot_configuration_type::width);
 
-  const boost::uint32_t gray_tone =   (boost::uint32_t(scaled_color) <<  0)
-                                    | (boost::uint32_t(scaled_color) <<  8)
-                                    | (boost::uint32_t(scaled_color) << 16);
+    // Initialize the y-axis coordinate.
+    NumericType y = y_hi;
 
-  return boost::uint32_t(gray_tone);
-}
+    // TBD: The iteration through rows should be distributed in multithreading.
 
-template<typename NumericType>
-void generate_mandelbrot_image()
-{
-  const NumericType x_lo = NumericType(-2);
-  const NumericType x_hi = NumericType(+1) / 2;
-
-  const NumericType y_lo = NumericType(-1);
-  const NumericType y_hi = NumericType(+1);
-
-  const NumericType step = ldexp(NumericType(1), graphics_maker::fractional_resolution);
-
-  // Setup the x-axis coordinates.
-  std::vector<NumericType> x_values(graphics_maker::width);
-
-  // Initialize the x-axis coordinates (one time only).
-  {
-    NumericType x = x_lo;
-    for(boost::uint_fast16_t col = UINT16_C(0); col < graphics_maker::width; ++col, x += step)
+    // Loop through all the rows of pixels on the vertical y-axis
+    // in the direction of decrementing the y-value.
+    for(boost::uint_fast16_t row = UINT16_C(0); row < mandelbrot_configuration_type::height; ++row, y -= step)
     {
-      x_values[col] = x;
-    }
-  }
+      auto row_pixel_color_iterator = row_pixel_color_values.begin();
 
-  // Create storage for the row pixel results.
-  std::vector<boost::uint32_t> row_pixel_color_values(graphics_maker::width);
-
-  // Initialize the y-axis coordinate.
-  NumericType y = y_hi;
-
-  // Loop through all the rows of pixels on the vertical y-axis
-  // in the direction of decrementing the y-value.
-  for(boost::uint_fast16_t row = UINT16_C(0); row < graphics_maker::height; ++row, y -= step)
-  {
-    auto row_pixel_color_iterator = row_pixel_color_values.begin();
-
-    // Loop through this column of pixels on the horizontal x-axis
-    // in the direction of incrementing the x-value.
-    std::for_each(x_values.cbegin(),
-                  x_values.cend(),
-                  [&y, &row_pixel_color_iterator](const NumericType& x)
-                  {
-                    std::complex<NumericType> z(NumericType(0));
-
-                    const std::complex<NumericType> c(x, y);
-
-                    boost::uint_fast16_t i = UINT16_C(0);
-
-                    NumericType zr_sqr(0);
-                    NumericType zi_sqr(0);
-
-                    for( ; (((zr_sqr + zi_sqr) < 4) && (i < graphics_maker::max_iterations)); ++i)
+      // Loop through this column of pixels on the horizontal x-axis
+      // in the direction of incrementing the x-value.
+      std::for_each(x_values.cbegin(),
+                    x_values.cend(),
+                    [&y, &row_pixel_color_iterator](const NumericType& x)
                     {
-                      z.imag(z.real() * z.imag());
-                      z.imag(z.imag() + z.imag() + c.imag());
+                      std::complex<NumericType> z(NumericType(0));
 
-                      z.real((zr_sqr - zi_sqr) + c.real());
+                      const std::complex<NumericType> c(x, y);
 
-                      zr_sqr = z.real() * z.real();
-                      zi_sqr = z.imag() * z.imag();
-                    }
+                      boost::uint_fast16_t i = UINT16_C(0);
 
-                    *row_pixel_color_iterator = get_color<NumericType>(i);
+                      NumericType zr_sqr(0);
+                      NumericType zi_sqr(0);
 
-                    ++row_pixel_color_iterator;
-                  });
+                      // Use a highly optimized complex-numbered multiplication scheme here.
+                      // Thereby reduce the main work of complex multiplication to
+                      // only 3 real-valued multiplication operations and 4 real-valued
+                      // addition/subtraction operations.
 
-    std::cout << "Calculating Mandelbrot image at row "
-              << std::setw(6)
-              << row + 1U
-              << " of "
-              << std::setw(6)
-              << graphics_maker::height
-              << " total. Have patience."
-              << "\r";
+                      for( ; (((zr_sqr + zi_sqr) < 4) && (i < mandelbrot_configuration_type::max_iterations)); ++i)
+                      {
+                        z.imag(z.real() * z.imag());
+                        z.imag(z.imag() + z.imag() + c.imag());
 
-    // Write this entire row of colors to the output.
-    {
-      boost::int16_t col_index = INT16_C(0);
+                        z.real((zr_sqr - zi_sqr) + c.real());
 
-      // Set the pixels in memory before driving them to the output.
-      std::for_each(row_pixel_color_values.cbegin(),
-                    row_pixel_color_values.cend(),
-                    [&col_index, &row](const boost::uint32_t the_color)
-                    {
-                      graphics_maker::head().drv_pixel_set_color(col_index, row, the_color);
+                        zr_sqr = z.real() * z.real();
+                        zi_sqr = z.imag() * z.imag();
+                      }
 
-                      ++col_index;
+                      *row_pixel_color_iterator = get_color(i);
+
+                      ++row_pixel_color_iterator;
                     });
 
-      // Drive this row of pixels to the output.
-      graphics_maker::head().drv_primitive_done();
+      std::cout << "Calculating Mandelbrot image at row "
+                << std::setw(6)
+                << (row + 1U)
+                << " of "
+                << std::setw(6)
+                << mandelbrot_configuration_type::height
+                << " total. Have patience."
+                << "\r";
+
+      // Write this entire row of colors to the output.
+      {
+        boost::int16_t col_index = INT16_C(0);
+
+        // Set the pixels in memory before driving them to the output.
+        std::for_each(row_pixel_color_values.cbegin(),
+                      row_pixel_color_values.cend(),
+                      [&col_index, &row](const boost::uint32_t the_color)
+                      {
+                        mandelbrot_configuration_type::head().drv_pixel_set_color(col_index, row, the_color);
+
+                        ++col_index;
+                      });
+
+        // Drive this row of pixels to the output.
+        mandelbrot_configuration_type::head().drv_primitive_done();
+      }
     }
+
+    std::cout << std::endl;
   }
 
-  std::cout << std::endl;
-}
+private:
+  static boost::uint32_t get_color(const boost::uint_least16_t i)
+  {
+    // Blend a classic black-and-white color scheme.
+
+    static std::vector<NumericType, AllocatorType> scale_factors;
+
+    // Initialize the color scale factors.
+    // TBD: Do this once only before pre-main static initialization.
+    if(scale_factors.empty())
+    {
+      scale_factors.resize(static_cast<std::size_t>(mandelbrot_configuration_type::max_iterations + 1U), NumericType(0));
+
+      static const NumericType fractional_power = NumericType(1) / 5;
+
+      for(std::size_t fi = UINT16_C(1); fi < scale_factors.size(); ++fi)
+      {
+        using std::pow;
+
+        scale_factors[fi] = pow(NumericType(fi) / mandelbrot_configuration_type::max_iterations, fractional_power);
+      }
+    }
+
+    const boost::uint8_t scaled_color = static_cast<boost::uint8_t>(float(0xFF) * (1.0F - scale_factors[i]));
+
+    const boost::uint32_t gray_tone =   (boost::uint32_t(scaled_color) <<  0)
+                                      | (boost::uint32_t(scaled_color) <<  8)
+                                      | (boost::uint32_t(scaled_color) << 16);
+
+    return boost::uint32_t(gray_tone);
+  }
+};
 
 int main()
 {
-  graphics_maker::head().init();
+  typedef mandelbrot_configuration_type::fixed_point_type fixed_point_type;
+
+  mandelbrot_configuration_type::head().init();
 
   const std::clock_t start = std::clock();
 
-  generate_mandelbrot_image<fixed_point_type>();
+  mandelbrot_generator<fixed_point_type,
+                       std::allocator<fixed_point_type>>::generate_mandelbrot_image();
 
   const std::clock_t stop = std::clock();
 
