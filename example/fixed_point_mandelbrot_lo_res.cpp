@@ -41,7 +41,7 @@ struct graphics_maker
 {
   BOOST_STATIC_CONSTEXPR boost::uint_fast16_t max_iterations = 20;
 
-  BOOST_STATIC_CONSTEXPR int fractional_resolution = -4;
+  BOOST_STATIC_CONSTEXPR int fractional_resolution = -5;
 
   BOOST_STATIC_CONSTEXPR boost::uint16_t width  = boost::uint16_t(2.5F * (1 << -fractional_resolution));
   BOOST_STATIC_CONSTEXPR boost::uint16_t height = boost::uint16_t(2.0F * (1 << -fractional_resolution));

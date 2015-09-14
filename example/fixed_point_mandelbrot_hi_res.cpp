@@ -43,8 +43,8 @@ struct graphics_maker
 
   BOOST_STATIC_CONSTEXPR int fractional_resolution = -10;
 
-  BOOST_STATIC_CONSTEXPR boost::uint16_t width  = boost::uint16_t(2.5F * (1 << -fractional_resolution));
-  BOOST_STATIC_CONSTEXPR boost::uint16_t height = boost::uint16_t(2.0F * (1 << -fractional_resolution));
+  BOOST_STATIC_CONSTEXPR boost::uint16_t width  = static_cast<boost::uint16_t>(2.5L * static_cast<long double>(1 << (-fractional_resolution)));
+  BOOST_STATIC_CONSTEXPR boost::uint16_t height = static_cast<boost::uint16_t>(2.0L * static_cast<long double>(1 << (-fractional_resolution)));
 
   static vgx::head::windows<width, height,
                             width, height>& head();
@@ -75,13 +75,13 @@ boost::uint32_t get_color(const boost::uint_least16_t i)
   {
     scale_factors.resize(static_cast<std::size_t>(graphics_maker::max_iterations + 1U), NumericType(0));
 
-    const NumericType one_fifth = NumericType(1) / 5;
+    static const NumericType fractional_power = NumericType(1) / 6;
 
     for(std::size_t fi = UINT16_C(1); fi < scale_factors.size(); ++fi)
     {
       using std::pow;
 
-      scale_factors[fi] = pow(NumericType(fi) / graphics_maker::max_iterations, one_fifth);
+      scale_factors[fi] = pow(NumericType(fi) / graphics_maker::max_iterations, fractional_power);
     }
   }
 
@@ -123,6 +123,8 @@ void generate_mandelbrot_image()
   // Initialize the y-axis coordinate.
   NumericType y = y_hi;
 
+  // TBD: The iteration through rows should be distributed in multithreading.
+
   // Loop through all the rows of pixels on the vertical y-axis
   // in the direction of decrementing the y-value.
   for(boost::uint_fast16_t row = UINT16_C(0); row < graphics_maker::height; ++row, y -= step)
@@ -143,6 +145,11 @@ void generate_mandelbrot_image()
 
                     NumericType zr_sqr(0);
                     NumericType zi_sqr(0);
+
+                    // Use a highly optimized complex-numbered multiplication scheme here.
+                    // Thereby reduce the main work of complex multiplication to
+                    // only 3 real-valued multiplication operations and 4 real-valued
+                    // addition/subtraction operations.
 
                     for( ; (((zr_sqr + zi_sqr) < 4) && (i < graphics_maker::max_iterations)); ++i)
                     {
