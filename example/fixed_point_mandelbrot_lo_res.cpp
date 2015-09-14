@@ -63,7 +63,7 @@ struct mandelbrot_configuration
 };
 
 // This line configures the Mandelbrot generator.
-typedef mandelbrot_configuration<128, UINT16_C(100), -6> mandelbrot_configuration_type;
+typedef mandelbrot_configuration<32, UINT16_C(100), -5> mandelbrot_configuration_type;
 
 #define BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE mandelbrot_configuration_type::fixed_point_type
 #include <boost/math/cstdfloat/cstdfloat_complex_std.hpp>
