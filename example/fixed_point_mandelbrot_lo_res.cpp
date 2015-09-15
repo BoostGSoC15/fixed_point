@@ -30,7 +30,12 @@
 #include <vector>
 #include <boost/cstdint.hpp>
 #include <boost/fixed_point/fixed_point.hpp>
+#define XMD_H
+#include <boost/gil/extension/io/jpeg_io.hpp>
+#include <boost/gil/image.hpp>
+#include <boost/gil/typedefs.hpp>
 #include <drv/vgx_drv_windows.h>
+
 
 // TBD: The template architecture is not yet finished.
 // The template granularity is not intuitively clear
@@ -50,20 +55,10 @@ struct mandelbrot_configuration
 
   BOOST_STATIC_CONSTEXPR boost::uint16_t width  = static_cast<boost::uint16_t>(2.5L * static_cast<long double>(1UL << (-mandelbrot_fractional_resolution)));
   BOOST_STATIC_CONSTEXPR boost::uint16_t height = static_cast<boost::uint16_t>(2.0L * static_cast<long double>(1UL << (-mandelbrot_fractional_resolution)));
-
-  static vgx::head::windows<width, height,
-                            width, height>& head()
-  {
-    static vgx::head::windows<width, height,
-                              width, height>
-    the_head(0, 0, 128, 128, 1, 1);
-
-    return the_head;
-  }
 };
 
 // This line configures the Mandelbrot generator.
-typedef mandelbrot_configuration<32, UINT16_C(100), -5> mandelbrot_configuration_type;
+typedef mandelbrot_configuration<32, UINT16_C(100), -6> mandelbrot_configuration_type;
 
 #define BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE mandelbrot_configuration_type::fixed_point_type
 #include <boost/math/cstdfloat/cstdfloat_complex_std.hpp>
@@ -85,10 +80,12 @@ public:
     const NumericType y_lo = NumericType(-1);
     const NumericType y_hi = NumericType(+1);
 
+    using std::ldexp;
+
     const NumericType step = ldexp(NumericType(1), mandelbrot_configuration_type::mandelbrot_fractional_resolution);
 
     // Setup the x-axis coordinates.
-    std::vector<NumericType> x_values(mandelbrot_configuration_type::width);
+    std::vector<NumericType, AllocatorType> x_values(mandelbrot_configuration_type::width);
 
     // Initialize the x-axis coordinates (one time only).
     {
@@ -99,8 +96,13 @@ public:
       }
     }
 
+    boost::gil::gray8_image_t image(mandelbrot_configuration_type::width,
+                                    mandelbrot_configuration_type::height);
+
+    boost::gil::gray8_view_t view = boost::gil::view(image);
+
     // Create storage for the row pixel results.
-    std::vector<boost::uint32_t> row_pixel_color_values(mandelbrot_configuration_type::width);
+    std::vector<boost::uint8_t> row_pixel_color_values(mandelbrot_configuration_type::width);
 
     // Initialize the y-axis coordinate.
     NumericType y = y_hi;
@@ -167,26 +169,27 @@ public:
       {
         boost::int16_t col_index = INT16_C(0);
 
-        // Set the pixels in memory before driving them to the output.
+        // Set the pixels of this row in the Mandelbrot image.
         std::for_each(row_pixel_color_values.cbegin(),
                       row_pixel_color_values.cend(),
-                      [&col_index, &row](const boost::uint32_t the_color)
+                      [&col_index, &row, &view](const boost::uint8_t& the_color)
                       {
-                        mandelbrot_configuration_type::head().drv_pixel_set_color(col_index, row, the_color);
+                        view(col_index, row) = boost::gil::gray8_pixel_t(the_color);
 
                         ++col_index;
                       });
-
-        // Drive this row of pixels to the output.
-        mandelbrot_configuration_type::head().drv_primitive_done();
       }
     }
 
-    std::cout << std::endl;
+    boost::gil::jpeg_write_view("mandelbrot_lo_res.jpg", view);
+
+    std::cout << std::endl
+              << "The ouptput file mandelbrot_lo_res.jpg has been written"
+              << std::endl;
   }
 
 private:
-  static boost::uint32_t get_color(const boost::uint_least16_t i)
+  static boost::uint8_t get_color(const boost::uint_least16_t i)
   {
     // Blend a classic black-and-white color scheme.
 
@@ -208,13 +211,9 @@ private:
       }
     }
 
-    const boost::uint8_t scaled_color = static_cast<boost::uint8_t>(float(0xFF) * (1.0F - scale_factors[i]));
+    const boost::uint8_t gray_tone = static_cast<boost::uint8_t>(float(0xFF) * (1.0F - scale_factors[i]));
 
-    const boost::uint32_t gray_tone =   (boost::uint32_t(scaled_color) <<  0)
-                                      | (boost::uint32_t(scaled_color) <<  8)
-                                      | (boost::uint32_t(scaled_color) << 16);
-
-    return boost::uint32_t(gray_tone);
+    return gray_tone;
   }
 };
 
@@ -222,12 +221,9 @@ int main()
 {
   typedef mandelbrot_configuration_type::fixed_point_type fixed_point_type;
 
-  mandelbrot_configuration_type::head().init();
-
   const std::clock_t start = std::clock();
 
-  mandelbrot_generator<fixed_point_type,
-                       std::allocator<fixed_point_type>>::generate_mandelbrot_image();
+  mandelbrot_generator<fixed_point_type>::generate_mandelbrot_image();
 
   const std::clock_t stop = std::clock();
 
@@ -237,23 +233,4 @@ int main()
             << elapsed
             << "s"
             << std::endl;
-
-  std::cout << "Enter any character to quit: ";
-  char c;
-  std::cin >> c;
 }
-
-/*
-#define png_infopp_NULL (png_infopp)NULL
-#define int_p_NULL (int*)NULL
-#include <boost/gil/gil_all.hpp>
-#include <boost/gil/extension/io/png_dynamic_io.hpp>
-using namespace boost::gil;
-int main()
-{
-    rgb8_image_t img(512, 512);
-    rgb8_pixel_t red(255, 0, 0);
-    fill_pixels(view(img), red);
-    png_write_view("redsquare.png", const_view(img));
-}
-*/

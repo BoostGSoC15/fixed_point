@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_bernoulli_b2n)
   // fixed-point Bernoulli numbers and test them with tabulated
   // control values.
 
-  BOOST_CONSTEXPR_OR_CONST std::size_t number_of_bernoulli_b2n     =   22U;
+  BOOST_CONSTEXPR_OR_CONST std::size_t number_of_bernoulli_b2n = 22U;
   BOOST_CONSTEXPR_OR_CONST int         resolution_of_bernoulli_b2n = -280;
 
   // Here is a table of the text-based control values.

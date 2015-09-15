@@ -60,9 +60,7 @@ run fixed_point_limits.cpp ;
 run fixed_point_constants.cpp ;
 run fixed_point_type_examples.cpp ;
 
-#  These two need drv/vgx_drv_windows.h
-# https://github.com/mpaland/vgx
-# VGX (Video or Visual GraphiX) library for driving displays (and LCDs)
+#  These two need a jpeg library (such as jpeg-6b on windows or libjpeg on *nix)
 
 #run fixed_point_mandelbrot_lo_res.cpp ;
 #run fixed_point_mandelbrot_hi_res.cpp ;
