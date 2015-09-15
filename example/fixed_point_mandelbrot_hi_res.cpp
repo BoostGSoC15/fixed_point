@@ -34,7 +34,7 @@
 #include <boost/gil/extension/io/jpeg_io.hpp>
 #include <boost/gil/image.hpp>
 #include <boost/gil/typedefs.hpp>
-#include <drv/vgx_drv_windows.h>
+#undef XMD_H
 
 
 // TBD: The template architecture is not yet finished.
