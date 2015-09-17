@@ -1002,7 +1002,7 @@
         \tparam FloatingPointType Type for the result of conversion.
         Usually a built-in type, @c float, @c double, but may be a multiprecision type.
 
-       TBD Is this correct?
+        TBD Is this correct?
     */
     template<typename FloatingPointType>
     FloatingPointType convert_to_floating_point_type() const
@@ -1010,7 +1010,7 @@
       const bool is_neg = (data < static_cast<value_type>(0));
 
       FloatingPointType f(0);
- 
+
       {
         using std::ldexp;
 
