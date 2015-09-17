@@ -28,160 +28,215 @@
 #include <iostream>
 #include <iterator>
 #include <vector>
+
 #include <boost/cstdint.hpp>
 #include <boost/fixed_point/fixed_point.hpp>
-#define XMD_H
 #include <boost/gil/extension/io/jpeg_io.hpp>
 #include <boost/gil/image.hpp>
 #include <boost/gil/typedefs.hpp>
-#undef XMD_H
 
+// TBD: The architecture is not yet finished. The handling of the
+// parameters can be made more intuitively clear. It should also
+// be possible to improve the flexibility regarding changing the
+// width, height and resolution of the Mandelbrot image.
 
-// TBD: The template architecture is not yet finished.
-// The template granularity is not intuitively clear
-// and there the width and height parameters have
-// redundancies with x_lo and x_hi.
+// TBD: The color representation of the Mandelbrot images is inadequate.
+
+// Another apporach that works quite well is to use a histogram of the
+// plot to calculate your color table. You add up the number of pixels
+// at each iteration value, and have the amount of color change equal
+// the portion of pixels in the plot at that iteration value.
+// The lowest iteration value gets the starting color value,
+// and the next iteration value is X% of the way from your start color
+// to your end color, where x is the sum of the number of pixels
+// at the current and lower iteration values. At the highest iteration value,
+// the transition to the end color is complete.
+
+// The histogram approach has the advantage that it adapts automatically
+// to the distribution of pixels in your plot.
+
+class mandelbrot_configuration_base
+{
+public:
+  virtual ~mandelbrot_configuration_base() { }
+
+  long double x_lo() const { return my_x_lo; }
+  long double x_hi() const { return my_x_hi; }
+  long double y_lo() const { return my_y_lo; }
+  long double y_hi() const { return my_y_hi; }
+
+  virtual boost::uint_fast16_t max_iterations() const = 0;
+
+  virtual int mandelbrot_fractional_resolution() const = 0;
+
+  virtual long double step() const = 0;
+
+  virtual boost::uint_fast32_t width () const = 0;
+  virtual boost::uint_fast32_t height() const = 0;
+
+protected:
+  const long double my_x_lo;
+  const long double my_x_hi;
+  const long double my_y_lo;
+  const long double my_y_hi;
+
+  mandelbrot_configuration_base(const long double xl, const long double xh,
+                                const long double yl, const long double yh) : my_x_lo(xl), my_x_hi(xh),
+                                                                              my_y_lo(yl), my_y_hi(yh) { }
+private:
+  mandelbrot_configuration_base() : my_x_lo(0.0L), my_x_hi(0.0L),
+                                    my_y_lo(0.0L), my_y_hi(0.0L) { }
+};
 
 template<const int TotalDigits,
          const boost::uint_fast16_t MaxIterations,
          const int MandelbrotFractionalResolution>
-struct mandelbrot_configuration
+class mandelbrot_configuration : public mandelbrot_configuration_base
 {
+public:
   typedef boost::fixed_point::negatable<16, 16 + 1 - TotalDigits> fixed_point_type;
 
-  BOOST_STATIC_CONSTEXPR boost::uint_fast16_t max_iterations = MaxIterations;
+  mandelbrot_configuration(const long double xl, const long double xh,
+                           const long double yl, const long double yh)
+    : mandelbrot_configuration_base(xl, xh, yl, yh) { }
 
-  BOOST_STATIC_CONSTEXPR int mandelbrot_fractional_resolution = MandelbrotFractionalResolution;
+  virtual ~mandelbrot_configuration() { }
 
-  BOOST_STATIC_CONSTEXPR boost::uint16_t width  = static_cast<boost::uint16_t>(2.5L * static_cast<long double>(1UL << (-mandelbrot_fractional_resolution)));
-  BOOST_STATIC_CONSTEXPR boost::uint16_t height = static_cast<boost::uint16_t>(2.0L * static_cast<long double>(1UL << (-mandelbrot_fractional_resolution)));
+private:
+  virtual boost::uint_fast16_t max_iterations() const { return MaxIterations; }
+
+  virtual int mandelbrot_fractional_resolution() const { return MandelbrotFractionalResolution; }
+
+  virtual long double step() const { return 1.0L / (UINT64_C(1) << -mandelbrot_fractional_resolution()); }
+
+  virtual boost::uint_fast32_t width () const { return static_cast<boost::uint_fast32_t>((x_hi() - x_lo()) / step()); }
+  virtual boost::uint_fast32_t height() const { return static_cast<boost::uint_fast32_t>((y_hi() - y_lo()) / step()); }
 };
 
-// This line configures the Mandelbrot generator.
-typedef mandelbrot_configuration<128, UINT16_C(600), -11> mandelbrot_configuration_type;
-
-#define BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE mandelbrot_configuration_type::fixed_point_type
-#include <boost/math/cstdfloat/cstdfloat_complex_std.hpp>
-#undef BOOST_CSTDFLOAT_EXTENDED_COMPLEX_FLOAT_TYPE
-
-template<typename NumericType,
-         typename AllocatorType = std::allocator<NumericType>>
+template<typename NumericType>
 class mandelbrot_generator
 {
 public:
-  static_assert(std::is_same<typename AllocatorType::value_type, NumericType>::value,
-                "Error: Something is wrong with the allocator type provided to the mandelbrot_generator template class.");
-
-  static void generate_mandelbrot_image()
+  mandelbrot_generator(const mandelbrot_configuration_base& config)
+    : mandelbrot_configuration_object(config),
+      mandelbrot_image               (config.width(), config.height()),
+      mandelbrot_view                (boost::gil::gray8_view_t()),
+      mandelbrot_iteration_matrix    (mandelbrot_configuration_object.width(),
+                                      std::vector<boost::uint_fast16_t>(mandelbrot_configuration_object.height())),
+      mandelbrot_color_histogram     (static_cast<std::size_t>(config.max_iterations() + 1U), UINT32_C(0))
   {
-    const NumericType x_lo = NumericType(-2);
-    const NumericType x_hi = NumericType(+1) / 2;
+    mandelbrot_view = boost::gil::view(mandelbrot_image);
+  }
 
-    const NumericType y_lo = NumericType(-1);
-    const NumericType y_hi = NumericType(+1);
+  ~mandelbrot_generator() { }
 
+  void generate_mandelbrot_image()
+  {
     using std::ldexp;
 
-    const NumericType step = ldexp(NumericType(1), mandelbrot_configuration_type::mandelbrot_fractional_resolution);
-
     // Setup the x-axis coordinates.
-    std::vector<NumericType, AllocatorType> x_values(mandelbrot_configuration_type::width);
+    std::vector<NumericType> x_values(mandelbrot_configuration_object.width());
 
     // Initialize the x-axis coordinates (one time only).
     {
-      NumericType x = x_lo;
-      for(boost::uint_fast16_t col = UINT16_C(0); col < mandelbrot_configuration_type::width; ++col, x += step)
+      NumericType x_step(mandelbrot_configuration_object.x_lo());
+
+      for(NumericType& x : x_values)
       {
-        x_values[col] = x;
+        x = x_step;
+
+        x_step += mandelbrot_configuration_object.step();
       }
     }
 
-    boost::gil::gray8_image_t image(mandelbrot_configuration_type::width,
-                                    mandelbrot_configuration_type::height);
-
-    boost::gil::gray8_view_t view = boost::gil::view(image);
-
-    // Create storage for the row pixel results.
-    std::vector<boost::uint8_t> row_pixel_color_values(mandelbrot_configuration_type::width);
-
     // Initialize the y-axis coordinate.
-    NumericType y = y_hi;
+    NumericType y(mandelbrot_configuration_object.y_hi());
 
-    // TBD: The iteration through rows should be distributed in multithreading.
+    // TBD: The iteration through rows can be distributed in multithreading.
 
-    // Loop through all the rows of pixels on the vertical y-axis
-    // in the direction of decrementing the y-value.
-    for(boost::uint_fast16_t row = UINT16_C(0); row < mandelbrot_configuration_type::height; ++row, y -= step)
+    // Loop through all the rows of pixels on the vertical
+    // y-axis in the direction of decreasing y-value.
+    for(boost::uint_fast32_t row = UINT32_C(0); row < mandelbrot_configuration_object.height(); ++row, y -= mandelbrot_configuration_object.step())
     {
-      auto row_pixel_color_iterator = row_pixel_color_values.begin();
+      // Loop through this column of pixels on the horizontal
+      // x-axis in the direction of increasing x-value.
+      boost::uint_fast32_t col = UINT32_C(0);
 
-      // Loop through this column of pixels on the horizontal x-axis
-      // in the direction of incrementing the x-value.
       std::for_each(x_values.cbegin(),
                     x_values.cend(),
-                    [&y, &row_pixel_color_iterator](const NumericType& x)
-                    {
-                      std::complex<NumericType> z(NumericType(0));
+                    [&y, &col, &row, this](const NumericType& x)
+      {
+        const NumericType cr(x);
+        const NumericType ci(y);
 
-                      const std::complex<NumericType> c(x, y);
+        NumericType zr(0);
+        NumericType zi(0);
 
-                      NumericType zr_sqr(0);
-                      NumericType zi_sqr(0);
+        NumericType zr_sqr(0);
+        NumericType zi_sqr(0);
 
-                      // Use a highly optimized complex-numbered multiplication
-                      // scheme here. Thereby reduce the main work of complex
-                      // multiplication to three real-valued multiplication
-                      // and several real-valued addition/subtraction operations.
+        // Use a highly optimized complex-numbered multiplication scheme.
+        // Thereby reduce the main work of the Mandelbrot iteration to
+        // three real-valued multiplications and several real-valued
+        // addition/subtraction operations.
 
-                      boost::uint_fast16_t i = UINT16_C(0);
+        boost::uint_fast16_t i = UINT16_C(0);
 
-                      for( ; i < mandelbrot_configuration_type::max_iterations; ++i)
-                      {
-                        if((zr_sqr + zi_sqr) >= 4)
-                        {
-                          break;
-                        }
+        while(   (i < mandelbrot_configuration_object.max_iterations())
+              && ((zr_sqr + zi_sqr) < 4))
+        {
+          zi *= zr;
+          zi  = (zi + zi) + ci;
 
-                        z.imag(z.real() * z.imag());
-                        z.imag(z.imag() + z.imag() + c.imag());
+          zr = (zr_sqr - zi_sqr) + cr;
 
-                        z.real((zr_sqr - zi_sqr) + c.real());
+          zr_sqr = zr * zr;
+          zi_sqr = zi * zi;
 
-                        zr_sqr = z.real() * z.real();
-                        zi_sqr = z.imag() * z.imag();
-                      }
+          ++i;
+        }
 
-                      *row_pixel_color_iterator = get_color(i);
+        mandelbrot_iteration_matrix[col][row] = i;
 
-                      ++row_pixel_color_iterator;
-                    });
+        ++mandelbrot_color_histogram[i];
+
+        ++col;
+      });
 
       std::cout << "Calculating Mandelbrot image at row "
                 << std::setw(6)
                 << (row + 1U)
                 << " of "
                 << std::setw(6)
-                << mandelbrot_configuration_type::height
+                << mandelbrot_configuration_object.height()
                 << " total. Have patience."
                 << "\r";
+    }
 
-      // Write this entire row of colors to the output.
+    boost::uint_fast32_t sum = UINT32_C(0);
+
+    const boost::uint64_t total = boost::uint64_t(mandelbrot_configuration_object.width()) * mandelbrot_configuration_object.height();
+
+    std::for_each(mandelbrot_color_histogram.begin(),
+                  mandelbrot_color_histogram.end(),
+                  [&sum, &total](boost::uint_fast32_t& color_entry)
+                  {
+                    sum += color_entry;
+
+                    color_entry = UINT32_C(0xFF) - static_cast<boost::uint_fast32_t>((boost::uint64_t(sum) * 0xFFU) / total);
+                  });
+
+    for(boost::uint_fast32_t row = UINT32_C(0); row < mandelbrot_configuration_object.height(); ++row)
+    {
+      for(boost::uint_fast32_t col = UINT32_C(0); col < mandelbrot_configuration_object.width(); ++col)
       {
-        boost::int16_t col_index = INT16_C(0);
+        const boost::uint8_t the_color = mandelbrot_color_histogram[mandelbrot_iteration_matrix[col][row]];
 
-        // Set the pixels of this row in the Mandelbrot image.
-        std::for_each(row_pixel_color_values.cbegin(),
-                      row_pixel_color_values.cend(),
-                      [&col_index, &row, &view](const boost::uint8_t& the_color)
-                      {
-                        view(col_index, row) = boost::gil::gray8_pixel_t(the_color);
-
-                        ++col_index;
-                      });
+        mandelbrot_view(col, row) = boost::gil::gray8_pixel_t(the_color);
       }
     }
 
-    boost::gil::jpeg_write_view("mandelbrot_hi_res.jpg", view);
+    boost::gil::jpeg_write_view("mandelbrot_hi_res.jpg", mandelbrot_view);
 
     std::cout << std::endl
               << "The ouptput file mandelbrot_hi_res.jpg has been written"
@@ -189,48 +244,51 @@ public:
   }
 
 private:
-  static boost::uint8_t get_color(const boost::uint_least16_t i)
+  const mandelbrot_configuration_base&           mandelbrot_configuration_object;
+  boost::gil::gray8_image_t                      mandelbrot_image;
+  boost::gil::gray8_view_t                       mandelbrot_view;
+  std::vector<std::vector<boost::uint_fast16_t>> mandelbrot_iteration_matrix;
+  std::vector<boost::uint_fast32_t>              mandelbrot_color_histogram;
+
+  boost::uint8_t get_color(const boost::uint_least16_t i)
   {
-    // Blend a classic black-and-white color scheme.
-
-    static std::vector<NumericType, AllocatorType> scale_factors;
-
-    // Initialize the color scale factors.
-    // TBD: Do this once only before pre-main static initialization.
-    if(scale_factors.empty())
-    {
-      scale_factors.resize(static_cast<std::size_t>(mandelbrot_configuration_type::max_iterations + 1U), NumericType(0));
-
-      static const NumericType fractional_power = NumericType(1) / 5;
-
-      for(std::size_t fi = UINT16_C(1); fi < scale_factors.size(); ++fi)
-      {
-        using std::pow;
-
-        scale_factors[fi] = pow(NumericType(fi) / mandelbrot_configuration_type::max_iterations, fractional_power);
-      }
-    }
-
-    const boost::uint8_t gray_tone = static_cast<boost::uint8_t>(float(0xFF) * (1.0F - scale_factors[i]));
-
-    return gray_tone;
+    return 0U;
   }
 };
 
 int main()
 {
-  typedef mandelbrot_configuration_type::fixed_point_type fixed_point_type;
+  typedef mandelbrot_configuration<128, UINT16_C(2000), -11> mandelbrot_configuration_type;
+  
+  const mandelbrot_configuration_type mandelbrot_configuration_object(-2.000L, +0.500L,
+                                                                      -1.000L, +1.000L);
+
+  //typedef mandelbrot_configuration<128, UINT16_C(2000), -21> mandelbrot_configuration_type;
+  //
+  //const mandelbrot_configuration_type mandelbrot_configuration_object(-0.749730L - 0.0002305L, -0.749730L + 0.0002305L,
+  //                                                                    -0.046608L - 0.0002305L, -0.046608L + 0.0002305L);
+
+  //typedef mandelbrot_configuration<128, UINT16_C(2000), -47> mandelbrot_configuration_type;
+  //
+  //const mandelbrot_configuration_type mandelbrot_configuration_object(-0.7453983606668L - 1.25E-11L, -0.7453983606668L + 1.25E-11L,
+  //                                                                    +0.1125046349960L - 1.25E-11L, +0.1125046349960L + 1.25E-11L);
+
+  typedef mandelbrot_configuration_type::fixed_point_type mandelbrot_numeric_type;
+
+  typedef mandelbrot_generator<mandelbrot_numeric_type> mandelbrot_generator_type;
+
+  mandelbrot_generator_type* the_mandelbrot_generator = new mandelbrot_generator_type(mandelbrot_configuration_object);
 
   const std::clock_t start = std::clock();
 
-  mandelbrot_generator<fixed_point_type>::generate_mandelbrot_image();
+  the_mandelbrot_generator->generate_mandelbrot_image();
 
-  const std::clock_t stop = std::clock();
-
-  const float elapsed = (float(stop) - float(start)) / float(CLOCKS_PER_SEC);
+  const float elapsed = (float(std::clock()) - float(start)) / CLOCKS_PER_SEC;
 
   std::cout << "Time for calculation: "
             << elapsed
             << "s"
             << std::endl;
+
+  delete the_mandelbrot_generator;
 }
