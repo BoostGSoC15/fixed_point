@@ -20,23 +20,23 @@
 
   namespace boost { namespace fixed_point {
 
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
-  negatable<Crng, Crsl, Crnd, Covf> abs(negatable<Crng, Crsl, Crnd, Covf> x)
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> abs(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
     return ((x.data < 0) ? -x : x);
   }
 
   //! @c std::fabs function (identical to abs and provided for completeness).
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
-  negatable<Crng, Crsl, Crnd, Covf> fabs(negatable<Crng, Crsl, Crnd, Covf> x)
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> fabs(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
     return ((x.data < 0) ? -x : x);
   }
 
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
-  negatable<Crng, Crsl, Crnd, Covf> floor(negatable<Crng, Crsl, Crnd, Covf> x)
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> floor(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    typedef negatable<Crng, Crsl, Crnd, Covf>                  local_negatable_type;
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::unsigned_small_type local_unsigned_small_type;
     typedef typename local_negatable_type::value_type          local_value_type;
     typedef typename local_negatable_type::nothing             local_nothing;
@@ -57,10 +57,10 @@
     }
   }
 
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
-  negatable<Crng, Crsl, Crnd, Covf> ceil(negatable<Crng, Crsl, Crnd, Covf> x)
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> ceil(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    typedef negatable<Crng, Crsl, Crnd, Covf>                  local_negatable_type;
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::value_type          local_value_type;
     typedef typename local_negatable_type::unsigned_small_type local_unsigned_small_type;
     typedef typename local_negatable_type::nothing             local_nothing;
@@ -81,8 +81,8 @@
     }
   }
 
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
-  negatable<Crng, Crsl, Crnd, Covf> trunc(negatable<Crng, Crsl, Crnd, Covf> x)
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> trunc(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
     const bool is_neg = (x.data < 0);
 
@@ -96,10 +96,10 @@
       \param exp2 Pointer to integer value to store the exponent to. 
       \returns fraction part as a @c negatable type.
   */
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
-  negatable<Crng, Crsl, Crnd, Covf> frexp(negatable<Crng, Crsl, Crnd, Covf> x, int* exp2)
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> frexp(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, int* exp2)
   {
-    typedef negatable<Crng, Crsl, Crnd, Covf>                  local_negatable_type;
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::unsigned_small_type local_unsigned_small_type;
     typedef typename local_negatable_type::value_type          local_value_type;
     typedef typename local_negatable_type::nothing             local_nothing;
@@ -153,10 +153,10 @@
       \param exp2 power of 2 to use to multiply.
       \return x * 2^exp2.
   */
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
-  negatable<Crng, Crsl, Crnd, Covf> ldexp(negatable<Crng, Crsl, Crnd, Covf> x, int exp2)
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> ldexp(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, int exp2)
   {
-    typedef negatable<Crng, Crsl, Crnd, Covf>                  local_negatable_type;
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::unsigned_small_type local_unsigned_small_type;
     typedef typename local_negatable_type::value_type          local_value_type;
     typedef typename local_negatable_type::nothing             local_nothing;
@@ -182,10 +182,10 @@
     }
   }
 
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
-  negatable<Crng, Crsl, Crnd, Covf> sqrt(negatable<Crng, Crsl, Crnd, Covf> x)
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sqrt(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    typedef negatable<Crng, Crsl, Crnd, Covf>                  local_negatable_type;
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::unsigned_small_type local_unsigned_small_type;
 
     // TBD: This implementation of square root seems to fail
@@ -248,10 +248,10 @@
     }
   }
 
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
-  negatable<Crng, Crsl, Crnd, Covf> exp(negatable<Crng, Crsl, Crnd, Covf> x)
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> exp(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     if(x == 0)
     {
@@ -285,10 +285,10 @@
     return ((!is_neg) ? exp_series : (1 / exp_series));
   }
 
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
-  negatable<Crng, Crsl, Crnd, Covf> log(negatable<Crng, Crsl, Crnd, Covf> x)
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> log(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     if(x <= 0)
     {
@@ -350,26 +350,26 @@
     }
   }
 
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
-  negatable<Crng, Crsl, Crnd, Covf> log2(negatable<Crng, Crsl, Crnd, Covf> x)
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> log2(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     return log(x) / local_negatable_type::value_ln_two();
   }
 
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
-  negatable<Crng, Crsl, Crnd, Covf> log10(negatable<Crng, Crsl, Crnd, Covf> x)
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> log10(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     return log(x) / log(local_negatable_type(10));
   }
 
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
-  negatable<Crng, Crsl, Crnd, Covf> pow(negatable<Crng, Crsl, Crnd, Covf> x, negatable<Crng, Crsl, Crnd, Covf> a)
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> pow(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> a)
   {
-    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     if(x == 0)
     {
@@ -381,42 +381,42 @@
     }
   }
 
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
-  negatable<Crng, Crsl, Crnd, Covf> sin(negatable<Crng, Crsl, Crnd, Covf> x)
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sin(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     return local_negatable_type(0);
   }
 
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
-  negatable<Crng, Crsl, Crnd, Covf> cos(negatable<Crng, Crsl, Crnd, Covf> x)
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> cos(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     return local_negatable_type(0);
   }
 
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
-  negatable<Crng, Crsl, Crnd, Covf> tan(negatable<Crng, Crsl, Crnd, Covf> x)
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> tan(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     return local_negatable_type(0);
   }
 
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
-  negatable<Crng, Crsl, Crnd, Covf> asin(negatable<Crng, Crsl, Crnd, Covf> x)
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> asin(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     return local_negatable_type(0);
   }
 
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
-  negatable<Crng, Crsl, Crnd, Covf> acos(negatable<Crng, Crsl, Crnd, Covf> x)
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> acos(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     // TBD: This version of acos is essentially non-functional because
     // it merely returns a sensible value for one and only one argument
@@ -435,26 +435,26 @@
     }
   }
 
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
-  negatable<Crng, Crsl, Crnd, Covf> atan(negatable<Crng, Crsl, Crnd, Covf> x)
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> atan(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     return local_negatable_type(0);
   }
 
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
-  negatable<Crng, Crsl, Crnd, Covf> atan2(negatable<Crng, Crsl, Crnd, Covf> y, negatable<Crng, Crsl, Crnd, Covf> x)
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> atan2(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     return local_negatable_type(0);
   }
 
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
-  negatable<Crng, Crsl, Crnd, Covf> sinh(negatable<Crng, Crsl, Crnd, Covf> x)
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sinh(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     const local_negatable_type ep = exp(x);
     const local_negatable_type em = 1 / ep;
@@ -462,10 +462,10 @@
     return (ep - em) / 2;
   }
 
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
-  negatable<Crng, Crsl, Crnd, Covf> cosh(negatable<Crng, Crsl, Crnd, Covf> x)
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> cosh(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     const local_negatable_type ep = exp(x);
     const local_negatable_type em = 1 / ep;
@@ -473,10 +473,10 @@
     return (ep + em) / 2;
   }
 
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
-  negatable<Crng, Crsl, Crnd, Covf> tanh(negatable<Crng, Crsl, Crnd, Covf> x)
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> tanh(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     const local_negatable_type ep = exp(x);
     const local_negatable_type em = 1 / ep;
@@ -484,26 +484,26 @@
     return (ep - em) / (ep + em);
   }
 
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
-  negatable<Crng, Crsl, Crnd, Covf> asinh(negatable<Crng, Crsl, Crnd, Covf> x)
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> asinh(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     return local_negatable_type(0);
   }
 
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
-  negatable<Crng, Crsl, Crnd, Covf> acosh(negatable<Crng, Crsl, Crnd, Covf> x)
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> acosh(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     return local_negatable_type(0);
   }
 
-  template<const int Crng, const int Crsl, typename Crnd, typename Covf>
-  negatable<Crng, Crsl, Crnd, Covf> atanh(negatable<Crng, Crsl, Crnd, Covf> x)
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> atanh(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    typedef negatable<Crng, Crsl, Crnd, Covf> local_negatable_type;
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     return local_negatable_type(0);
   }
