@@ -265,8 +265,8 @@ private:
 
 int main()
 {
-  // This is the classic full immage rendered in baby-blue tones and black.
-  typedef mandelbrot_configuration<128, UINT16_C(4000), -10,
+  // This is the classic full immage rendered in aqua tones and black.
+  typedef mandelbrot_configuration<64, UINT16_C(600), -11,
                                    UINT32_C(80),
                                    UINT32_C(255),
                                    UINT32_C(255)> mandelbrot_configuration_type;
@@ -274,7 +274,7 @@ int main()
   const mandelbrot_configuration_type mandelbrot_configuration_object(-2.000L, +0.500L,
                                                                       -1.000L, +1.000L);
 
-  // This is a fanning image rendered in fuschia tones and black.
+  // This is a swirling image rendered in fuschia tones and black.
   //typedef mandelbrot_configuration<128, UINT16_C(10000), -22,
   //                                 UINT32_C(255),
   //                                 UINT32_C(0),
@@ -283,7 +283,7 @@ int main()
   //const mandelbrot_configuration_type mandelbrot_configuration_object(-0.749730L - 0.0002315L, -0.749730L + 0.0002315L,
   //                                                                    -0.046608L - 0.0002315L, -0.046608L + 0.0002315L);
 
-  // This is a swirly kind-of-rectangular image rendered in gray tones and black.
+  // This is a collection of seahorse images rendered in gray tones and black.
   //typedef mandelbrot_configuration<128, UINT16_C(10000), -46,
   //                                 UINT32_C(255),
   //                                 UINT32_C(255),
