@@ -60,10 +60,9 @@ run fixed_point_limits.cpp ;
 run fixed_point_constants.cpp ;
 run fixed_point_type_examples.cpp ;
 
-#  These two need a jpeg library (such as jpeg-6b on windows or libjpeg on *nix)
+#  The Mandelbrot set example needs a jpeg library (such as jpeg-6b on windows or libjpeg on *nix)
 
-#run fixed_point_mandelbrot_lo_res.cpp ;
-#run fixed_point_mandelbrot_hi_res.cpp ;
+#run fixed_point_mandelbrot.cpp ;
 
 run fixed_point_bernoulli_b2n.cpp ;
 
