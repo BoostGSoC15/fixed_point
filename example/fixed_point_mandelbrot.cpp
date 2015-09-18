@@ -237,7 +237,7 @@ public:
       {
         const boost::uint_fast32_t color = mandelbrot_color_histogram[mandelbrot_iteration_matrix[col][row]];
 
-        // Mix a baby-blue color.
+        // Mix the color.
         const boost::uint8_t rh = static_cast<boost::uint8_t>((mandelbrot_configuration_object.red_hue  () * color) / UINT32_C(255));
         const boost::uint8_t gh = static_cast<boost::uint8_t>((mandelbrot_configuration_object.green_hue() * color) / UINT32_C(255));
         const boost::uint8_t bh = static_cast<boost::uint8_t>((mandelbrot_configuration_object.blue_hue () * color) / UINT32_C(255));
@@ -266,7 +266,7 @@ private:
 int main()
 {
   // This is the classic full immage rendered in baby-blue tones and black.
-  typedef mandelbrot_configuration<128, UINT16_C(10000), -11,
+  typedef mandelbrot_configuration<128, UINT16_C(4000), -10,
                                    UINT32_C(80),
                                    UINT32_C(255),
                                    UINT32_C(255)> mandelbrot_configuration_type;
