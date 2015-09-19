@@ -169,16 +169,16 @@ public:
         NumericType zr_sqr(0);
         NumericType zi_sqr(0);
 
+        // Perform the iteration sequence for generating the Mandelbrot set.
+        // Herein lies the work of the program.
+        // TBD: This can easily be distributed to parallel processes.
+
         // Use an optimized complex-numbered multiplication scheme.
         // Thereby reduce the main work of the Mandelbrot iteration to
         // three real-valued multiplications and several real-valued
         // addition/subtraction operations.
 
         boost::uint_fast16_t i = UINT16_C(0);
-
-        // Perform the iteration sequence for generating the Mandelbrot set.
-        // Herein lies the work of the program.
-        // TBD: This can easily be distributed to parallel processes.
 
         while(   (i < mandelbrot_configuration_object.max_iterations())
               && ((zr_sqr + zi_sqr) < 4))
@@ -237,7 +237,7 @@ public:
       {
         const boost::uint_fast32_t color = mandelbrot_color_histogram[mandelbrot_iteration_matrix[col][row]];
 
-        // Mix the color.
+        // Mix the color for the given point.
         const boost::uint8_t rh = static_cast<boost::uint8_t>((mandelbrot_configuration_object.red_hue  () * color) / UINT32_C(255));
         const boost::uint8_t gh = static_cast<boost::uint8_t>((mandelbrot_configuration_object.green_hue() * color) / UINT32_C(255));
         const boost::uint8_t bh = static_cast<boost::uint8_t>((mandelbrot_configuration_object.blue_hue () * color) / UINT32_C(255));
@@ -265,17 +265,26 @@ private:
 
 int main()
 {
-  // This is the classic full immage rendered in aqua tones and black.
-  typedef mandelbrot_configuration<64, UINT16_C(600), -11,
-                                   UINT32_C(80),
-                                   UINT32_C(255),
-                                   UINT32_C(255)> mandelbrot_configuration_type;
+  // This is the classic full image rendered in aqua and black tones.
+  //typedef mandelbrot_configuration<128, UINT16_C(200), -11,
+  //                                 UINT32_C(80),
+  //                                 UINT32_C(255),
+  //                                 UINT32_C(255)> mandelbrot_configuration_type;
 
-  const mandelbrot_configuration_type mandelbrot_configuration_object(-2.000L, +0.500L,
-                                                                      -1.000L, +1.000L);
+  //const mandelbrot_configuration_type mandelbrot_configuration_object(-2.0L, +0.5L,
+  //                                                                    -1.0L, +1.0L);
 
-  // This is a swirling image rendered in fuschia tones and black.
-  //typedef mandelbrot_configuration<128, UINT16_C(10000), -22,
+  // This is an upper part of the image rendered in yellow and black tones.
+  //typedef mandelbrot_configuration<128, UINT16_C(2000), -13,
+  //                                 UINT32_C(255),
+  //                                 UINT32_C(255),
+  //                                 UINT32_C(0)> mandelbrot_configuration_type;
+
+  //const mandelbrot_configuration_type mandelbrot_configuration_object(-0.1208L - 0.1616L, -0.1208L + 0.1616L,
+  //                                                                    +0.7607L - 0.1616L, +0.7607L + 0.1616L);
+
+  // This is a swirling seahorse panout image rendered in fuschia and black tones.
+  //typedef mandelbrot_configuration<128, UINT16_C(10000), -23,
   //                                 UINT32_C(255),
   //                                 UINT32_C(0),
   //                                 UINT32_C(210)> mandelbrot_configuration_type;
@@ -283,14 +292,14 @@ int main()
   //const mandelbrot_configuration_type mandelbrot_configuration_object(-0.749730L - 0.0002315L, -0.749730L + 0.0002315L,
   //                                                                    -0.046608L - 0.0002315L, -0.046608L + 0.0002315L);
 
-  // This is a collection of seahorse images rendered in gray tones and black.
-  //typedef mandelbrot_configuration<128, UINT16_C(10000), -46,
-  //                                 UINT32_C(255),
-  //                                 UINT32_C(255),
-  //                                 UINT32_C(255)> mandelbrot_configuration_type;
+  // This is a rectangular collection of seahorses rendered in black and white tones.
+  typedef mandelbrot_configuration<128, UINT16_C(10000), -47,
+                                   UINT32_C(255),
+                                   UINT32_C(255),
+                                   UINT32_C(255)> mandelbrot_configuration_type;
 
-  //const mandelbrot_configuration_type mandelbrot_configuration_object(-0.745398360667L - 1.25E-11L, -0.745398360667L + 1.25E-11L,
-  //                                                                    +0.112504634996L - 1.25E-11L, +0.112504634996L + 1.25E-11L);
+  const mandelbrot_configuration_type mandelbrot_configuration_object(-0.745398360667L - 1.25E-11L, -0.745398360667L + 1.25E-11L,
+                                                                      +0.112504634996L - 1.25E-11L, +0.112504634996L + 1.25E-11L);
 
   typedef mandelbrot_configuration_type::fixed_point_type mandelbrot_numeric_type;
 
