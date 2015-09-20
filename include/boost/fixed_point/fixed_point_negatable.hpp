@@ -541,19 +541,19 @@
     }
 
     //! Equality operators for built-in integral types.
-    negatable& operator=(const signed char&        n) { data = make_from_signed_integral_type(n); return *this; }
-    negatable& operator=(const signed short&       n) { data = make_from_signed_integral_type(n); return *this; }
-    negatable& operator=(const signed int&         n) { data = make_from_signed_integral_type(n); return *this; }
-    negatable& operator=(const signed long&        n) { data = make_from_signed_integral_type(n); return *this; }
-    negatable& operator=(const signed long long&   n) { data = make_from_signed_integral_type(n); return *this; }
-    negatable& operator=(const unsigned char&      u) { data = make_from_signed_integral_type(u); return *this; }
-    negatable& operator=(const unsigned short&     u) { data = make_from_signed_integral_type(u); return *this; }
-    negatable& operator=(const unsigned int&       u) { data = make_from_signed_integral_type(u); return *this; }
-    negatable& operator=(const unsigned long&      u) { data = make_from_signed_integral_type(u); return *this; }
-    negatable& operator=(const unsigned long long& u) { data = make_from_signed_integral_type(u); return *this; }
-    negatable& operator=(const float&              f) { data = make_from_floating_point_type (f); return *this; }
-    negatable& operator=(const double&             f) { data = make_from_floating_point_type (f); return *this; }
-    negatable& operator=(const long double&        f) { data = make_from_floating_point_type (f); return *this; }
+    negatable& operator=(const signed char&        n) { data = make_from_signed_integral_type  (n); return *this; }
+    negatable& operator=(const signed short&       n) { data = make_from_signed_integral_type  (n); return *this; }
+    negatable& operator=(const signed int&         n) { data = make_from_signed_integral_type  (n); return *this; }
+    negatable& operator=(const signed long&        n) { data = make_from_signed_integral_type  (n); return *this; }
+    negatable& operator=(const signed long long&   n) { data = make_from_signed_integral_type  (n); return *this; }
+    negatable& operator=(const unsigned char&      u) { data = make_from_unsigned_integral_type(u); return *this; }
+    negatable& operator=(const unsigned short&     u) { data = make_from_unsigned_integral_type(u); return *this; }
+    negatable& operator=(const unsigned int&       u) { data = make_from_unsigned_integral_type(u); return *this; }
+    negatable& operator=(const unsigned long&      u) { data = make_from_unsigned_integral_type(u); return *this; }
+    negatable& operator=(const unsigned long long& u) { data = make_from_unsigned_integral_type(u); return *this; }
+    negatable& operator=(const float&              f) { data = make_from_floating_point_type   (f); return *this; }
+    negatable& operator=(const double&             f) { data = make_from_floating_point_type   (f); return *this; }
+    negatable& operator=(const long double&        f) { data = make_from_floating_point_type   (f); return *this; }
 
     //! Unary pre-increment and pre-decrement operators.
     negatable& operator++()   { data += value_type(unsigned_small_type(1) << radix_split); return *this; }
