@@ -271,7 +271,7 @@
 
     if(xx > local_negatable_type::value_ln_two())
     {
-      const boost::uint_fast16_t nf = floor(xx / local_negatable_type::value_ln_two());
+      const boost::uint_fast16_t nf = static_cast<boost::uint_fast16_t>(floor(xx / local_negatable_type::value_ln_two()));
 
       const local_negatable_type scaled_argument = xx - (local_negatable_type::value_ln_two() * nf);
 
