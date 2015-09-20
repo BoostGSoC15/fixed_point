@@ -292,19 +292,19 @@
 
     /*! Constructors from built-in signed integral types.
     */
-    BOOST_CONSTEXPR negatable(const signed char&        n) : data() { make_from_signed_integral_type(n); }
-    BOOST_CONSTEXPR negatable(const signed short&       n) : data() { make_from_signed_integral_type(n); }
-    BOOST_CONSTEXPR negatable(const signed int&         n) : data() { make_from_signed_integral_type(n); }
-    BOOST_CONSTEXPR negatable(const signed long&        n) : data() { make_from_signed_integral_type(n); }
-    BOOST_CONSTEXPR negatable(const signed long long&   n) : data() { make_from_signed_integral_type(n); }
+    BOOST_CONSTEXPR negatable(const signed char&        n) : data(make_from_signed_integral_type(n)) { }
+    BOOST_CONSTEXPR negatable(const signed short&       n) : data(make_from_signed_integral_type(n)) { }
+    BOOST_CONSTEXPR negatable(const signed int&         n) : data(make_from_signed_integral_type(n)) { }
+    BOOST_CONSTEXPR negatable(const signed long&        n) : data(make_from_signed_integral_type(n)) { }
+    BOOST_CONSTEXPR negatable(const signed long long&   n) : data(make_from_signed_integral_type(n)) { }
 
     /*! Constructors from built-in unsigned integral types.
     */
-    BOOST_CONSTEXPR negatable(const unsigned char&      u) : data() { make_from_unsigned_integral_type(u); }
-    BOOST_CONSTEXPR negatable(const unsigned short&     u) : data() { make_from_unsigned_integral_type(u); }
-    BOOST_CONSTEXPR negatable(const unsigned int&       u) : data() { make_from_unsigned_integral_type(u); }
-    BOOST_CONSTEXPR negatable(const unsigned long&      u) : data() { make_from_unsigned_integral_type(u); }
-    BOOST_CONSTEXPR negatable(const unsigned long long& u) : data() { make_from_unsigned_integral_type(u); }
+    BOOST_CONSTEXPR negatable(const unsigned char&      u) : data(make_from_unsigned_integral_type(u)) { }
+    BOOST_CONSTEXPR negatable(const unsigned short&     u) : data(make_from_unsigned_integral_type(u)) { }
+    BOOST_CONSTEXPR negatable(const unsigned int&       u) : data(make_from_unsigned_integral_type(u)) { }
+    BOOST_CONSTEXPR negatable(const unsigned long&      u) : data(make_from_unsigned_integral_type(u)) { }
+    BOOST_CONSTEXPR negatable(const unsigned long long& u) : data(make_from_unsigned_integral_type(u)) { }
 
     template<typename ValueType>
     negatable(const ValueType& n,
@@ -318,17 +318,14 @@
         Example: negatable<15,-16> x(2.3L);\n
         (Overflow and underflow is, of course, possible).
     */
-    BOOST_CONSTEXPR negatable(const float&       f) : data() { make_from_floating_point_type(f); }
-    BOOST_CONSTEXPR negatable(const double&      f) : data() { make_from_floating_point_type(f); }
-    BOOST_CONSTEXPR negatable(const long double& f) : data() { make_from_floating_point_type(f); }
+    BOOST_CONSTEXPR negatable(const float&       f) : data(make_from_floating_point_type(f)) { }
+    BOOST_CONSTEXPR negatable(const double&      f) : data(make_from_floating_point_type(f)) { }
+    BOOST_CONSTEXPR negatable(const long double& f) : data(make_from_floating_point_type(f)) { }
 
     template<typename FloatingPointType>
     negatable(const FloatingPointType& f,
               typename std::enable_if<std::is_same<FloatingPointType, float_type>::value>::type const* = nullptr)
-      : data()
-    {
-      make_from_floating_point_type(f);
-    }
+      : data(make_from_floating_point_type(f)) { }
 
     /*! Copy constructor.
     */
@@ -544,19 +541,19 @@
     }
 
     //! Equality operators for built-in integral types.
-    negatable& operator=(const signed char&        n) { make_from_signed_integral_type  (n); return *this; }
-    negatable& operator=(const signed short&       n) { make_from_signed_integral_type  (n); return *this; }
-    negatable& operator=(const signed int&         n) { make_from_signed_integral_type  (n); return *this; }
-    negatable& operator=(const signed long&        n) { make_from_signed_integral_type  (n); return *this; }
-    negatable& operator=(const signed long long&   n) { make_from_signed_integral_type  (n); return *this; }
-    negatable& operator=(const unsigned char&      u) { make_from_signed_integral_type  (u); return *this; }
-    negatable& operator=(const unsigned short&     u) { make_from_signed_integral_type  (u); return *this; }
-    negatable& operator=(const unsigned int&       u) { make_from_signed_integral_type  (u); return *this; }
-    negatable& operator=(const unsigned long&      u) { make_from_signed_integral_type  (u); return *this; }
-    negatable& operator=(const unsigned long long& u) { make_from_signed_integral_type  (u); return *this; }
-    negatable& operator=(const float&              f) { make_from_floating_point_type   (f); return *this; }
-    negatable& operator=(const double&             f) { make_from_floating_point_type   (f); return *this; }
-    negatable& operator=(const long double&        f) { make_from_floating_point_type   (f); return *this; }
+    negatable& operator=(const signed char&        n) { data = make_from_signed_integral_type(n); return *this; }
+    negatable& operator=(const signed short&       n) { data = make_from_signed_integral_type(n); return *this; }
+    negatable& operator=(const signed int&         n) { data = make_from_signed_integral_type(n); return *this; }
+    negatable& operator=(const signed long&        n) { data = make_from_signed_integral_type(n); return *this; }
+    negatable& operator=(const signed long long&   n) { data = make_from_signed_integral_type(n); return *this; }
+    negatable& operator=(const unsigned char&      u) { data = make_from_signed_integral_type(u); return *this; }
+    negatable& operator=(const unsigned short&     u) { data = make_from_signed_integral_type(u); return *this; }
+    negatable& operator=(const unsigned int&       u) { data = make_from_signed_integral_type(u); return *this; }
+    negatable& operator=(const unsigned long&      u) { data = make_from_signed_integral_type(u); return *this; }
+    negatable& operator=(const unsigned long long& u) { data = make_from_signed_integral_type(u); return *this; }
+    negatable& operator=(const float&              f) { data = make_from_floating_point_type (f); return *this; }
+    negatable& operator=(const double&             f) { data = make_from_floating_point_type (f); return *this; }
+    negatable& operator=(const long double&        f) { data = make_from_floating_point_type (f); return *this; }
 
     //! Unary pre-increment and pre-decrement operators.
     negatable& operator++()   { data += value_type(unsigned_small_type(1) << radix_split); return *this; }
@@ -903,23 +900,24 @@
               const IntegralType& n) : data(static_cast<value_type>(n)) { }
 
     template<typename UnsignedIntegralType>
-    void make_from_unsigned_integral_type(const UnsignedIntegralType& u)
+    static value_type make_from_unsigned_integral_type(const UnsignedIntegralType& u)
     {
-      data = (value_type(unsigned_small_type(unsigned_small_type(u) << radix_split) & unsigned_small_mask()));
+      // Here, we make a negatable value_type from an unsigned integral source value.
+      return value_type(unsigned_small_type(unsigned_small_type(u) << radix_split) & unsigned_small_mask());
     }
 
     template<typename SignedIntegralType>
-    void make_from_signed_integral_type(const SignedIntegralType& n)
+    static value_type make_from_signed_integral_type(const SignedIntegralType& n)
     {
-      data = ((!(n < 0)) ? +value_type((unsigned_small_type(+n) << radix_split) & unsigned_small_mask())
+      // Here, we make a negatable value_type from a signed integral source value.
+      return ((!(n < 0)) ? +value_type((unsigned_small_type(+n) << radix_split) & unsigned_small_mask())
                          : -value_type((unsigned_small_type(-n) << radix_split) & unsigned_small_mask()));
     }
 
     template<typename FloatingPointType>
-    void make_from_floating_point_type(const FloatingPointType& f)
+    static value_type make_from_floating_point_type(const FloatingPointType& f)
     {
-      // Here, we make (in *this) a negatable data value from
-      // a floating-point source value
+      // Here, we make a negatable value_type from a floating-point source value.
 
       // If the number of digits in the floating-point source type and
       // the number of digits in the target data value type differ,
@@ -994,7 +992,7 @@
       u_round = (u_round & unsigned_small_mask());
 
       // Load the fixed-point result (and account for potentially signed values).
-      data = value_type((!is_neg) ? value_type(u_round) : -value_type(u_round));
+      return value_type((!is_neg) ? value_type(u_round) : -value_type(u_round));
     }
 
     /*! Convert the fixed_point value to FloatingPointType result.
@@ -1729,7 +1727,7 @@
       static_cast<void>(in >> v);
 
       // Subsequently make a fixed-point object from it.
-      x.make_from_floating_point_type(v);
+      x.data = negatable_type::make_from_floating_point_type(v);
 
       return in;
     }
