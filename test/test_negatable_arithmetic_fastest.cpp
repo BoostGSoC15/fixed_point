@@ -308,12 +308,12 @@ void test ()
 
 BOOST_AUTO_TEST_CASE(test_negatable_arithmetic)
 {
-  test<boost::fixed_point::negatable< 18,  -13, boost::fixed_point::round::fastest> >();
-  test<boost::fixed_point::negatable< 18,  -34, boost::fixed_point::round::fastest> >();
-  test<boost::fixed_point::negatable< 18,  -45, boost::fixed_point::round::fastest> >();
-  test<boost::fixed_point::negatable< 20,  -11, boost::fixed_point::round::fastest> >();
-  test<boost::fixed_point::negatable< 24,   -7, boost::fixed_point::round::fastest> >();
-  test<boost::fixed_point::negatable<100,  -12, boost::fixed_point::round::fastest> >();
-  test<boost::fixed_point::negatable< 22,  -90, boost::fixed_point::round::fastest> >();
-  test<boost::fixed_point::negatable<100, -139, boost::fixed_point::round::fastest> >();
+  test<boost::fixed_point::negatable< 18,  -13, boost::fixed_point::round::fastest>>();
+  test<boost::fixed_point::negatable< 18,  -34, boost::fixed_point::round::fastest>>();
+  test<boost::fixed_point::negatable< 18,  -45, boost::fixed_point::round::fastest>>();
+  test<boost::fixed_point::negatable< 20,  -11, boost::fixed_point::round::fastest>>();
+  test<boost::fixed_point::negatable< 24,   -7, boost::fixed_point::round::fastest>>();
+  test<boost::fixed_point::negatable<100,  -12, boost::fixed_point::round::fastest>>();
+  test<boost::fixed_point::negatable< 22,  -90, boost::fixed_point::round::fastest>>();
+  test<boost::fixed_point::negatable<100, -139, boost::fixed_point::round::fastest>>();
 }
