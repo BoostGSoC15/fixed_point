@@ -25,12 +25,12 @@ BOOST_AUTO_TEST_CASE(test_negatable_bernoulli_b2n)
   // fixed-point Bernoulli numbers and test them with tabulated
   // control values.
 
-  BOOST_CONSTEXPR_OR_CONST std::size_t number_of_bernoulli_b2n = 22U;
+  BOOST_CONSTEXPR_OR_CONST std::size_t number_of_bernoulli_b2n     =   22U;
   BOOST_CONSTEXPR_OR_CONST int         resolution_of_bernoulli_b2n = -280;
 
   // Here is a table of the text-based control values.
-  const char* b2n_float_control[number_of_bernoulli_b2n] =
-  {
+  BOOST_CONSTEXPR_OR_CONST std::array<const char*, number_of_bernoulli_b2n> b2n_float_control =
+  {{
     "+1.00000000000000000000000000000000000000000000000000000000000000000000000000000000000",
     "+0.16666666666666666666666666666666666666666666666666666666666666666666666666666666667",
     "-0.03333333333333333333333333333333333333333333333333333333333333333333333333333333333",
@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_bernoulli_b2n)
     "+488332318973593.166666666666666666666666666666666666666666666666666666666666666666667",
     "-19296579341940068.1486326681448632668144863266814486326681448632668144863266814486327",
     "+841693047573682615.000553709856035437430786267995570321151716500553709856035437430786"
-  };
+  }};
 
   // Make a very large fixed-point type with an asymetrically large integral range.
   typedef boost::fixed_point::negatable<2047 + resolution_of_bernoulli_b2n,
@@ -76,7 +76,8 @@ BOOST_AUTO_TEST_CASE(test_negatable_bernoulli_b2n)
   // Search for a potential mismatch between the fixed-point
   // Bernoulli numbers and the text-based control values.
   // Here, the control values are first converted to a multiprecision
-  // floating-point type and subsequently to a fixed-point type.
+  // floating-point type and subsequently to a fixed-point type
+  // for the comparisons.
 
   for(std::size_t i = 0U; i < number_of_bernoulli_b2n; ++i)
   {
