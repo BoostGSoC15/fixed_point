@@ -23,6 +23,12 @@ g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-unin
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_cbrt_nearest_even.cpp -o test_negatable_cbrt_nearest_even.exe
 .\test_negatable_cbrt_nearest_even.exe
 
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_exp_fastest.cpp -o test_negatable_exp_fastest.exe
+.\test_negatable_exp_fastest.exe
+
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_exp_nearest_even.cpp -o test_negatable_exp_nearest_even.exe
+.\test_negatable_exp_nearest_even.exe
+
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_floor_ceil.cpp -o test_negatable_floor_ceil.exe
 .\test_negatable_floor_ceil.exe
 
@@ -37,6 +43,12 @@ g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-unin
 
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_local_constants_pi.cpp -o test_negatable_local_constants_pi.exe
 .\test_negatable_local_constants_pi.exe
+
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_log_fastest.cpp -o test_negatable_log_fastest.exe
+.\test_negatable_log_fastest.exe
+
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_log_nearest_even.cpp -o test_negatable_log_nearest_even.exe
+.\test_negatable_log_nearest_even.exe
 
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_mixed_constructors_part1.cpp -o test_negatable_mixed_constructors_part1.exe
 .\test_negatable_mixed_constructors_part1.exe
