@@ -14,7 +14,7 @@
     \details This is a partial reference implementation for the proposed by
        Lawrence Crowl, "C++ binary fixed-point arithmetic" as specified in N3352.\n
 
-   In this particular file, we implement a prototype for the proposed
+   In this file, we implement a prototype for the proposed
    @b negatable template class. (See fixed_point_nonnegative.hpp for an unsigned version).\n
    \sa http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html
 */
@@ -82,9 +82,12 @@
 
   #include <boost/fixed_point/detail/fixed_point_detail.hpp>
   #include <boost/fixed_point/detail/fixed_point_detail_constants.hpp>
-  #include <boost/fixed_point/detail/fixed_point_detail_hypergeometric.hpp>
   #include <boost/fixed_point/fixed_point_overflow.hpp>
   #include <boost/fixed_point/fixed_point_round.hpp>
+
+  // At the end of this file, we include headers for <cmath>
+  // functions for the negatable type and also for specializations
+  // of std::numeric_limits<negatable>.
 
   static_assert(std::numeric_limits<boost::uint8_t >::digits ==  8, "Configuration error: The size of boost::uint8_t  must be 8  bits!");
   static_assert(std::numeric_limits<boost::uint16_t>::digits == 16, "Configuration error: The size of boost::uint16_t must be 16 bits!");
@@ -104,6 +107,40 @@
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   struct negatable_constants<negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>>;
 
+  // Forward declarations of non-member binary add, sub, mul, div of (negatable op arithmetic_type).
+  template<typename ArithmeticType,
+           const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>>::type operator+(const negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>& u, const ArithmeticType& v);
+
+  template<typename ArithmeticType,
+           const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>>::type operator-(const negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>& u, const ArithmeticType& v);
+
+  template<typename ArithmeticType,
+           const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>>::type operator*(const negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>& u, const ArithmeticType& v);
+
+  template<typename ArithmeticType,
+           const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>>::type operator/(const negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>& u, const ArithmeticType& v);
+
+  // Forward declarations of non-member binary add, sub, mul, div of (arithmetic_type op negatable).
+  template<typename ArithmeticType,
+           const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>>::type operator+(const ArithmeticType& u, const negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>& v);
+
+  template<typename ArithmeticType,
+           const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>>::type operator-(const ArithmeticType& u, const negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>& v);
+
+  template<typename ArithmeticType,
+           const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>>::type operator*(const ArithmeticType& u, const negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>& v);
+
+  template<typename ArithmeticType,
+           const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>>::type operator/(const ArithmeticType& u, const negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>& v);
+
   #if !defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
 
     // Forward declarations of I/O streaming functions.
@@ -118,6 +155,8 @@
   #endif
 
   // Forward declarations of <cmath> transcendental functions.
+  // TBD: Implement all <cmath> transcendental functions.
+
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> abs  (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> fabs (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> floor(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
@@ -144,9 +183,6 @@
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> asinh(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> acosh(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> atanh(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
-
-  // TBD: Implement all <cmath> transcendental functions.
-
   } } // namespace boost::fixed_point:
 
   namespace std
@@ -267,9 +303,7 @@
        Fixed_point Type class boost::fixed_point::negatable<10,-53,struct boost::fixed_point::round::fastest,struct boost::fixed_point::overflow::undefined> with range 10, resolution -53
        value_type is __int64
        float_type is class boost::multiprecision::number<class boost::multiprecision::backends::cpp_bin_float<63,2,void,int,0,0>,0>
-
       \endcode
-
     */
     typedef typename detail::float_type_helper<boost::uint32_t(all_bits - 1)>::exact_float_type float_type;
 
@@ -325,7 +359,8 @@
                                                                && (std::numeric_limits<UnsignedIntegralType>::digits > IntegralRange)>::type const* = nullptr)
       : data(make_from_unsigned_integral_type(u)) { }
 
-    /*! Constructors from non-built-in value_type and non-built-in unsigned_small_type (i.e. when these are multiprecision types).
+    /*! Constructors enabled when value_type and unsigned_small_type are non-built-in types.\n
+        These constructors are explicit.
     */
 
     template<typename ValueType>
@@ -478,6 +513,9 @@
       const boost::int_fast8_t rounding_result = binary_round(u_round);
 
       // Add or subtract the result of the rounding (-1, 0, or +1).
+      // With round modes fastest and nearest even, there is no need
+      // for special code for handling underflow. But be aware of
+      // underflow issues if other rounding modes are supported.
       if     (rounding_result == INT8_C(+1)) { ++u_round; }
       else if(rounding_result == INT8_C(-1)) { --u_round; }
 
@@ -518,6 +556,9 @@
       u_round = (u_round & unsigned_small_mask());
 
       // Add or subtract the result of the rounding (-1, 0, or +1).
+      // With round modes fastest and nearest even, there is no need
+      // for special code for handling underflow. But be aware of
+      // underflow issues if other rounding modes are supported.
       if     (rounding_result == INT8_C(+1)) { ++u_round; }
       else if(rounding_result == INT8_C(-1)) { --u_round; }
 
@@ -532,7 +573,7 @@
 
     /*! Assigment operators.\n
     */
-    // This is the standard equality operator.
+    // This is the standard assigment operator.
     negatable& operator=(const negatable& other)
     {
       if(this != (&other))
@@ -569,7 +610,6 @@
     }
 
     //! Assignment operators for built-in integral types.
-
     template<typename SignedIntegralType,
              typename std::enable_if<   (std::is_integral<SignedIntegralType>::value == true)
                                      && (std::is_signed  <SignedIntegralType>::value == true)
@@ -609,7 +649,7 @@
     negatable operator++(int) { const negatable tmp(*this); data += value_type(unsigned_small_type(1) << radix_split); return tmp; }
     negatable operator--(int) { const negatable tmp(*this); data -= value_type(unsigned_small_type(1) << radix_split); return tmp; }
 
-    //! Unary operator add of (negatable + negatable).
+    //! Unary operator add of (*this += negatable).
     negatable& operator+=(const negatable& v)
     {
       data += v.data;
@@ -625,7 +665,7 @@
       return *this;
     }
 
-    //! Unary operator subtract of (negatable - negatable).
+    //! Unary operator subtract of (*this -= negatable).
     negatable& operator-=(const negatable& v)
     {
       data -= v.data;
@@ -641,7 +681,7 @@
       return *this;
     }
 
-    //! Unary operator multiply of (negatable * negatable).
+    //! Unary operator multiply of (*this *= negatable).
     negatable& operator*=(const negatable& v)
     {
       const bool u_is_neg      = (  data < 0);
@@ -685,6 +725,9 @@
       const boost::int_fast8_t rounding_result = binary_round(u_round);
 
       // Add or subtract the result of the rounding (-1, 0, or +1).
+      // With round modes fastest and nearest even, there is no need
+      // for special code for handling underflow. But be aware of
+      // underflow issues if other rounding modes are supported.
       if     (rounding_result == INT8_C(+1)) { ++u_round; }
       else if(rounding_result == INT8_C(-1)) { --u_round; }
 
@@ -696,7 +739,7 @@
       return *this;
     }
 
-    //! Unary operator divide of (negatable / negatable).
+    //! Unary operator divide of (*this /= negatable).
     negatable& operator/=(const negatable& v)
     {
       if(v.data == 0)
@@ -743,6 +786,9 @@
         const boost::int_fast8_t rounding_result = binary_round(u_round);
 
         // Add or subtract the result of the rounding (-1, 0, or +1).
+        // With round modes fastest and nearest even, there is no need
+        // for special code for handling underflow. But be aware of
+        // underflow issues if other rounding modes are supported.
         if     (rounding_result == INT8_C(+1)) { ++u_round; }
         else if(rounding_result == INT8_C(-1)) { --u_round; }
 
@@ -755,6 +801,7 @@
       return *this;
     }
 
+    //! Unary operators add, sub, mul, div of (*this op= negatable).
     template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> negatable& operator+=(const ArithmeticType& a) { return (*this) += negatable(a); }
     template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> negatable& operator-=(const ArithmeticType& a) { return (*this) -= negatable(a); }
     template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> negatable& operator*=(const ArithmeticType& a) { return (*this) *= negatable(a); }
@@ -970,6 +1017,9 @@
         (rounding_is_to_be_carried_out ? binary_round(u_round) : INT8_C(0));
 
       // Add or subtract the result of the rounding (-1, 0, or +1).
+      // With round modes fastest and nearest even, there is no need
+      // for special code for handling underflow. But be aware of
+      // underflow issues if other rounding modes are supported.
       if     (rounding_result == INT8_C(+1)) { ++u_round; }
       else if(rounding_result == INT8_C(-1)) { --u_round; }
 
@@ -1034,6 +1084,9 @@
           const boost::int_fast8_t rounding_result = binary_round(u);
 
           // Add or subtract the result of the rounding (-1, 0, or +1).
+          // With round modes fastest and nearest even, there is no need
+          // for special code for handling underflow. But be aware of
+          // underflow issues if other rounding modes are supported.
           f += FloatingPointType(rounding_result);
         }
 
@@ -1243,67 +1296,7 @@
     friend inline negatable operator+(const negatable& self) { return negatable(self); }
     friend inline negatable operator-(const negatable& self) { negatable tmp(self); tmp.data = -tmp.data; return tmp; }
 
-    //! Implementations of non-member binary add, sub, mul, div of [lhs(negatable)] operator [rhs(arithmetic_type)].
-    // TBD: These do not necessarily need to be friends of the negatable class.
-    template<typename ArithmeticType>
-    friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type
-    operator+(const negatable& u, const ArithmeticType& v)
-    {
-      return negatable(u) += v;
-    }
-
-    template<typename ArithmeticType>
-    friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type
-    operator-(const negatable& u, const ArithmeticType& v)
-    {
-      return negatable(u) -= v;
-    }
-
-    template<typename ArithmeticType>
-    friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type
-    operator*(const negatable& u, const ArithmeticType& v)
-    {
-      return negatable(u) *= v;
-    }
-
-    template<typename ArithmeticType>
-    friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type
-    operator/(const negatable& u, const ArithmeticType& v)
-    {
-      return negatable(u) /= v;
-    }
-
-    //! Implementations of non-member binary add, sub, mul, div of [lhs(arithmetic_type)] operator [rhs(negatable)].
-    // TBD: These do not necessarily need to be friends of the negatable class.
-    template<typename ArithmeticType>
-    friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type
-    operator+(const ArithmeticType& u, const negatable& v)
-    {
-      return negatable(u) += v;
-    }
-
-    template<typename ArithmeticType>
-    friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type
-    operator-(const ArithmeticType& u, const negatable& v)
-    {
-      return negatable(u) -= v;
-    }
-
-    template<typename ArithmeticType>
-    friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type
-    operator*(const ArithmeticType& u, const negatable& v)
-    {
-      return negatable(u) *= v;
-    }
-
-    template<typename ArithmeticType>
-    friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable>::type
-    operator/(const ArithmeticType& u, const negatable& v)
-    {
-      return negatable(u) /= v;
-    }
-
-    //! Implementations of non-member comparison operators of (negatable cmp. negatable).
+    //! Implementations of non-member comparison operators of (negatable cmp negatable).
     friend inline bool operator==(const negatable& u, const negatable& v) { return (u.data == v.data); }
     friend inline bool operator!=(const negatable& u, const negatable& v) { return (u.data != v.data); }
     friend inline bool operator> (const negatable& u, const negatable& v) { return (u.data >  v.data); }
@@ -1311,7 +1304,7 @@
     friend inline bool operator>=(const negatable& u, const negatable& v) { return (u.data >= v.data); }
     friend inline bool operator<=(const negatable& u, const negatable& v) { return (u.data <= v.data); }
 
-    //! Implementations of non-member comparison operators of (negatable cmp. ArithmeticType).
+    //! Implementations of non-member comparison operators of (negatable cmp ArithmeticType).
     template<typename ArithmeticType> friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, bool>::type operator==(const negatable& u, const ArithmeticType& v) { return (u.data == negatable(v).data); }
     template<typename ArithmeticType> friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, bool>::type operator!=(const negatable& u, const ArithmeticType& v) { return (u.data != negatable(v).data); }
     template<typename ArithmeticType> friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, bool>::type operator> (const negatable& u, const ArithmeticType& v) { return (u.data >  negatable(v).data); }
@@ -1319,7 +1312,7 @@
     template<typename ArithmeticType> friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, bool>::type operator>=(const negatable& u, const ArithmeticType& v) { return (u.data >= negatable(v).data); }
     template<typename ArithmeticType> friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, bool>::type operator<=(const negatable& u, const ArithmeticType& v) { return (u.data <= negatable(v).data); }
 
-    //! Implementations of non-member comparison operators of (ArithmeticType cmp. negatable).
+    //! Implementations of non-member comparison operators of (ArithmeticType cmp negatable).
     template<typename ArithmeticType> friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, bool>::type operator==(const ArithmeticType& u, const negatable& v) { return (negatable(u).data == v.data); }
     template<typename ArithmeticType> friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, bool>::type operator!=(const ArithmeticType& u, const negatable& v) { return (negatable(u).data != v.data); }
     template<typename ArithmeticType> friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, bool>::type operator> (const ArithmeticType& u, const negatable& v) { return (negatable(u).data >  v.data); }
@@ -1327,7 +1320,7 @@
     template<typename ArithmeticType> friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, bool>::type operator>=(const ArithmeticType& u, const negatable& v) { return (negatable(u).data >= v.data); }
     template<typename ArithmeticType> friend inline typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, bool>::type operator<=(const ArithmeticType& u, const negatable& v) { return (negatable(u).data <= v.data); }
 
-    //! Implementations of non-member comparison operators.
+    //! Implementations of non-member comparison operators of (negatable cmp other_negatable).
     template<const int OtherIntegralRange, const int OtherFractionalResolution>
     friend inline bool operator==(const negatable& u,
                                   const negatable<OtherIntegralRange, OtherFractionalResolution>& v)
@@ -1430,13 +1423,12 @@
     template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> atanh(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
   };
 
-  // Once-only instances of static constant variables of the negative class.
+  //! Once-only instances of static constant variables of the negative class.
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::range;
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::resolution;
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::all_bits;
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::radix_split;
 
-  //! Once-only instance of static constant variables of the negative class.
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   typename negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::initializer negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::initialization_helper;
 
@@ -1462,9 +1454,82 @@
     BOOST_STATIC_CONSTEXPR local_negatable_type ln_two() { return local_negatable_type::value_ln_two(); }
   };
 
-  //! Implementations of non-member mixed-math binary add, sub, mul, div of [lhs(any_negatable)] operator [rhs(any_other_negatable)].
-  //! This includes non-member binary add, sub, mul, div of [lhs(negatable)] operator [rhs(negatable)].
+  // Implementations of non-member binary add, sub, mul, div of (negatable op arithmetic_type).
+  template<typename ArithmeticType,
+           const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>>::type operator+(const negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>& u, const ArithmeticType& v)
+  {
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> negatable_type;
 
+    return negatable_type(u) += v;
+  }
+
+  template<typename ArithmeticType,
+           const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>>::type operator-(const negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>& u, const ArithmeticType& v)
+  {
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> negatable_type;
+
+    return negatable_type(u) -= v;
+  }
+
+  template<typename ArithmeticType,
+           const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>>::type operator*(const negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>& u, const ArithmeticType& v)
+  {
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> negatable_type;
+
+    return negatable_type(u) *= v;
+  }
+
+  template<typename ArithmeticType,
+           const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>>::type operator/(const negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>& u, const ArithmeticType& v)
+  {
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> negatable_type;
+
+    return negatable_type(u) /= v;
+  }
+
+  // Implementations of non-member binary add, sub, mul, div of (arithmetic_type op negatable).
+  template<typename ArithmeticType,
+           const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>>::type operator+(const ArithmeticType& u, const negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>& v)
+  {
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> negatable_type;
+
+    return negatable_type(u) += v;
+  }
+
+  template<typename ArithmeticType,
+           const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>>::type operator-(const ArithmeticType& u, const negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>& v)
+  {
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> negatable_type;
+
+    return negatable_type(u) -= v;
+  }
+
+  template<typename ArithmeticType,
+           const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>>::type operator*(const ArithmeticType& u, const negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>& v)
+  {
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> negatable_type;
+
+    return negatable_type(u) *= v;
+  }
+
+  template<typename ArithmeticType,
+           const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>>::type operator/(const ArithmeticType& u, const negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>& v)
+  {
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> negatable_type;
+
+    return negatable_type(u) /= v;
+  }
+
+  //! Implementations of non-member mixed-math binary add, sub, mul, div of (any_negatable op any_other_negatable).
+  //! This includes non-member binary add, sub, mul, div of (negatable op negatable).
   template <const int IntegralRange1, const int FractionalResolution1,
             const int IntegralRange2, const int FractionalResolution2,
             typename RoundMode,
@@ -1476,61 +1541,73 @@
   operator+(const negatable<IntegralRange1, FractionalResolution1, RoundMode, OverflowMode>& a,
             const negatable<IntegralRange2, FractionalResolution2, RoundMode, OverflowMode>& b)
   {
-    return negatable<((-FractionalResolution1 > -FractionalResolution2) ? IntegralRange1 : IntegralRange2),
-                     ((-FractionalResolution1 > -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
-                     RoundMode,
-                     OverflowMode>(a) += b;
+    typedef negatable<((-FractionalResolution1 > -FractionalResolution2) ? IntegralRange1        : IntegralRange2),
+                      ((-FractionalResolution1 > -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
+                      RoundMode,
+                      OverflowMode>
+    negatable_type;
+
+    return negatable_type(a) += b;
   }
 
   template <const int IntegralRange1, const int FractionalResolution1,
             const int IntegralRange2, const int FractionalResolution2,
             typename RoundMode,
             typename OverflowMode>
-  negatable<((-FractionalResolution1 > -FractionalResolution2) ? IntegralRange1 : IntegralRange2),
+  negatable<((-FractionalResolution1 > -FractionalResolution2) ? IntegralRange1        : IntegralRange2),
             ((-FractionalResolution1 > -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
             RoundMode,
             OverflowMode>
   operator-(const negatable<IntegralRange1, FractionalResolution1, RoundMode, OverflowMode>& a,
             const negatable<IntegralRange2, FractionalResolution2, RoundMode, OverflowMode>& b)
   {
-    return negatable<((-FractionalResolution1 > -FractionalResolution2) ? IntegralRange1 : IntegralRange2),
-                     ((-FractionalResolution1 > -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
-                     RoundMode,
-                     OverflowMode>(a) -= b;
+    typedef negatable<((-FractionalResolution1 > -FractionalResolution2) ? IntegralRange1        : IntegralRange2),
+                      ((-FractionalResolution1 > -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
+                      RoundMode,
+                      OverflowMode>
+    negatable_type;
+
+    return negatable_type(a) -= b;
   }
 
   template <const int IntegralRange1, const int FractionalResolution1,
             const int IntegralRange2, const int FractionalResolution2,
             typename RoundMode,
             typename OverflowMode>
-  negatable<((-FractionalResolution1 > -FractionalResolution2) ? IntegralRange1 : IntegralRange2),
+  negatable<((-FractionalResolution1 > -FractionalResolution2) ? IntegralRange1        : IntegralRange2),
             ((-FractionalResolution1 > -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
             RoundMode,
             OverflowMode>
   operator*(const negatable<IntegralRange1, FractionalResolution1, RoundMode, OverflowMode>& a,
             const negatable<IntegralRange2, FractionalResolution2, RoundMode, OverflowMode>& b)
   {
-    return negatable<((-FractionalResolution1 > -FractionalResolution2) ? IntegralRange1 : IntegralRange2),
-                     ((-FractionalResolution1 > -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
-                     RoundMode,
-                     OverflowMode>(a) *= b;
+    typedef negatable<((-FractionalResolution1 > -FractionalResolution2) ? IntegralRange1        : IntegralRange2),
+                      ((-FractionalResolution1 > -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
+                      RoundMode,
+                      OverflowMode>
+    negatable_type;
+
+    return negatable_type(a) *= b;
   }
 
   template <const int IntegralRange1, const int FractionalResolution1,
             const int IntegralRange2, const int FractionalResolution2,
             typename RoundMode,
             typename OverflowMode>
-  negatable<((-FractionalResolution1 > -FractionalResolution2) ? IntegralRange1 : IntegralRange2),
+  negatable<((-FractionalResolution1 > -FractionalResolution2) ? IntegralRange1        : IntegralRange2),
             ((-FractionalResolution1 > -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
             RoundMode,
             OverflowMode>
   operator/(const negatable<IntegralRange1, FractionalResolution1, RoundMode, OverflowMode>& a,
             const negatable<IntegralRange2, FractionalResolution2, RoundMode, OverflowMode>& b)
   {
-    return negatable<((-FractionalResolution1 > -FractionalResolution2) ? IntegralRange1 : IntegralRange2),
-                     ((-FractionalResolution1 > -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
-                     RoundMode,
-                     OverflowMode>(a) /= b;
+    typedef negatable<((-FractionalResolution1 > -FractionalResolution2) ? IntegralRange1        : IntegralRange2),
+                      ((-FractionalResolution1 > -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
+                      RoundMode,
+                      OverflowMode>
+    negatable_type;
+
+    return negatable_type(a) /= b;
   }
 
   #if !defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
@@ -1553,8 +1630,7 @@
       typedef typename negatable_type::float_type local_float_type;
 
       // Send a fixed-point number to the output stream.
-      // Express the fixed-point number as a floating-point number.
-
+      // Express the fixed-point number as a floating-point representation.
       std::basic_ostringstream<char_type, traits_type> ostr;
 
       ostr.flags    (out.flags());
@@ -1593,7 +1669,8 @@
 
   } } // namespace boost::fixed_point
 
-  // Here we include all <cmath> functions for the negatable type.
+  // Here we include headers for negatable <cmath> functions.
+  #include <boost/fixed_point/detail/fixed_point_detail_hypergeometric.hpp>
   #include <boost/fixed_point/fixed_point_negatable_cmath.hpp>
 
   // Here we include specializations of std::numeric_limits<negatable>.
