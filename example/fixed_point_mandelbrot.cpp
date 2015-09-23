@@ -46,18 +46,18 @@ public:
   long double y_lo() const { return my_y_lo; }
   long double y_hi() const { return my_y_hi; }
 
-  virtual boost::uint_fast64_t max_iterations() const = 0;
+  virtual boost::uint_fast16_t max_iterations() const = 0;
 
   virtual int mandelbrot_fractional_resolution() const = 0;
 
   virtual long double step() const = 0;
 
-  virtual boost::uint64_t width () const = 0;
-  virtual boost::uint64_t height() const = 0;
+  virtual boost::uint_fast32_t width () const = 0;
+  virtual boost::uint_fast32_t height() const = 0;
 
-  virtual boost::uint64_t red_hue  () const = 0;
-  virtual boost::uint64_t green_hue() const = 0;
-  virtual boost::uint64_t blue_hue () const = 0;
+  virtual boost::uint_fast32_t red_hue  () const = 0;
+  virtual boost::uint_fast32_t green_hue() const = 0;
+  virtual boost::uint_fast32_t blue_hue () const = 0;
 
 protected:
   const long double my_x_lo;
@@ -74,17 +74,17 @@ private:
 };
 
 template<const int TotalDigits,
-         const boost::uint_fast64_t MaxIterations,
+         const boost::uint_fast16_t MaxIterations,
          const int MandelbrotFractionalResolution,
-         const boost::uint64_t RedHue,
-         const boost::uint64_t GreenHue,
-         const boost::uint64_t BlueHue>
+         const boost::uint_fast32_t RedHue,
+         const boost::uint_fast32_t GreenHue,
+         const boost::uint_fast32_t BlueHue>
 class mandelbrot_configuration : public mandelbrot_configuration_base
 {
 public:
-  static_assert(    (RedHue   < UINT64_C(256))
-                 && (GreenHue < UINT64_C(256))
-                 && (BlueHue  < UINT64_C(256)), "The color hue parameters must be 255 or smaller.");
+  static_assert(    (RedHue   < UINT32_C(256))
+                 && (GreenHue < UINT32_C(256))
+                 && (BlueHue  < UINT32_C(256)), "The color hue parameters must be 255 or smaller.");
 
   typedef boost::fixed_point::negatable<16, 16 + 1 - TotalDigits> fixed_point_type;
 
@@ -95,18 +95,18 @@ public:
   virtual ~mandelbrot_configuration() { }
 
 private:
-  virtual boost::uint_fast64_t max_iterations() const { return MaxIterations; }
+  virtual boost::uint_fast16_t max_iterations() const { return MaxIterations; }
 
   virtual int mandelbrot_fractional_resolution() const { return MandelbrotFractionalResolution; }
 
   virtual long double step() const { return 1.0L / (UINT64_C(1) << -mandelbrot_fractional_resolution()); }
 
-  virtual boost::uint64_t width () const { return static_cast<boost::uint64_t>((x_hi() - x_lo()) / step()); }
-  virtual boost::uint64_t height() const { return static_cast<boost::uint64_t>((y_hi() - y_lo()) / step()); }
+  virtual boost::uint_fast32_t width () const { return static_cast<boost::uint_fast32_t>((x_hi() - x_lo()) / step()); }
+  virtual boost::uint_fast32_t height() const { return static_cast<boost::uint_fast32_t>((y_hi() - y_lo()) / step()); }
 
-  virtual boost::uint64_t red_hue  () const { return RedHue; }
-  virtual boost::uint64_t green_hue() const { return GreenHue; }
-  virtual boost::uint64_t blue_hue () const { return BlueHue; }
+  virtual boost::uint_fast32_t red_hue  () const { return RedHue; }
+  virtual boost::uint_fast32_t green_hue() const { return GreenHue; }
+  virtual boost::uint_fast32_t blue_hue () const { return BlueHue; }
 };
 
 template<typename NumericType>
@@ -118,8 +118,8 @@ public:
       mandelbrot_image               (config.width(), config.height()),
       mandelbrot_view                (boost::gil::rgb8_view_t()),
       mandelbrot_iteration_matrix    (mandelbrot_configuration_object.width(),
-                                      std::vector<boost::uint_fast64_t>(mandelbrot_configuration_object.height())),
-      mandelbrot_color_histogram     (static_cast<std::size_t>(config.max_iterations() + 1U), UINT64_C(0))
+                                      std::vector<boost::uint_fast16_t>(mandelbrot_configuration_object.height())),
+      mandelbrot_color_histogram     (static_cast<std::size_t>(config.max_iterations() + 1U), UINT32_C(0))
   {
     mandelbrot_view = boost::gil::view(mandelbrot_image);
   }
@@ -150,11 +150,11 @@ public:
 
     // Loop through all the rows of pixels on the vertical
     // y-axis in the direction of decreasing y-value.
-    for(boost::uint64_t row = UINT64_C(0); row < mandelbrot_configuration_object.height(); ++row, y -= mandelbrot_configuration_object.step())
+    for(boost::uint_fast32_t row = UINT32_C(0); row < mandelbrot_configuration_object.height(); ++row, y -= mandelbrot_configuration_object.step())
     {
       // Loop through this column of pixels on the horizontal
       // x-axis in the direction of increasing x-value.
-      boost::uint64_t col = UINT64_C(0);
+      boost::uint_fast32_t col = UINT32_C(0);
 
       std::for_each(x_values.cbegin(),
                     x_values.cend(),
@@ -169,16 +169,16 @@ public:
         NumericType zr_sqr(0);
         NumericType zi_sqr(0);
 
-        // Perform the iteration sequence for generating the Mandelbrot set.
-        // Herein lies the work of the program.
-        // TBD: This can easily be distributed to parallel processes.
-
         // Use an optimized complex-numbered multiplication scheme.
         // Thereby reduce the main work of the Mandelbrot iteration to
         // three real-valued multiplications and several real-valued
         // addition/subtraction operations.
 
-        boost::uint_fast64_t i = UINT64_C(0);
+        boost::uint_fast16_t i = UINT16_C(0);
+
+        // Perform the iteration sequence for generating the Mandelbrot set.
+        // Herein lies the work of the program.
+        // TBD: This can easily be distributed to parallel processes.
 
         while(   (i < mandelbrot_configuration_object.max_iterations())
               && ((zr_sqr + zi_sqr) < 4))
@@ -211,7 +211,7 @@ public:
                 << "\r";
     }
 
-    const boost::uint64_t total = boost::uint64_t(mandelbrot_configuration_object.width()) * mandelbrot_configuration_object.height();
+    const boost::uint_fast32_t total = boost::uint_fast32_t(mandelbrot_configuration_object.width()) * mandelbrot_configuration_object.height();
 
     // Perform color-stretching using the histogram approach.
     // Convert the histogram entries such that a given entry contains
@@ -221,26 +221,26 @@ public:
 
     std::accumulate(mandelbrot_color_histogram.begin(),
                     mandelbrot_color_histogram.end(),
-                    boost::uint64_t(0U),
-    [&total](boost::uint64_t& sum, boost::uint64_t& histogram_entry) -> boost::uint64_t
+                    boost::uint_fast32_t(0U),
+    [&total](boost::uint_fast32_t& sum, boost::uint_fast32_t& histogram_entry) -> boost::uint_fast32_t
     {
       sum += histogram_entry;
 
-      histogram_entry = UINT64_C(0xFF) - static_cast<boost::uint64_t>((boost::uint64_t(sum) * 0xFFU) / total);
+      histogram_entry = UINT32_C(0xFF) - static_cast<boost::uint_fast32_t>((boost::uint64_t(sum) * 0xFFU) / total);
 
       return sum;
     });
 
-    for(boost::uint64_t row = UINT64_C(0); row < mandelbrot_configuration_object.height(); ++row)
+    for(boost::uint_fast32_t row = UINT32_C(0); row < mandelbrot_configuration_object.height(); ++row)
     {
-      for(boost::uint64_t col = UINT64_C(0); col < mandelbrot_configuration_object.width(); ++col)
+      for(boost::uint_fast32_t col = UINT32_C(0); col < mandelbrot_configuration_object.width(); ++col)
       {
-        const boost::uint64_t color = mandelbrot_color_histogram[mandelbrot_iteration_matrix[col][row]];
+        const boost::uint_fast32_t color = mandelbrot_color_histogram[mandelbrot_iteration_matrix[col][row]];
 
-        // Mix the color for the given point.
-        const boost::uint8_t rh = static_cast<boost::uint8_t>((mandelbrot_configuration_object.red_hue  () * color) / UINT64_C(255));
-        const boost::uint8_t gh = static_cast<boost::uint8_t>((mandelbrot_configuration_object.green_hue() * color) / UINT64_C(255));
-        const boost::uint8_t bh = static_cast<boost::uint8_t>((mandelbrot_configuration_object.blue_hue () * color) / UINT64_C(255));
+        // Mix a baby-blue color.
+        const boost::uint8_t rh = static_cast<boost::uint8_t>((mandelbrot_configuration_object.red_hue  () * color) / UINT32_C(255));
+        const boost::uint8_t gh = static_cast<boost::uint8_t>((mandelbrot_configuration_object.green_hue() * color) / UINT32_C(255));
+        const boost::uint8_t bh = static_cast<boost::uint8_t>((mandelbrot_configuration_object.blue_hue () * color) / UINT32_C(255));
 
         const boost::gil::rgb8_pixel_t the_color  = boost::gil::rgb8_pixel_t(rh, gh, bh);
 
@@ -259,47 +259,38 @@ private:
   const mandelbrot_configuration_base&           mandelbrot_configuration_object;
   boost::gil::rgb8_image_t                       mandelbrot_image;
   boost::gil::rgb8_view_t                        mandelbrot_view;
-  std::vector<std::vector<boost::uint_fast64_t>> mandelbrot_iteration_matrix;
-  std::vector<boost::uint64_t>                   mandelbrot_color_histogram;
+  std::vector<std::vector<boost::uint_fast16_t>> mandelbrot_iteration_matrix;
+  std::vector<boost::uint_fast32_t>              mandelbrot_color_histogram;
 };
 
 int main()
 {
-  // This is the classic full image rendered in aqua and black tones.
-  //typedef mandelbrot_configuration<128, UINT64_C(200), -11,
-  //                                 UINT64_C(80),
-  //                                 UINT64_C(255),
-  //                                 UINT64_C(255)> mandelbrot_configuration_type;
+  // This is the classic full immage rendered in baby-blue tones (and black).
+  //typedef mandelbrot_configuration<128, UINT16_C(10000), -10,
+  //                                 UINT32_C(80),
+  //                                 UINT32_C(255),
+  //                                 UINT32_C(255)> mandelbrot_configuration_type;
 
-  //const mandelbrot_configuration_type mandelbrot_configuration_object(-2.0L, +0.5L,
-  //                                                                    -1.0L, +1.0L);
+  //const mandelbrot_configuration_type mandelbrot_configuration_object(-2.000L, +0.500L,
+  //                                                                    -1.000L, +1.000L);
 
-  // This is an upper part of the image rendered in yellow and black tones.
-  //typedef mandelbrot_configuration<128, UINT64_C(2000), -13,
-  //                                 UINT64_C(255),
-  //                                 UINT64_C(255),
-  //                                 UINT64_C(0)> mandelbrot_configuration_type;
+  // This is a fanning image rendered in fuschia tones (and black).
+  typedef mandelbrot_configuration<128, UINT16_C(10000), -21,
+                                   UINT32_C(255),
+                                   UINT32_C(0),
+                                   UINT32_C(210)> mandelbrot_configuration_type;
 
-  //const mandelbrot_configuration_type mandelbrot_configuration_object(-0.1208L - 0.1616L, -0.1208L + 0.1616L,
-  //                                                                    +0.7607L - 0.1616L, +0.7607L + 0.1616L);
+  const mandelbrot_configuration_type mandelbrot_configuration_object(-0.749730L - 0.0002315L, -0.749730L + 0.0002315L,
+                                                                      -0.046608L - 0.0002315L, -0.046608L + 0.0002315L);
 
-  // This is a swirling seahorse panout image rendered in fuschia and black tones.
-  //typedef mandelbrot_configuration<128, UINT64_C(10000), -23,
-  //                                 UINT64_C(255),
-  //                                 UINT64_C(0),
-  //                                 UINT64_C(210)> mandelbrot_configuration_type;
+  // This is a swirly rectangular image rendered in gray tones (and black).
+  //typedef mandelbrot_configuration<128, UINT16_C(10000), -45,
+  //                                 UINT32_C(255),
+  //                                 UINT32_C(255),
+  //                                 UINT32_C(255)> mandelbrot_configuration_type;
 
-  //const mandelbrot_configuration_type mandelbrot_configuration_object(-0.749730L - 0.0002315L, -0.749730L + 0.0002315L,
-  //                                                                    -0.046608L - 0.0002315L, -0.046608L + 0.0002315L);
-
-  // This is a rectangular collection of seahorses rendered in black and white tones.
-  typedef mandelbrot_configuration<128, UINT64_C(10000), -47,
-                                   UINT64_C(255),
-                                   UINT64_C(255),
-                                   UINT64_C(255)> mandelbrot_configuration_type;
-
-  const mandelbrot_configuration_type mandelbrot_configuration_object(-0.745398360667L - 1.25E-11L, -0.745398360667L + 1.25E-11L,
-                                                                      +0.112504634996L - 1.25E-11L, +0.112504634996L + 1.25E-11L);
+  //const mandelbrot_configuration_type mandelbrot_configuration_object(-0.745398360667L - 1.25E-11L, -0.745398360667L + 1.25E-11L,
+  //                                                                    +0.112504634996L - 1.25E-11L, +0.112504634996L + 1.25E-11L);
 
   typedef mandelbrot_configuration_type::fixed_point_type mandelbrot_numeric_type;
 

@@ -55,9 +55,11 @@ project
     <toolset>msvc:<cxxflags>/wd4305
   ;
 
+run fixed_point_constants.cpp ;
 run fixed_point_demo_basic.cpp ;
 run fixed_point_limits.cpp ;
-run fixed_point_constants.cpp ;
+run fixed_point_polynomial_approx_sin.cpp ;
+run fixed_point_polynomial_approx_tgamma.cpp ;
 run fixed_point_type_examples.cpp ;
 
 #  The Mandelbrot set example needs a jpeg library (such as jpeg-6b on windows or libjpeg on *nix)
