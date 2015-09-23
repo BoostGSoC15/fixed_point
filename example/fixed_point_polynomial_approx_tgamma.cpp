@@ -58,15 +58,23 @@ namespace local
 
 int main()
 {
+  // This example performs computations of the tgamma(x)
+  // function for x = 1/2 for a fixed-point negatable
+  // type and built-in float.
+
+  // A 32-bit fixed-point type is used, as might be
+  // well-suited for a high-performance 32-bit embedded
+  // system that does not have or does not use an FPU.
+
   typedef boost::fixed_point::negatable<7, -24> fixed_point_type;
   typedef fixed_point_type::float_type float_point_type;
 
-  const fixed_point_type x = fixed_point_type(5) / 2;
-
-  // Here we compute tgamma(5 / 2) and subsequently perform
+  // Here we compute tgamma(5/2) and subsequently perform
   // two iterations of downward recursion via division with
-  // (3 / 2) * (1 / 2) = (3 /4). The result is tgamma(1 / 2)
-  // which is equal to sqrt(pi).
+  // (3/2) * (1/2) = (3/4). The result is tgamma(1/2), which
+  // has a known closed-form value equal to sqrt(pi).
+
+  const fixed_point_type x = fixed_point_type(5) / 2;
   const fixed_point_type g = (local::tgamma(x) * 4) / 3;
 
   std::cout << std::setprecision(6)
@@ -76,8 +84,8 @@ int main()
 
   using std::sqrt;
 
-  // Compare with the control value of sqrt(pi) computed with
-  // a built-in floating-point type.
+  // Compare with the control value of sqrt(pi) computed
+  // with a built-in floating-point type.
   std::cout << std::setprecision(6)
             << std::fixed
             << sqrt(boost::math::constants::pi<float_point_type>())
