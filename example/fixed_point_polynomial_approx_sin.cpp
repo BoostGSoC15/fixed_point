@@ -32,22 +32,22 @@ namespace local
   template<typename NumericType>
   NumericType sin(const NumericType& x)
   {
-    // This subroutine computes sin(x) using a polynomial approximation.
-    // This polynomial approximation provides about 4 decimal digits
-    // of precision in the range -pi/2 < x < +pi/2.
+    // This subroutine computes sin(x) using an order 5 polynomial
+    // approximation that achieves about 4 decimal digits of precision
+    // in the range -pi/2 < x < +pi/2.
 
     // The coefficients in the polynomial approximation originate
     // from C. Kormanyos, Real-Time C++ (Springer, Heidelberg, 2013).
     // See Sect. 13.3, in particular Eqs. 13.4 and 13.5 therein.
 
-    // Use the scaled argument chi = x / (pi / 2).
+    // Use the scaled argument chi = x / (pi/2).
     const NumericType chi  = (x * 2) / NumericType(3.14159265358979323846F);
 
     // Compute chi^2, as this is also used in the polynomial approximation.
     const NumericType chi2 = chi * chi;
 
-    // Perform the polynomial approximation using coefficient
-    // manipulation via the method of Horner.
+    // Perform the polynomial approximation using a coefficient
+    // expansion via the method of Horner.
     return ((         0.0722739F
              * chi2 - 0.6425639F)
              * chi2 + 1.5704128F)

@@ -34,8 +34,9 @@ namespace local
   template<typename NumericType>
   NumericType tgamma(const NumericType& x)
   {
-    // This subroutine computes tgamma(x - 2) to approximately
-    // order 7 using a polynomial approximation.
+    // This subroutine uses a polynomial approximation to
+    // computes tgamma(x - 2) to approximately order 7
+    // in the range 2 < x < 3.
 
     // The coefficients originate from J. F. Hart et al.,
     // Computer Approximations (John Wiley and Sons, Inc., 1968).
@@ -71,8 +72,8 @@ int main()
 
   // Here we compute tgamma(5/2) and subsequently perform
   // two iterations of downward recursion via division with
-  // (3/2) * (1/2) = (3/4). The result is tgamma(1/2), which
-  // has a known closed-form value equal to sqrt(pi).
+  // [(3/2) * (1/2)] = (3/4). The result is tgamma(1/2),
+  // which has a known closed-form value equal to sqrt(pi).
 
   const fixed_point_type x = fixed_point_type(5) / 2;
   const fixed_point_type g = (local::tgamma(x) * 4) / 3;
@@ -84,8 +85,8 @@ int main()
 
   using std::sqrt;
 
-  // Compare with the control value of sqrt(pi) computed
-  // with a built-in floating-point type.
+  // Compare with the control value of sqrt(pi)
+  // computed with a built-in floating-point type.
   std::cout << std::setprecision(6)
             << std::fixed
             << sqrt(boost::math::constants::pi<float_point_type>())
