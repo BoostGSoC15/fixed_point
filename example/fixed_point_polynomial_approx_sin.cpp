@@ -41,7 +41,7 @@ namespace local
     // See Sect. 13.3, in particular Eqs. 13.4 and 13.5 therein.
 
     // Use the scaled argument chi = x / (pi / 2).
-    const NumericType chi  = (x * 2) / NumericType(3.14159265358979323846L);
+    const NumericType chi  = (x * 2) / NumericType(3.14159265358979323846F);
 
     // Compute chi^2, as this is also used in the polynomial approximation.
     const NumericType chi2 = chi * chi;
@@ -57,22 +57,34 @@ namespace local
 
 int main()
 {
-  // Here we compute sin(n/4) for 1 <= n < 7 for a fixed-point negatable type.
+  // This example computes approximations of sin(x) in the
+  // range -pi/2 < x < pi/2. Comparison are made between
+  // fixed-point calculations and floating-point calculations.
+  // A 16-bit fixed-point type is used, as may be well-suited
+  // for a tiny bare-metal embedded system.
+
+  // The arguments used in the comparisons are:
+  //   x = (approx.) 1/4, 1/2, 3/4, 1, 5/4, 3/2.
+
+  // Here we compute sin(n/4) for 1 <= n < 7 for
+  // a fixed-point negatable type.
+  std::cout << "fixed-point:   ";
   for(int n = 1; n < 7; ++n)
   {
-    typedef boost::fixed_point::negatable<7, -24> fixed_point_type;
+    typedef boost::fixed_point::negatable<5, -10> fixed_point_type;
 
     const fixed_point_type x = fixed_point_type(n) / 4;
 
     std::cout << std::setprecision(4)
               << std::fixed
               << local::sin(x)
-              << "\t";
+              << "  ";
   }
   std::cout << std::endl;
 
-  // Compare with the control values of sin(n/4) computed
-  // with a built-in floating-point type.
+  // Compare with the control values of sin(n/4)
+  // computed with a built-in floating-point type.
+  std::cout << "float-point:   ";
   for(int n = 1; n < 7; ++n)
   {
     using std::sin;
@@ -82,7 +94,7 @@ int main()
     std::cout << std::setprecision(4)
               << std::fixed
               << sin(x)
-              << "\t";
+              << "  ";
   }
   std::cout << std::endl;
 }
