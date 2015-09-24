@@ -117,14 +117,14 @@
       // Extract the unsigned representation of the data field.
       local_unsigned_small_type result((!is_neg) ? local_unsigned_small_type(x.data) : local_unsigned_small_type(-x.data));
 
-      local_unsigned_small_type unsigned_small_mask((std::numeric_limits<local_unsigned_small_type>::max)());
-
-      BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t unsigned_small_digits =
-        static_cast<boost::uint_fast16_t>(std::numeric_limits<local_unsigned_small_type>::digits);
-
       boost::uint_fast16_t msb;
 
       {
+        BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t unsigned_small_digits =
+          static_cast<boost::uint_fast16_t>(std::numeric_limits<local_unsigned_small_type>::digits);
+
+        local_unsigned_small_type unsigned_small_mask((std::numeric_limits<local_unsigned_small_type>::max)());
+
         local_unsigned_small_type tmp(result);
 
         // Use a binary-halving mechanism to obtain the most significant bit.
@@ -187,13 +187,7 @@
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::unsigned_small_type local_unsigned_small_type;
-
-    // TBD: This implementation of square root seems to fail
-    // for low digit counts.
-
-    // TBD: This implementation of square root may be too inefficient
-    // for low digit counts such as 5...16 digits. Consider optimization
-    // (such as table-lookup of initial root estimate) for low digit counts.
+    typedef typename local_negatable_type::value_type          local_value_type;
 
     if(x.data <= 0)
     {
@@ -206,36 +200,69 @@
     else
     {
       // Get the initial estimate of the square root.
+      boost::uint_fast16_t msb;
 
-      // TBD: Is there a more efficient way to do this?
-      // TBD: Is this initial guess accurate enough in all situations?
-      // TBD: Compute some initial guesses and tabulate them as constant values.
-
-      int exp_value;
-      local_negatable_type mantissa = frexp(x, &exp_value);
-
-      if((exp_value & 1) != 0)
       {
-        mantissa.data <<= 1;
-        --exp_value;
+        // Find the most significant bit of the argument.
+        BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t unsigned_small_digits =
+          static_cast<boost::uint_fast16_t>(std::numeric_limits<local_unsigned_small_type>::digits);
+
+        local_unsigned_small_type unsigned_small_mask((std::numeric_limits<local_unsigned_small_type>::max)());
+
+        local_unsigned_small_type tmp(x.data);
+
+        // Use a binary-halving mechanism to obtain the most significant bit.
+        msb = detail::msb_helper(tmp, unsigned_small_mask, unsigned_small_digits);
       }
 
-      local_negatable_type result(ldexp(mantissa, exp_value / 2));
+      // Evaluate the necessary amount of right-shift for computing
+      // the initial guess of the square root. For this we need to
+      // compute the reduced argument as x = [2^n * a] and subsequently
+      // remove even powers of 2.
+      int n = int(msb) - local_negatable_type::radix_split;
 
-      // Estimate the zeroth term of the iteration = 1 / (2 * result).
+      // Ensure that n is an even such that argument scaling is
+      // always carried out with an even number of powers of two.
+      if((n & 1) != 0)
+      {
+        --n;
+      }
+
+      // Using the reduced argument a, we estimate the initial guess:
+      //  sqrt(a) = approx. (a/2) + [8^(1/4) - 1]^2
+      //          = approx. (a/2) + 0.4648,
+      // which is further simplified to (a/2) + (1/2).
+
+      // See, for example, J. F. Hart et al., Computer Approximations
+      // (John Wiley and Sons, Inc., 1968), Eq. 2.4.3 on page 27.
+
+      // Compute the reduced argument a and divide a once again by 2
+      // in order to compute the first part of the initial guess.
+      local_unsigned_small_type a(x.data);
+
+      a = detail::right_shift_helper(a, n + 1);
+
+      // Here is the addition of (1/2) to complete the initial guess.
+      a += (local_unsigned_small_type(1) << (local_negatable_type::radix_split - 1));
+
+      local_negatable_type result;
+
+      // Remove the scaling from the reduced guess of the result
+      // and use this as the proper initial guess of sqrt(x).
+      result.data = local_value_type(a << (n / 2));
+
+      // Estimate the zero'th term of the iteration with [1 / (2 * result)].
       local_negatable_type vi = 1U / (result * 2U);
 
       // Compute the square root of x using coupled Newton iteration.
-      // Here we use a conservative calculation of the digits of precision.
-      // We begin with an estimate of 1/2 digit of precision and double
-      // the number of digits with each iteration.
+      // More precisely, this is the Schoenhage variation thereof.
+      // We begin with an estimate of 1 binary digit of precision and
+      // double the number of digits with each iteration. The final
+      // iteration need only be performed with half of the necessary
+      // precision, as this is subsequently doubled to result in the
+      // desired full precision.
 
-      // TBD: Here we are using too many Newton-Raphson steps.
-      // TBD: Improve the accuracy of the initial estimate of the
-      // square root and subsequently use a tighter tolerance
-      // on the number of iterations in the Newton-Raphson loop.
-
-      for(boost::uint_fast16_t i = UINT16_C(1); boost::uint_fast16_t(i / 2U) <= boost::uint_fast16_t(local_negatable_type::all_bits); i *= UINT16_C(2))
+      for(boost::uint_fast16_t i = UINT16_C(1); i <= boost::uint_fast16_t(local_negatable_type::all_bits / 2); i *= UINT16_C(2))
       {
         // Perform the next iteration of vi.
         vi += vi * (-((result * vi) * 2U) + 1U);
@@ -309,7 +336,7 @@
       int exp2;
       const local_negatable_type y = frexp(x, &exp2);
 
-      BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t maximum_number_of_iterations = UINT16_C(10000);
+      BOOST_CONSTEXPR boost::uint_fast16_t maximum_number_of_iterations = UINT16_C(10000);
 
       const local_negatable_type y_minus_one = y - 1;
 
@@ -322,9 +349,11 @@
 
       // Perform the series expansion of the logarithmic function.
 
-      // TBD: It is probably more efficient here to use Newton
-      // iteration in combination with the exponential function.
-      // Consider determining the optimization potential here.
+      // TBD: It may more efficient here to use Newton iteration
+      // in combination with the exponential function in higher
+      // digit ranges. Consider investigating any optimization
+      // potential here.
+
       for(boost::uint_fast16_t n = UINT16_C(2); n < maximum_number_of_iterations; ++n)
       {
         y_minus_one_pow_n *= y_minus_one;
@@ -365,6 +394,7 @@
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
+    // TBD: Consider warm-caching ln_ten as a constant value.
     return log(x) / log(local_negatable_type(10));
   }
 
@@ -384,15 +414,57 @@
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
-  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sin(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> cos(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
+                                                                              typename std::enable_if<int(24) >= (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
-    return local_negatable_type(0);
+    // Reduce the argument to the range 0 < x < +pi/2.
+    const bool is_neg = (x < 0);
+
+    local_negatable_type xx((!is_neg) ? x : -x);
+
+    const int n = x / local_negatable_type::value_pi();
+
+    const bool negate_result = ((n % 2) != 0);
+
+    xx -= n * local_negatable_type::value_pi();
+
+    local_negatable_type result;
+
+    if(xx > (local_negatable_type::value_pi() / 2))
+    {
+      result = -cos(local_negatable_type::value_pi() - xx);
+    }
+    else
+    {
+      // Use an order 8 polynomial approximation that achieves
+      // about 7 decimal digits of precision in the range 0 < x < +pi/2.
+
+      // The coefficients originate from J. F. Hart et al.,
+      // Computer Approximations (John Wiley and Sons, Inc., 1968).
+      // See Chap. 7, Tables of Coefficients, Table 3502 on page 207.
+      const local_negatable_type x2 = xx * xx;
+
+      // Perform the polynomial approximation using a coefficient
+      // expansion via the method of Horner.
+
+      // TBD: Express these constants as integral fixed-point representations
+      // and eliminate all potential overhead from floating-point conversion.
+
+      result = ((((       local_negatable_type(0.00002315393167722739L)
+                   * x2 - local_negatable_type(0.0013853704264L))
+                   * x2 + local_negatable_type(0.0416635846769L))
+                   * x2 - local_negatable_type(0.499999053455L))
+                   * x2 + local_negatable_type(0.999999953464L));
+    }
+
+    return ((!negate_result) ? result : -result);
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
-  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> cos(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> cos(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
+                                                                              typename std::enable_if<int(24) < (-FractionalResolution)>::type const* = nullptr)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 

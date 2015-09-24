@@ -171,7 +171,7 @@
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> log10(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> pow  (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> a);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sin  (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
-  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> cos  (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> cos  (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, typename std::enable_if<int(24) >= (-FractionalResolution)>::type const* = nullptr);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> tan  (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> asin (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> acos (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
@@ -1187,7 +1187,7 @@
     {
       initialization_helper.force_premain_init_of_static_constants();
 
-      BOOST_CONSTEXPR_OR_CONST int total_right_shift = -(resolution + 1);
+      BOOST_CONSTEXPR int total_right_shift = -(resolution + 1);
 
       static const negatable the_epsilon(nothing(), static_cast<value_type>(radix_split_value() >> total_right_shift));
 
@@ -1409,7 +1409,7 @@
     template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> log10(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
     template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> pow  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> a);
     template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> sin  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> cos  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> cos  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if<int(24) >= (-FractionalResolution2)>::type const*);
     template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> tan  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
     template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> asin (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
     template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> acos (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);

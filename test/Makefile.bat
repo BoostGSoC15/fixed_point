@@ -107,4 +107,7 @@ g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-unin
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_sqrt_nearest_even.cpp -o test_negatable_sqrt_nearest_even.exe
 .\test_negatable_sqrt_nearest_even.exe
 
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_sqrt_small.cpp -o test_negatable_sqrt_small.exe
+.\test_negatable_sqrt_small.exe
+
 del /Q *.exe

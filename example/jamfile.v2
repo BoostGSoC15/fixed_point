@@ -55,8 +55,10 @@ project
     <toolset>msvc:<cxxflags>/wd4305
   ;
 
+run fixed_point_bernoulli_b2n.cpp ;
 run fixed_point_constants.cpp ;
 run fixed_point_demo_basic.cpp ;
+run fixed_point_laguerre_approx_cos.cpp ;
 run fixed_point_limits.cpp ;
 run fixed_point_polynomial_approx_sin.cpp ;
 run fixed_point_polynomial_approx_tgamma.cpp ;

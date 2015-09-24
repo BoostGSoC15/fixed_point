@@ -10,14 +10,11 @@
 //!\brief Tests for sqrt(fixed_point) rouund::nearest_even. Along the way, also test numerous fixed_point arithmetic operations.
 
 #include <cmath>
-#include <iomanip>
-#include <iostream>
 
 #define BOOST_TEST_MODULE test_negatable_sqrt_nearest_even
 #define BOOST_LIB_DIAGNOSTIC
 
 #include <boost/fixed_point/fixed_point.hpp>
-#include <boost/math/special_functions/cbrt.hpp>
 #include <boost/test/included/unit_test.hpp>
 
 namespace local

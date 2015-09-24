@@ -54,7 +54,8 @@ all_files : test_negatable_arithmetic_fastest.exe              \
             test_negatable_round_trip_digits10_999.exe         \
             test_negatable_sqrt_big.exe                        \
             test_negatable_sqrt_fastest.exe                    \
-            test_negatable_sqrt_nearest_even.exe
+            test_negatable_sqrt_nearest_even.exe               \
+            test_negatable_sqrt_small.exe
 
 cleanup :
 	@-echo +++cleaning all executable files

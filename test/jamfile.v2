@@ -93,5 +93,6 @@ test-suite "Fixed_point"
       [ run test_negatable_sqrt_big.cpp boost_unit_test ]
       [ run test_negatable_sqrt_fastest.cpp boost_unit_test ]
       [ run test_negatable_sqrt_nearest_even.cpp boost_unit_test ]
+      [ run test_negatable_sqrt_small.cpp boost_unit_test ]
 
     ;
