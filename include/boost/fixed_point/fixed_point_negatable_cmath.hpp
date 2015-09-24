@@ -418,6 +418,7 @@
                                                                               typename std::enable_if<int(24) >= (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+    typedef typename local_negatable_type::value_type                               local_value_type;
 
     // Reduce the argument to the range 0 < x < +pi/2.
     const bool is_neg = (x < 0);
@@ -449,14 +450,11 @@
       // Perform the polynomial approximation using a coefficient
       // expansion via the method of Horner.
 
-      // TBD: Express these constants as integral fixed-point representations
-      // and eliminate all potential overhead from floating-point conversion.
-
-      result = ((((       local_negatable_type(0.00002315393167722739L)
-                   * x2 - local_negatable_type(0.0013853704264L))
-                   * x2 + local_negatable_type(0.0416635846769L))
-                   * x2 - local_negatable_type(0.499999053455L))
-                   * x2 + local_negatable_type(0.999999953464L));
+      result = ((((       local_negatable_type(local_negatable_type::nothing(), local_value_type(UINT32_C(0x00000184) >> (24 + FractionalResolution)))    // 0.00002315393167722739
+                   * x2 - local_negatable_type(local_negatable_type::nothing(), local_value_type(UINT32_C(0x00005ACA) >> (24 + FractionalResolution))))   // 0.0013853704264
+                   * x2 + local_negatable_type(local_negatable_type::nothing(), local_value_type(UINT32_C(0x000AAA76) >> (24 + FractionalResolution))))   // 0.0416635846769
+                   * x2 - local_negatable_type(local_negatable_type::nothing(), local_value_type(UINT32_C(0x007FFFF0) >> (24 + FractionalResolution))))   // 0.499999053455
+                   * x2 + local_negatable_type(local_negatable_type::nothing(), local_value_type(UINT32_C(0x00FFFFFF) >> (24 + FractionalResolution))));  // 0.999999953464
     }
 
     return ((!negate_result) ? result : -result);
@@ -467,6 +465,9 @@
                                                                               typename std::enable_if<int(24) < (-FractionalResolution)>::type const* = nullptr)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+
+    // cos(x) = 0F1(; 1/2; -(z^2)/4)
+    // cos(x) = -(x - (pi/2)) 0F1(; 3/2; -(1/4)(x - (pi/2))^2)
 
     return local_negatable_type(0);
   }
@@ -501,7 +502,7 @@
 
     if(x == 0)
     {
-      return local_negatable_type::value_pi() / 2;
+      return local_negatable_type::value_pi_half();
     }
     else
     {

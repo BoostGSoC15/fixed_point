@@ -1205,6 +1205,17 @@
       return the_value_pi;
     }
 
+    /*! Compute (during pre-main static initialization) the representation of the mathematical constant pi.\n
+    */
+    static const negatable& value_pi_half()
+    {
+      initialization_helper.force_premain_init_of_static_constants();
+
+      static const negatable the_value_pi_half = pi_helper<boost::uint32_t(-resolution)>::calculate_pi() / 2;
+
+      return the_value_pi_half;
+    }
+
     /*! Compute (during pre-main static initialization) the representation of the mathematical constant log(2).\n
     */
     static const negatable& value_ln_two()
@@ -1280,6 +1291,7 @@
         static_cast<void>(negatable::value_max());
         static_cast<void>(negatable::value_min());
         static_cast<void>(negatable::epsilon_maker());
+        static_cast<void>(negatable::value_pi_half());
         static_cast<void>(negatable::value_pi());
         static_cast<void>(negatable::value_ln_two());
       }
@@ -1439,8 +1451,9 @@
     typedef negatable<IntegralRange, FractionalResolution, round::fastest, overflow::undefined> local_negatable_type;
 
   public:
-    BOOST_STATIC_CONSTEXPR local_negatable_type pi    () { return local_negatable_type::value_pi(); }
-    BOOST_STATIC_CONSTEXPR local_negatable_type ln_two() { return local_negatable_type::value_ln_two(); }
+    BOOST_STATIC_CONSTEXPR local_negatable_type pi     () { return local_negatable_type::value_pi     (); }
+    BOOST_STATIC_CONSTEXPR local_negatable_type pi_half() { return local_negatable_type::value_pi_half(); }
+    BOOST_STATIC_CONSTEXPR local_negatable_type ln_two () { return local_negatable_type::value_ln_two (); }
   };
 
   template<const int IntegralRange, const int FractionalResolution>
@@ -1450,8 +1463,9 @@
     typedef negatable<IntegralRange, FractionalResolution, round::fastest, overflow::undefined> local_negatable_type;
 
   public:
-    BOOST_STATIC_CONSTEXPR local_negatable_type pi    () { return local_negatable_type::value_pi(); }
-    BOOST_STATIC_CONSTEXPR local_negatable_type ln_two() { return local_negatable_type::value_ln_two(); }
+    BOOST_STATIC_CONSTEXPR local_negatable_type pi     () { return local_negatable_type::value_pi     (); }
+    BOOST_STATIC_CONSTEXPR local_negatable_type pi_half() { return local_negatable_type::value_pi_half(); }
+    BOOST_STATIC_CONSTEXPR local_negatable_type ln_two () { return local_negatable_type::value_ln_two (); }
   };
 
   // Implementations of non-member binary add, sub, mul, div of (negatable op arithmetic_type).
