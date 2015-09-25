@@ -336,7 +336,7 @@
       int exp2;
       const local_negatable_type y = frexp(x, &exp2);
 
-      BOOST_CONSTEXPR boost::uint_fast16_t maximum_number_of_iterations = UINT16_C(10000);
+      BOOST_CONSTEXPR boost::uint32_t maximum_number_of_iterations = UINT32_C(10000);
 
       const local_negatable_type y_minus_one = y - 1;
 
@@ -354,7 +354,7 @@
       // digit ranges. Consider investigating any optimization
       // potential here.
 
-      for(boost::uint_fast16_t n = UINT16_C(2); n < maximum_number_of_iterations; ++n)
+      for(boost::uint32_t n = UINT32_C(2); n < maximum_number_of_iterations; ++n)
       {
         y_minus_one_pow_n *= y_minus_one;
 
@@ -362,7 +362,7 @@
 
         ((!term_is_negative) ? (log_series += term) : (log_series -= term));
 
-        const bool minimum_number_of_iterations_is_complete = (n > UINT16_C(4));
+        const bool minimum_number_of_iterations_is_complete = (n > UINT32_C(4));
 
         if((minimum_number_of_iterations_is_complete) && (fabs(term) <= tolerance))
         {
@@ -414,6 +414,126 @@
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sin(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
+                                                                              typename std::enable_if<int(24) >= (-FractionalResolution)>::type const*)
+  {
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+    typedef typename local_negatable_type::value_type                               local_value_type;
+
+    // Reduce the argument to the range 0 < x < +pi/2.
+    const bool is_neg = (x < 0);
+
+    local_negatable_type xx((!is_neg) ? x : -x);
+
+    const int n = x / local_negatable_type::value_pi();
+
+    const bool negate_result = ((n % 2) != 0);
+
+    xx -= n * local_negatable_type::value_pi();
+
+    local_negatable_type result;
+
+    if(xx > (local_negatable_type::value_pi() / 2))
+    {
+      result = boost::fixed_point::sin(local_negatable_type::value_pi() - xx);
+    }
+    else
+    {
+      // Use an order 8 polynomial approximation that achieves
+      // about 7 decimal digits of precision in the range 0 < x < +pi/2.
+
+      // The coefficients originate from J. F. Hart et al.,
+      // Computer Approximations (John Wiley and Sons, Inc., 1968).
+      // See Chap. 7, Tables of Coefficients, Table 35xx on page 20x.
+      const local_negatable_type x2 = xx * xx;
+
+      // Perform the polynomial approximation using a coefficient
+      // expansion via the method of Horner.
+
+      // TBD: Obtain the coefficients for the polynomial expansion.
+      result = ((((       local_negatable_type(local_negatable_type::nothing(), local_value_type(UINT32_C(0x00000000) >> (24 + FractionalResolution)))    // 0.00002315393167722739
+                   * x2 - local_negatable_type(local_negatable_type::nothing(), local_value_type(UINT32_C(0x00000000) >> (24 + FractionalResolution))))   // 0.0013853704264
+                   * x2 + local_negatable_type(local_negatable_type::nothing(), local_value_type(UINT32_C(0x00000000) >> (24 + FractionalResolution))))   // 0.0416635846769
+                   * x2 - local_negatable_type(local_negatable_type::nothing(), local_value_type(UINT32_C(0x00000000) >> (24 + FractionalResolution))))   // 0.499999053455
+                   * x2 + local_negatable_type(local_negatable_type::nothing(), local_value_type(UINT32_C(0x00000000) >> (24 + FractionalResolution))));  // 0.999999953464
+    }
+
+    return ((is_neg == negate_result) ? result : -result);
+  }
+
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sin(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
+                                                                              typename std::enable_if<int(24) <  (-FractionalResolution)>::type const*)
+  {
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+    typedef typename local_negatable_type::value_type                               local_value_type;
+
+    // Reduce the argument to the range 0 < x < +pi/2.
+    const bool is_neg = (x < 0);
+
+    local_negatable_type xx((!is_neg) ? x : -x);
+
+    const int n = x / local_negatable_type::value_pi();
+
+    const bool negate_result = ((n % 2) != 0);
+
+    xx -= n * local_negatable_type::value_pi();
+
+    local_negatable_type result;
+
+    if(xx > (local_negatable_type::value_pi() / 2))
+    {
+      result = boost::fixed_point::sin(local_negatable_type::value_pi() - xx);
+    }
+    else
+    {
+      if(xx <= (local_negatable_type::value_pi() / 4))
+      {
+        // Use the Taylor series representation of sin(x) near x = 0.
+        local_negatable_type x_squared = (xx * xx);
+        local_negatable_type term      = xx;
+        bool term_is_negative          = true;
+        local_negatable_type sum       = term;
+
+        BOOST_CONSTEXPR_OR_CONST boost::uint32_t maximum_number_of_iterations = UINT32_C(10000);
+
+        for(boost::uint32_t k = UINT32_C(1); k < maximum_number_of_iterations; k += UINT32_C(2))
+        {
+          term *= x_squared;
+
+          term /= (k + 1U);
+          term /= (k + 2U);
+
+          const bool minimum_number_of_iterations_is_complete = (n > UINT32_C(5));
+
+          if(   (minimum_number_of_iterations_is_complete)
+             && (term <= std::numeric_limits<local_negatable_type>::epsilon()))
+          {
+            break;
+          }
+
+          ((!term_is_negative) ? sum += term : sum -= term);
+
+          term_is_negative = (!term_is_negative);
+        }
+
+        result = sum;
+      }
+      else
+      {
+        // Use an angle doubling identity to reduce the argument to less than +pi/4..
+        const local_negatable_type half_x = x / 2;
+
+        const local_negatable_type sin_half_x = sin(half_x);
+
+        return 2 * (boost::fixed_point::sin(half_x) * boost::fixed_point::cos(half_x));
+      }
+    }
+
+    return ((is_neg == negate_result) ? result : -result);
+  }
+
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> cos(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                               typename std::enable_if<int(24) >= (-FractionalResolution)>::type const*)
   {
@@ -435,7 +555,7 @@
 
     if(xx > (local_negatable_type::value_pi() / 2))
     {
-      result = -cos(local_negatable_type::value_pi() - xx);
+      result = -boost::fixed_point::cos(local_negatable_type::value_pi() - xx);
     }
     else
     {
@@ -462,22 +582,80 @@
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> cos(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                              typename std::enable_if<int(24) < (-FractionalResolution)>::type const* = nullptr)
+                                                                              typename std::enable_if<int(24) < (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+    typedef typename local_negatable_type::value_type                               local_value_type;
 
-    // cos(x) = 0F1(; 1/2; -(z^2)/4)
-    // cos(x) = -(x - (pi/2)) 0F1(; 3/2; -(1/4)(x - (pi/2))^2)
+    // Reduce the argument to the range 0 < x < +pi/2.
+    const bool is_neg = (x < 0);
 
-    return local_negatable_type(0);
+    local_negatable_type xx((!is_neg) ? x : -x);
+
+    const int n = x / local_negatable_type::value_pi();
+
+    const bool negate_result = ((n % 2) != 0);
+
+    xx -= n * local_negatable_type::value_pi();
+
+    local_negatable_type result;
+
+    if(xx > (local_negatable_type::value_pi() / 2))
+    {
+      result = -boost::fixed_point::cos(local_negatable_type::value_pi() - xx);
+    }
+    else
+    {
+      if(xx <= (local_negatable_type::value_pi() / 4))
+      {
+        // Use the Taylor series representation of cos(x) near x = 0.
+        local_negatable_type x_squared = (xx * xx);
+        local_negatable_type term      = x_squared / 2;
+        bool term_is_negative          = false;
+        local_negatable_type sum       = 1 - term;
+
+        BOOST_CONSTEXPR_OR_CONST boost::uint32_t maximum_number_of_iterations = UINT32_C(10000);
+
+        for(boost::uint32_t k = UINT32_C(2); k < maximum_number_of_iterations; k += UINT32_C(2))
+        {
+          term *= x_squared;
+
+          term /= (k + 1U);
+          term /= (k + 2U);
+
+          const bool minimum_number_of_iterations_is_complete = (n > UINT32_C(6));
+
+          if(   (minimum_number_of_iterations_is_complete)
+             && (term <= std::numeric_limits<local_negatable_type>::epsilon()))
+          {
+            break;
+          }
+
+          ((!term_is_negative) ? sum += term : sum -= term);
+
+          term_is_negative = (!term_is_negative);
+        }
+
+        result = sum;
+      }
+      else
+      {
+        // Use an angle doubling identity to reduce the argument to less than +pi/4..
+        const local_negatable_type half_x = x / 2;
+
+        const local_negatable_type cos_half_x = boost::fixed_point::cos(half_x);
+
+        return (2 * (cos_half_x * cos_half_x)) - 1;
+      }
+    }
+
+    return ((!negate_result) ? result : -result);
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> tan(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
-
-    return local_negatable_type(0);
+    return sin(x) / cos(x);
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>

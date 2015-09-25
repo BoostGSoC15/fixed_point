@@ -23,9 +23,6 @@
   template<typename NumericType>
   NumericType hypergeometric_0f0(const NumericType& x)
   {
-    using std::fabs;
-    using std::ldexp;
-
     // Compute the series representation of hypergeometric_0f0.
     // There are no checks on input range or parameter boundaries.
 
@@ -37,17 +34,17 @@
 
     NumericType h0f0 = 1 + x_pow_n_div_n_fact;
 
-    boost::uint_fast16_t n;
+    BOOST_CONSTEXPR_OR_CONST boost::uint32_t maximum_number_of_iterations = UINT32_C(10000);
 
-    BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t maximum_number_of_iterations = UINT16_C(10000);
-
-    // Perform the series expansion of hyperg_0f0(; ; x).
-    for(n = UINT16_C(2); n < maximum_number_of_iterations; ++n)
+    // Perform the series expansion of hypergeometric_0f0(; ; x).
+    for(boost::uint32_t n = UINT32_C(2); n < maximum_number_of_iterations; ++n)
     {
       x_pow_n_div_n_fact *= x;
       x_pow_n_div_n_fact /= n;
 
-      const bool minimum_number_of_iterations_is_complete = (n > UINT16_C(4));
+      const bool minimum_number_of_iterations_is_complete = (n > UINT32_C(4));
+
+      using std::fabs;
 
       if(   (minimum_number_of_iterations_is_complete)
          && (fabs(x_pow_n_div_n_fact) <= std::numeric_limits<NumericType>::epsilon()))
@@ -59,6 +56,47 @@
     }
 
     return h0f0;
+  }
+
+  template<typename NumericType>
+  NumericType hypergeometric_0f1(const NumericType& x,
+                                 const NumericType& b)
+  {
+    // Compute the series representation of hypergeometric_0f1.
+    // There are no checks on input range or parameter boundaries.
+
+    NumericType x_pow_n_div_n_fact(x);
+    NumericType pochham_b         (b);
+    NumericType bp                (b);
+
+    NumericType h0f1 = 1 + (x_pow_n_div_n_fact / pochham_b);
+
+    BOOST_CONSTEXPR_OR_CONST boost::uint32_t maximum_number_of_iterations = UINT32_C(10000);
+
+    // Perform the series expansion of hypergeometric_0f1(; b; x).
+    for(boost::uint32_t n = UINT32_C(2); n < maximum_number_of_iterations; ++n)
+    {
+      x_pow_n_div_n_fact *= x;
+      x_pow_n_div_n_fact /= n;
+
+      pochham_b *= ++bp;
+
+      const NumericType term = x_pow_n_div_n_fact / pochham_b;
+
+      const bool minimum_number_of_iterations_is_complete = (n > UINT32_C(4));
+
+      using std::fabs;
+
+      if(   (minimum_number_of_iterations_is_complete)
+         && (fabs(x_pow_n_div_n_fact) <= std::numeric_limits<NumericType>::epsilon()))
+      {
+        break;
+      }
+
+      h0f1 += term;
+    }
+
+    return h0f1;
   }
 
   template<typename NumericType>
@@ -84,12 +122,10 @@
 
     NumericType h2f1 = 1 + (((pochham_a * pochham_b) / pochham_c) * x_pow_n_div_n_fact);
 
-    boost::uint_fast16_t n;
-
     BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t maximum_number_of_iterations = UINT16_C(10000);
 
-    // Perform the series expansion of hyperg_2f1(a, b; c; x).
-    for(n = UINT16_C(2); n < maximum_number_of_iterations; ++n)
+    // Perform the series expansion of hypergeometric_2f1(a, b; c; x).
+    for(boost::uint32_t n = UINT32_C(2); n < maximum_number_of_iterations; ++n)
     {
       x_pow_n_div_n_fact *= x;
       x_pow_n_div_n_fact /= n;
@@ -100,7 +136,7 @@
 
       const NumericType term = ((pochham_a * pochham_b) / pochham_c) * x_pow_n_div_n_fact;
 
-      const bool minimum_number_of_iterations_is_complete = (n > UINT16_C(4));
+      const bool minimum_number_of_iterations_is_complete = (n > UINT32_C(4));
 
       if(   (minimum_number_of_iterations_is_complete)
          && (fabs(x_pow_n_div_n_fact) <= std::numeric_limits<NumericType>::epsilon()))
