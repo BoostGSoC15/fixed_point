@@ -16,8 +16,8 @@
 #define BOOST_TEST_MODULE test_negatable_trig_func_sine_big
 #define BOOST_LIB_DIAGNOSTIC
 
-#include <boost/test/included/unit_test.hpp>
 #include <boost/fixed_point/fixed_point.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 namespace local
 {
@@ -162,13 +162,10 @@ BOOST_AUTO_TEST_CASE(test_negatable_trig_func_sine_big)
 
   const fixed_point_type tol = ldexp(fixed_point_type(1), fixed_point_type::resolution + 12);
 
-  fixed_point_type x;
-  fixed_point_type y;
-
   for(int i = 1; i < 128; ++i)
   {
-    x = boost::fixed_point::sin(fixed_point_type(i) / 10);
-    y = float_point_type(local::data[i]);
+    const fixed_point_type x = sin(fixed_point_type(i) / 10);
+    const float_point_type y = float_point_type(local::data[i]);
 
     BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
   }

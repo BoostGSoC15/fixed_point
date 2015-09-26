@@ -29,6 +29,7 @@ all_files : test_negatable_arithmetic_fastest.exe              \
             test_negatable_construct.exe                       \
             test_negatable_exp_fastest.exe                     \
             test_negatable_exp_nearest_even.exe                \
+            test_negatable_exp_small.exe                       \
             test_negatable_floor_ceil.exe                      \
             test_negatable_frexp_ldexp.exe                     \
             test_negatable_limits.exe                          \
@@ -55,7 +56,13 @@ all_files : test_negatable_arithmetic_fastest.exe              \
             test_negatable_sqrt_big.exe                        \
             test_negatable_sqrt_fastest.exe                    \
             test_negatable_sqrt_nearest_even.exe               \
-            test_negatable_sqrt_small.exe
+            test_negatable_sqrt_small.exe                      \
+            test_negatable_trig_func_cosine_big.exe            \
+            test_negatable_trig_func_sine_big.exe              \
+            test_negatable_trig_func_tangent_big.exe           \
+            test_negatable_trig_func_cosine_small.exe          \
+            test_negatable_trig_func_sine_small.exe            \
+            test_negatable_trig_func_tangent_small.exe
 
 cleanup :
 	@-echo +++cleaning all executable files

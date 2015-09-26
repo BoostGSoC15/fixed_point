@@ -29,6 +29,9 @@ g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-unin
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_exp_nearest_even.cpp -o test_negatable_exp_nearest_even.exe
 .\test_negatable_exp_nearest_even.exe
 
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_exp_small.cpp -o test_negatable_exp_small.exe
+.\test_negatable_exp_small.exe
+
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_floor_ceil.cpp -o test_negatable_floor_ceil.exe
 .\test_negatable_floor_ceil.exe
 
@@ -109,5 +112,23 @@ g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-unin
 
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_sqrt_small.cpp -o test_negatable_sqrt_small.exe
 .\test_negatable_sqrt_small.exe
+
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_trig_func_cosine_big.cpp -o test_negatable_trig_func_cosine_big.exe
+.\test_negatable_trig_func_cosine_big.exe
+
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_trig_func_sine_big.cpp -o test_negatable_trig_func_sine_big.exe
+.\test_negatable_trig_func_sine_big.exe
+
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_trig_func_tangent_big.cpp -o test_negatable_trig_func_tangent_big.exe
+.\test_negatable_trig_func_tangent_big.exe
+
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_trig_func_cosine_small.cpp -o test_negatable_trig_func_cosine_small.exe
+.\test_negatable_trig_func_cosine_small.exe
+
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_trig_func_sine_small.cpp -o test_negatable_trig_func_sine_small.exe
+.\test_negatable_trig_func_sine_small.exe
+
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_trig_func_tangent_small.cpp -o test_negatable_trig_func_tangent_small.exe
+.\test_negatable_trig_func_tangent_small.exe
 
 del /Q *.exe
