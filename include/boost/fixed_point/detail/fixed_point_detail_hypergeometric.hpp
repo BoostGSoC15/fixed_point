@@ -30,29 +30,28 @@
     // It is not intended for general purpose calculations of
     // hypergeometric_0f0!
 
-    NumericType x_pow_n_div_n_fact(x);
-
-    NumericType h0f0 = 1 + x_pow_n_div_n_fact;
+    NumericType term(x);
+    NumericType h0f0(1 + term);
 
     BOOST_CONSTEXPR_OR_CONST boost::uint32_t maximum_number_of_iterations = UINT32_C(10000);
 
     // Perform the series expansion of hypergeometric_0f0(; ; x).
     for(boost::uint32_t n = UINT32_C(2); n < maximum_number_of_iterations; ++n)
     {
-      x_pow_n_div_n_fact *= x;
-      x_pow_n_div_n_fact /= n;
+      term *= x;
+      term /= n;
 
       const bool minimum_number_of_iterations_is_complete = (n > UINT32_C(4));
 
       using std::fabs;
 
       if(   (minimum_number_of_iterations_is_complete)
-         && (fabs(x_pow_n_div_n_fact) <= std::numeric_limits<NumericType>::epsilon()))
+         && (fabs(term) <= std::numeric_limits<NumericType>::epsilon()))
       {
         break;
       }
 
-      h0f0 += x_pow_n_div_n_fact;
+      h0f0 += term;
     }
 
     return h0f0;
@@ -65,30 +64,27 @@
     // Compute the series representation of hypergeometric_0f1.
     // There are no checks on input range or parameter boundaries.
 
-    NumericType x_pow_n_div_n_fact(x);
-    NumericType pochham_b         (b);
-    NumericType bp                (b);
+    NumericType bp(b);
 
-    NumericType h0f1 = 1 + (x_pow_n_div_n_fact / pochham_b);
+    NumericType term(x / bp);
+    NumericType h0f1(1 + term);
 
     BOOST_CONSTEXPR_OR_CONST boost::uint32_t maximum_number_of_iterations = UINT32_C(10000);
 
     // Perform the series expansion of hypergeometric_0f1(; b; x).
     for(boost::uint32_t n = UINT32_C(2); n < maximum_number_of_iterations; ++n)
     {
-      x_pow_n_div_n_fact *= x;
-      x_pow_n_div_n_fact /= n;
+      term *= x;
+      term /= n;
 
-      pochham_b *= ++bp;
-
-      const NumericType term = x_pow_n_div_n_fact / pochham_b;
+      ++bp; term /= bp;
 
       const bool minimum_number_of_iterations_is_complete = (n > UINT32_C(4));
 
       using std::fabs;
 
       if(   (minimum_number_of_iterations_is_complete)
-         && (fabs(x_pow_n_div_n_fact) <= std::numeric_limits<NumericType>::epsilon()))
+         && (fabs(term) <= std::numeric_limits<NumericType>::epsilon()))
       {
         break;
       }
@@ -105,41 +101,35 @@
                                  const NumericType& b,
                                  const NumericType& c)
   {
-    using std::fabs;
-    using std::ldexp;
-
     // Compute the series representation of hyperg_2f1 taken from
     // Abramowitz and Stegun 15.1.1.
     // There are no checks on input range or parameter boundaries.
 
-    NumericType x_pow_n_div_n_fact(x);
-    NumericType pochham_a         (a);
-    NumericType pochham_b         (b);
-    NumericType pochham_c         (c);
-    NumericType ap                (a);
-    NumericType bp                (b);
-    NumericType cp                (c);
+    NumericType ap(a);
+    NumericType bp(b);
+    NumericType cp(c);
 
-    NumericType h2f1 = 1 + (((pochham_a * pochham_b) / pochham_c) * x_pow_n_div_n_fact);
+    NumericType term(((ap * bp) / cp) * x);
+    NumericType h2f1(1 + term);
 
     BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t maximum_number_of_iterations = UINT16_C(10000);
 
     // Perform the series expansion of hypergeometric_2f1(a, b; c; x).
     for(boost::uint32_t n = UINT32_C(2); n < maximum_number_of_iterations; ++n)
     {
-      x_pow_n_div_n_fact *= x;
-      x_pow_n_div_n_fact /= n;
+      term *= x;
+      term /= n;
 
-      pochham_a *= ++ap;
-      pochham_b *= ++bp;
-      pochham_c *= ++cp;
-
-      const NumericType term = ((pochham_a * pochham_b) / pochham_c) * x_pow_n_div_n_fact;
+      ++ap; term *= ap;
+      ++cp; term /= cp;
+      ++bp; term *= bp;
 
       const bool minimum_number_of_iterations_is_complete = (n > UINT32_C(4));
 
+      using std::fabs;
+
       if(   (minimum_number_of_iterations_is_complete)
-         && (fabs(x_pow_n_div_n_fact) <= std::numeric_limits<NumericType>::epsilon()))
+         && (fabs(term) <= std::numeric_limits<NumericType>::epsilon()))
       {
         break;
       }

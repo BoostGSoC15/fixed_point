@@ -315,13 +315,13 @@
     // expansion via the method of Horner.
 
     local_negatable_type result =
-      ((((((      local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00000d64) >> (24 + FractionalResolution)))   // 0.0002043732656744
-            * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00005e03) >> (24 + FractionalResolution))))  // 0.0014345483118123
-            * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000221db) >> (24 + FractionalResolution))))  // 0.0083291093882400
-            * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000aa908) >> (24 + FractionalResolution))))  // 0.0416417643582255
-            * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x002aaabd) >> (24 + FractionalResolution))))  // 0.1666677606703556
-            * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0080003f) >> (24 + FractionalResolution))))  // 0.5000038123608412
-            * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00fffffe) >> (24 + FractionalResolution))))  // 0.9999999247233815
+      ((((((      local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00000D64) >> (24 + FractionalResolution)))   // 0.0002043732656744
+            * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00005E03) >> (24 + FractionalResolution))))  // 0.0014345483118123
+            * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000221DB) >> (24 + FractionalResolution))))  // 0.0083291093882400
+            * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000AA908) >> (24 + FractionalResolution))))  // 0.0416417643582255
+            * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x002AAABD) >> (24 + FractionalResolution))))  // 0.1666677606703556
+            * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0080003F) >> (24 + FractionalResolution))))  // 0.5000038123608412
+            * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00FFFFFE) >> (24 + FractionalResolution))))  // 0.9999999247233815
             * x;
 
     ++result;
@@ -516,29 +516,24 @@
     }
     else
     {
-      // TBD: Division with pi could be optimized via multiplication with 1/pi.
-      local_negatable_type chi = x;
-      chi.data <<= 1;
-      chi /= local_negatable_type::value_pi();
-
-      const local_negatable_type chi2 = (chi * chi);
-
       // Use a polynomial approximation.
-      // sin(X) = approx. + 1.570796298706863 X
-      //                  - 0.645963492433769 X^3
-      //                  + 0.079689013500475 X^5
-      //                  - 0.004673007403533 X^7
-      //                  + 0.000151195476852 X^9,
-      // where [X = (2 pi) / x] in the range 0 <= x <= +pi/2.
+      // sin(x) = approx. + 0.9999999815561047 x
+      //                  - 0.1666665066192447 x^3
+      //                  + 0.0083329484215251 x^5
+      //                  - 0.0001980373563403 x^7
+      //                  + 0.0000025959374407 x^9,
+      // in the range -pi/2 <= x <= +pi/2.
+
+      const local_negatable_type x2 = (x * x);
 
       // Perform the polynomial approximation using a coefficient
       // expansion via the method of Horner.
-      result = ((((         local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000009e8) >> (24 + FractionalResolution)))   // 0.000151195476852
-                   * chi2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00013240) >> (24 + FractionalResolution))))  // 0.004673007403533
-                   * chi2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0014667f) >> (24 + FractionalResolution))))  // 0.079689013500475
-                   * chi2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00a55ddd) >> (24 + FractionalResolution))))  // 0.645963492433769
-                   * chi2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x01921fb4) >> (24 + FractionalResolution))))  // 1.570796298706863
-                   * chi;
+      result = ((((       local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0000002B) >> (24 + FractionalResolution)))   // 0.9999999815561047
+                   * x2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00000CFA) >> (24 + FractionalResolution))))  // 0.1666665066192447
+                   * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0002221B) >> (24 + FractionalResolution))))  // 0.0083329484215251
+                   * x2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x002AAAA7) >> (24 + FractionalResolution))))  // 0.0001980373563403
+                   * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00FFFFFF) >> (24 + FractionalResolution))))  // 0.0000025959374407
+                   * x;
     }
 
     return ((!negate_result) ? result : -result);
@@ -654,28 +649,23 @@
     }
     else
     {
-      // TBD: Division with pi could be optimized via multiplication with 1/pi.
-      local_negatable_type chi = x;
-      chi.data <<= 1;
-      chi /= local_negatable_type::value_pi();
-
-      const local_negatable_type chi2 = (chi * chi);
-
       // Use a polynomial approximation.
-      // cos(X) = approx. + 0.999999966824134
-      //                  - 1.233698702384155 x^2
-      //                  + 0.253653511995994 x^4
-      //                  - 0.020815551752398 x^6
-      //                  + 0.000860884502780 x^8
-      // where [X = (2 pi) / x] in the range 0 <= x <= +pi/2.
+      // cos(x) = approx. + 0.9999999667108460810462
+      //                  - 0.4999992457865632108920 x^2
+      //                  + 0.0416640234814615320276 x^4
+      //                  - 0.0013856849192136990974 x^6
+      //                  + 0.0000232232695894268079 x^8
+      // in the range -pi/2 <= x <= +pi/2.
+
+      const local_negatable_type x2 = (x * x);
 
       // Perform the polynomial approximation using a coefficient
       // expansion via the method of Horner.
-      result = ((((         local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0000386B) >> (24 + FractionalResolution)))    // 0.000860884502780
-                   * chi2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0005542B) >> (24 + FractionalResolution))))   // 0.020815551752398
-                   * chi2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0040EF6F) >> (24 + FractionalResolution))))   // 0.253653511995994
-                   * chi2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x013BD3AD) >> (24 + FractionalResolution))))   // 1.233698702384155
-                   * chi2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00FFFFFF) >> (24 + FractionalResolution))));  // 0.999999966824134
+      result = ((((       local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00000185) >> (24 + FractionalResolution)))    // 0.9999999667108460810462
+                   * x2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00005ACE) >> (24 + FractionalResolution))))   // 0.4999992457865632108920
+                   * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000AAA7E) >> (24 + FractionalResolution))))   // 0.0416640234814615320276
+                   * x2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x007FFFF3) >> (24 + FractionalResolution))))   // 0.0013856849192136990974
+                   * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00FFFFFF) >> (24 + FractionalResolution))));  // 0.0000232232695894268079
     }
 
     return ((!negate_result) ? result : -result);
