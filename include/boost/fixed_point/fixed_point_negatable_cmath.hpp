@@ -251,7 +251,8 @@
       result.data = local_value_type(a << (n / 2));
 
       // Estimate the zero'th term of the iteration with [1 / (2 * result)].
-      local_negatable_type vi = 1U / (result * 2U);
+      local_negatable_type vi = 1 / result;
+      vi.data >>= 1;
 
       // Compute the square root of x using coupled Newton iteration.
       // More precisely, this is the Schoenhage variation thereof.
@@ -304,9 +305,9 @@
     //                      + 0.0002043732656744 x^7,
     // in the range -1 <= x <= +1.
 
-    const boost::uint_fast16_t nf = static_cast<boost::uint_fast16_t>(floor(x / local_negatable_type::value_ln_two()));
+    const int nf = ((x > local_negatable_type::value_ln_two()) ? int(x / local_negatable_type::value_ln_two()) : 0);
 
-    if(nf > UINT16_C(0))
+    if(nf > 0)
     {
       x -= (local_negatable_type::value_ln_two() * nf);
     }
@@ -326,7 +327,7 @@
 
     ++result;
 
-    if(nf > UINT16_C(0))
+    if(nf > 0)
     {
       result.data <<= nf;
     }
@@ -352,16 +353,16 @@
       return 1 / exp(-x);
     }
 
-    const boost::uint_fast16_t nf = static_cast<boost::uint_fast16_t>(floor(x / local_negatable_type::value_ln_two()));
+    const int nf = ((x > local_negatable_type::value_ln_two()) ? int(x / local_negatable_type::value_ln_two()) : 0);
 
-    if(nf > UINT16_C(0))
+    if(nf > 0)
     {
       x -= (local_negatable_type::value_ln_two() * nf);
     }
 
     local_negatable_type result = detail::hypergeometric_0f0(x);
 
-    if(nf > UINT16_C(0))
+    if(nf > 0)
     {
       result.data <<= nf;
     }
@@ -491,7 +492,7 @@
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    // Reduce the argument to the range 0 < x < +pi/2.
+    // Reduce the argument to the range 0 <= x <= +pi/2.
     const bool is_neg = (x < 0);
 
     if(is_neg)
@@ -545,7 +546,7 @@
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
-    // Reduce the argument to the range 0 < x < +pi/2.
+    // Reduce the argument to the range 0 <= x <= +pi/2.
     const bool is_neg = (x < 0);
 
     if(is_neg)
@@ -624,7 +625,7 @@
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    // Reduce the argument to the range 0 < x < +pi/2.
+    // Reduce the argument to the range 0 <= x <= +pi/2.
     const bool is_neg = (x < 0);
 
     if(is_neg)
@@ -677,7 +678,7 @@
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
-    // Reduce the argument to the range 0 < x < +pi/2.
+    // Reduce the argument to the range 0 <= x <= +pi/2.
     const bool is_neg = (x < 0);
 
     if(is_neg)

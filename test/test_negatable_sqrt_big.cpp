@@ -29,75 +29,10 @@ namespace local
 
   template<typename FixedPointType,
            typename FloatPointType = typename FixedPointType::float_type>
-  void test_sqrt(const int fuzzy_bits)
+  void test_big_sqrt_pi(const int fuzzy_bits)
   {
-    // Use at least 6 resolution bits.
-    // Use at least 8 range bits.
-
-    BOOST_STATIC_ASSERT(-FixedPointType::resolution >= 6);
-    BOOST_STATIC_ASSERT( FixedPointType::range      >= 8);
-
-    using std::sqrt;
-
-    #if defined(ENABLE_LOCAL_TEST_DEBUG_MESSAGES)
-
-      std::cout << "Testing sqrt for negatable<"
-                << std::setw(4)
-                << FixedPointType::range
-                << ", "
-                << std::setw(5)
-                << FixedPointType::resolution
-                << ">."
-                << std::endl;
-
-    #endif // ENABLE_LOCAL_TEST_DEBUG_MESSAGES
-
-    const FixedPointType a1 (  2L    );                                      const FloatPointType b1(  2L    );
-    const FixedPointType a2 (  3L    );                                      const FloatPointType b2(  3L    );
-    const FixedPointType a3 (  8.375L);                                      const FloatPointType b3(  8.375L);
-    const FixedPointType a4 ( 64.125L);                                      const FloatPointType b4( 64.125L);
-    const FixedPointType a5 (100.875L);                                      const FloatPointType b5(100.875L);
-    const FixedPointType a6 (FixedPointType(  1) /  3);                      const FloatPointType b6(FloatPointType(  1) /  3);
-    const FixedPointType a7 (FixedPointType( 12) / 10);                      const FloatPointType b7(FloatPointType( 12) / 10);
-    const FixedPointType a8 (FixedPointType(111) / 10);                      const FloatPointType b8(FloatPointType(111) / 10);
-    const FixedPointType a9 (boost::math::constants::phi<FixedPointType>()); const FloatPointType b9(boost::math::constants::phi<FloatPointType>());
-
-    BOOST_CHECK_CLOSE_FRACTION(sqrt(a1), FixedPointType(sqrt(b1)), tolerance_maker<FixedPointType>(fuzzy_bits));
-    BOOST_CHECK_CLOSE_FRACTION(sqrt(a2), FixedPointType(sqrt(b2)), tolerance_maker<FixedPointType>(fuzzy_bits));
-    BOOST_CHECK_CLOSE_FRACTION(sqrt(a3), FixedPointType(sqrt(b3)), tolerance_maker<FixedPointType>(fuzzy_bits));
-    BOOST_CHECK_CLOSE_FRACTION(sqrt(a4), FixedPointType(sqrt(b4)), tolerance_maker<FixedPointType>(fuzzy_bits));
-    BOOST_CHECK_CLOSE_FRACTION(sqrt(a5), FixedPointType(sqrt(b5)), tolerance_maker<FixedPointType>(fuzzy_bits));
-    BOOST_CHECK_CLOSE_FRACTION(sqrt(a6), FixedPointType(sqrt(b6)), tolerance_maker<FixedPointType>(fuzzy_bits));
-    BOOST_CHECK_CLOSE_FRACTION(sqrt(a7), FixedPointType(sqrt(b7)), tolerance_maker<FixedPointType>(fuzzy_bits));
-    BOOST_CHECK_CLOSE_FRACTION(sqrt(a8), FixedPointType(sqrt(b8)), tolerance_maker<FixedPointType>(fuzzy_bits));
-    BOOST_CHECK_CLOSE_FRACTION(sqrt(a9), FixedPointType(sqrt(b9)), tolerance_maker<FixedPointType>(fuzzy_bits));
-  }
-
-  template<typename FixedPointType,
-           typename FloatPointType = typename FixedPointType::float_type>
-  void test_big_sqrt_zeta_three(const int fuzzy_bits)
-  {
-    // Use at least 6000 resolution bits.
-    // Use at least 2000 range bits.
-
-    BOOST_STATIC_ASSERT(-FixedPointType::resolution >= 6000);
-    BOOST_STATIC_ASSERT( FixedPointType::range      >= 2000);
-
-    #if defined(ENABLE_LOCAL_TEST_DEBUG_MESSAGES)
-
-      std::cout << "Testing sqrt for negatable<"
-                << std::setw(4)
-                << FixedPointType::range
-                << ", "
-                << std::setw(5)
-                << FixedPointType::resolution
-                << ">."
-                << std::endl;
-
-    #endif // ENABLE_LOCAL_TEST_DEBUG_MESSAGES
-
-    const FixedPointType a(boost::math::constants::zeta_three<FixedPointType>());
-    const FloatPointType b(boost::math::constants::zeta_three<FloatPointType>());
+    const FixedPointType a(boost::math::constants::pi<FixedPointType>());
+    const FloatPointType b(boost::math::constants::pi<FloatPointType>());
 
     BOOST_CHECK_CLOSE_FRACTION(sqrt(a), FixedPointType(sqrt(b)), tolerance_maker<FixedPointType>(fuzzy_bits));
   }
@@ -106,9 +41,9 @@ namespace local
 BOOST_AUTO_TEST_CASE(test_negatable_sqrt_big)
 {
   // Test sqrt() for negatable in a large digit range using the result
-  // of a non-trivial calculation (in this case zeta_three). This also
+  // of a non-trivial calculation (in this case pi). This also
   // exercises negatable with numerous arithmetic operations.
 
-  { typedef boost::fixed_point::negatable<2000, -6191, boost::fixed_point::round::fastest>      fixed_point_type; local::test_big_sqrt_zeta_three<fixed_point_type>(fixed_point_type::range); }
-  { typedef boost::fixed_point::negatable<2000, -6191, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_big_sqrt_zeta_three<fixed_point_type>(fixed_point_type::range); }
+  { typedef boost::fixed_point::negatable<10, -4085, boost::fixed_point::round::fastest>      fixed_point_type; local::test_big_sqrt_pi<fixed_point_type>(fixed_point_type::range); }
+  { typedef boost::fixed_point::negatable<10, -4085, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_big_sqrt_pi<fixed_point_type>(fixed_point_type::range); }
 }
