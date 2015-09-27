@@ -97,9 +97,9 @@ test-suite "Fixed_point"
       [ run test_negatable_sqrt_small.cpp boost_unit_test ]
       [ run test_negatable_trig_func_cosine_big.cpp boost_unit_test ]
       [ run test_negatable_trig_func_sine_big.cpp boost_unit_test ]
-      [ run test_negatable_trig_func_tangent_big.cpp boost_unit_test ]
       [ run test_negatable_trig_func_cosine_small.cpp boost_unit_test ]
       [ run test_negatable_trig_func_sine_small.cpp boost_unit_test ]
+      [ run test_negatable_trig_func_tangent_big.cpp boost_unit_test ]
       [ run test_negatable_trig_func_tangent_small.cpp boost_unit_test ]
 
     ;

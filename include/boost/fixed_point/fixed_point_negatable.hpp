@@ -710,7 +710,7 @@
 
       unsigned_large_type result((!u_is_neg) ? unsigned_large_type(data) : unsigned_large_type(-data));
 
-      result *= unsigned_large_type((!v_is_neg) ? unsigned_large_type(v.data) : unsigned_large_type(-v.data));
+      result *= ((!v_is_neg) ? unsigned_small_type(v.data) : unsigned_small_type(-v.data));
 
       // Scale the result of the multiplication to fit once again
       // in the fixed-point data field.
@@ -781,7 +781,7 @@
 
         result = (result << (radix_split + 1));
 
-        result /= unsigned_large_type((!v_is_neg) ? unsigned_large_type(v.data) : unsigned_large_type(-v.data));
+        result /= ((!v_is_neg) ? unsigned_small_type(v.data) : unsigned_small_type(-v.data));
 
         unsigned_small_type u_round = static_cast<unsigned_small_type>(result);
 
@@ -1208,7 +1208,7 @@
       return the_value_pi;
     }
 
-    /*! Compute (during pre-main static initialization) the representation of the mathematical constant pi.\n
+    /*! Compute (during pre-main static initialization) the representation of the mathematical constant pi/2.\n
     */
     static const negatable& value_pi_half()
     {

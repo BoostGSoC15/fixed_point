@@ -162,10 +162,20 @@ BOOST_AUTO_TEST_CASE(test_negatable_trig_func_tangent_big)
 
   const fixed_point_type tol = ldexp(fixed_point_type(1), fixed_point_type::resolution + 12);
 
+  // Check positive arguments.
   for(int i = 1; i < 128; ++i)
   {
     const fixed_point_type x = tan(fixed_point_type(i) / 10);
     const float_point_type y = float_point_type(local::data[i]);
+
+    BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
+  }
+
+  // Check negative arguments.
+  for(int i = 1; i < 128; ++i)
+  {
+    const fixed_point_type x = tan(fixed_point_type(-i) / 10);
+    const float_point_type y = -float_point_type(local::data[i]);
 
     BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
   }

@@ -294,6 +294,7 @@
       return 1 / exp(-x);
     }
 
+    // Use a polynomial approximation.
     // exp(x) - 1 = approx. + 0.9999999247233815 x
     //                      + 0.5000038123608412 x^2
     //                      + 0.1666677606703556 x^3
@@ -351,22 +352,21 @@
       return 1 / exp(-x);
     }
 
-    local_negatable_type exp_series;
+    const boost::uint_fast16_t nf = static_cast<boost::uint_fast16_t>(floor(x / local_negatable_type::value_ln_two()));
 
-    if(x > local_negatable_type::value_ln_two())
+    if(nf > UINT16_C(0))
     {
-      const boost::uint_fast16_t nf = static_cast<boost::uint_fast16_t>(floor(x / local_negatable_type::value_ln_two()));
-
-      const local_negatable_type xn = x - (local_negatable_type::value_ln_two() * nf);
-
-      exp_series = detail::hypergeometric_0f0(xn) * detail::power_of_two_helper<local_negatable_type>(int(nf));
-    }
-    else
-    {
-      exp_series = detail::hypergeometric_0f0(x);
+      x -= (local_negatable_type::value_ln_two() * nf);
     }
 
-    return exp_series;
+    local_negatable_type result = detail::hypergeometric_0f0(x);
+
+    if(nf > UINT16_C(0))
+    {
+      result.data <<= nf;
+    }
+
+    return result;
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
@@ -494,25 +494,36 @@
     // Reduce the argument to the range 0 < x < +pi/2.
     const bool is_neg = (x < 0);
 
-    local_negatable_type xx((!is_neg) ? x : -x);
+    if(is_neg)
+    {
+      x = -x;
+    }
 
-    const int n = x / local_negatable_type::value_pi();
+    const int n = ((x > local_negatable_type::value_pi()) ? int(x / local_negatable_type::value_pi()) : 0);
 
-    const bool negate_result = ((n % 2) != 0);
+    const bool negate_result = (is_neg != ((n % 2) != 0));
 
-    xx -= n * local_negatable_type::value_pi();
+    if(n > 0)
+    {
+      x -= (n * local_negatable_type::value_pi());
+    }
 
     local_negatable_type result;
 
-    if(xx > (local_negatable_type::value_pi() / 2))
+    if(x > local_negatable_type::value_pi_half())
     {
-      result = sin(local_negatable_type::value_pi() - xx);
+      result = sin(local_negatable_type::value_pi() - x);
     }
     else
     {
-      const local_negatable_type chi  = (xx * 2) / local_negatable_type::value_pi();
-      const local_negatable_type chi2 = chi * chi;
+      // TBD: Division with pi could be optimized via multiplication with 1/pi.
+      local_negatable_type chi = x;
+      chi.data <<= 1;
+      chi /= local_negatable_type::value_pi();
 
+      const local_negatable_type chi2 = (chi * chi);
+
+      // Use a polynomial approximation.
       // sin(X) = approx. + 1.570796298706863 X
       //                  - 0.645963492433769 X^3
       //                  + 0.079689013500475 X^5
@@ -530,7 +541,7 @@
                    * chi;
     }
 
-    return ((is_neg == negate_result) ? result : -result);
+    return ((!negate_result) ? result : -result);
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
@@ -542,27 +553,33 @@
     // Reduce the argument to the range 0 < x < +pi/2.
     const bool is_neg = (x < 0);
 
-    local_negatable_type xx((!is_neg) ? x : -x);
+    if(is_neg)
+    {
+      x = -x;
+    }
 
-    const int n = x / local_negatable_type::value_pi();
+    const int n = ((x > local_negatable_type::value_pi()) ? int(x / local_negatable_type::value_pi()) : 0);
 
-    const bool negate_result = ((n % 2) != 0);
+    const bool negate_result = (is_neg != ((n % 2) != 0));
 
-    xx -= n * local_negatable_type::value_pi();
+    if(n > 0)
+    {
+      x -= (n * local_negatable_type::value_pi());
+    }
 
     local_negatable_type result;
 
-    if(xx > (local_negatable_type::value_pi() / 2))
+    if(x > local_negatable_type::value_pi_half())
     {
-      result = sin(local_negatable_type::value_pi() - xx);
+      result = sin(local_negatable_type::value_pi() - x);
     }
     else
     {
-      if(xx <= (local_negatable_type::value_pi() / 4))
+      if(x <= (local_negatable_type::value_pi() / 4))
       {
         // Use the Taylor series representation of sin(x) near x = 0.
-        local_negatable_type x_squared = (xx * xx);
-        local_negatable_type term      = xx;
+        local_negatable_type x_squared = (x * x);
+        local_negatable_type term      = x;
         bool term_is_negative          = true;
         local_negatable_type sum       = term;
 
@@ -597,11 +614,11 @@
 
         const local_negatable_type sin_half_x = sin(half_x);
 
-        return 2 * (sin(half_x) * cos(half_x));
+        result = (2 * (sin(half_x) * cos(half_x)));
       }
     }
 
-    return ((is_neg == negate_result) ? result : -result);
+    return ((!negate_result) ? result : -result);
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
@@ -615,25 +632,36 @@
     // Reduce the argument to the range 0 < x < +pi/2.
     const bool is_neg = (x < 0);
 
-    local_negatable_type xx((!is_neg) ? x : -x);
+    if(is_neg)
+    {
+      x = -x;
+    }
 
-    const int n = x / local_negatable_type::value_pi();
+    const int n = ((x > local_negatable_type::value_pi()) ? int(x / local_negatable_type::value_pi()) : 0);
 
     const bool negate_result = ((n % 2) != 0);
 
-    xx -= n * local_negatable_type::value_pi();
+    if(n > 0)
+    {
+      x -= (n * local_negatable_type::value_pi());
+    }
 
     local_negatable_type result;
 
-    if(xx > (local_negatable_type::value_pi() / 2))
+    if(x > local_negatable_type::value_pi_half())
     {
-      result = -cos(local_negatable_type::value_pi() - xx);
+      result = -cos(local_negatable_type::value_pi() - x);
     }
     else
     {
-      const local_negatable_type chi  = (xx * 2) / local_negatable_type::value_pi();
-      const local_negatable_type chi2 = chi * chi;
+      // TBD: Division with pi could be optimized via multiplication with 1/pi.
+      local_negatable_type chi = x;
+      chi.data <<= 1;
+      chi /= local_negatable_type::value_pi();
 
+      const local_negatable_type chi2 = (chi * chi);
+
+      // Use a polynomial approximation.
       // cos(X) = approx. + 0.999999966824134
       //                  - 1.233698702384155 x^2
       //                  + 0.253653511995994 x^4
@@ -662,26 +690,32 @@
     // Reduce the argument to the range 0 < x < +pi/2.
     const bool is_neg = (x < 0);
 
-    local_negatable_type xx((!is_neg) ? x : -x);
+    if(is_neg)
+    {
+      x = -x;
+    }
 
-    const int n = x / local_negatable_type::value_pi();
+    const int n = ((x > local_negatable_type::value_pi()) ? int(x / local_negatable_type::value_pi()) : 0);
 
     const bool negate_result = ((n % 2) != 0);
 
-    xx -= n * local_negatable_type::value_pi();
+    if(n > 0)
+    {
+      x -= (n * local_negatable_type::value_pi());
+    }
 
     local_negatable_type result;
 
-    if(xx > (local_negatable_type::value_pi() / 2))
+    if(x > local_negatable_type::value_pi_half())
     {
-      result = -cos(local_negatable_type::value_pi() - xx);
+      result = -cos(local_negatable_type::value_pi() - x);
     }
     else
     {
-      if(xx <= (local_negatable_type::value_pi() / 4))
+      if(x <= (local_negatable_type::value_pi() / 4))
       {
         // Use the Taylor series representation of cos(x) near x = 0.
-        local_negatable_type x_squared = (xx * xx);
+        local_negatable_type x_squared = (x * x);
         local_negatable_type term      = x_squared / 2;
         bool term_is_negative          = false;
         local_negatable_type sum       = 1 - term;
@@ -717,7 +751,7 @@
 
         const local_negatable_type cos_half_x = cos(half_x);
 
-        return (2 * (cos_half_x * cos_half_x)) - 1;
+        result = (2 * (cos_half_x * cos_half_x)) - 1;
       }
     }
 

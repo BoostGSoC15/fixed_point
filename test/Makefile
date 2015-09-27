@@ -58,10 +58,10 @@ all_files : test_negatable_arithmetic_fastest.exe              \
             test_negatable_sqrt_nearest_even.exe               \
             test_negatable_sqrt_small.exe                      \
             test_negatable_trig_func_cosine_big.exe            \
-            test_negatable_trig_func_sine_big.exe              \
-            test_negatable_trig_func_tangent_big.exe           \
             test_negatable_trig_func_cosine_small.exe          \
+            test_negatable_trig_func_sine_big.exe              \
             test_negatable_trig_func_sine_small.exe            \
+            test_negatable_trig_func_tangent_big.exe           \
             test_negatable_trig_func_tangent_small.exe
 
 cleanup :

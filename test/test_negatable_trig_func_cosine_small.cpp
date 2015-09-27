@@ -24,12 +24,24 @@ BOOST_AUTO_TEST_CASE(test_negatable_trig_func_cosine_small)
 
   const fixed_point_type tol = ldexp(fixed_point_type(1), fixed_point_type::resolution + 9);
 
+  // Check positive arguments.
   for(int i = 1; i < 64; ++i)
   {
     const fixed_point_type x = cos(fixed_point_type(i) / 10);
 
     using std::cos;
     const float_point_type y = cos(float_point_type(i) / 10);
+
+    BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
+  }
+
+  // Check negative arguments.
+  for(int i = 1; i < 64; ++i)
+  {
+    const fixed_point_type x = cos(fixed_point_type(-i) / 10);
+
+    using std::cos;
+    const float_point_type y = cos(float_point_type(-i) / 10);
 
     BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
   }
