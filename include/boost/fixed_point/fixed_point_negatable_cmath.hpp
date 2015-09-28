@@ -907,18 +907,62 @@
                                                                                typename std::enable_if<int(24) >= (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+    typedef typename local_negatable_type::value_type                               local_value_type;
+    typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    // Use a polynomial approximation.
-    // atan(x) / x = approx. + 0.999996396967490826
-    //                       - 0.333043397362190827 x^2
-    //                       + 0.196084683947839669 x^4
-    //                       - 0.122639496662731095 x^6
-    //                       + 0.059227914090755230 x^8
-    //                       - 0.014236215058440372 x^10,
-    // in the range 0 <= x <= 1. These coefficients
-    // have been specifically derived for this work.
+    if(x < 0)
+    {
+      return -atan(-x);
+    }
 
-    return local_negatable_type(0);
+    local_negatable_type result;
+
+    if(x == 0)
+    {
+      result = local_negatable_type(0);
+    }
+    else if(x == 1)
+    {
+      result = local_negatable_type::value_pi() / 4;
+    }
+    else if(x > 1)
+    {
+      result = local_negatable_type::value_pi_half() - atan(1 / x);
+    }
+    else if(x < (local_negatable_type(1) / 8))
+    {
+      // Use a hypergeometric series expansion for small argument.
+      result = x * detail::hypergeometric_2f1( local_negatable_type(1),
+                                               local_negatable_type(1) / 2,
+                                               local_negatable_type(3) / 2,
+                                              -(x * x));
+    }
+    else
+    {
+      // Use a polynomial approximation.
+      // atan(x) / x = approx. + 0.999996396967490826
+      //                       - 0.333043397362190827 x^2
+      //                       + 0.196084683947839669 x^4
+      //                       - 0.122639496662731095 x^6
+      //                       + 0.059227914090755230 x^8
+      //                       - 0.014236215058440372 x^10,
+      // in the range 0 <= x <= 1. These coefficients
+      // have been specifically derived for this work.
+      const local_negatable_type x2 = (x * x);
+
+      // Perform the polynomial approximation using a coefficient
+      // expansion via the method of Horner.
+      result = (((((     - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0003A4FC) >> (24 + FractionalResolution)))    // 0.014236215058440372
+                    * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000F298F) >> (24 + FractionalResolution))))   // 0.059227914090755230
+                    * x2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x001F654D) >> (24 + FractionalResolution))))   // 0.122639496662731095
+                    * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0032329B) >> (24 + FractionalResolution))))   // 0.196084683947839669
+                    * x2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00554255) >> (24 + FractionalResolution))))   // 0.333043397362190827
+                    * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00FFFFC3) >> (24 + FractionalResolution))));  // 0.999996396967490826
+
+      result *= x;
+    }
+
+    return result;
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
@@ -958,7 +1002,7 @@
     {
       // Use Newton-Raphson iteration for atan.
 
-      // Obtain an initial guess using an approximation.
+      // Obtain an initial guess using a Pade-like approximation of order 1:2.
       // See Abramowitz & Stegun, Eq. 4.4.48.
       result = x / (1 + ((7 * (x * x)) / 25));
 

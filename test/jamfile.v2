@@ -100,6 +100,7 @@ test-suite "Fixed_point"
       [ run test_negatable_trig_func_arcsine_big.cpp boost_unit_test ]
       [ run test_negatable_trig_func_arcsine_small.cpp boost_unit_test ]
       [ run test_negatable_trig_func_arctangent_big.cpp boost_unit_test ]
+      [ run test_negatable_trig_func_arctangent_small.cpp boost_unit_test ]
       [ run test_negatable_trig_func_cosine_big.cpp boost_unit_test ]
       [ run test_negatable_trig_func_cosine_small.cpp boost_unit_test ]
       [ run test_negatable_trig_func_sine_big.cpp boost_unit_test ]

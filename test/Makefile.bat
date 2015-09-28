@@ -128,6 +128,9 @@ g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-unin
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_trig_func_tangent_big.cpp -o test_negatable_trig_func_arctangent_big.exe
 .\test_negatable_trig_func_arctangent_big.exe
 
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_trig_func_arctangent_small.cpp -o test_negatable_trig_func_arctangent_small.exe
+.\test_negatable_trig_func_arctangent_small.exe
+
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_trig_func_cosine_big.cpp -o test_negatable_trig_func_cosine_big.exe
 .\test_negatable_trig_func_cosine_big.exe
 
