@@ -116,6 +116,35 @@
 
     return val_ln_two;
   }
+
+  template<typename NumericType>
+  NumericType calculate_e()
+  {
+    NumericType term(1);
+    NumericType sum (2);
+
+    BOOST_CONSTEXPR_OR_CONST boost::uint32_t maximum_number_of_iterations = UINT32_C(10000);
+
+    // Perform the series expansion of Euler's constant, e = exp(1).
+    for(boost::uint32_t n = UINT32_C(2); n < maximum_number_of_iterations; ++n)
+    {
+      term /= n;
+
+      const bool minimum_number_of_iterations_is_complete = (n > UINT32_C(4));
+
+      using std::fabs;
+
+      if(   (minimum_number_of_iterations_is_complete)
+         && (fabs(term) <= std::numeric_limits<NumericType>::epsilon()))
+      {
+        break;
+      }
+
+      sum += term;
+    }
+
+    return sum;
+  }
   } } } // namespace boost::fixed_point::detail
 
 #endif // FIXED_POINT_DETAIL_CONSTANTS_2015_08_16_HPP_

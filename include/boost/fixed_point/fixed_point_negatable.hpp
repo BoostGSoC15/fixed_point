@@ -806,7 +806,7 @@
       return *this;
     }
 
-    //! Unary operators add, sub, mul, div of (*this op= negatable).
+    //! Unary operators add, sub, mul, div of (*this op= arithmetic_type).
     template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> negatable& operator+=(const ArithmeticType& a) { return (*this) += negatable(a); }
     template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> negatable& operator-=(const ArithmeticType& a) { return (*this) -= negatable(a); }
     template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> negatable& operator*=(const ArithmeticType& a) { return (*this) *= negatable(a); }
