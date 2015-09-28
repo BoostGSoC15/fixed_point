@@ -24,11 +24,13 @@
   NumericType hypergeometric_0f0(const NumericType& x)
   {
     // Compute the series representation of hypergeometric_0f0.
-    // There are no checks on input range or parameter boundaries.
 
-    // This function is designed for small-argument Taylor expansion only!
-    // It is not intended for general purpose calculations of
-    // hypergeometric_0f0!
+    // There are no checks on input range or parameter boundaries
+    // in this series calculation.
+
+    // As such, this function is designed for small-argument
+    // Taylor-series-like expansions only. It is not intended
+    // for general purpose calculations of hypergeometric_0f0.
 
     NumericType term(x);
     NumericType h0f0(1 + term);
@@ -58,11 +60,17 @@
   }
 
   template<typename NumericType>
-  NumericType hypergeometric_0f1(const NumericType& x,
-                                 const NumericType& b)
+  NumericType hypergeometric_0f1(const NumericType& b,
+                                 const NumericType& x)
   {
     // Compute the series representation of hypergeometric_0f1.
-    // There are no checks on input range or parameter boundaries.
+
+    // There are no checks on input range or parameter boundaries
+    // in this series calculation.
+
+    // As such, this function is designed for small-argument
+    // Taylor-series-like expansions only. It is not intended
+    // for general purpose calculations of hypergeometric_0f1.
 
     NumericType bp(b);
 
@@ -96,14 +104,20 @@
   }
 
   template<typename NumericType>
-  NumericType hypergeometric_2f1(const NumericType& x,
-                                 const NumericType& a,
+  NumericType hypergeometric_2f1(const NumericType& a,
                                  const NumericType& b,
-                                 const NumericType& c)
+                                 const NumericType& c,
+                                 const NumericType& x)
   {
-    // Compute the series representation of hyperg_2f1 taken from
+    // Compute the series representation of hypergeometric_2f1 taken from
     // Abramowitz and Stegun 15.1.1.
-    // There are no checks on input range or parameter boundaries.
+
+    // There are no checks on input range or parameter boundaries
+    // in this series calculation.
+
+    // As such, this function is designed for small-argument
+    // Taylor-series-like expansions only. It is not intended
+    // for general purpose calculations of hypergeometric_2f1.
 
     NumericType ap(a);
     NumericType bp(b);

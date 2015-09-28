@@ -57,6 +57,11 @@ all_files : test_negatable_arithmetic_fastest.exe              \
             test_negatable_sqrt_fastest.exe                    \
             test_negatable_sqrt_nearest_even.exe               \
             test_negatable_sqrt_small.exe                      \
+            test_negatable_trig_func_arccosine_big.exe         \
+            test_negatable_trig_func_arccosine_small.exe       \
+            test_negatable_trig_func_arcsine_big.exe           \
+            test_negatable_trig_func_arcsine_small.exe         \
+            test_negatable_trig_func_arctangent_big.exe        \
             test_negatable_trig_func_cosine_big.exe            \
             test_negatable_trig_func_cosine_small.exe          \
             test_negatable_trig_func_sine_big.exe              \

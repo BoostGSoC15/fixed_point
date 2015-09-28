@@ -251,8 +251,7 @@
       result.data = local_value_type(a << (n / 2));
 
       // Estimate the zero'th term of the iteration with [1 / (2 * result)].
-      local_negatable_type vi = 1 / result;
-      vi.data >>= 1;
+      local_negatable_type vi = 1U / (result * 2U);
 
       // Compute the square root of x using coupled Newton iteration.
       // More precisely, this is the Schoenhage variation thereof.
@@ -303,7 +302,8 @@
     //                      + 0.0083291093882400 x^5
     //                      + 0.0014345483118123 x^6
     //                      + 0.0002043732656744 x^7,
-    // in the range -1 <= x <= +1.
+    // in the range -1 <= x <= +1. These coefficients
+    // have been specifically derived for this work.
 
     const int nf = ((x > local_negatable_type::value_ln_two()) ? int(x / local_negatable_type::value_ln_two()) : 0);
 
@@ -375,15 +375,6 @@
   {
     // TBD: The tolerance of the log function can potentially be improved.
 
-    // TBD: Make a log function for small digit range using:
-    // log2(x + 1) = approx. + 1.44265859709491 x
-    //                       - 0.72044516000712 x^2
-    //                       + 0.47280304531019 x^3
-    //                       - 0.32400619521798 x^4
-    //                       + 0.19183861358090 x^5
-    //                       - 0.07798258678209 x^6
-    //                       + 0.01513421407398 x^7
-
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     if(x <= 0)
@@ -453,6 +444,19 @@
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
+    // TBD: Make versions of this function for big and small digit ranges.
+
+    // TBD: Use a polynomial approximation.
+    // log2(x + 1) = approx. + 1.44265859709491 x
+    //                       - 0.72044516000712 x^2
+    //                       + 0.47280304531019 x^3
+    //                       - 0.32400619521798 x^4
+    //                       + 0.19183861358090 x^5
+    //                       - 0.07798258678209 x^6
+    //                       + 0.01513421407398 x^7,
+    // in the range 0 <= x <= 1. These coefficients
+    // have been specifically derived for this work.
+
     return log(x) / local_negatable_type::value_ln_two();
   }
 
@@ -461,7 +465,7 @@
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
-    // TBD: Consider warm-caching ln_ten as a constant value.
+    // TBD: Consider warm-caching log(10) as a constant value.
     return log(x) / log(local_negatable_type(10));
   }
 
@@ -523,7 +527,8 @@
       //                  + 0.0083329484215251 x^5
       //                  - 0.0001980373563403 x^7
       //                  + 0.0000025959374407 x^9,
-      // in the range -pi/2 <= x <= +pi/2.
+      // in the range -pi/2 <= x <= +pi/2. These coefficients
+      // have been specifically derived for this work.
 
       const local_negatable_type x2 = (x * x);
 
@@ -656,7 +661,8 @@
       //                  + 0.0416640234814615320276 x^4
       //                  - 0.0013856849192136990974 x^6
       //                  + 0.0000232232695894268079 x^8
-      // in the range -pi/2 <= x <= +pi/2.
+      // in the range -pi/2 <= x <= +pi/2. These coefficients
+      // have been specifically derived for this work.
 
       const local_negatable_type x2 = (x * x);
 
@@ -756,11 +762,111 @@
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
-  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> asin(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> asin(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
+                                                                               typename std::enable_if<int(24) >= (-FractionalResolution)>::type const*)
+  {
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+    typedef typename local_negatable_type::value_type                               local_value_type;
+    typedef typename local_negatable_type::nothing                                  local_nothing;
+
+    if(x < 0)
+    {
+      return -asin(-x);
+    }
+
+    local_negatable_type result;
+
+    if(x == 0)
+    {
+      result = local_negatable_type(0);
+    }
+    else if(x == 1)
+    {
+      result = local_negatable_type::value_pi_half();
+    }
+    else if(x > 1)
+    {
+      result = local_negatable_type(0);
+    }
+    else
+    {
+      // Use a polynomial approximation.
+      // asin(x) = approx. pi/2 - [sqrt(1 - x) * (+ 1.5707963050
+      //                                          - 0.2145988016 x^1
+      //                                          + 0.0889789874 x^2
+      //                                          - 0.0501743046 x^3
+      //                                          + 0.0308918810 x^4
+      //                                          - 0.0170881256 x^5
+      //                                          + 0.0066700901 x^6
+      //                                          - 0.0012624911 x^7)],
+      // in the range 0 <= x <= +1. These coefficients
+      // originate from Abramowitz & Stegun Eq. 4.4.46.
+
+      // Perform the polynomial approximation using a coefficient
+      // expansion via the method of Horner.
+      const local_negatable_type polynomial_approximation =
+        (((((((    - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000052BD) >> (24 + FractionalResolution)))   // 0.0012624911
+               * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0001B521) >> (24 + FractionalResolution))))  // 0.0066700901
+               * x - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00045FE3) >> (24 + FractionalResolution))))  // 0.0170881256
+               * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0007E887) >> (24 + FractionalResolution))))  // 0.0308918810
+               * x - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000CD839) >> (24 + FractionalResolution))))  // 0.0501743046
+               * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0016C753) >> (24 + FractionalResolution))))  // 0.0889789874
+               * x - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0036EFF2) >> (24 + FractionalResolution))))  // 0.2145988016
+               * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x01921FB4) >> (24 + FractionalResolution)))); // 1.5707963050
+
+      result = local_negatable_type::value_pi_half() - (sqrt(1 - x) * polynomial_approximation);
+    }
+
+    return result;
+  }
+
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> asin(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
+                                                                               typename std::enable_if<int(24) < (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
-    return local_negatable_type(0);
+    if(x < 0)
+    {
+      return -asin(-x);
+    }
+
+    local_negatable_type result;
+
+    if(x == 0)
+    {
+      result = local_negatable_type(0);
+    }
+    else if(x == 1)
+    {
+      result = local_negatable_type::value_pi_half();
+    }
+    else if(x > 1)
+    {
+      result = local_negatable_type(0);
+    }
+    else
+    {
+      const local_negatable_type one_half     = ldexp(local_negatable_type(1), -1);
+      const local_negatable_type three_halves = local_negatable_type(3) / 2;
+
+      if(x < one_half)
+      {
+        const local_negatable_type half = local_negatable_type(1) / 2;
+
+        result = x * detail::hypergeometric_2f1(one_half, one_half, three_halves, (x * x));
+      }
+      else
+      {
+        const local_negatable_type delta = (1 - x);
+
+        result =   local_negatable_type::value_pi_half()
+                 - (  sqrt(delta * 2)
+                    * detail::hypergeometric_2f1(one_half, one_half, three_halves, delta / 2));
+      }
+    }
+
+    return result;
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
@@ -768,29 +874,106 @@
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
-    // TBD: This version of acos is essentially non-functional because
-    // it merely returns a sensible value for one and only one argument
-    // (at x == 0). This result is subsequently used in Boost.Math.Constants
-    // for the calculation of pi.
+    if(x < 0)
+    {
+      //return local_negatable_type::value_pi() - acos(-x);
+      return local_negatable_type::value_pi_half() - asin(x);
+    }
 
-    // TBD: Make a complete (and efficient) version of acos.
+    local_negatable_type result;
 
     if(x == 0)
     {
-      return local_negatable_type::value_pi_half();
+      result = local_negatable_type::value_pi_half();
+    }
+    else if(x == 1)
+    {
+      result = local_negatable_type(0);
+    }
+    else if(x > 1)
+    {
+      result = local_negatable_type(0);
     }
     else
     {
-      return local_negatable_type(0);
+      result = local_negatable_type::value_pi_half() - asin(x);
     }
+
+    return result;
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
-  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> atan(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> atan(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
+                                                                               typename std::enable_if<int(24) >= (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
+    // Use a polynomial approximation.
+    // atan(x) / x = approx. + 0.999996396967490826
+    //                       - 0.333043397362190827 x^2
+    //                       + 0.196084683947839669 x^4
+    //                       - 0.122639496662731095 x^6
+    //                       + 0.059227914090755230 x^8
+    //                       - 0.014236215058440372 x^10,
+    // in the range 0 <= x <= 1. These coefficients
+    // have been specifically derived for this work.
+
     return local_negatable_type(0);
+  }
+
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> atan(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
+                                                                               typename std::enable_if<int(24) < (-FractionalResolution)>::type const*)
+  {
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+
+    if(x < 0)
+    {
+      return -atan(-x);
+    }
+
+    local_negatable_type result;
+
+    if(x == 0)
+    {
+      result = local_negatable_type(0);
+    }
+    else if(x == 1)
+    {
+      result = local_negatable_type::value_pi() / 4;
+    }
+    else if(x > 1)
+    {
+      result = local_negatable_type::value_pi_half() - atan(1 / x);
+    }
+    else if(x < (local_negatable_type(1) / 8))
+    {
+      // Use a hypergeometric series expansion for small argument.
+      result = x * detail::hypergeometric_2f1( local_negatable_type(1),
+                                               local_negatable_type(1) / 2,
+                                               local_negatable_type(3) / 2,
+                                              -(x * x));
+    }
+    else
+    {
+      // Use Newton-Raphson iteration for atan.
+
+      // Obtain an initial guess using an approximation.
+      // See Abramowitz & Stegun, Eq. 4.4.48.
+      result = x / (1 + ((7 * (x * x)) / 25));
+
+      // Do the Newton-Raphson iteration. Start with four binary digits
+      // of precision obtained from the initial estimate above.
+      for(boost::uint_fast16_t i = UINT16_C(4); i <= boost::uint_fast16_t(local_negatable_type::all_bits / 2); i *= UINT16_C(2))
+      {
+        const local_negatable_type c = cos(result);
+        const local_negatable_type s = sin(result);
+
+        result += (c * ((x * c) - s));
+      }
+    }
+
+    return result;
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
