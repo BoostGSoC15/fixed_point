@@ -1079,7 +1079,26 @@
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
-    return local_negatable_type(0);
+    // Handle the negative arguments and zero arguments.
+    const bool x_is_neg = (x < 0);
+    const bool y_is_neg = (y < 0);
+
+    if(y == 0)
+    {
+      return ((!x_is_neg) ? local_negatable_type(0) : local_negatable_type::value_pi());
+    }
+
+    if(x == 0)
+    {
+      return ((!y_is_neg) ? local_negatable_type::value_pi_half() : -local_negatable_type::value_pi_half());
+    }
+
+    // Compute atan(y / x), thereby ignoring the sign of the arguments.
+    const local_negatable_type atan_term(atan(y / x));
+
+    // Determine the proper quadrant based on signs of x and y.
+    return ((y_is_neg == x_is_neg) ? ((!x_is_neg) ? atan_term : atan_term - local_negatable_type::value_pi())
+                                   : ((!x_is_neg) ? atan_term : atan_term + local_negatable_type::value_pi()));
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
@@ -1118,25 +1137,22 @@
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> asinh(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
-
-    return local_negatable_type(0);
+    // Properly handle sign or argument, range check and potential small argument series expansion.
+    return log(x + sqrt((x * x) + 1));
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> acosh(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
-
-    return local_negatable_type(0);
+    // Properly handle sign or argument, range check and potential small argument series expansion.
+    return log(x + (sqrt(x - 1) * sqrt(x + 1)));
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> atanh(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
-
-    return local_negatable_type(0);
+    // Properly handle sign or argument, range check and potential small argument series expansion.
+    return (log(1 + x) - log(1 - x)) / 2;
   }
   } } // namespace boost::fixed_point
 
