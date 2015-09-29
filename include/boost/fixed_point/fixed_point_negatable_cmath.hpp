@@ -371,91 +371,145 @@
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
-  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> log(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> log(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
+                                                                              typename std::enable_if<int(24) >= (-FractionalResolution)>::type const*)
   {
-    // TBD: The tolerance of the log function can potentially be improved.
-
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+    typedef typename local_negatable_type::value_type                               local_value_type;
+    typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    if(x <= 0)
+    local_negatable_type result;
+
+    if(x < 1)
     {
-      return local_negatable_type(0);
-    }
-    else if(x < 1)
-    {
-      return -log(1 / x);
+      result = ((x > 0) ? -log(1 / x) : local_negatable_type(0));
     }
     else if(x > 1)
     {
-      // Use frexp() to reduce the argument to x = y * 2^n, where 0.5 <= y < 1.
-      // Then use log(x) = [n * log(2)] + [(y - 1) - (y - 1)^2 / 2 + (y - 1)^3 / 3 ...].
-      // This method is similar to the eval_log() function in Boost.Multiprecision.
+      // Use frexp() to reduce the argument to 1 <= x <= 2 and
+      // store the factors of 2 in an integral vbariable n.
 
-      int exp2;
-      const local_negatable_type y = frexp(x, &exp2);
+      int n;
 
-      BOOST_CONSTEXPR boost::uint32_t maximum_number_of_iterations = UINT32_C(10000);
-
-      const local_negatable_type y_minus_one = y - 1;
-
-      local_negatable_type y_minus_one_pow_n = y_minus_one;
-      local_negatable_type log_series        = y_minus_one;
-
-      bool term_is_negative = true;
-
-      const local_negatable_type tolerance = ldexp(local_negatable_type(1), local_negatable_type::resolution + 1);
-
-      // Perform the series expansion of the logarithmic function.
-
-      // TBD: It may more efficient here to use Newton iteration
-      // in combination with the exponential function in higher
-      // digit ranges. Consider investigating any optimization
-      // potential here.
-
-      for(boost::uint32_t n = UINT32_C(2); n < maximum_number_of_iterations; ++n)
+      if(x > 2)
       {
-        y_minus_one_pow_n *= y_minus_one;
+        x = frexp(x, &n);
 
-        const local_negatable_type term = y_minus_one_pow_n / n;
-
-        ((!term_is_negative) ? (log_series += term) : (log_series -= term));
-
-        const bool minimum_number_of_iterations_is_complete = (n > UINT32_C(4));
-
-        if((minimum_number_of_iterations_is_complete) && (fabs(term) <= tolerance))
-        {
-          break;
-        }
-
-        term_is_negative = (!term_is_negative);
+        x.data <<= 1;
+        --n;
+      }
+      else
+      {
+        n = 0;
       }
 
-      return log_series + (exp2 * local_negatable_type::value_ln_two());
+      // Use a polynomial approximation of the base-2 logarithm.
+      // log2(x + 1) = approx. + 1.44265859709491 x
+      //                       - 0.72044516000712 x^2
+      //                       + 0.47280304531019 x^3
+      //                       - 0.32400619521798 x^4
+      //                       + 0.19183861358090 x^5
+      //                       - 0.07798258678209 x^6
+      //                       + 0.01513421407398 x^7,
+      // in the range 0 <= x <= 1. These coefficients
+      // have been specifically derived for this work.
+
+      // Perform the polynomial approximation using a coefficient
+      // expansion via the method of Horner.
+      const local_negatable_type z = x - 1;
+
+      const local_negatable_type log2_value =
+        ((((((      local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0003DFD5) >> (24 + FractionalResolution)))   // 0.01513421407398
+              * z - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0013F6AA) >> (24 + FractionalResolution))))  // 0.07798258678209
+              * z + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00311C55) >> (24 + FractionalResolution))))  // 0.19183861358090
+              * z - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0052F211) >> (24 + FractionalResolution))))  // 0.32400619521798
+              * z + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0079099E) >> (24 + FractionalResolution))))  // 0.47280304531019
+              * z - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00B86F18) >> (24 + FractionalResolution))))  // 0.72044516000712
+              * z + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x01715212) >> (24 + FractionalResolution))))  // 1.44265859709491
+              * z;
+
+      // Obtain the result and scale it with the logarithms
+      // of the powers of two (if necessary). Note that this
+      // result is still a base-2 logarithm.
+      const local_negatable_type log_value = log2_value * local_negatable_type::value_ln_two();
+
+      result = ((n == 0) ? log_value : (log_value + (n * local_negatable_type::value_ln_two())));
     }
     else
     {
       // The argument is exactly 1.
-      return local_negatable_type(0);
+      result = local_negatable_type(0);
     }
+
+    return result;
+  }
+
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> log(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
+                                                                              typename std::enable_if<int(24) <  (-FractionalResolution)>::type const*)
+  {
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+
+    local_negatable_type result;
+
+    if(x < 1)
+    {
+      result = ((x > 0) ? -log(1 / x) : local_negatable_type(0));
+    }
+    else if(x > 1)
+    {
+      // Use frexp() to reduce the argument to 1 <= x <= 2 and
+      // store the factors of 2 in an integral vbariable n.
+
+      int n;
+
+      if(x > 2)
+      {
+        x = frexp(x, &n);
+
+        x.data <<= 1;
+        --n;
+      }
+      else
+      {
+        n = 0;
+      }
+
+      local_negatable_type log_val;
+
+      {
+        // Obtain an initial estimate of the log(x) using
+        // two terms in the Taylor series.
+        const local_negatable_type z = x - 1;
+
+        log_val = z * (1 - (z / 2));
+      }
+
+      // Use Newton-Raphson iteration to compute the log(x).
+      for(boost::uint_fast16_t i = UINT16_C(1); i <= boost::uint_fast16_t(local_negatable_type::all_bits / 2); i *= UINT16_C(2))
+      {
+        const local_negatable_type exp_minus_log = detail::hypergeometric_0f0(-log_val);
+
+        log_val += ((x * exp_minus_log) - 1);
+      }
+
+      // Obtain the result and scale it with the logarithms
+      // of the powers of two (if necessary).
+      result = ((n == 0) ? log_val : (log_val + (n * local_negatable_type::value_ln_two())));
+    }
+    else
+    {
+      // The argument is exactly 1.
+      result = local_negatable_type(0);
+    }
+
+    return result;
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> log2(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
-
-    // TBD: Make versions of this function for big and small digit ranges.
-
-    // TBD: Use a polynomial approximation.
-    // log2(x + 1) = approx. + 1.44265859709491 x
-    //                       - 0.72044516000712 x^2
-    //                       + 0.47280304531019 x^3
-    //                       - 0.32400619521798 x^4
-    //                       + 0.19183861358090 x^5
-    //                       - 0.07798258678209 x^6
-    //                       + 0.01513421407398 x^7,
-    // in the range 0 <= x <= 1. These coefficients
-    // have been specifically derived for this work.
 
     return log(x) / local_negatable_type::value_ln_two();
   }
@@ -465,7 +519,7 @@
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
-    // TBD: Consider warm-caching log(10) as a constant value.
+    // Consider warm-caching log(10) as a constant value.
     return log(x) / log(local_negatable_type(10));
   }
 

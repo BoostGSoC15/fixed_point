@@ -9,7 +9,7 @@
 
 // fixed_point_detail_constants.hpp implements templates
 // for computing fixed-point representations of mathematical
-// constants such as pi and log(2).
+// constants such as pi, log(2), and e.
 
 #ifndef FIXED_POINT_DETAIL_CONSTANTS_2015_08_16_HPP_
   #define FIXED_POINT_DETAIL_CONSTANTS_2015_08_16_HPP_
