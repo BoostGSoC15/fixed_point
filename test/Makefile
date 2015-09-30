@@ -44,6 +44,9 @@ all_files : test_negatable_basic_arithmetic_fastest.exe            \
             test_negatable_func_exp_small.exe                      \
             test_negatable_func_floor_ceil.exe                     \
             test_negatable_func_frexp_ldexp.exe                    \
+            test_negatable_func_hyperbolic_arccosine_small.exe     \
+            test_negatable_func_hyperbolic_arcsine_small.exe       \
+            test_negatable_func_hyperbolic_arctangent_small.exe    \
             test_negatable_func_hyperbolic_cosine_big.exe          \
             test_negatable_func_hyperbolic_cosine_small.exe        \
             test_negatable_func_hyperbolic_sine_big.exe            \

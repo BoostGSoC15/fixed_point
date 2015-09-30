@@ -44,7 +44,7 @@
       term *= x;
       term /= n;
 
-      const bool minimum_number_of_iterations_is_complete = (n > UINT32_C(4));
+      const bool minimum_number_of_iterations_is_complete = (n > UINT32_C(3));
 
       using std::fabs;
 
@@ -88,7 +88,7 @@
 
       ++bp; term /= bp;
 
-      const bool minimum_number_of_iterations_is_complete = (n > UINT32_C(4));
+      const bool minimum_number_of_iterations_is_complete = (n > UINT32_C(3));
 
       using std::fabs;
 
@@ -139,7 +139,7 @@
       ++cp; term /= cp;
       ++bp; term *= bp;
 
-      const bool minimum_number_of_iterations_is_complete = (n > UINT32_C(4));
+      const bool minimum_number_of_iterations_is_complete = (n > UINT32_C(3));
 
       using std::fabs;
 
@@ -182,7 +182,7 @@
       term *= ln_two_times_x;
       term /= n;
 
-      const bool minimum_number_of_iterations_is_complete = (n > UINT32_C(4));
+      const bool minimum_number_of_iterations_is_complete = (n > UINT32_C(3));
 
       using std::fabs;
 

@@ -1130,6 +1130,12 @@
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
+    if(x < 0)
+    {
+      // Handle negative argument.
+      return -asinh(-x);
+    }
+
     local_negatable_type result;
 
     if(x == 0)
@@ -1138,13 +1144,16 @@
     }
     else
     {
-      const bool is_neg = (x < 0);
+      if(x < (local_negatable_type(1) / 8))
+      {
+        const local_negatable_type one_half = ldexp(local_negatable_type(1), -1);
 
-      const local_negatable_type x_abs = ((!is_neg) ? x : -x);
-
-      const local_negatable_type asinh_value = log(x_abs + sqrt((x * x) + 1));
-
-      result = ((!is_neg) ? asinh_value : -asinh_value);
+        result = x * detail::hypergeometric_2f1(one_half, one_half, local_negatable_type(3) / 2, -(x * x));
+      }
+      else
+      {
+        result = log(x + sqrt((x * x) + 1));
+      }
     }
 
     return result;
@@ -1157,15 +1166,10 @@
 
     local_negatable_type result;
 
-    if(x < 1)
+    if(x <= 1)
     {
-      // Handle arguments less than 1.
+      // Handle arguments less than or equal to 1.
       result = local_negatable_type(0);
-    }
-    else if(x == 1)
-    {
-      // Handle arguments exactly equal 1.
-      result = local_negatable_type(1);
     }
     else
     {
@@ -1183,7 +1187,7 @@
       else
       {
         // Handle standard arguments greater than 1.
-        result = log(x + (sqrt(x * x) - 1));
+        result = log(x + sqrt((x * x) - 1));
       }
     }
 
@@ -1198,61 +1202,24 @@
     if(x < 0)
     {
       // Handle negative argument.
-      return atanh(-x);
+      return -atanh(-x);
     }
 
     local_negatable_type result;
 
-    if(x == 0)
+    if((x == 0) || (x >= 1))
     {
-      // Handle arguments identically equal to 0.
-      result = local_negatable_type(0);
-    }
-    else if(x >= 1)
-    {
-      // Handle arguments greater than or equal to 1.
+      // Handle arguments identically equal to 0
+      // and arguments greater than or equal to 1.
       result = local_negatable_type(0);
     }
     else
     {
       if(x < (local_negatable_type(1) / 8))
       {
-        // Handle small arguments. Use the series expansion of
-        // (1/2) Log[(1 + x) / (1 - x)], as given in Schaum's Outlines:
-        // Mathematical Handbook of Formulas and Tables, 2ed,
-        // equation 22.8, page 136.
+        const local_negatable_type one_half = ldexp(local_negatable_type(1), -1);
 
-        const local_negatable_type x2 = x * x;
-              local_negatable_type xn = x;
-
-        result = xn;
-
-        BOOST_CONSTEXPR_OR_CONST boost::uint32_t maximum_number_of_iterations = UINT32_C(10000);
-
-        for(boost::uint32_t n = UINT32_C(2); n < maximum_number_of_iterations; ++n)
-        {
-          xn *= x2;
-
-          const local_negatable_type term = xn / n;
-
-          if(n > UINT32_C(5))
-          {
-            int order_term;
-            int order_result;
-
-            static_cast<void>(frexp(term,   &order_term));
-            static_cast<void>(frexp(result, &order_result));
-
-            const int order_check = (order_term - order_result);
-
-            if((term == 0) || (-order_check < -(FractionalResolution + 2)))
-            {
-              break;
-            }
-          }
-
-          result += term;
-        }
+        result = x * detail::hypergeometric_2f1(local_negatable_type(1), one_half, local_negatable_type(3) / 2, (x * x));
       }
       else
       {

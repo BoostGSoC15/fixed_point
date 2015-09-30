@@ -83,6 +83,15 @@ g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-unin
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_hyperbolic_cosine_big.cpp -o test_negatable_func_hyperbolic_cosine_big.exe
 .\test_negatable_func_hyperbolic_cosine_big.exe
 
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_hyperbolic_arccosine_small.cpp -o test_negatable_func_hyperbolic_arccosine_small.exe
+.\test_negatable_func_hyperbolic_arccosine_small.exe
+
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_hyperbolic_arcsine_small.cpp -o test_negatable_func_hyperbolic_arcsine_small.exe
+.\test_negatable_func_hyperbolic_arcsine_small.exe
+
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_hyperbolic_arctangent_small.cpp -o test_negatable_func_hyperbolic_arctangent_small.exe
+.\test_negatable_func_hyperbolic_arctangent_small.exe
+
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_hyperbolic_cosine_small.cpp -o test_negatable_func_hyperbolic_cosine_small.exe
 .\test_negatable_func_hyperbolic_cosine_small.exe
 
