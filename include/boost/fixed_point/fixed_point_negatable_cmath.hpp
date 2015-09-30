@@ -12,7 +12,7 @@
 
 /*!
   \file
-  \brief Fixed_point negatable <cmath> functions.
+  \brief Implement most fixed-point negatable <cmath> functions.
 */
 
 #ifndef FIXED_POINT_NEGATABLE_CMATH_2015_08_21_HPP_
@@ -84,7 +84,7 @@
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> trunc(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    return ((!(x.data < 0)) ? floor(x) : -floor(-x));
+    return ((x.data < 0) ? -floor(-x) : floor(x));
   }
 
   /*! @c std::frexp function \<cmath\> implementation for negatable types.\n
@@ -418,7 +418,7 @@
       // expansion via the method of Horner.
       const local_negatable_type z = x - 1;
 
-      const local_negatable_type log2_value =
+      const local_negatable_type polynomial_approximation =
         ((((((      local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0003DFD5) >> (24 + FractionalResolution)))   // 0.01513421407398
               * z - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0013F6AA) >> (24 + FractionalResolution))))  // 0.07798258678209
               * z + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00311C55) >> (24 + FractionalResolution))))  // 0.19183861358090
@@ -431,7 +431,7 @@
       // Obtain the result and scale it with the logarithms
       // of the powers of two (if necessary). Note that this
       // result is still a base-2 logarithm.
-      const local_negatable_type log_value = log2_value * local_negatable_type::value_ln_two();
+      const local_negatable_type log_value = polynomial_approximation * local_negatable_type::value_ln_two();
 
       result = ((n == 0) ? log_value : (log_value + (n * local_negatable_type::value_ln_two())));
     }
@@ -710,11 +710,11 @@
     else
     {
       // Use a polynomial approximation.
-      // cos(x) = approx. + 0.9999999667108460810462
-      //                  - 0.4999992457865632108920 x^2
-      //                  + 0.0416640234814615320276 x^4
-      //                  - 0.0013856849192136990974 x^6
-      //                  + 0.0000232232695894268079 x^8
+      // cos(x) = approx. + 0.999999966710846081
+      //                  - 0.499999245786563211 x^2
+      //                  + 0.041664023481461532 x^4
+      //                  - 0.001385684919213699 x^6
+      //                  + 0.000023223269589427 x^8
       // in the range -pi/2 <= x <= +pi/2. These coefficients
       // have been specifically derived for this work.
 
@@ -722,11 +722,11 @@
 
       // Perform the polynomial approximation using a coefficient
       // expansion via the method of Horner.
-      result = ((((       local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00000185) >> (24 + FractionalResolution)))    // 0.9999999667108460810462
-                   * x2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00005ACE) >> (24 + FractionalResolution))))   // 0.4999992457865632108920
-                   * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000AAA7E) >> (24 + FractionalResolution))))   // 0.0416640234814615320276
-                   * x2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x007FFFF3) >> (24 + FractionalResolution))))   // 0.0013856849192136990974
-                   * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00FFFFFF) >> (24 + FractionalResolution))));  // 0.0000232232695894268079
+      result = ((((       local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00000185) >> (24 + FractionalResolution)))    // 0.999999966710846081
+                   * x2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00005ACE) >> (24 + FractionalResolution))))   // 0.499999245786563211
+                   * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000AAA7E) >> (24 + FractionalResolution))))   // 0.041664023481461532
+                   * x2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x007FFFF3) >> (24 + FractionalResolution))))   // 0.001385684919213699
+                   * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00FFFFFF) >> (24 + FractionalResolution))));  // 0.000023223269589427
     }
 
     return ((!negate_result) ? result : -result);
@@ -930,7 +930,6 @@
 
     if(x < 0)
     {
-      //return local_negatable_type::value_pi() - acos(-x);
       return local_negatable_type::value_pi_half() - asin(x);
     }
 
@@ -982,14 +981,6 @@
     else if(x > 1)
     {
       result = local_negatable_type::value_pi_half() - atan(1 / x);
-    }
-    else if(x < (local_negatable_type(1) / 8))
-    {
-      // Use a hypergeometric series expansion for small argument.
-      result = x * detail::hypergeometric_2f1( local_negatable_type(1),
-                                               local_negatable_type(1) / 2,
-                                               local_negatable_type(3) / 2,
-                                              -(x * x));
     }
     else
     {
@@ -1137,22 +1128,140 @@
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> asinh(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    // Properly handle sign or argument, range check and potential small argument series expansion.
-    return log(x + sqrt((x * x) + 1));
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+
+    local_negatable_type result;
+
+    if(x == 0)
+    {
+      result = local_negatable_type(0);
+    }
+    else
+    {
+      const bool is_neg = (x < 0);
+
+      const local_negatable_type x_abs = ((!is_neg) ? x : -x);
+
+      const local_negatable_type asinh_value = log(x_abs + sqrt((x * x) + 1));
+
+      result = ((!is_neg) ? asinh_value : -asinh_value);
+    }
+
+    return result;
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> acosh(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    // Properly handle sign or argument, range check and potential small argument series expansion.
-    return log(x + (sqrt(x - 1) * sqrt(x + 1)));
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+
+    local_negatable_type result;
+
+    if(x < 1)
+    {
+      // Handle arguments less than 1.
+      result = local_negatable_type(0);
+    }
+    else if(x == 1)
+    {
+      // Handle arguments exactly equal 1.
+      result = local_negatable_type(1);
+    }
+    else
+    {
+      // Handle arguments greater than 1 but near 1.
+      // Use a hypergeometric series representation here.
+      const local_negatable_type x_minus_one = x - 1;
+
+      if(x_minus_one < (local_negatable_type(1) / 8))
+      {
+        const local_negatable_type one_half = ldexp(local_negatable_type(1), -1);
+
+        result =   (sqrt(local_negatable_type(2)) * sqrt(x_minus_one))
+                 * detail::hypergeometric_2f1(one_half, one_half, local_negatable_type(3) / 2, -x_minus_one / 2);
+      }
+      else
+      {
+        // Handle standard arguments greater than 1.
+        result = log(x + (sqrt(x * x) - 1));
+      }
+    }
+
+    return result;
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> atanh(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    // Properly handle sign or argument, range check and potential small argument series expansion.
-    return (log(1 + x) - log(1 - x)) / 2;
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+
+    if(x < 0)
+    {
+      // Handle negative argument.
+      return atanh(-x);
+    }
+
+    local_negatable_type result;
+
+    if(x == 0)
+    {
+      // Handle arguments identically equal to 0.
+      result = local_negatable_type(0);
+    }
+    else if(x >= 1)
+    {
+      // Handle arguments greater than or equal to 1.
+      result = local_negatable_type(0);
+    }
+    else
+    {
+      if(x < (local_negatable_type(1) / 8))
+      {
+        // Handle small arguments. Use the series expansion of
+        // (1/2) Log[(1 + x) / (1 - x)], as given in Schaum's Outlines:
+        // Mathematical Handbook of Formulas and Tables, 2ed,
+        // equation 22.8, page 136.
+
+        const local_negatable_type x2 = x * x;
+              local_negatable_type xn = x;
+
+        result = xn;
+
+        BOOST_CONSTEXPR_OR_CONST boost::uint32_t maximum_number_of_iterations = UINT32_C(10000);
+
+        for(boost::uint32_t n = UINT32_C(2); n < maximum_number_of_iterations; ++n)
+        {
+          xn *= x2;
+
+          const local_negatable_type term = xn / n;
+
+          if(n > UINT32_C(5))
+          {
+            int order_term;
+            int order_result;
+
+            static_cast<void>(frexp(term,   &order_term));
+            static_cast<void>(frexp(result, &order_result));
+
+            const int order_check = (order_term - order_result);
+
+            if((term == 0) || (-order_check < -(FractionalResolution + 2)))
+            {
+              break;
+            }
+          }
+
+          result += term;
+        }
+      }
+      else
+      {
+        // Handle standard arguments greater than 0.
+        result = (log(1 + x) - log(1 - x)) / 2;
+      }
+    }
+
+    return result;
   }
   } } // namespace boost::fixed_point
 
