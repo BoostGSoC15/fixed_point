@@ -193,7 +193,7 @@
 
     // Calculate the fractional part of x such that
     // x = (integer_part * y) + fractional_part,
-    // where |fractional_part| < |y| and the fractional_part
+    // where |fractional_part| < |y| and fractional_part
     // has the same sign as x.
 
     const local_negatable_type integer_part = floor(x / y);

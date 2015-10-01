@@ -155,8 +155,14 @@ g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-unin
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_math_cbrt_nearest_even.cpp -o test_negatable_math_cbrt_nearest_even.exe
 .\test_negatable_math_cbrt_nearest_even.exe
 
-g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_math_cyl_bessel_j.cpp -o test_negatable_math_cyl_bessel_j.exe
-.\test_negatable_math_cyl_bessel_j.exe
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_math_cyl_bessel_j_big.cpp -o test_negatable_math_cyl_bessel_j_big.exe
+.\test_negatable_math_cyl_bessel_j_big.exe
+
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_math_cyl_bessel_j_small.cpp -o test_negatable_math_cyl_bessel_j_small.exe
+.\test_negatable_math_cyl_bessel_j_small.exe
+
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_math_root_find_toms748.cpp -o test_negatable_math_root_find_toms748.exe
+.\test_negatable_math_root_find_toms748.exe
 
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_round_trip_digits02_005m2.cpp -o test_negatable_round_trip_digits02_005m2.exe
 .\test_negatable_round_trip_digits02_005m2.exe

@@ -8,9 +8,9 @@
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 //! \file
-//!\brief Tests for the cylindrical bessel function of (fixed_point).
+//!\brief Tests for the cylindrical bessel function of (fixed_point) for a small digit range.
 
-#define BOOST_TEST_MODULE test_negatable_math_cyl_bessel_j
+#define BOOST_TEST_MODULE test_negatable_math_cyl_bessel_j_small
 #define BOOST_LIB_DIAGNOSTIC
 
 #include <boost/math/constants/constants.hpp>
@@ -18,10 +18,13 @@
 #include <boost/fixed_point/fixed_point.hpp>
 #include <boost/test/included/unit_test.hpp>
 
-BOOST_AUTO_TEST_CASE(test_negatable_math_cyl_bessel_j)
+BOOST_AUTO_TEST_CASE(test_negatable_math_cyl_bessel_j_small)
 {
-  typedef boost::fixed_point::negatable<31, -22> fixed_point_type;
-  typedef fixed_point_type::float_type           float_point_type;
+  typedef boost::fixed_point::negatable<  std::numeric_limits<int>::digits,
+                                        -(std::numeric_limits<long double>::digits - std::numeric_limits<int>::digits)>
+  fixed_point_type;
+
+  typedef fixed_point_type::float_type float_point_type;
 
   const fixed_point_type tol = ldexp(fixed_point_type(1), fixed_point_type::resolution + 6);
 
@@ -35,7 +38,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_math_cyl_bessel_j)
     // potentially lossy tgamma calculations (requiring Bernoulli numbers).
 
     const fixed_point_type x = boost::math::cyl_bessel_j(fixed_point_type(2), fixed_point_type(i) / boost::math::constants::e<fixed_point_type>());
-    const float_point_type y = boost::math::cyl_bessel_j(float_point_type(2), float_point_type(i) / boost::math::constants::e<float_point_type>());
+    const fixed_point_type y = boost::math::cyl_bessel_j(float_point_type(2), float_point_type(i) / boost::math::constants::e<float_point_type>());
 
     BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
   }
