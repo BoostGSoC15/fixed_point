@@ -31,13 +31,13 @@ BOOST_AUTO_TEST_CASE(test_negatable_math_root_find_toms748)
 
   boost::uintmax_t max_iter = maximum_allowed_iterations;
 
-  // Find the root of [cos(x) - x] near 0.7 and verify
-  // the root to within a reasonable tolerance.
+  // Find the root of [cos(x) - sqrt(x)] = 0, which is near 0.8
+  // and verify the root to within a tight tolerance.
 
   const std::pair<fixed_point_type, fixed_point_type> root_pair =
    boost::math::tools::toms748_solve([](const fixed_point_type& x) -> fixed_point_type
                                      {
-                                       return cos(x) - x;
+                                       return cos(x) - sqrt(x);
                                      },
                                      fixed_point_type(1) / 2,
                                      fixed_point_type(2),
@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_math_root_find_toms748)
                                      },
                                      max_iter);
 
-  BOOST_CHECK_CLOSE_FRACTION(cos(root_pair.first), root_pair.first, tol * 2);
+  BOOST_CHECK_CLOSE_FRACTION(cos(root_pair.first), sqrt(root_pair.first), tol * 2);
 
   BOOST_CHECK(max_iter < maximum_allowed_iterations);
 }
