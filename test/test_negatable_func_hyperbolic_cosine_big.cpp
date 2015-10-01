@@ -16,6 +16,7 @@
 #define BOOST_LIB_DIAGNOSTIC
 
 #include <boost/fixed_point/fixed_point.hpp>
+#include <boost/math/constants/constants.hpp>
 #include <boost/test/included/unit_test.hpp>
 
 namespace local

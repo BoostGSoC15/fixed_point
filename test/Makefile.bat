@@ -80,17 +80,26 @@ g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-unin
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_frexp_ldexp.cpp -o test_negatable_func_frexp_ldexp.exe
 .\test_negatable_func_frexp_ldexp.exe
 
-g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_hyperbolic_cosine_big.cpp -o test_negatable_func_hyperbolic_cosine_big.exe
-.\test_negatable_func_hyperbolic_cosine_big.exe
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_hyperbolic_arccosine_big.cpp -o test_negatable_func_hyperbolic_arccosine_big.exe
+.\test_negatable_func_hyperbolic_arccosine_big.exe
 
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_hyperbolic_arccosine_small.cpp -o test_negatable_func_hyperbolic_arccosine_small.exe
 .\test_negatable_func_hyperbolic_arccosine_small.exe
 
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_hyperbolic_arcsine_big.cpp -o test_negatable_func_hyperbolic_arcsine_big.exe
+.\test_negatable_func_hyperbolic_arcsine_big.exe
+
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_hyperbolic_arcsine_small.cpp -o test_negatable_func_hyperbolic_arcsine_small.exe
 .\test_negatable_func_hyperbolic_arcsine_small.exe
 
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_hyperbolic_arctangent_big.cpp -o test_negatable_func_hyperbolic_arctangent_big.exe
+.\test_negatable_func_hyperbolic_arctangent_big.exe
+
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_hyperbolic_arctangent_small.cpp -o test_negatable_func_hyperbolic_arctangent_small.exe
 .\test_negatable_func_hyperbolic_arctangent_small.exe
+
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_hyperbolic_cosine_big.cpp -o test_negatable_func_hyperbolic_cosine_big.exe
+.\test_negatable_func_hyperbolic_cosine_big.exe
 
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_hyperbolic_cosine_small.cpp -o test_negatable_func_hyperbolic_cosine_small.exe
 .\test_negatable_func_hyperbolic_cosine_small.exe
@@ -145,6 +154,9 @@ g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-unin
 
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_math_cbrt_nearest_even.cpp -o test_negatable_math_cbrt_nearest_even.exe
 .\test_negatable_math_cbrt_nearest_even.exe
+
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_math_cyl_bessel_j.cpp -o test_negatable_math_cyl_bessel_j.exe
+.\test_negatable_math_cyl_bessel_j.exe
 
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_round_trip_digits02_005m2.cpp -o test_negatable_round_trip_digits02_005m2.exe
 .\test_negatable_round_trip_digits02_005m2.exe

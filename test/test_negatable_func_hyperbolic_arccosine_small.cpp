@@ -30,14 +30,29 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_hyperbolic_arccosine_small)
   for(int i = 0; i < 16; ++i)
   {
     const fixed_point_type x = acosh(1 + (fixed_point_type(i) / fixed_point_type(3.1415926535897932385L)));
-
     const float_point_type y = acosh(1 + (float_point_type(i) / float_point_type(3.1415926535897932385L)));
 
     BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
   }
 
-  const fixed_point_type x = acosh(1 + (1 / (fixed_point_type(97) / 10)));
-  const float_point_type y = acosh(1 + (1 / (float_point_type(97) / 10)));
+  fixed_point_type x;
+  float_point_type y;
+
+  // Check a positive argument clost to 1.
+  x = acosh(1 + (1 / (fixed_point_type(97) / 10)));
+  y = acosh(1 + (1 / (float_point_type(97) / 10)));
+
+  BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
+
+  // Check an invalid zero argument.
+  x = acosh(0);
+  y = float_point_type(0);
+
+  BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
+
+  // Check an invalid argument that lies between 0 < x < 1.
+  x = acosh(fixed_point_type(1) / 2);
+  y = float_point_type(0);
 
   BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
 }

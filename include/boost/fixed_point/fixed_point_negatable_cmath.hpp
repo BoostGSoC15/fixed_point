@@ -115,6 +115,8 @@
       // Extract the unsigned representation of the data field.
       local_unsigned_small_type result((!is_neg) ? local_unsigned_small_type(x.data) : local_unsigned_small_type(-x.data));
 
+      // Use a binary-halving mechanism to obtain the most significant bit.
+      // This will subsequently be used for determination of the binary exponent.
       boost::uint_fast16_t msb;
 
       {
@@ -125,7 +127,6 @@
 
         local_unsigned_small_type tmp(result);
 
-        // Use a binary-halving mechanism to obtain the most significant bit.
         msb = detail::msb_helper(tmp, unsigned_small_mask, unsigned_small_digits);
       }
 
@@ -181,6 +182,36 @@
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> fmod(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y)
+  {
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+
+    if(y == 0)
+    {
+      return local_negatable_type(0);
+    }
+
+    // Calculate the fractional part of x such that
+    // x = (integer_part * y) + fractional_part,
+    // where |fractional_part| < |y| and the fractional_part
+    // has the same sign as x.
+
+    const local_negatable_type integer_part = floor(x / y);
+
+    local_negatable_type fractional_part = x - (integer_part * y);
+
+    const bool x_is_neg = (x < 0);
+    const bool y_is_neg = (y < 0);
+
+    if(x_is_neg != y_is_neg)
+    {
+      fractional_part -= y;
+    }
+
+    return fractional_part;
+  }
+
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sqrt(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
@@ -200,8 +231,9 @@
       // Get the initial estimate of the square root.
       boost::uint_fast16_t msb;
 
+      // Use a binary-halving mechanism to obtain the most significant bit.
+      // This will subsequently be used for range reduction.
       {
-        // Find the most significant bit of the argument.
         BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t unsigned_small_digits =
           static_cast<boost::uint_fast16_t>(std::numeric_limits<local_unsigned_small_type>::digits);
 
@@ -209,7 +241,6 @@
 
         local_unsigned_small_type tmp(x.data);
 
-        // Use a binary-halving mechanism to obtain the most significant bit.
         msb = detail::msb_helper(tmp, unsigned_small_mask, unsigned_small_digits);
       }
 
@@ -257,7 +288,7 @@
       // More precisely, this is the Schoenhage variation thereof.
       // We begin with an estimate of 1 binary digit of precision and
       // double the number of binary digits of precision with each iteration.
-      // The last iteration is only be performed with half of the necessary
+      // The last iteration is only performed with half of the necessary
       // precision because the precision of the result is subsequently
       // doubled during the course of the last iteration.
 
@@ -353,6 +384,8 @@
       return 1 / exp(-x);
     }
 
+    // Use range reduction and scaling with powers of 2
+    // in order to compute exp(x).
     const int nf = ((x > local_negatable_type::value_ln_two()) ? int(x / local_negatable_type::value_ln_two()) : 0);
 
     if(nf > 0)
@@ -387,7 +420,7 @@
     else if(x > 1)
     {
       // Use frexp() to reduce the argument to 1 <= x <= 2 and
-      // store the factors of 2 in an integral vbariable n.
+      // store the factors of 2 in an integral variable n.
 
       int n;
 
@@ -459,7 +492,7 @@
     else if(x > 1)
     {
       // Use frexp() to reduce the argument to 1 <= x <= 2 and
-      // store the factors of 2 in an integral vbariable n.
+      // store the factors of 2 in an integral variable n.
 
       int n;
 
@@ -494,7 +527,7 @@
       }
 
       // Obtain the result and scale it with the logarithms
-      // of the powers of two (if necessary).
+      // of the factors of 2 (if necessary).
       result = ((n == 0) ? log_val : (log_val + (n * local_negatable_type::value_ln_two())));
     }
     else
@@ -539,6 +572,42 @@
     else
     {
       return exp(a * log(x));
+    }
+  }
+
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> pow(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, int n)
+  {
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+
+    if(n == 0)
+    {
+      return local_negatable_type(1);
+    }
+    else if(n < 0)
+    {
+      return 1 / pow(x, -n);
+    }
+    else
+    {
+      // The variable xn stores the binary powers of x.
+      local_negatable_type result(((n % 2) != 0) ? x : local_negatable_type(1));
+
+      while((n /= 2) != 0)
+      {
+        // Square x for each binary power.
+        x *= x;
+
+        const bool has_binary_power = ((n % 2) != 0);
+
+        if(has_binary_power)
+        {
+          // Multiply the result with each binary power contained in the exponent.
+          result *= x;
+        }
+      }
+
+      return result;
     }
   }
 
@@ -664,7 +733,7 @@
       }
       else
       {
-        // Use an angle doubling identity to reduce the argument to less than +pi/4.
+        // Use an angle-doubling identity to reduce the argument to less than +pi/4.
         const local_negatable_type half_x = x / 2;
 
         const local_negatable_type sin_half_x = sin(half_x);
@@ -797,7 +866,7 @@
       }
       else
       {
-        // Use an angle doubling identity to reduce the argument to less than +pi/4.
+        // Use an angle-doubling identity to reduce the argument to less than +pi/4.
         const local_negatable_type half_x = x / 2;
 
         const local_negatable_type cos_half_x = cos(half_x);
@@ -1181,7 +1250,7 @@
       {
         const local_negatable_type one_half = ldexp(local_negatable_type(1), -1);
 
-        result =   (sqrt(local_negatable_type(2)) * sqrt(x_minus_one))
+        result =   sqrt(2 * x_minus_one)
                  * detail::hypergeometric_2f1(one_half, one_half, local_negatable_type(3) / 2, -x_minus_one / 2);
       }
       else
@@ -1217,6 +1286,8 @@
     {
       if(x < (local_negatable_type(1) / 8))
       {
+        // Handle small arguments greater than 0.
+        // Use a hypergeometric series representation here.
         const local_negatable_type one_half = ldexp(local_negatable_type(1), -1);
 
         result = x * detail::hypergeometric_2f1(local_negatable_type(1), one_half, local_negatable_type(3) / 2, (x * x));

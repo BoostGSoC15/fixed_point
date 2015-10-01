@@ -44,8 +44,11 @@ all_files : test_negatable_basic_arithmetic_fastest.exe            \
             test_negatable_func_exp_small.exe                      \
             test_negatable_func_floor_ceil.exe                     \
             test_negatable_func_frexp_ldexp.exe                    \
+            test_negatable_func_hyperbolic_arccosine_big.exe       \
             test_negatable_func_hyperbolic_arccosine_small.exe     \
+            test_negatable_func_hyperbolic_arcsine_big.exe         \
             test_negatable_func_hyperbolic_arcsine_small.exe       \
+            test_negatable_func_hyperbolic_arctangent_big.exe      \
             test_negatable_func_hyperbolic_arctangent_small.exe    \
             test_negatable_func_hyperbolic_cosine_big.exe          \
             test_negatable_func_hyperbolic_cosine_small.exe        \
@@ -66,6 +69,7 @@ all_files : test_negatable_basic_arithmetic_fastest.exe            \
             test_negatable_math_bernoulli_b2n.exe                  \
             test_negatable_math_cbrt_fastest.exe                   \
             test_negatable_math_cbrt_nearest_even.exe              \
+            test_negatable_math_cyl_bessel_j.exe                   \
             test_negatable_round_trip_digits02_005m2.exe           \
             test_negatable_round_trip_digits10_001.exe             \
             test_negatable_round_trip_digits10_002.exe             \

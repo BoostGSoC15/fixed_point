@@ -47,6 +47,12 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_hyperbolic_arcsine_small)
   fixed_point_type x;
   float_point_type y;
 
+  // Check the valid zero argument.
+  x = asinh(0);
+  y = float_point_type(0);
+
+  BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
+
   // Check a positive argument clost to 0.
   x = asinh(1 / (fixed_point_type(97) / 10));
   y = asinh(1 / (float_point_type(97) / 10));
@@ -54,8 +60,8 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_hyperbolic_arcsine_small)
   BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
 
   // Check a negative argument clost to 0.
-  x = asinh(1 / (fixed_point_type(97) / 10));
-  y = asinh(1 / (float_point_type(97) / 10));
+  x = asinh(-1 / (fixed_point_type(97) / 10));
+  y = asinh(-1 / (float_point_type(97) / 10));
 
   BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
 }
