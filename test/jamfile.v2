@@ -110,6 +110,7 @@ test-suite "Fixed_point"
       [ run test_negatable_math_cyl_bessel_j_big.cpp boost_unit_test ]
       [ run test_negatable_math_cyl_bessel_j_small.cpp boost_unit_test ]
       [ run test_negatable_math_root_find_toms748.cpp boost_unit_test ]
+      [ run test_negatable_math_trapezoid_integral.cpp boost_unit_test ]
       [ run test_negatable_round_trip_digits02_005m2.cpp boost_unit_test ]
       [ run test_negatable_round_trip_digits10_001.cpp boost_unit_test ]
       [ run test_negatable_round_trip_digits10_002.cpp boost_unit_test ]

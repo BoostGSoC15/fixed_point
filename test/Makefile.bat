@@ -164,6 +164,9 @@ g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-unin
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_math_root_find_toms748.cpp -o test_negatable_math_root_find_toms748.exe
 .\test_negatable_math_root_find_toms748.exe
 
+g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_math_trapezoid_integral.cpp -o test_negatable_math_trapezoid_integral.exe
+.\test_negatable_math_trapezoid_integral.exe
+
 g++ -O2 -Wno-unused-parameter -Wall -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_round_trip_digits02_005m2.cpp -o test_negatable_round_trip_digits02_005m2.exe
 .\test_negatable_round_trip_digits02_005m2.exe
 

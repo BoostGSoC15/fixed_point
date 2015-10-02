@@ -72,6 +72,7 @@ all_files : test_negatable_basic_arithmetic_fastest.exe            \
             test_negatable_math_cyl_bessel_j_big.exe               \
             test_negatable_math_cyl_bessel_j_small.exe             \
             test_negatable_math_root_find_toms748.exe              \
+            test_negatable_math_trapezoid_integral.exe             \
             test_negatable_round_trip_digits02_005m2.exe           \
             test_negatable_round_trip_digits10_001.exe             \
             test_negatable_round_trip_digits10_002.exe             \

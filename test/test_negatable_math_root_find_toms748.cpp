@@ -21,33 +21,37 @@
 
 BOOST_AUTO_TEST_CASE(test_negatable_math_root_find_toms748)
 {
-  typedef boost::fixed_point::negatable<  std::numeric_limits<int>::digits,
+  typedef boost::fixed_point::negatable<        std::numeric_limits<int>::digits,
                                         -(255 - std::numeric_limits<int>::digits)>
   fixed_point_type;
 
-  const fixed_point_type tol = ldexp(fixed_point_type(1), fixed_point_type::resolution + 12);
+  const fixed_point_type tol = ldexp(fixed_point_type(1), fixed_point_type::resolution + 8);
 
   BOOST_CONSTEXPR boost::uintmax_t maximum_allowed_iterations = UINTMAX_C(32);
 
-  boost::uintmax_t max_iter = maximum_allowed_iterations;
+  boost::uintmax_t iterations = maximum_allowed_iterations;
 
-  // Find the root of [cos(x) - sqrt(x)] = 0, which is near 0.8
-  // and verify the root to within a tight tolerance.
+  // Find the positive root of [cos(x) - sqrt(x)] = 0,
+  // which is near 0.8.
 
-  const std::pair<fixed_point_type, fixed_point_type> root_pair =
-   boost::math::tools::toms748_solve([](const fixed_point_type& x) -> fixed_point_type
-                                     {
-                                       return cos(x) - sqrt(x);
-                                     },
-                                     fixed_point_type(1) / 2,
-                                     fixed_point_type(2),
-                                     [&tol](const fixed_point_type& a, const fixed_point_type& b) -> bool
-                                     {
-                                       return fabs(a - b) < tol;
-                                     },
-                                     max_iter);
+  using boost::math::tools::toms748_solve;
 
-  BOOST_CHECK_CLOSE_FRACTION(cos(root_pair.first), sqrt(root_pair.first), tol * 2);
+  const std::pair<fixed_point_type, fixed_point_type> root =
+    toms748_solve([](const fixed_point_type& x) -> fixed_point_type
+                  {
+                    return (cos(x) - sqrt(x));
+                  },
+                  ldexp(fixed_point_type(1), -1),
+                  fixed_point_type(1),
+                  [&tol](const fixed_point_type& a, const fixed_point_type& b) -> bool
+                  {
+                    return (fabs(a - b) < tol);
+                  },
+                  iterations);
 
-  BOOST_CHECK(max_iter < maximum_allowed_iterations);
+  // Verify the root with a tight tolerance.
+
+  BOOST_CHECK_CLOSE_FRACTION(cos(root.first), sqrt(root.first), tol * 2);
+
+  BOOST_CHECK(iterations < maximum_allowed_iterations);
 }
