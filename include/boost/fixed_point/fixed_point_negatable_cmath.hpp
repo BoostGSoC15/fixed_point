@@ -270,7 +270,8 @@
     }
     else
     {
-      // Use the reduced argument (a). Here we estimate the initial guess:
+      // Use the reduced argument (a).
+      // Here we estimate the initial guess with:
       //  sqrt(a) = approx. (a/2) + [8^(1/4) - 1]^2
       //          = approx. (a/2) + 0.4648
       //          = approx. (a/2) + (1/2) [via naive simplification].
@@ -635,16 +636,18 @@
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle reflection for negative arguments.
-    if(x < 0)
+    if(x.data < 0)
     {
       return -sin(-x);
     }
 
-    // Reduce the argument to the range 0 <= x <= +pi/2.
-    const int n = ((x > local_negatable_type::value_pi()) ? int(x / local_negatable_type::value_pi()) : 0);
+    int n = 0;
 
-    if(n > 0)
+    // Reduce the argument to the range 0 <= x <= +pi/2.
+    if(x > local_negatable_type::value_pi())
     {
+      n = int(x / local_negatable_type::value_pi());
+
       x -= (n * local_negatable_type::value_pi());
     }
 
@@ -687,16 +690,18 @@
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     // Handle reflection for negative arguments.
-    if(x < 0)
+    if(x.data < 0)
     {
       return -sin(-x);
     }
 
-    // Reduce the argument to the range 0 <= x <= +pi/2.
-    const int n = ((x > local_negatable_type::value_pi()) ? int(x / local_negatable_type::value_pi()) : 0);
+    int n = 0;
 
-    if(n > 0)
+    // Reduce the argument to the range 0 <= x <= +pi/2.
+    if(x > local_negatable_type::value_pi())
     {
+      n = int(x / local_negatable_type::value_pi());
+
       x -= (n * local_negatable_type::value_pi());
     }
 
@@ -708,7 +713,7 @@
     }
     else
     {
-      if(x <= (local_negatable_type::value_pi() / 4))
+      if(x <= ldexp(local_negatable_type::value_pi(), -2))
       {
         // Use the Taylor series representation of sin(x) near x = 0.
         local_negatable_type x_squared = (x * x);
@@ -763,18 +768,18 @@
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle reflection for negative arguments.
-    const bool is_neg = (x < 0);
-
-    if(is_neg)
+    if(x < 0)
     {
       x = -x;
     }
 
     // Reduce the argument to the range 0 <= x <= +pi/2.
-    const int n = ((x > local_negatable_type::value_pi()) ? int(x / local_negatable_type::value_pi()) : 0);
+    int n = 0;
 
-    if(n > 0)
+    if(x > local_negatable_type::value_pi())
     {
+      n = int(x / local_negatable_type::value_pi());
+
       x -= (n * local_negatable_type::value_pi());
     }
 
@@ -816,18 +821,18 @@
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     // Handle reflection for negative arguments.
-    const bool is_neg = (x < 0);
-
-    if(is_neg)
+    if(x < 0)
     {
       x = -x;
     }
 
     // Reduce the argument to the range 0 <= x <= +pi/2.
-    const int n = ((x > local_negatable_type::value_pi()) ? int(x / local_negatable_type::value_pi()) : 0);
+    int n = 0;
 
-    if(n > 0)
+    if(x > local_negatable_type::value_pi())
     {
+      n = int(x / local_negatable_type::value_pi());
+
       x -= (n * local_negatable_type::value_pi());
     }
 
@@ -839,7 +844,7 @@
     }
     else
     {
-      if(x <= (local_negatable_type::value_pi() / 4))
+      if(x <= ldexp(local_negatable_type::value_pi(), -2))
       {
         // Use the Taylor series representation of cos(x) near x = 0.
         local_negatable_type x_squared = (x * x);
@@ -900,10 +905,12 @@
     }
 
     // Reduce the argument to the range 0 <= x <= +pi/2.
-    const int n = ((x > local_negatable_type::value_pi()) ? int(x / local_negatable_type::value_pi()) : 0);
+    int n = 0;
 
-    if(n > 0)
+    if(x > local_negatable_type::value_pi())
     {
+      n = int(x / local_negatable_type::value_pi());
+
       x -= (n * local_negatable_type::value_pi());
     }
 
@@ -915,7 +922,7 @@
     }
     else
     {
-      const local_negatable_type pi_over_four = local_negatable_type::value_pi() / 4;
+      const local_negatable_type pi_over_four = ldexp(local_negatable_type::value_pi(), -2);
 
       if(x > pi_over_four)
       {
@@ -926,31 +933,26 @@
       else if(x < pi_over_four)
       {
         // Use a polynomial approximation.
-        // tan(x) / x = approx. + 1.0
-        //                      + 0.3333314036 x^2
-        //                      + 0.1333923995 x^4
-        //                      + 0.0533740603 x^6
-        //                      + 0.0245650893 x^8
-        //                      + 0.0029005250 x^10
-        //                      + 0.0095168091 x^12,
+        // tan(x) / x = approx. + 0.99999982053522
+        //                      + 0.33335465351938 x^2
+        //                      + 0.13292151590120 x^4
+        //                      + 0.05681862499001 x^6
+        //                      + 0.01326787053456 x^8
+        //                      + 0.01987397353189 x^10,
         // in the range 0 <= x <= +pi/4. These coefficients
-        // originate from Abramowitz & Stegun Eq. 4.3.101.
+        // have been specifically derived for this work.
 
         const local_negatable_type x2 = (x * x);
 
         // Perform the polynomial approximation using a coefficient
         // expansion via the method of Horner.
-        result = (((((       local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00026FB1) >> (24 + FractionalResolution)))   // 0.0095168091
-                      * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0000BE16) >> (24 + FractionalResolution))))  // 0.0029005250
-                      * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000649E5) >> (24 + FractionalResolution))))  // 0.0245650893
-                      * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000DA9EC) >> (24 + FractionalResolution))))  // 0.0533740603
-                      * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00222601) >> (24 + FractionalResolution))))  // 0.1333923995
-                      * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00555534) >> (24 + FractionalResolution))))  // 0.3333314036
-                      * x2;
-
-        ++result;
-
-        result *= x;
+        result = (((((       local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00051675) >> (24 + FractionalResolution)))   // 0.01987397353189
+                      * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00036585) >> (24 + FractionalResolution))))  // 0.01326787053456
+                      * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000E8BAA) >> (24 + FractionalResolution))))  // 0.05681862499001
+                      * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00220724) >> (24 + FractionalResolution))))  // 0.13292151590120
+                      * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x005556BB) >> (24 + FractionalResolution))))  // 0.33335465351938
+                      * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00FFFFFC) >> (24 + FractionalResolution))))  // 0.99999982053522
+                      * x;
       }
       else
       {
@@ -999,28 +1001,28 @@
     else
     {
       // Use a polynomial approximation.
-      // asin(x) = approx. pi/2 - [sqrt(1 - x) * (+ 1.5707963050
-      //                                          - 0.2145988016 x^1
-      //                                          + 0.0889789874 x^2
-      //                                          - 0.0501743046 x^3
-      //                                          + 0.0308918810 x^4
-      //                                          - 0.0170881256 x^5
-      //                                          + 0.0066700901 x^6
-      //                                          - 0.0012624911 x^7)],
+      // asin(x) = approx. pi/2 - [sqrt(1 - x) * (+ 1.5707962797298
+      //                                          - 0.2145976333738 x^1
+      //                                          + 0.0889661326639 x^2
+      //                                          - 0.0501164255199 x^3
+      //                                          + 0.0307646026592 x^4
+      //                                          - 0.0169450735826 x^5
+      //                                          + 0.0065926664377 x^6
+      //                                          - 0.0012470498685 x^7)],
       // in the range 0 <= x <= +1. These coefficients
-      // originate from Abramowitz & Stegun Eq. 4.4.46.
+      // have been specifically derived for this work.
 
       // Perform the polynomial approximation using a coefficient
       // expansion via the method of Horner.
       const local_negatable_type polynomial_approximation =
-        (((((((    - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000052BD) >> (24 + FractionalResolution)))   // 0.0012624911
-               * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0001B521) >> (24 + FractionalResolution))))  // 0.0066700901
-               * x - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00045FE3) >> (24 + FractionalResolution))))  // 0.0170881256
-               * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0007E887) >> (24 + FractionalResolution))))  // 0.0308918810
-               * x - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000CD839) >> (24 + FractionalResolution))))  // 0.0501743046
-               * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0016C753) >> (24 + FractionalResolution))))  // 0.0889789874
-               * x - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0036EFF2) >> (24 + FractionalResolution))))  // 0.2145988016
-               * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x01921FB4) >> (24 + FractionalResolution)))); // 1.5707963050
+        (((((((    - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000051BA) >> (24 + FractionalResolution)))   // 0.0012470498685
+               * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0001b00E) >> (24 + FractionalResolution))))  // 0.0065926664377
+               * x - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00045683) >> (24 + FractionalResolution))))  // 0.0169450735826
+               * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0007E030) >> (24 + FractionalResolution))))  // 0.0307646026592
+               * x - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000CD46E) >> (24 + FractionalResolution))))  // 0.0501164255199
+               * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0016C67C) >> (24 + FractionalResolution))))  // 0.0889661326639
+               * x - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0036EFDE) >> (24 + FractionalResolution))))  // 0.2145976333738
+               * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x01921FB4) >> (24 + FractionalResolution)))); // 1.5707962797298
 
       result = local_negatable_type::value_pi_half() - (sqrt(1 - x) * polynomial_approximation);
     }
@@ -1130,7 +1132,7 @@
     }
     else if(x == 1)
     {
-      result = local_negatable_type::value_pi() / 4;
+      result = ldexp(local_negatable_type::value_pi(), -2);
     }
     else if(x > 1)
     {
@@ -1183,13 +1185,13 @@
     }
     else if(x == 1)
     {
-      result = local_negatable_type::value_pi() / 4;
+      result = ldexp(local_negatable_type::value_pi(), -2);
     }
     else if(x > 1)
     {
       result = local_negatable_type::value_pi_half() - atan(1 / x);
     }
-    else if(x < (local_negatable_type(1) / 8))
+    else if(x < ldexp(local_negatable_type(1), -3))
     {
       // Use a hypergeometric series expansion for small argument.
       result = x * detail::hypergeometric_2f1( local_negatable_type(1),
@@ -1201,7 +1203,7 @@
     {
       // Use Newton-Raphson iteration for atan.
 
-      // Obtain an initial guess using a Pade-like approximation of order 1:2.
+      // Obtain an initial guess using a two-term Pade-like approximation.
       // See Abramowitz & Stegun, Eq. 4.4.48.
       result = x / (1 + ((7 * (x * x)) / 25));
 
@@ -1298,7 +1300,7 @@
     }
     else
     {
-      if(x < (local_negatable_type(1) / 8))
+      if(x < ldexp(local_negatable_type(1), -3))
       {
         // Handle arguments greater than 0 but near 0.
         // Use a hypergeometric series representation here.
@@ -1334,7 +1336,7 @@
       // Use a hypergeometric series representation here.
       const local_negatable_type x_minus_one = x - 1;
 
-      if(x_minus_one < (local_negatable_type(1) / 8))
+      if(x_minus_one < ldexp(local_negatable_type(1), -3))
       {
         const local_negatable_type one_half = ldexp(local_negatable_type(1), -1);
 
@@ -1372,7 +1374,7 @@
     }
     else
     {
-      if(x < (local_negatable_type(1) / 8))
+      if(x < ldexp(local_negatable_type(1), -3))
       {
         // Handle small arguments greater than 0.
         // Use a hypergeometric series representation here.

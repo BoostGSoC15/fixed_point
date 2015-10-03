@@ -526,8 +526,7 @@
       // With round modes fastest and nearest even, there is no need
       // for special code for handling underflow. But be aware of
       // underflow issues if other rounding modes are supported.
-      if     (rounding_result == INT8_C(+1)) { ++u_round; }
-      else if(rounding_result == INT8_C(-1)) { --u_round; }
+      u_round += rounding_result;
 
       data = ((!is_neg) ? value_type(u_round) : -value_type(u_round));
     }
@@ -569,8 +568,7 @@
       // With round modes fastest and nearest even, there is no need
       // for special code for handling underflow. But be aware of
       // underflow issues if other rounding modes are supported.
-      if     (rounding_result == INT8_C(+1)) { ++u_round; }
-      else if(rounding_result == INT8_C(-1)) { --u_round; }
+      u_round += rounding_result;
 
       data = ((!is_neg) ? value_type(u_round) : -value_type(u_round));
     }
@@ -694,9 +692,8 @@
     //! Unary operator multiply of (*this *= negatable).
     negatable& operator*=(const negatable& v)
     {
-      const bool u_is_neg      = (  data < 0);
-      const bool v_is_neg      = (v.data < 0);
-      const bool result_is_neg = (u_is_neg != v_is_neg);
+      const bool u_is_neg = (  data < 0);
+      const bool v_is_neg = (v.data < 0);
 
       // Multiplication will be carried out using unsigned integers.
 
@@ -722,29 +719,25 @@
       // Scale the result of the multiplication to fit once again
       // in the fixed-point data field.
 
-      // Here, we use 1 extra binary digit for rounding.
+      // Here we use one extra binary digit for rounding.
       // The extra rounding digit fits in @c unsigned_small_type
       // because the value_type (even though just as wide as
       // @c unsigned_small_type) reserves one bit for the sign.
 
-      const int total_right_shift = radix_split - 1;
+      BOOST_CONSTEXPR int total_right_shift = (radix_split - 1);
 
-      unsigned_small_type u_round(static_cast<unsigned_small_type>(detail::right_shift_helper(result, total_right_shift)));
+      unsigned_small_type u_round = static_cast<unsigned_small_type>(result >> total_right_shift);
 
       // Round the result of the multiplication.
       const boost::int_fast8_t rounding_result = binary_round(u_round);
 
-      // Add or subtract the result of the rounding (-1, 0, or +1).
       // With round modes fastest and nearest even, there is no need
       // for special code for handling underflow. But be aware of
       // underflow issues if other rounding modes are supported.
-      if     (rounding_result == INT8_C(+1)) { ++u_round; }
-      else if(rounding_result == INT8_C(-1)) { --u_round; }
-
-      u_round = (u_round & unsigned_small_mask());
+      u_round = ((u_round + rounding_result) & unsigned_small_mask());
 
       // Load the fixed-point result (and account for potentially signed values).
-      data = value_type((!result_is_neg) ? value_type(u_round) : -value_type(u_round));
+      data = ((u_is_neg == v_is_neg) ? value_type(u_round) : -value_type(u_round));
 
       return *this;
     }
@@ -758,9 +751,8 @@
       }
       else
       {
-        const bool u_is_neg      = (  data < 0);
-        const bool v_is_neg      = (v.data < 0);
-        const bool result_is_neg = (u_is_neg != v_is_neg);
+        const bool u_is_neg = (  data < 0);
+        const bool v_is_neg = (v.data < 0);
 
         // Division will be carried out using unsigned integers.
 
@@ -795,17 +787,13 @@
         // Round the result of the division.
         const boost::int_fast8_t rounding_result = binary_round(u_round);
 
-        // Add or subtract the result of the rounding (-1, 0, or +1).
         // With round modes fastest and nearest even, there is no need
         // for special code for handling underflow. But be aware of
         // underflow issues if other rounding modes are supported.
-        if     (rounding_result == INT8_C(+1)) { ++u_round; }
-        else if(rounding_result == INT8_C(-1)) { --u_round; }
-
-        u_round = (u_round & unsigned_small_mask());
+        u_round = ((u_round + rounding_result) & unsigned_small_mask());
 
         // Load the fixed-point result (and account for potentially signed values).
-        data = value_type((!result_is_neg) ? value_type(u_round) : -value_type(u_round));
+        data = value_type((u_is_neg == v_is_neg) ? value_type(u_round) : -value_type(u_round));
       }
 
       return *this;
@@ -906,28 +894,18 @@
   private:
     value_type data;
 
-    static const unsigned_small_type& unsigned_small_mask() BOOST_NOEXCEPT
+    static const unsigned_small_type unsigned_small_mask() BOOST_NOEXCEPT
     {
-      initialization_helper.force_premain_init_of_static_constants();
-
-      static const unsigned_small_type the_value =
-        detail::bit_mask_helper<unsigned_small_type,
-                                0U,
-                                boost::uint32_t(IntegralRange - FractionalResolution)>::value();
-
-      return the_value;
+      return detail::bit_mask_helper<unsigned_small_type,
+                                     0U,
+                                     boost::uint32_t(IntegralRange - FractionalResolution)>::value();
     }
 
-    static const unsigned_small_type& unsigned_integer_part_mask() BOOST_NOEXCEPT
+    static const unsigned_small_type unsigned_integer_part_mask() BOOST_NOEXCEPT
     {
-      initialization_helper.force_premain_init_of_static_constants();
-
-      static const unsigned_small_type the_value =
-        detail::bit_mask_helper<unsigned_small_type,
-                                boost::uint32_t(-FractionalResolution),
-                                boost::uint32_t(IntegralRange + 1)>::value();
-
-      return the_value;
+      return detail::bit_mask_helper<unsigned_small_type,
+                                     boost::uint32_t(-FractionalResolution),
+                                     boost::uint32_t(IntegralRange + 1)>::value();
     }
 
     struct nothing { };
@@ -1030,8 +1008,7 @@
       // With round modes fastest and nearest even, there is no need
       // for special code for handling underflow. But be aware of
       // underflow issues if other rounding modes are supported.
-      if     (rounding_result == INT8_C(+1)) { ++u_round; }
-      else if(rounding_result == INT8_C(-1)) { --u_round; }
+      u_round += rounding_result;
 
       u_round = (u_round & unsigned_small_mask());
 
@@ -1325,8 +1302,6 @@
       initializer()
       {
         static_cast<void>(negatable::radix_split_value());
-        static_cast<void>(negatable::unsigned_small_mask());
-        static_cast<void>(negatable::unsigned_integer_part_mask());
         static_cast<void>(negatable::value_max());
         static_cast<void>(negatable::value_min());
         static_cast<void>(negatable::epsilon_maker());

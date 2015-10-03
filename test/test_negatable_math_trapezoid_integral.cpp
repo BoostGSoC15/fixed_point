@@ -23,24 +23,23 @@
 
 namespace local
 {
-  template<typename real_value_type,
-           typename real_function_type>
-  real_value_type integral(const real_value_type& a,
-                           const real_value_type& b,
-                           const real_value_type& tol,
-                           real_function_type real_function)
+  template<typename NumericType, typename RealFunctionType>
+  NumericType integral(const NumericType& a,
+                       const NumericType& b,
+                       const NumericType& tol,
+                       RealFunctionType real_function)
   {
     boost::uint_fast32_t n2(1);
 
-    real_value_type step = ((b - a) / 2U);
+    NumericType step = ((b - a) / 2U);
 
-    real_value_type result = (real_function(a) + real_function(b)) * step;
+    NumericType result = (real_function(a) + real_function(b)) * step;
 
     const boost::uint_fast8_t k_max = UINT8_C(16);
 
     for(boost::uint_fast8_t k = UINT8_C(0); k < k_max; ++k)
     {
-      real_value_type sum(0);
+      NumericType sum(0);
 
       for(boost::uint_fast32_t j(0U); j < n2; ++j)
       {
@@ -49,13 +48,13 @@ namespace local
         sum += real_function(a + (step * two_j_plus_one));
       }
 
-      const real_value_type tmp = result;
+      const NumericType tmp = result;
 
       result = (result / 2U) + (step * sum);
 
       using std::fabs;
-      const real_value_type ratio = fabs(tmp / result);
-      const real_value_type delta = fabs(ratio - 1U);
+      const NumericType ratio = fabs(tmp / result);
+      const NumericType delta = fabs(ratio - 1U);
 
       if((k > UINT8_C(1)) && (delta < tol))
       {
@@ -70,24 +69,23 @@ namespace local
     return result;
   }
 
-  template<typename float_type>
-  float_type cyl_bessel_j(const boost::uint_fast8_t n,
-                          const float_type& x)
+  template<typename NumericType>
+  NumericType cyl_bessel_j(const boost::uint_fast8_t n, const NumericType& x)
   {
     using std::sqrt;
-    const float_type tol = sqrt(std::numeric_limits<float_type>::epsilon());
+    const NumericType tol = sqrt(std::numeric_limits<NumericType>::epsilon());
 
-    const float_type jn =
-      local::integral(float_type(0),
-                      boost::math::constants::pi<float_type>(),
+    const NumericType jn =
+      local::integral(NumericType(0),
+                      boost::math::constants::pi<NumericType>(),
                       tol,
-                      [&x, &n](const float_type& t) -> float_type
+                      [&x, &n](const NumericType& t) -> NumericType
                       {
                         using std::cos;
                         using std::sin;
 
                         return cos(x * sin(t) - (t * n));
-                      }) / boost::math::constants::pi<float_type>();
+                      }) / boost::math::constants::pi<NumericType>();
 
     return jn;
   }
@@ -99,12 +97,13 @@ BOOST_AUTO_TEST_CASE(test_negatable_math_trapezoid_integral)
 
   typedef fixed_point_type::float_type float_point_type;
 
-  const fixed_point_type tol = ldexp(fixed_point_type(1), fixed_point_type::resolution + 8);
+  const fixed_point_type tol = ldexp(fixed_point_type(1), fixed_point_type::resolution + 6);
 
-  // Compute y = cyl_bessel_j(2, 123 / 100) = approx. 0.166369383786814073512678524315131594371033482453328555149562207827319927054822411949870923
-  const fixed_point_type j2 = local::cyl_bessel_j(UINT8_C(2), fixed_point_type(123) / 100);
+  // Compute y = cyl_bessel_j(2, 123 / 100).
+  const fixed_point_type j2   = local::cyl_bessel_j(UINT8_C(2), fixed_point_type(123) / 100);
 
-  const float_point_type control = float_point_type("0.166369383786814073512678524315131594371033482453328555149562207827319927054822411949870923");
+  // Assign the known control value of the Bessel function.
+  const float_point_type ctrl = float_point_type("0.166369383786814073512678524315131594371033482453328555149562207827319927054822411949870923");
 
-  BOOST_CHECK_CLOSE_FRACTION(j2, control, tol);
+  BOOST_CHECK_CLOSE_FRACTION(j2, ctrl, tol);
 }
