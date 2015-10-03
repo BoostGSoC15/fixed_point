@@ -258,7 +258,7 @@
 
       // Shift the data field of the argument up, resulting in
       // a value of x that is greater than or equal to 1.
-      x.data = local_value_type(local_unsigned_small_type(x.data)) << -n;
+      x.data = (local_value_type(local_unsigned_small_type(x.data)) << (-n));
 
       // Perform the square root calculation on the scaled-up argument.
       result = sqrt(x);
@@ -268,8 +268,9 @@
     }
     else
     {
-      // Use the reduced argument (a).
-      // Here we estimate the initial guess with:
+      // Use the reduced argument (a) in order to create an
+      // estimate for the initial guess of the square root of x.
+      // Here we use:
       //  sqrt(a) = approx. (a/2) + [8^(1/4) - 1]^2
       //          = approx. (a/2) + 0.4648
       //          = approx. (a/2) + (1/2) [via naive simplification].
@@ -330,11 +331,18 @@
     }
 
     // Handle reflection for negative arguments.
-    const bool is_neg = (x < 0);
-
-    if(is_neg)
+    if(x < 0)
     {
       return 1 / exp(-x);
+    }
+
+    int nf = 0;
+
+    if(x > local_negatable_type::value_ln_two())
+    {
+      nf = int(x / local_negatable_type::value_ln_two());
+
+      x -= (local_negatable_type::value_ln_two() * nf);
     }
 
     // Use a polynomial approximation.
@@ -348,16 +356,8 @@
     // in the range -1 <= x <= +1. These coefficients
     // have been specifically derived for this work.
 
-    const int nf = ((x > local_negatable_type::value_ln_two()) ? int(x / local_negatable_type::value_ln_two()) : 0);
-
-    if(nf > 0)
-    {
-      x -= (local_negatable_type::value_ln_two() * nf);
-    }
-
     // Perform the polynomial approximation using a coefficient
     // expansion via the method of Horner.
-
     local_negatable_type result =
       ((((((      local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00000D64) >> (24 + FractionalResolution)))   // 0.0002043732656744
             * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00005E03) >> (24 + FractionalResolution))))  // 0.0014345483118123
@@ -391,19 +391,17 @@
     }
 
     // Handle reflection for negative arguments.
-    const bool is_neg = (x < 0);
-
-    if(is_neg)
+    if(x < 0)
     {
       return 1 / exp(-x);
     }
 
-    // Use range reduction and scaling with powers of 2
-    // in order to compute exp(x).
-    const int nf = ((x > local_negatable_type::value_ln_two()) ? int(x / local_negatable_type::value_ln_two()) : 0);
+    int nf = 0;
 
-    if(nf > 0)
+    if(x > local_negatable_type::value_ln_two())
     {
+      nf = int(x / local_negatable_type::value_ln_two());
+
       x -= (local_negatable_type::value_ln_two() * nf);
     }
 
@@ -436,7 +434,7 @@
       // Use frexp() to reduce the argument to 1 <= x <= 2 and
       // store the factors of 2 in an integral variable n.
 
-      int n;
+      int n = 0;
 
       if(x > 2)
       {
@@ -444,10 +442,6 @@
 
         x.data <<= 1;
         --n;
-      }
-      else
-      {
-        n = 0;
       }
 
       // Use a polynomial approximation of the base-2 logarithm.
@@ -460,6 +454,9 @@
       //                       + 0.01513421407398 x^7,
       // in the range 0 <= x <= 1. These coefficients
       // have been specifically derived for this work.
+
+      // Note that the result of the polynomial aproximation
+      // is a base-2 logarithm.
 
       // Perform the polynomial approximation using a coefficient
       // expansion via the method of Horner.
@@ -475,11 +472,10 @@
               * z + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x01715212) >> (24 + FractionalResolution))))  // 1.44265859709491
               * z;
 
-      // Obtain the result and scale it with the logarithms
-      // of the powers of two (if necessary). Note that this
-      // result is still a base-2 logarithm.
+      // Scale the result to a base-e logarithm.
       const local_negatable_type log_value = polynomial_approximation * local_negatable_type::value_ln_two();
 
+      // Scale with the logarithms of the powers of two if necessary.
       result = ((n == 0) ? log_value : (log_value + (n * local_negatable_type::value_ln_two())));
     }
     else
@@ -666,6 +662,15 @@
       // in the range -pi/2 <= x <= +pi/2. These coefficients
       // have been specifically derived for this work.
 
+      // TBD: Here is a coefficient set with one more coefficient.
+      // Is it worth trying this coefficient set?
+      // sin(x) = approx. + 0.9999999999131411 x
+      //                  - 0.1666666656226060 x^3
+      //                  + 0.0083333297763049 x^5
+      //                  - 0.0001984075351818 x^7
+      //                  + 0.0000027521025326 x^9
+      //                  - 0.0000000238282134 x^11
+
       const local_negatable_type x2 = (x * x);
 
       // Perform the polynomial approximation using a coefficient
@@ -730,7 +735,7 @@
 
           const bool minimum_number_of_iterations_is_complete = (k > UINT32_C(5));
 
-          if(   (minimum_number_of_iterations_is_complete)
+          if(   minimum_number_of_iterations_is_complete
              && (term <= std::numeric_limits<local_negatable_type>::epsilon()))
           {
             break;
@@ -1201,9 +1206,10 @@
     {
       // Use Newton-Raphson iteration for atan.
 
-      // Obtain an initial guess using a two-term Pade-like approximation.
-      // See Abramowitz & Stegun, Eq. 4.4.48.
-      result = x / (1 + ((7 * (x * x)) / 25));
+      // Obtain an initial guess using a two-term Pade approximation
+      // for atan(x). The coefficients for this Pade approximation
+      // have been specifically derived for this work.
+      result = (x * 3) / (3 + (x * x));
 
       // Do the Newton-Raphson iteration. Start with four binary digits
       // of precision obtained from the initial estimate above.

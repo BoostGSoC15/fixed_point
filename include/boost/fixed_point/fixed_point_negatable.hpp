@@ -1115,7 +1115,6 @@
       binary_round(unsigned_small_type& u_round,
                    typename std::enable_if<std::is_same<LocalRoundMode, round::nearest_even>::value>::type* = nullptr)
     {
-   
       const bool round_up =   ((boost::uint_fast8_t(u_round & UINT8_C(1)) == UINT8_C(1))
                             && (boost::uint_fast8_t(u_round & UINT8_C(2)) == UINT8_C(2)));
 

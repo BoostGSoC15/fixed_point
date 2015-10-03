@@ -48,7 +48,7 @@
 
       using std::fabs;
 
-      if(   (minimum_number_of_iterations_is_complete)
+      if(   minimum_number_of_iterations_is_complete
          && (fabs(term) <= std::numeric_limits<NumericType>::epsilon()))
       {
         break;
@@ -92,7 +92,7 @@
 
       using std::fabs;
 
-      if(   (minimum_number_of_iterations_is_complete)
+      if(   minimum_number_of_iterations_is_complete
          && (fabs(term) <= std::numeric_limits<NumericType>::epsilon()))
       {
         break;
@@ -143,7 +143,7 @@
 
       using std::fabs;
 
-      if(   (minimum_number_of_iterations_is_complete)
+      if(   minimum_number_of_iterations_is_complete
          && (fabs(term) <= std::numeric_limits<NumericType>::epsilon()))
       {
         break;
@@ -186,7 +186,7 @@
 
       using std::fabs;
 
-      if(   (minimum_number_of_iterations_is_complete)
+      if(   minimum_number_of_iterations_is_complete
          && (fabs(term) <= std::numeric_limits<NumericType>::epsilon()))
       {
         break;
