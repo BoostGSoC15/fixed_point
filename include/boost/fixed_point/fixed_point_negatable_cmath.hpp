@@ -170,10 +170,10 @@
 
       local_unsigned_small_type result((!is_neg) ? local_unsigned_small_type(x.data) : local_unsigned_small_type(-x.data));
 
-      result = (result >> -exp2);
+      result >>= -exp2;
 
-      return local_negatable_type(local_nothing(), local_value_type((!is_neg) ?  local_value_type(result)
-                                                                              : -local_value_type(result)));
+      return local_negatable_type(local_nothing(), ((!is_neg) ?  local_value_type(result)
+                                                              : -local_value_type(result)));
     }
     else
     {
@@ -191,19 +191,17 @@
       return local_negatable_type(0);
     }
 
-    // Calculate the fractional part of x such that
-    // x = (integer_part * y) + fractional_part,
-    // where |fractional_part| < |y| and fractional_part
-    // has the same sign as x.
+    // Calculate the fractional part of x such that:
+    //   x = (integer_part * y) + fractional_part,
+    // where
+    //   |fractional_part| < |y|,
+    // and fractional_part has the same sign as x.
 
     const local_negatable_type integer_part = floor(x / y);
 
     local_negatable_type fractional_part = x - (integer_part * y);
 
-    const bool x_is_neg = (x < 0);
-    const bool y_is_neg = (y < 0);
-
-    if(x_is_neg != y_is_neg)
+    if((x < 0) != (y < 0))
     {
       fractional_part -= y;
     }
