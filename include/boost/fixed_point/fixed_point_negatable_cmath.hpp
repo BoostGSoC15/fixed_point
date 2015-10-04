@@ -216,35 +216,17 @@
     typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
 
-    // TBD: Consider making a small-digit sqrt(x) function
-    // based on the following polynomial approximation.
-    // Use a polynomial approximation.
-    // sqrt(x) = approx. + 0.5446241888520795
-    //                   + 0.7877720551960624 x^2
-    //                   - 0.4882592004791800 x^4
-    //                   + 0.1941805336692765 x^6
-    //                   - 0.0396730333926091 x^8
-    //                   + 0.0031866788374611 x^10,
-    // in the range 1/2 <= x <= 2. These coefficients
-    // have been specifically derived for this work.
-
-    // TBD: Or try a Pade approximation of order P(4), Q(4).
-    // sqrt(x) = approx.   ((1 + 3 x) (1 + 3 x (11 + x (9 + x))))
-    //                   / ((3 + x) (3 + x (27 + x (33 + x))))
-    // in the range 1/2 <= x <= 2. These coefficients
-    // have been specifically derived for this work.
-
+    // Handle negative or zero arguments.
     if(x.data <= 0)
     {
       return local_negatable_type(0);
     }
 
-    // Get the initial estimate of the square root.
+    // Find the most significant bit in order to perform range reduction.
     boost::uint_fast16_t msb;
 
-    // Use a binary-halving mechanism to obtain the most significant bit.
-    // This will subsequently be used for range reduction.
     {
+      // Use a binary-halving mechanism to obtain the most significant bit.
       BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t unsigned_small_digits =
         static_cast<boost::uint_fast16_t>(std::numeric_limits<local_unsigned_small_type>::digits);
 
@@ -286,6 +268,8 @@
     }
     else
     {
+      // Get the initial estimate of the square root.
+
       // Use the reduced argument (a) in order to create an
       // estimate for the initial guess of the square root of x.
       // Here we use:
