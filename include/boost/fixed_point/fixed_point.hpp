@@ -55,6 +55,5 @@
   // (especially for embedded systems).
 
   #include <boost/fixed_point/fixed_point_negatable.hpp>
-  #include <boost/fixed_point/fixed_point_nonnegative.hpp>
 
 #endif // FIXED_POINT_2015_03_06_HPP_
