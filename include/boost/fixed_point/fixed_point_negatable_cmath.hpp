@@ -216,6 +216,24 @@
     typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
 
+    // TBD: Consider making a small-digit sqrt(x) function
+    // based on the following polynomial approximation.
+    // Use a polynomial approximation.
+    // sqrt(x) = approx. + 0.5446241888520795
+    //                   + 0.7877720551960624 x^2
+    //                   - 0.4882592004791800 x^4
+    //                   + 0.1941805336692765 x^6
+    //                   - 0.0396730333926091 x^8
+    //                   + 0.0031866788374611 x^10,
+    // in the range 1/2 <= x <= 2. These coefficients
+    // have been specifically derived for this work.
+
+    // TBD: Or try a Pade approximation of order P(4), Q(4).
+    // sqrt(x) = approx.   ((1 + 3 x) (1 + 3 x (11 + x (9 + x))))
+    //                   / ((3 + x) (3 + x (27 + x (33 + x))))
+    // in the range 1/2 <= x <= 2. These coefficients
+    // have been specifically derived for this work.
+
     if(x.data <= 0)
     {
       return local_negatable_type(0);
@@ -323,6 +341,15 @@
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
+
+    // TBD: For a potential 11 binary digit range,
+    // consider a Pade approximation such as shown
+    // in the following quotient:
+    // exp(x) - 1 = approx.   (12 x)
+    //                      / (12 + (-6 + x) x)
+    // But this might overflow the tiny mantissas to much.
+    // Perhaps a small polynomial approximation is best
+    // for exp(x).
 
     // Handle the zero argument.
     if(x == 0)
@@ -1212,7 +1239,7 @@
       result = (x * 3) / (3 + (x * x));
 
       // Do the Newton-Raphson iteration. Start with four binary digits
-      // of precision obtained from the initial estimate above.
+      // of precision obtained from the initial guess above.
       for(boost::uint_fast16_t i = UINT16_C(4); i <= boost::uint_fast16_t(local_negatable_type::all_bits / 2); i *= UINT16_C(2))
       {
         const local_negatable_type c = cos(result);
@@ -1232,12 +1259,13 @@
 
     // Handle the negative arguments and zero arguments.
     const bool x_is_neg = (x < 0);
-    const bool y_is_neg = (y < 0);
 
     if(y == 0)
     {
       return ((!x_is_neg) ? local_negatable_type(0) : local_negatable_type::value_pi());
     }
+
+    const bool y_is_neg = (y < 0);
 
     if(x == 0)
     {
@@ -1248,8 +1276,8 @@
     const local_negatable_type atan_term(atan(y / x));
 
     // Determine the proper quadrant based on signs of x and y.
-    return ((y_is_neg == x_is_neg) ? ((!x_is_neg) ? atan_term : atan_term - local_negatable_type::value_pi())
-                                   : ((!x_is_neg) ? atan_term : atan_term + local_negatable_type::value_pi()));
+    return ((y_is_neg == x_is_neg) ? ((!x_is_neg) ? atan_term : (atan_term - local_negatable_type::value_pi()))
+                                   : ((!x_is_neg) ? atan_term : (atan_term + local_negatable_type::value_pi())));
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
