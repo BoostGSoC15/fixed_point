@@ -115,11 +115,11 @@
       // Extract the unsigned representation of the data field.
       local_unsigned_small_type result((!is_neg) ? local_unsigned_small_type(x.data) : local_unsigned_small_type(-x.data));
 
-      // Use a binary-halving mechanism to obtain the most significant bit.
-      // This will subsequently be used for determination of the binary exponent.
       boost::uint_fast16_t msb;
 
       {
+        // Use a binary-halving mechanism to obtain the most significant bit.
+        // This will subsequently be used for determination of the binary exponent.
         BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t unsigned_small_digits =
           static_cast<boost::uint_fast16_t>(std::numeric_limits<local_unsigned_small_type>::digits);
 
@@ -326,16 +326,7 @@
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    // TBD: For a potential 11 binary digit range,
-    // consider a Pade approximation such as shown
-    // in the following quotient:
-    // exp(x) - 1 = approx.   (12 x)
-    //                      / (12 + (-6 + x) x)
-    // But this might overflow the tiny mantissas to much.
-    // Perhaps a small polynomial approximation is best
-    // for exp(x).
-
-    // Handle the zero argument.
+    // Handle zero argument.
     if(x == 0)
     {
       return local_negatable_type(1);
@@ -395,7 +386,7 @@
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
-    // Handle the zero argument.
+    // Handle zero argument.
     if(x == 0)
     {
       return local_negatable_type(1);
@@ -431,6 +422,7 @@
                                                                               typename std::enable_if<int(24) >= (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+    typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
@@ -442,17 +434,26 @@
     }
     else if(x > 1)
     {
-      // Use frexp() to reduce the argument to 1 <= x <= 2 and
-      // store the factors of 2 in an integral variable n.
-
       int n = 0;
 
       if(x > 2)
       {
-        x = frexp(x, &n);
+        // Use a binary-halving mechanism to obtain the most significant bit.
+        // This will subsequently be used for argument reduction below.
 
-        x.data <<= 1;
-        --n;
+        BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t unsigned_small_digits =
+          static_cast<boost::uint_fast16_t>(std::numeric_limits<local_unsigned_small_type>::digits);
+
+        local_unsigned_small_type unsigned_small_mask((std::numeric_limits<local_unsigned_small_type>::max)());
+
+        local_unsigned_small_type tmp(x.data);
+
+        const boost::uint_fast16_t msb = detail::msb_helper(tmp, unsigned_small_mask, unsigned_small_digits);
+
+        // Evaluate the necessary amount of right-shift.
+        n = int(msb) - local_negatable_type::radix_split;
+
+        x.data = local_value_type(local_unsigned_small_type(x.data) >> n);
       }
 
       // Use a polynomial approximation of the base-2 logarithm.
@@ -471,7 +472,7 @@
 
       // Perform the polynomial approximation using a coefficient
       // expansion via the method of Horner.
-      const local_negatable_type z = x - 1;
+      const local_negatable_type z = (x - 1);
 
       const local_negatable_type polynomial_approximation =
         ((((((      local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0003DFD5) >> (24 + FractionalResolution)))   // 0.01513421407398
@@ -486,7 +487,7 @@
       // Scale the result to a base-e logarithm.
       const local_negatable_type log_value = polynomial_approximation * local_negatable_type::value_ln_two();
 
-      // Scale with the logarithms of the powers of two if necessary.
+      // Scale with the logarithms of the powers of 2 if necessary.
       result = ((n == 0) ? log_value : (log_value + (n * local_negatable_type::value_ln_two())));
     }
     else
@@ -503,6 +504,8 @@
                                                                               typename std::enable_if<int(24) <  (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+    typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
+    typedef typename local_negatable_type::value_type                               local_value_type;
 
     local_negatable_type result;
 
@@ -512,17 +515,26 @@
     }
     else if(x > 1)
     {
-      // Use frexp() to reduce the argument to 1 <= x <= 2 and
-      // store the factors of 2 in an integral variable n.
-
-      int n;
+      int n = 0;
 
       if(x > 2)
       {
-        x = frexp(x, &n);
+        // Use a binary-halving mechanism to obtain the most significant bit.
+        // This will subsequently be used for argument reduction below.
 
-        x.data <<= 1;
-        --n;
+        BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t unsigned_small_digits =
+          static_cast<boost::uint_fast16_t>(std::numeric_limits<local_unsigned_small_type>::digits);
+
+        local_unsigned_small_type unsigned_small_mask((std::numeric_limits<local_unsigned_small_type>::max)());
+
+        local_unsigned_small_type tmp(x.data);
+
+        const boost::uint_fast16_t msb = detail::msb_helper(tmp, unsigned_small_mask, unsigned_small_digits);
+
+        // Evaluate the necessary amount of right-shift.
+        n = int(msb) - local_negatable_type::radix_split;
+
+        x.data = local_value_type(local_unsigned_small_type(x.data) >> n);
       }
       else
       {
@@ -814,6 +826,8 @@
       // in the range -pi/2 <= x <= +pi/2. These coefficients
       // have been specifically derived for this work.
 
+      // TBD: Should we try a coefficient set with one more coefficient?
+
       const local_negatable_type x2 = (x * x);
 
       // Perform the polynomial approximation using a coefficient
@@ -1030,7 +1044,7 @@
       // expansion via the method of Horner.
       const local_negatable_type polynomial_approximation =
         (((((((    - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000051BA) >> (24 + FractionalResolution)))   // 0.0012470498685
-               * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0001b00E) >> (24 + FractionalResolution))))  // 0.0065926664377
+               * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0001B00E) >> (24 + FractionalResolution))))  // 0.0065926664377
                * x - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00045683) >> (24 + FractionalResolution))))  // 0.0169450735826
                * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0007E030) >> (24 + FractionalResolution))))  // 0.0307646026592
                * x - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000CD46E) >> (24 + FractionalResolution))))  // 0.0501164255199

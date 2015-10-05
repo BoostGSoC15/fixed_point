@@ -23,7 +23,7 @@
 
 namespace local
 {
-  const std::array<std::string, 5U> data =
+  const std::array<std::string, 5U> reference =
   {{
     std::string("0.0"),
     std::string("0.016726927567521798895947345127480423249960286674824225897992605881766669511923437788365135"),
@@ -44,14 +44,14 @@ BOOST_AUTO_TEST_CASE(test_negatable_math_cyl_bessel_j_big)
   const fixed_point_type tol = ldexp(fixed_point_type(1), fixed_point_type::resolution + 6);
 
   // Check small arguments in the region of Taylor series expansion.
-  for(int i = 1; i < int(local::data.size()); ++i)
+  for(int i = 1; i < int(local::reference.size()); ++i)
   {
     // Use an integer-valued order wrapped in the fixed-point type in order
     // to force a high level of compiler work but simultaneously avoid
     // potentially lossy tgamma calculations (requiring Bernoulli numbers).
 
     const fixed_point_type x = boost::math::cyl_bessel_j(fixed_point_type(2), fixed_point_type(i) / boost::math::constants::e<fixed_point_type>());
-    const float_point_type y = float_point_type(local::data[i]);
+    const float_point_type y = float_point_type(local::reference[i]);
 
     BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
   }

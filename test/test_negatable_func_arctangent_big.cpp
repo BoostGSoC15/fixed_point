@@ -21,7 +21,7 @@
 namespace local
 {
   // Table[N[ArcTan[n / 10], 40], {n, 0, 80, 1}]
-  const std::array<std::string, 81U> data =
+  const std::array<std::string, 81U> reference =
   {{
     std::string("0.0"),
     std::string("0.099668652491162027378446119878020590243"),
@@ -118,19 +118,19 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_arctangent_big)
   const fixed_point_type tol = ldexp(fixed_point_type(1), fixed_point_type::resolution + 12);
 
   // Check positive arguments.
-  for(int i = 0; i < int(local::data.size() - 1); ++i)
+  for(int i = 0; i < int(local::reference.size() - 1); ++i)
   {
     const fixed_point_type x = atan(fixed_point_type(i) / 10);
-    const float_point_type y = float_point_type(local::data[i]);
+    const float_point_type y = float_point_type(local::reference[i]);
 
     BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
   }
 
   // Check negative arguments.
-  for(int i = 0; i < int(local::data.size() - 1); ++i)
+  for(int i = 0; i < int(local::reference.size() - 1); ++i)
   {
     const fixed_point_type x = atan(fixed_point_type(-i) / 10);
-    const float_point_type y = -float_point_type(local::data[i]);
+    const float_point_type y = -float_point_type(local::reference[i]);
 
     BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
   }

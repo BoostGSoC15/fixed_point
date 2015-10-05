@@ -23,13 +23,13 @@ BOOST_AUTO_TEST_CASE(test_negatable_math_bernoulli_b2n)
 {
   // Test bernoulli_b2n() for negatable. Compute an array of
   // fixed-point Bernoulli numbers and test them with tabulated
-  // control values.
+  // reference values.
 
   BOOST_CONSTEXPR_OR_CONST std::size_t number_of_bernoulli_b2n     =   22U;
   BOOST_CONSTEXPR_OR_CONST int         resolution_of_bernoulli_b2n = -280;
 
-  // Here is a table of the text-based control values.
-  BOOST_CONSTEXPR_OR_CONST std::array<const char*, number_of_bernoulli_b2n> b2n_float_control =
+  // Here is a table of the text-based reference values.
+  BOOST_CONSTEXPR_OR_CONST std::array<const char*, number_of_bernoulli_b2n> b2n_float_reference =
   {{
     "+1.00000000000000000000000000000000000000000000000000000000000000000000000000000000000",
     "+0.16666666666666666666666666666666666666666666666666666666666666666666666666666666667",
@@ -74,8 +74,8 @@ BOOST_AUTO_TEST_CASE(test_negatable_math_bernoulli_b2n)
   const fixed_point_type tolerance = ldexp(fixed_point_type(1), -160);
 
   // Search for a potential mismatch between the fixed-point
-  // Bernoulli numbers and the text-based control values.
-  // Here, the control values are first converted to a multiprecision
+  // Bernoulli numbers and the text-based reference values.
+  // Here, the reference values are first converted to a multiprecision
   // floating-point type and subsequently to a fixed-point type
   // for the comparisons.
 
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_math_bernoulli_b2n)
   {
     typedef fixed_point_type::float_type float_point_type;
 
-    const float_point_type b2n_float(b2n_float_control[i]);
+    const float_point_type b2n_float(b2n_float_reference[i]);
 
     BOOST_CHECK_CLOSE_FRACTION(b2n_fixed[i], fixed_point_type(b2n_float), tolerance);
   }

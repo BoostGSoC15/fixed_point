@@ -21,7 +21,7 @@
 namespace local
 {
   // Table[N[ArcSin[n / 32], 40], {n, 0, 32, 1}]
-  const std::array<std::string, 33U> data =
+  const std::array<std::string, 33U> reference =
   {{
     std::string("0.0"),
     std::string("0.031255088499495154684091469893328549743"),
@@ -67,19 +67,19 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_arcsine_big)
   const fixed_point_type tol = ldexp(fixed_point_type(1), fixed_point_type::resolution + 12);
 
   // Check positive arguments.
-  for(int i = 0; i < int(local::data.size() - 1); ++i)
+  for(int i = 0; i < int(local::reference.size() - 1); ++i)
   {
-    const fixed_point_type x = asin(fixed_point_type(i) / int(local::data.size() - 1));
-    const float_point_type y = float_point_type(local::data[i]);
+    const fixed_point_type x = asin(fixed_point_type(i) / int(local::reference.size() - 1));
+    const float_point_type y = float_point_type(local::reference[i]);
 
     BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
   }
 
   // Check negative arguments.
-  for(int i = 0; i < int(local::data.size() - 1); ++i)
+  for(int i = 0; i < int(local::reference.size() - 1); ++i)
   {
-    const fixed_point_type x = asin(fixed_point_type(-i) / int(local::data.size() - 1));
-    const float_point_type y = -float_point_type(local::data[i]);
+    const fixed_point_type x = asin(fixed_point_type(-i) / int(local::reference.size() - 1));
+    const float_point_type y = -float_point_type(local::reference[i]);
 
     BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
   }

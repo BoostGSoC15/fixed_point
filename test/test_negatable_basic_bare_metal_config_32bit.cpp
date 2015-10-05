@@ -8,7 +8,7 @@
 //
 
 //! \file
-//!\brief Test for a successful bare-metal configuration of fixed_point using up to 32-bit fixed_point.
+//!\brief Test for a successful bare-metal configuration of fixed_point using a 32-bit negatable type.
 
 // For further mathematical details pertaining to this file,
 // see C.M. Kormanyos, Real-Time C++: Efficient Object-Oriented and

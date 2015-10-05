@@ -58,9 +58,9 @@ namespace local
 
       const FixedPointType val_ln_two = boost::fixed_point::negatable_constants<FixedPointType>::ln_two();
 
-      const FixedPointType control_value  = FixedPointType(FloatingPointType(ln_two_helper_string()));
+      const FixedPointType reference_value  = FixedPointType(FloatingPointType(ln_two_helper_string()));
 
-      BOOST_CHECK_CLOSE_FRACTION(val_ln_two, control_value, tolerance_maker(fuzzy_bits));
+      BOOST_CHECK_CLOSE_FRACTION(val_ln_two, reference_value, tolerance_maker(fuzzy_bits));
 
       return val_ln_two;
     }
@@ -90,9 +90,9 @@ namespace local
 
       const FixedPointType val_ln_two = boost::fixed_point::negatable_constants<FixedPointType>::ln_two();
 
-      const FloatingPointType control_value(FloatingPointType(0.6931471805599453094172321214581765680755L));
+      const FloatingPointType reference_value(FloatingPointType(0.6931471805599453094172321214581765680755L));
 
-      BOOST_CHECK_CLOSE_FRACTION(val_ln_two, control_value, tolerance_maker(fuzzy_bits));
+      BOOST_CHECK_CLOSE_FRACTION(val_ln_two, reference_value, tolerance_maker(fuzzy_bits));
 
       return val_ln_two;
     }

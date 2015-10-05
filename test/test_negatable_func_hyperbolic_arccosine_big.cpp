@@ -22,7 +22,7 @@
 
 namespace local
 {
-  const std::array<std::string, 16U> data =
+  const std::array<std::string, 16U> reference =
   {{
     std::string("0"),
     std::string("0.778106145550644377111366739615976447074"),
@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_hyperbolic_arccosine_big)
   for(int i = 0; i < 16; ++i)
   {
     const fixed_point_type x = acosh(1 + (fixed_point_type(i) / local_pi));
-    const float_point_type y = float_point_type(local::data[i]);
+    const float_point_type y = float_point_type(local::reference[i]);
 
     BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
   }

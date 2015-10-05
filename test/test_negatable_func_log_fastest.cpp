@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_log_fastest)
 {
   // Test log() for negatable round::fastest in key digit regions.
 
-  { typedef boost::fixed_point::negatable< 5,  -10, boost::fixed_point::round::fastest> fixed_point_type; local::test_log<fixed_point_type>( 6); }
-  { typedef boost::fixed_point::negatable< 7,  -24, boost::fixed_point::round::fastest> fixed_point_type; local::test_log<fixed_point_type>( 8); }
-  { typedef boost::fixed_point::negatable<10, -117, boost::fixed_point::round::fastest> fixed_point_type; local::test_log<fixed_point_type>(14); }
+  { typedef boost::fixed_point::negatable< 5,  -10, boost::fixed_point::round::fastest> fixed_point_type; local::test_log<fixed_point_type>( 4); }
+  { typedef boost::fixed_point::negatable< 7,  -24, boost::fixed_point::round::fastest> fixed_point_type; local::test_log<fixed_point_type>( 6); }
+  { typedef boost::fixed_point::negatable<10, -117, boost::fixed_point::round::fastest> fixed_point_type; local::test_log<fixed_point_type>(12); }
 }

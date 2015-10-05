@@ -8,7 +8,7 @@
 //
 
 //! \file
-//!\brief Test for a successful bare-metal configuration of fixed_point.
+//!\brief Test for a successful bare-metal configuration of fixed_point using a 32-bit negatable type.
 
 // For further mathematical details pertaining to this file,
 // see C.M. Kormanyos, Real-Time C++: Efficient Object-Oriented and
@@ -16,7 +16,7 @@
 // in Section 12.7 and Chapter 13.
 // See http://link.springer.com/chapter/10.1007/978-3-642-34688-0_13
 
-#define BOOST_TEST_MODULE test_negatable_basic_metal_config
+#define BOOST_TEST_MODULE test_negatable_basic_metal_config_16bit
 #define BOOST_LIB_DIAGNOSTIC
 
 // Configure Boost.Fixed_point for a bare-metal system.
@@ -56,7 +56,7 @@ namespace local
   }
 } // namespace local
 
-BOOST_AUTO_TEST_CASE(test_negatable_basic_metal_config)
+BOOST_AUTO_TEST_CASE(test_negatable_basic_metal_config_16bit)
 {
   typedef boost::fixed_point::negatable<6, -9> fixed_point_type;
 

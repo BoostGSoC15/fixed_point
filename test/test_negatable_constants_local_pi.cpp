@@ -60,9 +60,9 @@ namespace local
 
       const FixedPointType val_pi = boost::fixed_point::negatable_constants<FixedPointType>::pi();
 
-      const FixedPointType control_value = FixedPointType(FloatingPointType(pi_helper_string()));
+      const FixedPointType reference_value = FixedPointType(FloatingPointType(pi_helper_string()));
 
-      BOOST_CHECK_CLOSE_FRACTION(val_pi, control_value, tolerance_maker(fuzzy_bits));
+      BOOST_CHECK_CLOSE_FRACTION(val_pi, reference_value, tolerance_maker(fuzzy_bits));
 
       return val_pi;
     }
@@ -92,9 +92,9 @@ namespace local
 
       const FixedPointType val_pi = boost::fixed_point::negatable_constants<FixedPointType>::pi();
 
-      const FloatingPointType control_value(FloatingPointType(3.1415926535897932384626433832795028841972L));
+      const FloatingPointType reference_value(FloatingPointType(3.1415926535897932384626433832795028841972L));
 
-      BOOST_CHECK_CLOSE_FRACTION(val_pi, control_value, tolerance_maker(fuzzy_bits));
+      BOOST_CHECK_CLOSE_FRACTION(val_pi, reference_value, tolerance_maker(fuzzy_bits));
 
       return val_pi;
     }
