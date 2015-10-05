@@ -237,7 +237,7 @@ public:
       {
         const boost::uint_fast32_t color = mandelbrot_color_histogram[mandelbrot_iteration_matrix[col][row]];
 
-        // Mix a baby-blue color.
+        // Mix the color supplied in the template hue parameters.
         const boost::uint8_t rh = static_cast<boost::uint8_t>((mandelbrot_configuration_object.red_hue  () * color) / UINT32_C(255));
         const boost::uint8_t gh = static_cast<boost::uint8_t>((mandelbrot_configuration_object.green_hue() * color) / UINT32_C(255));
         const boost::uint8_t bh = static_cast<boost::uint8_t>((mandelbrot_configuration_object.blue_hue () * color) / UINT32_C(255));
