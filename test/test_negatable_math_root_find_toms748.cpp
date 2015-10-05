@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_math_root_find_toms748)
   boost::uintmax_t iterations = maximum_allowed_iterations;
 
   // Find the positive root of [cos(x) - sqrt(x)] = 0,
-  // which is near 0.8.
+  // which is near 0.64171437087288265839856530031652237185271781360384.
 
   using boost::math::tools::toms748_solve;
 
