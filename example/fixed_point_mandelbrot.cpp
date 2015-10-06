@@ -266,7 +266,7 @@ private:
 int main()
 {
   // This is the classic full immage rendered in aqua tones (and black).
-  //typedef mandelbrot_configuration<128, UINT16_C(10000), -11,
+  //typedef mandelbrot_configuration<128, UINT16_C(2000), -11,
   //                                 UINT32_C(80),
   //                                 UINT32_C(255),
   //                                 UINT32_C(255)> mandelbrot_configuration_type;
@@ -280,9 +280,9 @@ int main()
                                    UINT32_C(255),
                                    UINT32_C(0)> mandelbrot_configuration_type;
 
-  const mandelbrot_configuration_type mandelbrot_configuration_object(-2.000L, +0.500L,
-                                                                      -1.000L, +1.000L);
-
+  const mandelbrot_configuration_type mandelbrot_configuration_object(-0.1208L - 0.1616L, -0.1208L + 0.1616L,
+                                                                      +0.7607L - 0.1616L, +0.7607L + 0.1616L);
+ 
   // This is a fanning image rendered in fuschia tones (and black).
   //typedef mandelbrot_configuration<128, UINT16_C(10000), -22,
   //                                 UINT32_C(255),

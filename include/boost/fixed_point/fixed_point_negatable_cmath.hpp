@@ -232,7 +232,7 @@
 
       local_unsigned_small_type unsigned_small_mask((std::numeric_limits<local_unsigned_small_type>::max)());
 
-      local_unsigned_small_type tmp(x.data);
+      local_unsigned_small_type tmp = static_cast<local_unsigned_small_type>(x.data);
 
       msb = detail::msb_helper(tmp, unsigned_small_mask, unsigned_small_digits);
     }
@@ -283,7 +283,7 @@
       // Compute the reduced argument (a) and divide the value
       // of (a) once again by 2 in order to compute the first part
       // of the initial guess.
-      local_unsigned_small_type a(x.data);
+      local_unsigned_small_type a = static_cast<local_unsigned_small_type>(x.data);
 
       a = detail::right_shift_helper(a, n + 1);
 
@@ -446,7 +446,7 @@
 
         local_unsigned_small_type unsigned_small_mask((std::numeric_limits<local_unsigned_small_type>::max)());
 
-        local_unsigned_small_type tmp(x.data);
+        local_unsigned_small_type tmp = static_cast<local_unsigned_small_type>(x.data);
 
         const boost::uint_fast16_t msb = detail::msb_helper(tmp, unsigned_small_mask, unsigned_small_digits);
 
@@ -527,7 +527,7 @@
 
         local_unsigned_small_type unsigned_small_mask((std::numeric_limits<local_unsigned_small_type>::max)());
 
-        local_unsigned_small_type tmp(x.data);
+        local_unsigned_small_type tmp = static_cast<local_unsigned_small_type>(x.data);
 
         const boost::uint_fast16_t msb = detail::msb_helper(tmp, unsigned_small_mask, unsigned_small_digits);
 
