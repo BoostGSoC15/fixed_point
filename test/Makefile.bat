@@ -131,14 +131,14 @@ g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-unin
 g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_sqrt_big.cpp -o test_negatable_func_sqrt_big.exe
 .\test_negatable_func_sqrt_big.exe
 
-g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_sqrt_fastest.cpp -o test_negatable_func_sqrt_fastest.exe
-.\test_negatable_func_sqrt_fastest.exe
+g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_sqrt_small_fastest.cpp -o test_negatable_func_sqrt_small_fastest.exe
+.\test_negatable_func_sqrt_small_fastest.exe
 
-g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_sqrt_nearest_even.cpp -o test_negatable_func_sqrt_nearest_even.exe
-.\test_negatable_func_sqrt_nearest_even.exe
+g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_sqrt_small_nearest_even.cpp -o test_negatable_func_sqrt_small_nearest_even.exe
+.\test_negatable_func_sqrt_small_nearest_even.exe
 
-g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_sqrt_small.cpp -o test_negatable_func_sqrt_small.exe
-.\test_negatable_func_sqrt_small.exe
+g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_sqrt_tiny.cpp -o test_negatable_func_sqrt_tiny.exe
+.\test_negatable_func_sqrt_tiny.exe
 
 g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_tangent_big.cpp -o test_negatable_func_tangent_big.exe
 .\test_negatable_func_tangent_big.exe

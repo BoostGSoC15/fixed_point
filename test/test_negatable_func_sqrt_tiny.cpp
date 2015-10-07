@@ -7,11 +7,11 @@
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 //! \file
-//!\brief Tests for sqrt(fixed_point) with round::fastest. Along the way, also test numerous fixed_point arithmetic operations.
+//!\brief Tests for sqrt(fixed_point) with round::fastest.
 
 #include <cmath>
 
-#define BOOST_TEST_MODULE test_negatable_func_sqrt_small
+#define BOOST_TEST_MODULE test_negatable_func_sqrt_tiny
 #define BOOST_LIB_DIAGNOSTIC
 
 #include <boost/fixed_point/fixed_point.hpp>
@@ -51,7 +51,7 @@ namespace local
   }
 }
 
-BOOST_AUTO_TEST_CASE(test_negatable_func_sqrt_small)
+BOOST_AUTO_TEST_CASE(test_negatable_func_sqrt_tiny)
 {
   // Test sqrt() round::fastest for negatable in a small digit region.
 

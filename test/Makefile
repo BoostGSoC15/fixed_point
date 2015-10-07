@@ -61,9 +61,9 @@ all_files : test_negatable_basic_arithmetic_fastest.exe            \
             test_negatable_func_sine_big.exe                       \
             test_negatable_func_sine_small.exe                     \
             test_negatable_func_sqrt_big.exe                       \
-            test_negatable_func_sqrt_fastest.exe                   \
-            test_negatable_func_sqrt_nearest_even.exe              \
-            test_negatable_func_sqrt_small.exe                     \
+            test_negatable_func_sqrt_small_fastest.exe             \
+            test_negatable_func_sqrt_small_nearest_even.exe        \
+            test_negatable_func_sqrt_tiny.exe                      \
             test_negatable_func_tangent_big.exe                    \
             test_negatable_func_tangent_small.exe                  \
             test_negatable_math_bernoulli_b2n.exe                  \

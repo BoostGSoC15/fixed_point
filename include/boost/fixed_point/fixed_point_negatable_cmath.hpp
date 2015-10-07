@@ -210,7 +210,138 @@
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
-  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sqrt(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sqrt(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
+                                                                               typename std::enable_if<int(24) >= (-FractionalResolution)>::type const*)
+  {
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+    typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
+    typedef typename local_negatable_type::value_type                               local_value_type;
+    typedef typename local_negatable_type::nothing                                  local_nothing;
+
+    // Handle negative or zero arguments.
+    if(x.data <= 0)
+    {
+      return local_negatable_type(0);
+    }
+
+    // Find the most significant bit in order to perform range reduction.
+
+    // Evaluate the necessary amount of right-shift for computing
+    // the initial guess of the square root. For this we need to
+    // compute the reduced argument as x = [2^n * a] and subsequently
+    // remove the powers of 2.
+    int n2;
+    local_negatable_type a = frexp(x, &n2);
+
+    // Get the initial estimate of the square root.
+
+    // Use the reduced argument (a) in order to create an
+    // estimate for the initial guess of the square root of x.
+    // Here we use:
+    //  sqrt(a) = approx. (a/2) + [8^(1/4) - 1]^2
+    //          = approx. (a/2) + 0.4648
+    //          = approx. (a/2) + (1/2) [via naive simplification].
+
+    // See, for example, J. F. Hart et al., Computer Approximations
+    // (John Wiley and Sons, Inc., 1968), Eq. 2.4.3 on page 27.
+
+    // Compute the reduced argument (a) and divide the value
+    // of (a) once again by 2 in order to compute the first part
+    // of the initial guess.
+    a.data = local_value_type(local_unsigned_small_type(a.data) >> 1);
+
+    // Here is the addition of (1/2) to complete the initial guess.
+    a += ldexp(local_negatable_type(1), -1);
+
+    // Remove the scaling from the reduced guess of the result
+    // and use this as the proper initial guess of sqrt(x).
+    if(n2 / 2 > 0)
+    {
+      a.data <<= (n2 / 2);
+    }
+    else if(n2 / 2 < 0)
+    {
+      a.data = local_value_type(local_unsigned_small_type(a.data) >> (-n2 / 2));
+    }
+
+    if((n2 % 2) != 0)
+    {
+      // There is one extra power of two. Either multiply with
+      // or divide by the square root of 2 in order to complete
+      // the rescaling of the initial guess.
+      if(n2 > 0)
+      {
+        a *= local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x016A09E6) >> (24 + FractionalResolution)));
+      }
+      else
+      {
+        a *= local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00B504F3) >> (24 + FractionalResolution)));
+      }
+    }
+
+    // TBD: Use a Pade-like polynomial quotient here.
+
+    // sqrt(x) = approx. P(x) / Q(x),
+    // where
+    //  P(x) = + (0.29730278874025L / 16.0L)
+    //         + (8.94030762064570L / 16.0L) x
+    //         + (21.1252240569754L / 16.0L) x^2
+    //         + (5.93049445914660L / 16.0L) x^3
+    // and
+    //  Q(x) = + (2.49347182531580L / 16.0L)
+    //         + (17.7641338280541L / 16.0L) x
+    //         + (15.0357233129921L / 16.0L) x^2
+    //         + (1.00000000000000L / 16.0L) x^3
+
+    //const local_negatable_type p0(0.29730278874025L / 16.0L);
+    //const local_negatable_type p1(8.94030762064570L / 16.0L);
+    //const local_negatable_type p2(21.1252240569754L / 16.0L);
+    //const local_negatable_type p3(5.93049445914660L / 16.0L);
+
+    //const local_negatable_type q0(2.49347182531580L / 16.0L);
+    //const local_negatable_type q1(17.7641338280541L / 16.0L);
+    //const local_negatable_type q2(15.0357233129921L / 16.0L);
+    //const local_negatable_type q3(1.00000000000000L / 16.0L);
+
+    //const local_negatable_type p_x_numerator =
+    //  (((      local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00000D64) >> (24 + FractionalResolution)))   // 0.0002043732656744
+    //     * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00005E03) >> (24 + FractionalResolution))))  // 0.0014345483118123
+    //     * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000221DB) >> (24 + FractionalResolution))))  // 0.0083291093882400
+    //     * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000AA908) >> (24 + FractionalResolution)))); // 0.0416417643582255
+
+    //const local_negatable_type q_x_denominator =
+    //  (((      local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00000D64) >> (24 + FractionalResolution)))   // 0.0002043732656744
+    //     * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00005E03) >> (24 + FractionalResolution))))  // 0.0014345483118123
+    //     * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000221DB) >> (24 + FractionalResolution))))  // 0.0083291093882400
+    //     * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000AA908) >> (24 + FractionalResolution)))); // 0.0416417643582255
+
+    // Estimate the zero'th term of the iteration with [1 / (2 * result)].
+    local_negatable_type vi = local_negatable_type(1U) / (a * local_negatable_type(2U));
+
+    // TBD: Use a Pade-like polynomial quotient here.
+    // TBD: Use the scaled argument in the approximation
+    // and scale up the result afterwards.
+
+    // Compute the square root of x using coupled Newton iteration.
+    // More precisely, this is the Schoenhage variation thereof.
+    // We begin with an estimate of 1 binary digit of precision and
+    // double the number of binary digits of precision with each iteration.
+
+    for(boost::uint_fast16_t i = UINT16_C(1); i <= boost::uint_fast16_t(local_negatable_type::all_bits / 2); i *= UINT16_C(2))
+    {
+      // Perform the next iteration of vi.
+      vi += vi * (-((a * vi) * local_negatable_type(2U)) + local_negatable_type(1U));
+
+      // Perform the next iteration of the result.
+      a += (vi * (-((a) * (a)) + x));
+    }
+
+    return a;
+  }
+
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sqrt(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
+                                                                               typename std::enable_if<int(24) <  (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
@@ -223,99 +354,78 @@
     }
 
     // Find the most significant bit in order to perform range reduction.
-    boost::uint_fast16_t msb;
-
-    {
-      // Use a binary-halving mechanism to obtain the most significant bit.
-      BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t unsigned_small_digits =
-        static_cast<boost::uint_fast16_t>(std::numeric_limits<local_unsigned_small_type>::digits);
-
-      local_unsigned_small_type unsigned_small_mask((std::numeric_limits<local_unsigned_small_type>::max)());
-
-      local_unsigned_small_type tmp = static_cast<local_unsigned_small_type>(x.data);
-
-      msb = detail::msb_helper(tmp, unsigned_small_mask, unsigned_small_digits);
-    }
 
     // Evaluate the necessary amount of right-shift for computing
     // the initial guess of the square root. For this we need to
     // compute the reduced argument as x = [2^n * a] and subsequently
-    // remove even powers of 2.
-    int n = int(msb) - local_negatable_type::radix_split;
+    // remove the powers of 2.
+    int n2;
+    local_negatable_type a = frexp(x, &n2);
 
-    // Ensure that n is an even such that argument scaling is
-    // always carried out with an even number of powers of two.
-    if((n & 1) != 0)
+    // Get the initial estimate of the square root.
+
+    // Use the reduced argument (a) in order to create an
+    // estimate for the initial guess of the square root of x.
+    // Here we use:
+    //  sqrt(a) = approx. (a/2) + [8^(1/4) - 1]^2
+    //          = approx. (a/2) + 0.4648
+    //          = approx. (a/2) + (1/2) [via naive simplification].
+
+    // See, for example, J. F. Hart et al., Computer Approximations
+    // (John Wiley and Sons, Inc., 1968), Eq. 2.4.3 on page 27.
+
+    // Compute the reduced argument (a) and divide the value
+    // of (a) once again by 2 in order to compute the first part
+    // of the initial guess.
+    a.data = local_value_type(local_unsigned_small_type(a.data) >> 1);
+
+    // Here is the addition of (1/2) to complete the initial guess.
+    a += ldexp(local_negatable_type(1), -1);
+
+    // Remove the scaling from the reduced guess of the result
+    // and use this as the proper initial guess of sqrt(x).
+    if(n2 / 2 > 0)
     {
-      --n;
+      a.data <<= (n2 / 2);
+    }
+    else if(n2 / 2 < 0)
+    {
+      a.data = local_value_type(local_unsigned_small_type(a.data) >> (-n2 / 2));
     }
 
-    local_negatable_type result;
-
-    if(n < 0)
+    if((n2 % 2) != 0)
     {
-      // Use special handling for arguments less than 1.
-
-      // Shift the data field of the argument up, resulting in
-      // a value of x that is greater than or equal to 1.
-      x.data = (local_value_type(local_unsigned_small_type(x.data)) << (-n));
-
-      // Perform the square root calculation on the scaled-up argument.
-      result = sqrt(x);
-
-      // Scale the result down.
-      result.data = local_value_type(local_unsigned_small_type(result.data) >> (-n / 2));
-    }
-    else
-    {
-      // Get the initial estimate of the square root.
-
-      // Use the reduced argument (a) in order to create an
-      // estimate for the initial guess of the square root of x.
-      // Here we use:
-      //  sqrt(a) = approx. (a/2) + [8^(1/4) - 1]^2
-      //          = approx. (a/2) + 0.4648
-      //          = approx. (a/2) + (1/2) [via naive simplification].
-
-      // See, for example, J. F. Hart et al., Computer Approximations
-      // (John Wiley and Sons, Inc., 1968), Eq. 2.4.3 on page 27.
-
-      // Compute the reduced argument (a) and divide the value
-      // of (a) once again by 2 in order to compute the first part
-      // of the initial guess.
-      local_unsigned_small_type a = static_cast<local_unsigned_small_type>(x.data);
-
-      a = detail::right_shift_helper(a, n + 1);
-
-      // Here is the addition of (1/2) to complete the initial guess.
-      a += (local_unsigned_small_type(1) << (local_negatable_type::radix_split - 1));
-
-      // Remove the scaling from the reduced guess of the result
-      // and use this as the proper initial guess of sqrt(x).
-      result.data = local_value_type(a << (n / 2));
-
-      // Estimate the zero'th term of the iteration with [1 / (2 * result)].
-      local_negatable_type vi = 1U / (result * 2U);
-
-      // Compute the square root of x using coupled Newton iteration.
-      // More precisely, this is the Schoenhage variation thereof.
-      // We begin with an estimate of 1 binary digit of precision and
-      // double the number of binary digits of precision with each iteration.
-      // The last iteration is only performed with half of the necessary
-      // precision because the precision of the result is subsequently
-      // doubled during the course of the last iteration.
-
-      for(boost::uint_fast16_t i = UINT16_C(1); i <= boost::uint_fast16_t(local_negatable_type::all_bits / 2); i *= UINT16_C(2))
+      // There is one extra power of two. Either multiply with
+      // or divide by the square root-two in order to complete
+      // the rescaling of the initial guess.
+      if(n2 > 0)
       {
-        // Perform the next iteration of vi.
-        vi += vi * (-((result * vi) * 2U) + 1U);
-
-        // Perform the next iteration of the result.
-        result += (vi * (-((result) * (result)) + x));
+        a *= local_negatable_type::value_root_two();
+      }
+      else
+      {
+        a /= local_negatable_type::value_root_two();
       }
     }
 
-    return result;
+    // Estimate the zero'th term of the iteration with [1 / (2 * result)].
+    local_negatable_type vi = local_negatable_type(1U) / (a * local_negatable_type(2U));
+
+    // Compute the square root of x using coupled Newton iteration.
+    // More precisely, this is the Schoenhage variation thereof.
+    // We begin with an estimate of 1 binary digit of precision and
+    // double the number of binary digits of precision with each iteration.
+
+    for(boost::uint_fast16_t i = UINT16_C(1); i <= boost::uint_fast16_t(local_negatable_type::all_bits / 2); i *= UINT16_C(2))
+    {
+      // Perform the next iteration of vi.
+      vi += vi * (-((a * vi) * local_negatable_type(2U)) + local_negatable_type(1U));
+
+      // Perform the next iteration of the result.
+      a += (vi * (-((a) * (a)) + x));
+    }
+
+    return a;
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
