@@ -211,7 +211,123 @@
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sqrt(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                               typename std::enable_if<int(24) >= (-FractionalResolution)>::type const*)
+                                                                               typename std::enable_if<int(11) >= (-FractionalResolution)>::type const*)
+  {
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+    typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
+    typedef typename local_negatable_type::value_type                               local_value_type;
+    typedef typename local_negatable_type::nothing                                  local_nothing;
+
+    // Handle negative or zero arguments.
+    if(x.data <= 0)
+    {
+      return local_negatable_type(0);
+    }
+
+    int n;
+
+    // Use range reduction for (x < +1/2) or (x > 1).
+    if((x < ldexp(local_negatable_type(1), -1)) || (x > 1))
+    {
+      x = frexp(x, &n);
+    }
+    else
+    {
+      n = 0;
+    }
+
+    local_negatable_type px_numerator;
+    local_negatable_type qx_denominator;
+
+    // Here we break the reduced argument range yet further in half.
+    // This results in a lower range with (x < 3/4) and an upper range
+    // with (x >= 3/4).
+    if(x < local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0600) >> (11 + FractionalResolution))))
+    {
+      // Compute the sqrt(x) in the lower half of the range with (x < 3/4).
+
+      // Use an order 2/1 Pade approximation at (x = 5/8) resulting in:
+      //  sqrt(x) = approx. P(x) / Q(x),
+      // where
+      //  P(x) =   0.7905694150420948330
+      //         + 1.2649110640673517328 (x - (5/8))
+      //         + 0.2529822128134703466 (x - (5/8))^2
+      // and
+      //  Q(x) =   1.0000000000000000000
+      //         + 0.8000000000000000000 (x - (5/8))
+      // in the range +1/2 <= x <= +3/4. These coefficients
+      // have been specifically derived for this work.
+
+      // Set the variable xp = x - (5/8).
+      const local_negatable_type xp = x - local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0500) >> (11 + FractionalResolution)));
+
+      px_numerator   = ((       local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0206) >> (11 + FractionalResolution)))   // 0.2529822128134703466
+                         * xp + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0A1E) >> (11 + FractionalResolution))))  // 1.2649110640673517328
+                         * xp + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0653) >> (11 + FractionalResolution)))); // 0.7905694150420948330
+
+      qx_denominator = (        local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0666) >> (11 + FractionalResolution)))   // 0.8000000000000000000
+                         * xp + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0800) >> (11 + FractionalResolution)))); // 1.0000000000000000000
+    }
+    else
+    {
+      // Compute the sqrt(x) in the upper half of the range with (x >= 3/4).
+
+      // Use an order 2/1 Pade approximation at (x = 7/8) resulting in:
+      //  sqrt(x) = approx. P(x) / Q(x),
+      // where
+      //  P(x) =   0.9354143466934853464
+      //         + 1.0690449676496975387 (x - (7/8))
+      //         + 0.1527207096642425055 (x - (7/8))^2
+      // and
+      //  Q(x) =   1.0000000000000000000
+      //         + 0.5714285714285714286 (x - (7/8))
+      // in the range +3/4 <= x <= +1. These coefficients
+      // have been specifically derived for this work.
+
+      // Set the variable xp = x - (7/8).
+      const local_negatable_type xp = x - local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0700) >> (11 + FractionalResolution)));
+
+      px_numerator   = ((       local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0138) >> (11 + FractionalResolution)))   // 0.2529822128134703466
+                         * xp + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x088D) >> (11 + FractionalResolution))))  // 1.2649110640673517328
+                         * xp + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x077B) >> (11 + FractionalResolution)))); // 0.7905694150420948330
+
+      qx_denominator = (        local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0492) >> (11 + FractionalResolution)))   // 0.8000000000000000000
+                         * xp + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0800) >> (11 + FractionalResolution)))); // 1.0000000000000000000
+    }
+
+    local_negatable_type result = px_numerator / qx_denominator;
+
+    const bool is_odd_scaling = ((boost::int_fast8_t(n) & INT8_C(1)) != INT8_C(0));
+
+    // Rescale the result. In certain cases there is one extra
+    // power of two. If so, either multiply with or divide by
+    // the square root of 2 in order to complete the rescaling
+    // of the result.
+    if(n > 0)
+    {
+      result.data <<= (n / 2);
+
+      if(is_odd_scaling)
+      {
+        result *= local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x016A09E6) >> (24 + FractionalResolution)));
+      }
+    }
+    else if(n < 0)
+    {
+      if(is_odd_scaling)
+      {
+        result *= local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00B504F3) >> (24 + FractionalResolution)));
+      }
+
+      result.data = local_value_type(local_unsigned_small_type(result.data) >> (-n / 2));
+    }
+
+    return result;
+  }
+
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sqrt(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
+                                                                               typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
@@ -274,6 +390,10 @@
 
     const bool is_odd_scaling = ((boost::int_fast8_t(n) & INT8_C(1)) != INT8_C(0));
 
+    // Rescale the result. In certain cases there is one extra
+    // power of two. If so, either multiply with or divide by
+    // the square root of 2 in order to complete the rescaling
+    // of the result.
     if(n > 0)
     {
       result.data <<= (n / 2);
@@ -353,7 +473,7 @@
     if((n2 % 2) != 0)
     {
       // There is one extra power of two. Either multiply with
-      // or divide by the square root-two in order to complete
+      // or divide by the square root of 2 in order to complete
       // the rescaling of the initial guess.
       if(n2 > 0)
       {
