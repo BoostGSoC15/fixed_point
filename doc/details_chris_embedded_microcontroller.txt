@@ -1,0 +1,147 @@
+When designing the fixed-point negatable class,
+particular care has been taken to ensure that it can be
+easily configured for efficient use with bare-metal embedded
+microcontroller systems. These are microcontroller
+systems typically designed for control applications.
+These kinds of applications often do not have any
+I/O streaming devices and they might also lack a dedicated
+hardware floating-point-unit (FPU). Using fixed-point
+can be a sensible choice for mathematical calculations
+in this application range.
+
+In order to configure the fixed-point negatable class
+for efficient use with a bare-metal embedded microcontroller system,
+two preprocessor definitions (also shown in Sect.X.Y) need to be defined.
+
+An efficient configuration for a 32-bit microcontroller,
+for example, is shown below.
+
+
+#define BOOST_FIXED_POINT_DISABLE_MULTIPRECISION // Do not use Boost.Multiprecision.
+#define BOOST_FIXED_POINT_DISABLE_IOSTREAM       // Do not use I/O streaming.
+
+#include <boost/fixed_point/fixed_point.hpp>
+
+// Define an efficient 32-bit fixed-point type.
+typedef boost::fixed_point::negatable<7, -24> fixed_point_type;
+
+Notice how the two preprocessor definitions are defined above
+the inclusion of any fixed-point header files.
+
+Here, we have configured for a 32-bit bare-metal microcontroller
+environment defined an efficient 32-bit negatable type that has
+well-optimized <cmath> functions in its precision range.
+
+Consider a tiny 8-bit microcontroller. The 32-bit fixed-point type
+shown above might be too bulky for such a tiny microcontroller.
+In this case, a possible efficient configuration might use
+the following.
+
+#define BOOST_FIXED_POINT_DISABLE_MULTIPRECISION // Do not use Boost.Multiprecision.
+#define BOOST_FIXED_POINT_DISABLE_IOSTREAM       // Do not use I/O streaming.
+
+#include <boost/fixed_point/fixed_point.hpp>
+
+// Define an efficient 16-bit fixed-point type.
+typedef boost::fixed_point::negatable<4, -11> fixed_point_type;
+
+Here, we have configured for a 16-bit bare-metal microcontroller
+environment by defining an efficient 16-bit negatable type that
+has well-optimized <cmath> functions within its modest 16-bit
+precision range.
+
+When using small fixed-point types such as negatable<4, -11>
+or negatable<7, -24>, it is important to note that
+the range and precision of the fixed-point type can be quite
+limited in comparison with, say, built-in floating-point types.
+The type negatable<7, -24>, for example, has approximately
+7 decimal fractional digits of precision to the right of
+the decimal point and approximately 2 decimal integral
+digits to the left. The type negatable<4, -11> has merely
+3-4 decimal fractional digits of precision to the right of
+the decimal point and only about 1 integral decimal digit
+to the right.
+
+Efficiency measurements:
+
+Benchmarks using the fixed-point negatable class have
+been performed using a variety of mathematical techniques
+Two main microcontrollers have been used for benchmarking:
+a 32-bit microcontroller clocked at 24 MHz and an
+8-bit microcontroller clocked at 16MHz. Both of these
+microcontrollers lack a dedicated hardware FPU.
+Timing results have been obtained with a digital oscilloscope
+in combination with a standard I/O pin toggle mechanism,
+as described in Sect.X.Y of Kormanyos.
+
+The following table shows run times for various mathematical calculations
+for negatable<7, -24> and built-in single-precision floating-point.
+This benchmark has been performed with the 32-bit microcontroller
+clocked at 24 MHz. GCC 4.8.3 built with newlib has been used.
+
+  Function         run time negatable<7, -24>    run time 32-bit float
+                          [microsec.]                  [microsec.]
+
+ sqrt(6/10)                    17                         17
+ sin (1/2)                     15                         27
+ exp (7/10)                    27                         54
+ log (13/10)                   20                         54
+ atan(1/2)                     16                         16
+ d/dx[q(x)]                    33                         79
+
+In the final table entry, d/dx represents the first derivative
+and q(x) represents the quadratic polynomial described in
+Sect.X.Y.
+
+All of the calculations have produced approximately 6-7 decimal
+digits of accuracy. In general, the fixed-point calculations
+require less run time than the floating-point calculations.
+For certain mathematical operations such as taking the first
+derivative, the run time savings can be significant.
+
+If fewer digits of precision are acceptable for the calculation,
+even further increases of speed are possible using a less wide
+fixed-point type such as negatable<4, -11>.
+
+The benchmark in the table below, for instance, shows the result
+of calculations of sqrt(6/10) using both negatable<4, -11>
+and built-in 32-bit single-precision floating-point.
+
+  Function         run time negatable<4, -11>    run time 32-bit float
+                          [microsec.]                  [microsec.]
+
+ sqrt(6/10)                   6                           17
+
+In this comparison, we see a significant run time advantage for
+the fixed-point type, but at the expense of lower precision
+and reduced range as well.
+
+Another perspective on resource consumption can be obtained
+by measureing the size of the code used in a benchmark.
+Consider the sqrt(1/6) calculation performed for
+negatable<7, -24> and built-in 32-bit single-precision floating-point.
+The following code sizes were obtained for this particular benchmark.
+
+  Function        code size negatable<7, -24>    code size 32-bit float
+                          [byte]                        [byte]
+
+ sqrt(6/10)         4,176 - 1,456 = 2,720         5,488 - 1,456 = 4,320
+
+Here the final code consumption is shown as the result of subtraction.
+The subtracted amount arises from the code required to implement
+a minimalistic cooperative multitasking scheduler and skinny
+hardware abstraction layer, as described in Chaps. 8, 9 and 11 in Kormanyos.
+In this benchmark, GCC 4.8.3 has been used with optimization
+setting -O2. Inline functions have been enabled with the allowed
+inline function depth set to 32 lines.
+
+It can be observed that the fixed-point calculation requires
+less code than the floating-point calculation. For a large fixed-point
+project, however, the resulting code size can vary significantly
+depending on the compiler's inlining characteristics and optimization
+settings. This is because the fixed-point library is template code.
+It is, therefore, a good idea to periodically check the code size
+of a fixed-point project and adjust the compiler parameters
+according to the needs of the project.
+
+TBD: Results from an 8-bit microcontroller.
