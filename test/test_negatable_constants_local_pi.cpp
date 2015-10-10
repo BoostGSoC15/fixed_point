@@ -93,7 +93,7 @@ namespace local
 
       const FixedPointType val_pi = boost::fixed_point::negatable_constants<FixedPointType>::pi();
 
-      const FloatingPointType reference_value(FloatingPointType("3.1415926535897932384626433832795028841972"));
+      const FloatingPointType reference_value(FloatingPointType("3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170680"));
 
       BOOST_CHECK_CLOSE_FRACTION(val_pi, reference_value, tolerance_maker(fuzzy_bits));
 

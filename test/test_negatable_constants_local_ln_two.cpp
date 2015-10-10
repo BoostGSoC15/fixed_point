@@ -88,7 +88,7 @@ namespace local
 
       const FixedPointType val_ln_two = boost::fixed_point::negatable_constants<FixedPointType>::ln_two();
 
-      const FloatingPointType reference_value(FloatingPointType("0.6931471805599453094172321214581765680755"));
+      const FloatingPointType reference_value(FloatingPointType("0.6931471805599453094172321214581765680755001343602552541206800094933936219696947156058633269964186875"));
 
       BOOST_CHECK_CLOSE_FRACTION(val_ln_two, reference_value, tolerance_maker(fuzzy_bits));
 
