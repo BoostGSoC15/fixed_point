@@ -7,7 +7,7 @@
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 //! \file
-//!\brief Tests for sqrt(fixed_point) with round::fastest.
+//!\brief Test sqrt() for negatable in a tiny digit region.
 
 #include <cmath>
 
@@ -31,11 +31,11 @@ namespace local
            typename FloatPointType = typename FixedPointType::float_type>
   void test_sqrt(const int fuzzy_bits)
   {
-    // Use at least 4 resolution bits.
-    // Use at least 3 range bits.
+    // Use at least 8 resolution bits.
+    // Use at least 4 range bits.
 
-    BOOST_STATIC_ASSERT(-FixedPointType::resolution >= 4);
-    BOOST_STATIC_ASSERT( FixedPointType::range      >= 3);
+    BOOST_STATIC_ASSERT(-FixedPointType::resolution >= 8);
+    BOOST_STATIC_ASSERT( FixedPointType::range      >= 4);
 
     using std::sqrt;
 
@@ -63,6 +63,5 @@ namespace local
 
 BOOST_AUTO_TEST_CASE(test_negatable_func_sqrt_tiny)
 {
-  // Test sqrt() round::fastest for negatable in a tiny digit region.
-  { typedef boost::fixed_point::negatable<4, -11> fixed_point_type; local::test_sqrt<fixed_point_type>(2); }
+  { typedef boost::fixed_point::negatable<4, -11> fixed_point_type; local::test_sqrt<fixed_point_type>(1); }
 }
