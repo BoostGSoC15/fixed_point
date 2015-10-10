@@ -79,6 +79,39 @@ namespace local
            typename FloatingPointType>
   struct constants_helper<FixedPointType,
                           FloatingPointType,
+                          typename std::enable_if<   (std::numeric_limits<FixedPointType>::digits == std::numeric_limits<boost::intmax_t>::digits)
+                                                  &&  std::is_floating_point<FloatingPointType>::value == false>::type>
+  {
+  public:
+    static FixedPointType pi(const int fuzzy_bits)
+    {
+      // Use at least 3 resolution bits.
+      // Use at least 2 range bits.
+
+      BOOST_STATIC_ASSERT(-FixedPointType::resolution >= 3);
+      BOOST_STATIC_ASSERT( FixedPointType::range      >= 2);
+
+      const FixedPointType val_pi = boost::fixed_point::negatable_constants<FixedPointType>::pi();
+
+      const FloatingPointType reference_value(FloatingPointType("3.1415926535897932384626433832795028841972"));
+
+      BOOST_CHECK_CLOSE_FRACTION(val_pi, reference_value, tolerance_maker(fuzzy_bits));
+
+      return val_pi;
+    }
+
+  private:
+    static FixedPointType tolerance_maker(const int fuzzy_bits)
+    {
+      return ldexp(FixedPointType(1),
+                   FixedPointType::resolution + fuzzy_bits);
+    }
+  };
+
+  template<typename FixedPointType,
+           typename FloatingPointType>
+  struct constants_helper<FixedPointType,
+                          FloatingPointType,
                           typename std::enable_if<std::is_floating_point<FloatingPointType>::value>::type>
   {
   public:
