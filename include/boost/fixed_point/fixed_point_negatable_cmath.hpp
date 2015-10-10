@@ -240,11 +240,14 @@
     local_negatable_type qx_denominator;
 
     // Here we break the reduced argument range yet further in half.
-    // This results in a lower range with (x < 3/4) and an upper range
-    // with (x >= 3/4).
+    // This results in two ranges:
+    //  lower range with (x >= 1/2 && x < 3/4)
+    // and an
+    //  upper range with (x >= 3/4 && x <= 1).
+
     if(x < local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0600) >> (11 + FractionalResolution))))
     {
-      // Compute the sqrt(x) in the lower half of the range with (x < 3/4).
+      // Compute the sqrt(x) in the lower half of the range with (x >= 1/2 && x < 3/4).
 
       // Use an order 2/1 Pade approximation at (x = 5/8) resulting in:
       //  sqrt(x) = approx. P(x) / Q(x),
@@ -270,7 +273,7 @@
     }
     else
     {
-      // Compute the sqrt(x) in the upper half of the range with (x >= 3/4).
+      // Compute the sqrt(x) in the upper half of the range with (x >= 3/4 && x <= 1).
 
       // Use an order 2/1 Pade approximation at (x = 7/8) resulting in:
       //  sqrt(x) = approx. P(x) / Q(x),
