@@ -1027,7 +1027,21 @@
 
     local_negatable_type result;
 
-    if(x > local_negatable_type::value_pi_half())
+    const local_negatable_type delta = local_negatable_type::value_pi_half() - x;
+
+    if(fabs(delta) < ldexp(local_negatable_type(1), -3))
+    {
+      const local_negatable_type delta2 = (delta * delta);
+
+      // Perform the polynomial approximation using a coefficient
+      // expansion via the method of Horner.
+      result = (((         - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00000D00) >> (24 + FractionalResolution)))   // 0.9999999815561047
+                  * delta2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00022222) >> (24 + FractionalResolution))))  // 0.1666665066192447
+                  * delta2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x002AAAAA) >> (24 + FractionalResolution))))  // 0.1666665066192447
+                  * delta2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x01000000) >> (24 + FractionalResolution))))  // 0.0000025959374407
+                  * delta;
+    }
+    else if(x > local_negatable_type::value_pi_half())
     {
       if(x == local_negatable_type::value_pi())
       {
@@ -1051,25 +1065,25 @@
       else
       {
         // Use a polynomial approximation.
-        // cos(x) = approx. + 0.999999966710846081
-        //                  - 0.499999245786563211 x^2
-        //                  + 0.041664023481461532 x^4
-        //                  - 0.001385684919213699 x^6
-        //                  + 0.000023223269589427 x^8
+        // cos(x) = approx. + 0.9999999998329485
+        //                  - 0.4999999947816307 x^2
+        //                  + 0.0416666405328244 x^4
+        //                  - 0.0013888413877237 x^6
+        //                  + 0.0000247627549571 x^8
+        //                  - 0.0000002609587957 x^10
         // in the range -pi/2 <= x <= +pi/2. These coefficients
         // have been specifically derived for this work.
-
-        // TBD: Should we try a coefficient set with one more coefficient?
 
         const local_negatable_type x2 = (x * x);
 
         // Perform the polynomial approximation using a coefficient
         // expansion via the method of Horner.
-        result = ((((       local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00000185) >> (24 + FractionalResolution)))    // 0.999999966710846081
-                     * x2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00005ACE) >> (24 + FractionalResolution))))   // 0.499999245786563211
-                     * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000AAA7E) >> (24 + FractionalResolution))))   // 0.041664023481461532
-                     * x2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x007FFFF3) >> (24 + FractionalResolution))))   // 0.001385684919213699
-                     * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00FFFFFF) >> (24 + FractionalResolution))));  // 0.000023223269589427
+        result = (((((     - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00000003) >> (24 + FractionalResolution)))    // 0.00000022171564942
+                      * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00000196) >> (24 + FractionalResolution))))   // 0.00002424851890444
+                      * x2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00005AD9) >> (24 + FractionalResolution))))   // 0.00138624146943166
+                      * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000AAA4a) >> (24 + FractionalResolution))))   // 0.04166094016112324
+                      * x2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x007FFFB4) >> (24 + FractionalResolution))))   // 0.49999549949242657
+                      * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00FFFFF6) >> (24 + FractionalResolution))));  // 0.99999943833186084
       }
     }
 

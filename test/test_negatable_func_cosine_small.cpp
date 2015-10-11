@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_cosine_small)
   typedef boost::fixed_point::negatable<7, -24> fixed_point_type;
   typedef fixed_point_type::float_type          float_point_type;
 
-  const fixed_point_type tol = ldexp(fixed_point_type(1), fixed_point_type::resolution + 9);
+  const fixed_point_type tol = ldexp(fixed_point_type(1), fixed_point_type::resolution + 7);
 
   // Check positive arguments.
   for(int i = 1; i < 64; ++i)
