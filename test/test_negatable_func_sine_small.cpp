@@ -24,12 +24,12 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_sine_small)
 
   const fixed_point_type tol = ldexp(fixed_point_type(1), fixed_point_type::resolution + 9);
 
+  using std::sin;
+
   // Check positive arguments.
   for(int i = 1; i < 64; ++i)
   {
     const fixed_point_type x = sin(fixed_point_type(i) / 10);
-
-    using std::sin;
     const float_point_type y = sin(float_point_type(i) / 10);
 
     BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
@@ -39,10 +39,15 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_sine_small)
   for(int i = 1; i < 64; ++i)
   {
     const fixed_point_type x = sin(fixed_point_type(-i) / 10);
-
-    using std::sin;
     const float_point_type y = sin(float_point_type(-i) / 10);
 
     BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
   }
+
+  const fixed_point_type local_pi_half = boost::fixed_point::negatable_constants<fixed_point_type>::pi_half();
+
+  BOOST_CHECK_EQUAL(sin(+local_pi_half), fixed_point_type(+1));
+  BOOST_CHECK_EQUAL(sin(-local_pi_half), fixed_point_type(-1));
+
+  BOOST_CHECK_EQUAL(sin(fixed_point_type(0)), fixed_point_type(0));
 }

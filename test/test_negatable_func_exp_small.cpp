@@ -45,4 +45,8 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_exp_small)
 
     BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
   }
+
+  const fixed_point_type local_e = boost::fixed_point::negatable_constants<fixed_point_type>::e();
+
+  BOOST_CHECK_EQUAL(exp(fixed_point_type(1)), local_e);
 }

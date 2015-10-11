@@ -218,10 +218,14 @@
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    // Handle negative or zero arguments.
+    // Handle arguments negative, zero, or unity.
     if(x.data <= 0)
     {
       return local_negatable_type(0);
+    }
+    else if(x.data == local_negatable_type::radix_split_value())
+    {
+      return local_negatable_type(1);
     }
 
     int n;
@@ -337,10 +341,14 @@
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    // Handle negative or zero arguments.
+    // Handle arguments negative, zero, or unity.
     if(x.data <= 0)
     {
       return local_negatable_type(0);
+    }
+    else if(local_unsigned_small_type(x.data) == local_negatable_type::radix_split_value())
+    {
+      return local_negatable_type(1);
     }
 
     int n;
@@ -427,10 +435,14 @@
     typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
 
-    // Handle negative or zero arguments.
+    // Handle arguments negative, zero, or unity.
     if(x.data <= 0)
     {
       return local_negatable_type(0);
+    }
+    else if(x.data == local_negatable_type::radix_split_value())
+    {
+      return local_negatable_type(1);
     }
 
     // Find the most significant bit in order to perform range reduction.
@@ -513,17 +525,24 @@
                                                                               typename std::enable_if<int(24) >= (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+    typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle zero argument.
-    if(x == 0)
+    if(x.data == 0)
     {
       return local_negatable_type(1);
     }
 
+    // Handle unity argument.
+    if(local_unsigned_small_type(x.data) == local_negatable_type::radix_split_value())
+    {
+      return local_negatable_type::value_e();
+    }
+
     // Handle reflection for negative arguments.
-    if(x < 0)
+    if(x.data < 0)
     {
       return 1 / exp(-x);
     }
@@ -682,7 +701,7 @@
     }
     else
     {
-      // The argument is exactly 1.
+      // The argument is exactly equal to 1.
       result = local_negatable_type(0);
     }
 
@@ -755,7 +774,7 @@
     }
     else
     {
-      // The argument is exactly 1.
+      // The argument is exactly equal to 1.
       result = local_negatable_type(0);
     }
 
@@ -866,34 +885,41 @@
     }
     else
     {
-      // Use a polynomial approximation.
-      // sin(x) = approx. + 0.9999999815561047 x
-      //                  - 0.1666665066192447 x^3
-      //                  + 0.0083329484215251 x^5
-      //                  - 0.0001980373563403 x^7
-      //                  + 0.0000025959374407 x^9,
-      // in the range -pi/2 <= x <= +pi/2. These coefficients
-      // have been specifically derived for this work.
+      if(x == local_negatable_type::value_pi_half())
+      {
+        result = local_negatable_type(1);
+      }
+      else
+      {
+        // Use a polynomial approximation.
+        // sin(x) = approx. + 0.9999999815561047 x
+        //                  - 0.1666665066192447 x^3
+        //                  + 0.0083329484215251 x^5
+        //                  - 0.0001980373563403 x^7
+        //                  + 0.0000025959374407 x^9,
+        // in the range -pi/2 <= x <= +pi/2. These coefficients
+        // have been specifically derived for this work.
 
-      // TBD: Here is a coefficient set with one more coefficient.
-      // Is it worth trying this coefficient set?
-      // sin(x) = approx. + 0.9999999999131411 x
-      //                  - 0.1666666656226060 x^3
-      //                  + 0.0083333297763049 x^5
-      //                  - 0.0001984075351818 x^7
-      //                  + 0.0000027521025326 x^9
-      //                  - 0.0000000238282134 x^11
+        // TBD: Here is a coefficient set with one more coefficient.
+        // Is it worth trying this coefficient set?
+        // sin(x) = approx. + 0.9999999999131411 x
+        //                  - 0.1666666656226060 x^3
+        //                  + 0.0083333297763049 x^5
+        //                  - 0.0001984075351818 x^7
+        //                  + 0.0000027521025326 x^9
+        //                  - 0.0000000238282134 x^11
 
-      const local_negatable_type x2 = (x * x);
+        const local_negatable_type x2 = (x * x);
 
-      // Perform the polynomial approximation using a coefficient
-      // expansion via the method of Horner.
-      result = ((((       local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0000002B) >> (24 + FractionalResolution)))   // 0.9999999815561047
-                   * x2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00000CFA) >> (24 + FractionalResolution))))  // 0.1666665066192447
-                   * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0002221B) >> (24 + FractionalResolution))))  // 0.0083329484215251
-                   * x2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x002AAAA7) >> (24 + FractionalResolution))))  // 0.0001980373563403
-                   * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00FFFFFF) >> (24 + FractionalResolution))))  // 0.0000025959374407
-                   * x;
+        // Perform the polynomial approximation using a coefficient
+        // expansion via the method of Horner.
+        result = ((((       local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0000002B) >> (24 + FractionalResolution)))   // 0.9999999815561047
+                     * x2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00000CFA) >> (24 + FractionalResolution))))  // 0.1666665066192447
+                     * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0002221B) >> (24 + FractionalResolution))))  // 0.0083329484215251
+                     * x2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x002AAAA7) >> (24 + FractionalResolution))))  // 0.0001980373563403
+                     * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00FFFFFF) >> (24 + FractionalResolution))))  // 0.0000025959374407
+                     * x;
+      }
     }
 
     return (((n % 2) == 0) ? result : -result);
@@ -984,7 +1010,7 @@
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle reflection for negative arguments.
-    if(x < 0)
+    if(x.data < 0)
     {
       x = -x;
     }
@@ -1003,30 +1029,48 @@
 
     if(x > local_negatable_type::value_pi_half())
     {
-      result = -cos(local_negatable_type::value_pi() - x);
+      if(x == local_negatable_type::value_pi())
+      {
+        result = local_negatable_type(0);
+      }
+      else
+      {
+        result = -cos(local_negatable_type::value_pi() - x);
+      }
     }
     else
     {
-      // Use a polynomial approximation.
-      // cos(x) = approx. + 0.999999966710846081
-      //                  - 0.499999245786563211 x^2
-      //                  + 0.041664023481461532 x^4
-      //                  - 0.001385684919213699 x^6
-      //                  + 0.000023223269589427 x^8
-      // in the range -pi/2 <= x <= +pi/2. These coefficients
-      // have been specifically derived for this work.
+      if(x.data == 0)
+      {
+        result = local_negatable_type(1);
+      }
+      else if(x == local_negatable_type::value_pi_half())
+      {
+        result = local_negatable_type(0);
+      }
+      else
+      {
+        // Use a polynomial approximation.
+        // cos(x) = approx. + 0.999999966710846081
+        //                  - 0.499999245786563211 x^2
+        //                  + 0.041664023481461532 x^4
+        //                  - 0.001385684919213699 x^6
+        //                  + 0.000023223269589427 x^8
+        // in the range -pi/2 <= x <= +pi/2. These coefficients
+        // have been specifically derived for this work.
 
-      // TBD: Should we try a coefficient set with one more coefficient?
+        // TBD: Should we try a coefficient set with one more coefficient?
 
-      const local_negatable_type x2 = (x * x);
+        const local_negatable_type x2 = (x * x);
 
-      // Perform the polynomial approximation using a coefficient
-      // expansion via the method of Horner.
-      result = ((((       local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00000185) >> (24 + FractionalResolution)))    // 0.999999966710846081
-                   * x2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00005ACE) >> (24 + FractionalResolution))))   // 0.499999245786563211
-                   * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000AAA7E) >> (24 + FractionalResolution))))   // 0.041664023481461532
-                   * x2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x007FFFF3) >> (24 + FractionalResolution))))   // 0.001385684919213699
-                   * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00FFFFFF) >> (24 + FractionalResolution))));  // 0.000023223269589427
+        // Perform the polynomial approximation using a coefficient
+        // expansion via the method of Horner.
+        result = ((((       local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00000185) >> (24 + FractionalResolution)))    // 0.999999966710846081
+                     * x2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00005ACE) >> (24 + FractionalResolution))))   // 0.499999245786563211
+                     * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000AAA7E) >> (24 + FractionalResolution))))   // 0.041664023481461532
+                     * x2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x007FFFF3) >> (24 + FractionalResolution))))   // 0.001385684919213699
+                     * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00FFFFFF) >> (24 + FractionalResolution))));  // 0.000023223269589427
+      }
     }
 
     return (((n % 2) == 0) ? result : -result);
@@ -1334,25 +1378,26 @@
                                                                                typename std::enable_if<int(24) >= (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+    typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    if(x < 0)
+    if(x.data < 0)
     {
       return -atan(-x);
     }
 
     local_negatable_type result;
 
-    if(x == 0)
+    if(x.data == 0)
     {
       result = local_negatable_type(0);
     }
-    else if(x == 1)
+    else if(local_unsigned_small_type(x.data) == local_negatable_type::radix_split_value())
     {
       result = ldexp(local_negatable_type::value_pi(), -2);
     }
-    else if(x > 1)
+    else if(local_unsigned_small_type(x.data) > local_negatable_type::radix_split_value())
     {
       result = local_negatable_type::value_pi_half() - atan(1 / x);
     }
@@ -1389,6 +1434,8 @@
                                                                                typename std::enable_if<int(24) < (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+    typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
+    typedef typename local_negatable_type::value_type                               local_value_type;
 
     if(x < 0)
     {
@@ -1397,15 +1444,15 @@
 
     local_negatable_type result;
 
-    if(x == 0)
+    if(x.data == 0)
     {
       result = local_negatable_type(0);
     }
-    else if(x == 1)
+    else if(local_unsigned_small_type(x.data) == local_negatable_type::radix_split_value())
     {
       result = ldexp(local_negatable_type::value_pi(), -2);
     }
-    else if(x > 1)
+    else if(local_unsigned_small_type(x.data) > local_value_type(local_negatable_type::radix_split_value()))
     {
       result = local_negatable_type::value_pi_half() - atan(1 / x);
     }

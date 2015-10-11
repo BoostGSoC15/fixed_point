@@ -142,4 +142,6 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_arctangent_big)
 
     BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
   }
+
+  BOOST_CHECK_EQUAL(atan(fixed_point_type(0)), fixed_point_type(0));
 }

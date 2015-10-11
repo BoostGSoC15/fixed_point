@@ -68,4 +68,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_sqrt_small_nearest_even)
   { typedef boost::fixed_point::negatable<7,  -8, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
   { typedef boost::fixed_point::negatable<7, -16, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
   { typedef boost::fixed_point::negatable<7, -24, boost::fixed_point::round::nearest_even> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+
+  { typedef boost::fixed_point::negatable<4, -11, boost::fixed_point::round::nearest_even> fixed_point_type; BOOST_CHECK_EQUAL(sqrt(fixed_point_type(1)), fixed_point_type(1)); }
+  { typedef boost::fixed_point::negatable<7, -24, boost::fixed_point::round::nearest_even> fixed_point_type; BOOST_CHECK_EQUAL(sqrt(fixed_point_type(1)), fixed_point_type(1)); }
 }

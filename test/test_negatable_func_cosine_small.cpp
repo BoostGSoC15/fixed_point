@@ -45,4 +45,16 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_cosine_small)
 
     BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
   }
+
+  const fixed_point_type local_pi_half = boost::fixed_point::negatable_constants<fixed_point_type>::pi_half();
+
+  BOOST_CHECK_EQUAL(cos(+local_pi_half), fixed_point_type(0));
+  BOOST_CHECK_EQUAL(cos(-local_pi_half), fixed_point_type(0));
+
+  BOOST_CHECK_EQUAL(cos(fixed_point_type(0)), fixed_point_type(1));
+
+  const fixed_point_type local_pi = boost::fixed_point::negatable_constants<fixed_point_type>::pi();
+
+  BOOST_CHECK_EQUAL(cos(+local_pi), fixed_point_type(0));
+  BOOST_CHECK_EQUAL(cos(-local_pi), fixed_point_type(0));
 }
