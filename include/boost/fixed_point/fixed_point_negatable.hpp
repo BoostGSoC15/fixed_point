@@ -804,19 +804,91 @@
     //! Unary operators add, sub, mul, div of (*this op= arithmetic_type).
     template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> negatable& operator+=(const ArithmeticType& a) { return (*this) += negatable(a); }
     template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> negatable& operator-=(const ArithmeticType& a) { return (*this) -= negatable(a); }
-    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> negatable& operator*=(const ArithmeticType& a) { return (*this) *= negatable(a); }
+    //template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> negatable& operator*=(const ArithmeticType& a) { return (*this) *= negatable(a); }
 
-    // With unary operator div of (*this op= arithmetic_type),
+    // For unary operators mul and div of (*this op= arithmetic_type),
     // a differentiation is made between floating-point,
-    // unsigned integral and signed integral. The unsigned and
-    // signed operators are optimized to avoid long division
-    // with the unsigned_large_type.
+    // unsigned integral, and signed integral. The unsigned and
+    // signed operators are optimized to avoid costly long division
+    // of the unsigned_large_type with the unsigned_small_type.
 
     template<typename FloatingPointType,
              typename std::enable_if<std::is_floating_point<FloatingPointType>::value>::type const* = nullptr>
-    negatable& operator/=(const FloatingPointType& a)
+    negatable& operator*=(const FloatingPointType& f)
     {
-      return (*this) /= negatable(a);
+      return (*this) *= negatable(f);
+    }
+
+    template<typename UnsignedIntegralType,
+             typename std::enable_if<    std::is_integral<UnsignedIntegralType>::value
+                                     && (std::is_signed<UnsignedIntegralType>::value == false)>::type const* = nullptr>
+    negatable& operator*=(const UnsignedIntegralType& u)
+    {
+      const bool u_is_neg = (data < 0);
+
+      unsigned_small_type result((!u_is_neg) ? unsigned_small_type(data) : unsigned_small_type(-data));
+
+      // Here, we use 1 extra binary digit for rounding.
+      // The extra rounding digit fits in unsigned_small_type
+      // because the value_type (even though just as wide as
+      // unsigned_small_type) reserves one bit for the sign.
+
+      result = (result << 1);
+
+      result *= u;
+
+      // Round the result of the division.
+      const boost::int_fast8_t rounding_result = binary_round(result);
+
+      // With round modes fastest and nearest even, there is no need
+      // for special code for handling underflow. But be aware of
+      // underflow issues if other rounding modes are supported.
+      result = (unsigned_small_type(value_type(result) + rounding_result) & unsigned_small_mask());
+
+      // Load the fixed-point result (and account for potentially signed values).
+      data = value_type((!u_is_neg) ? value_type(result) : -value_type(result));
+
+      return *this;
+    }
+
+    template<typename SignedIntegralType,
+             typename std::enable_if<    std::is_integral<SignedIntegralType>::value
+                                     && (std::is_signed<SignedIntegralType>::value == true)>::type const* = nullptr>
+    negatable& operator*=(const SignedIntegralType& n)
+    {
+      const bool u_is_neg = (data < 0);
+      const bool v_is_neg = (n < 0);
+
+      unsigned_small_type result((!u_is_neg) ? unsigned_small_type(data) : unsigned_small_type(-data));
+
+      // Here, we use 1 extra binary digit for rounding.
+      // The extra rounding digit fits in unsigned_small_type
+      // because the value_type (even though just as wide as
+      // unsigned_small_type) reserves one bit for the sign.
+
+      result = (result << 1);
+
+      result *= ((!v_is_neg) ? n : -n);
+
+      // Round the result of the division.
+      const boost::int_fast8_t rounding_result = binary_round(result);
+
+      // With round modes fastest and nearest even, there is no need
+      // for special code for handling underflow. But be aware of
+      // underflow issues if other rounding modes are supported.
+      result = (unsigned_small_type(value_type(result) + rounding_result) & unsigned_small_mask());
+
+      // Load the fixed-point result (and account for potentially signed values).
+      data = value_type((u_is_neg == v_is_neg) ? value_type(result) : -value_type(result));
+
+      return *this;
+    }
+
+    template<typename FloatingPointType,
+             typename std::enable_if<std::is_floating_point<FloatingPointType>::value>::type const* = nullptr>
+    negatable& operator/=(const FloatingPointType& f)
+    {
+      return (*this) /= negatable(f);
     }
 
     template<typename UnsignedIntegralType,

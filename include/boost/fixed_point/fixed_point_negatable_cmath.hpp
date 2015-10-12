@@ -245,9 +245,9 @@
 
     // Here we break the reduced argument range yet further in half.
     // This results in two ranges:
-    //  lower range with (x >= 1/2 && x < 3/4)
+    //  *lower* half of the range with (x >= 1/2 && x < 3/4)
     // and an
-    //  upper range with (x >= 3/4 && x <= 1).
+    //  *upper* half of the range with (x >= 3/4 && x < 1).
 
     if(x < local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0600) >> (11 + FractionalResolution))))
     {
@@ -277,7 +277,7 @@
     }
     else
     {
-      // Compute the sqrt(x) in the upper half of the range with (x >= 3/4 && x <= 1).
+      // Compute the sqrt(x) in the upper half of the range with (x >= 3/4 && x < 1).
 
       // Use an order 2/1 Pade approximation at (x = 7/8) resulting in:
       //  sqrt(x) = approx. P(x) / Q(x),
@@ -312,20 +312,24 @@
     // of the result.
     if(n > 0)
     {
-      result.data <<= (n / 2);
-
       if(is_odd_scaling)
       {
+        // Multiply with sqrt(2).
         result *= local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x016A09E6) >> (24 + FractionalResolution)));
       }
+
+      // Left-shift the result by 1/2 of the even factors of 2.
+      result.data <<= (n / 2);
     }
     else if(n < 0)
     {
       if(is_odd_scaling)
       {
+        // Divide by sqrt(2), which is actually accomplished via multiplication by [1 / sqrt(2)].
         result *= local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00B504F3) >> (24 + FractionalResolution)));
       }
 
+      // Right-shift the result by 1/2 of the even factors of 2.
       result.data = local_value_type(local_unsigned_small_type(result.data) >> (-n / 2));
     }
 
@@ -407,20 +411,24 @@
     // of the result.
     if(n > 0)
     {
-      result.data <<= (n / 2);
-
       if(is_odd_scaling)
       {
+        // Multiply with sqrt(2).
         result *= local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x016A09E6) >> (24 + FractionalResolution)));
       }
+
+      // Left-shift the result by 1/2 of the even factors of 2.
+      result.data <<= (n / 2);
     }
     else if(n < 0)
     {
       if(is_odd_scaling)
       {
+        // Divide by sqrt(2), which is actually accomplished via multiplication by [1 / sqrt(2)].
         result *= local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00B504F3) >> (24 + FractionalResolution)));
       }
 
+      // Right-shift the result by 1/2 of the even factors of 2.
       result.data = local_value_type(local_unsigned_small_type(result.data) >> (-n / 2));
     }
 
@@ -511,7 +519,7 @@
     for(boost::uint_fast16_t i = UINT16_C(1); i <= boost::uint_fast16_t(local_negatable_type::all_bits / 2); i *= UINT16_C(2))
     {
       // Perform the next iteration of vi.
-      vi += vi * (-((a * vi) * local_negatable_type(2U)) + local_negatable_type(1U));
+      vi += vi * (-((a * vi) * 2U) + local_negatable_type(1U));
 
       // Perform the next iteration of the result.
       a += (vi * (-((a) * (a)) + x));
