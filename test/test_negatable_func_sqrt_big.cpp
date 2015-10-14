@@ -70,12 +70,12 @@ namespace local
            typename FloatPointType = typename FixedPointType::float_type>
   void test_big_sqrt_pi(const int fuzzy_bits)
   {
-    // Limit the precision to remain within the limits
-    // of the string-literal value of pi above.
+    // Limit the precision of the fixed-point type in order to remain
+    // within the precision of the string-literal value of pi above.
     BOOST_STATIC_ASSERT(FixedPointType::range - FixedPointType::resolution < int((3000LL * 1000LL) / 301LL));
 
     const FixedPointType a(boost::math::constants::pi<FixedPointType>());
-    const FloatPointType b(str_pi_reference().c_str());
+    static const FloatPointType b(str_pi_reference().c_str());
 
     BOOST_CHECK_CLOSE_FRACTION(sqrt(a), FixedPointType(sqrt(b)), tolerance_maker<FixedPointType>(fuzzy_bits));
   }

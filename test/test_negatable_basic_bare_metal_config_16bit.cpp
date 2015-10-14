@@ -8,7 +8,7 @@
 //
 
 //! \file
-//!\brief Test for a successful bare-metal configuration of fixed_point using a 32-bit negatable type.
+//!\brief Test for a successful bare-metal configuration of fixed_point using a 16-bit negatable type.
 
 // For further mathematical details pertaining to this file,
 // see C.M. Kormanyos, Real-Time C++: Efficient Object-Oriented and
@@ -60,32 +60,32 @@ BOOST_AUTO_TEST_CASE(test_negatable_basic_metal_config_16bit)
 {
   typedef boost::fixed_point::negatable<6, -9> fixed_point_type;
 
-  const fixed_point_type a = fixed_point_type(12) / 10;
-  const fixed_point_type b = fixed_point_type(34) / 10;
-  const fixed_point_type c = fixed_point_type(56) / 10;
+  const fixed_point_type a = fixed_point_type(12) / 10U;
+  const fixed_point_type b = fixed_point_type(34) / 10U;
+  const fixed_point_type c = fixed_point_type(56) / 10U;
 
   // Compute the approximate derivative of [(a * x^2) + (b * x) + c]
   // evaluated at 1/2, where the approximate values of the coefficients
-  // are: a = 1.2, b = 3.4, and c = 5.6. The numerical tolerance is set
-  // to a value of approximately 1/4.
+  // are: a = 1.2, b = 3.4, and c = 5.6. The step size is set to a value
+  // of approximately 1/8.
 
   const fixed_point_type d =
-    local::first_derivative(fixed_point_type(1) / 2,  // x
-                            fixed_point_type(1) / 4,  // Step size dx.
+    local::first_derivative(fixed_point_type(1) / 2U,  // x
+                            fixed_point_type(1) / 4U,  // Step size dx.
                             [&a, &b, &c](const fixed_point_type& x) -> fixed_point_type
                             {
                               return (((a * x) + b) * x) + c;
                             });
 
   // The expected result is ((2 * a) + b) = (1.2 + 3.4) = 4.6 (exact).
-  // We obtain a fixed-point result of approximately 4.5938.
+  // We obtain a fixed-point result of approximately 4.594.
 
   // Verify that the result lies within (4.5 < result < 4.7).
   // The expected result is 4.6, so this is a wide tolerance.
 
   // This is the test of the result that has been used
   // on the bare-metal system.
-  const bool result_is_ok = ((d > (fixed_point_type(45) / 10)) && (d < (fixed_point_type(47) / 10)));
+  const bool result_is_ok = ((d > (fixed_point_type(45) / 10U)) && (d < (fixed_point_type(47) / 10U)));
 
   BOOST_CHECK_EQUAL(result_is_ok, true);
 
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_basic_metal_config_16bit)
   // close-fraction test. We do not use BOOST_CHECK_CLOSE_FRACTION()
   // here becasue that would require I/O streaming, which is
   // disabled in this bare-metal configuration.
-  const fixed_point_type fraction = fabs(d / fixed_point_type(4.6F));
+  const fixed_point_type fraction = fabs(d / (fixed_point_type(46) / 10U));
   const fixed_point_type delta    = fabs(1 - fraction);
 
   const bool result_is_within_tolerance = (delta <= ldexp(fixed_point_type(1), fixed_point_type::resolution + 2));

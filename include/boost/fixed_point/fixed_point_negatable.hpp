@@ -195,6 +195,7 @@
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> asinh(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> acosh(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> atanh(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> hypot(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y);
   } } // namespace boost::fixed_point:
 
   namespace std
@@ -804,13 +805,15 @@
     //! Unary operators add, sub, mul, div of (*this op= arithmetic_type).
     template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> negatable& operator+=(const ArithmeticType& a) { return (*this) += negatable(a); }
     template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> negatable& operator-=(const ArithmeticType& a) { return (*this) -= negatable(a); }
-    //template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> negatable& operator*=(const ArithmeticType& a) { return (*this) *= negatable(a); }
 
-    // For unary operators mul and div of (*this op= arithmetic_type),
-    // a differentiation is made between floating-point,
-    // unsigned integral, and signed integral. The unsigned and
-    // signed operators are optimized to avoid costly long division
-    // of the unsigned_large_type with the unsigned_small_type.
+    // For unary operators mul and div of (*this op= integral_type),
+    // a differentiation is made between floating-point types,
+    // unsigned integral types, and signed integral types.
+    // The operators with unsigned and signed integral types are
+    // optimized to avoid costly multiplication and division
+    // operations involving the unsigned_large_type on the
+    // left-hand-side and the unsigned_small_type on the
+    // right-hand side.
 
     template<typename FloatingPointType,
              typename std::enable_if<std::is_floating_point<FloatingPointType>::value>::type const* = nullptr>
@@ -982,6 +985,7 @@
     #if !defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
 
       // Supply a decimal string representation get-function.
+      // This function is used primarily for debugging and testing purposes.
       std::string to_string() const
       {
         const float_type x = convert_to_floating_point_type<float_type>();
@@ -1306,7 +1310,7 @@
       return the_value_min;
     }
 
-    /*! Compute machine epsilon (during pre-main static initialization) 
+    /*! Compute machine epsilon (during pre-main static initialization)
         for @c std::numeric_limits<>::epsilon() function.
         Epsilon is defined as the smallest number that,
         when added to one, yields a result different from one.
@@ -1594,6 +1598,8 @@
 
     #if !defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
 
+      // Forward friend declarations of I/O streaming operators.
+
       template<typename char_type, typename traits_type, const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2>
       friend std::basic_ostream<char_type, traits_type>& operator<<(std::basic_ostream<char_type, traits_type>& out,
                                                                     const negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2>& x);
@@ -1603,6 +1609,8 @@
                                                                     negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2>& x);
 
     #endif // !BOOST_FIXED_POINT_DISABLE_IOSTREAM
+
+    // Forward friend declarations of <cmath> functions.
 
     template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> abs  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
     template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> fabs (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
@@ -1641,6 +1649,7 @@
     template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> asinh(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
     template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> acosh(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
     template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> atanh(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> atanh(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> y);
   };
 
   //! Once-only instances of static constant variables of the negative class.
@@ -1771,9 +1780,9 @@
                       ((-FractionalResolution1 > -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
                       RoundMode,
                       OverflowMode>
-    negatable_type;
+    widest_resolution_negatable_type;
 
-    return negatable_type(a) += b;
+    return widest_resolution_negatable_type(a) += b;
   }
 
   template <const int IntegralRange1, const int FractionalResolution1,
@@ -1791,9 +1800,9 @@
                       ((-FractionalResolution1 > -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
                       RoundMode,
                       OverflowMode>
-    negatable_type;
+    widest_resolution_negatable_type;
 
-    return negatable_type(a) -= b;
+    return widest_resolution_negatable_type(a) -= b;
   }
 
   template <const int IntegralRange1, const int FractionalResolution1,
@@ -1811,9 +1820,9 @@
                       ((-FractionalResolution1 > -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
                       RoundMode,
                       OverflowMode>
-    negatable_type;
+    widest_resolution_negatable_type;
 
-    return negatable_type(a) *= b;
+    return widest_resolution_negatable_type(a) *= b;
   }
 
   template <const int IntegralRange1, const int FractionalResolution1,
@@ -1831,9 +1840,9 @@
                       ((-FractionalResolution1 > -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
                       RoundMode,
                       OverflowMode>
-    negatable_type;
+    widest_resolution_negatable_type;
 
-    return negatable_type(a) /= b;
+    return widest_resolution_negatable_type(a) /= b;
   }
 
   #if !defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
@@ -1895,8 +1904,12 @@
 
   } } // namespace boost::fixed_point
 
-  // Here we include headers for negatable <cmath> functions.
+  // Here we include helper functions that compute hypergeometric series.
+  // These are useful for numerous internal calculations of elementary
+  // transcendental <cmath> functions.
   #include <boost/fixed_point/detail/fixed_point_detail_hypergeometric.hpp>
+
+  // Here we include headers for negatable <cmath> functions.
   #include <boost/fixed_point/fixed_point_negatable_cmath.hpp>
 
   // Here we include specializations of std::numeric_limits<negatable>.

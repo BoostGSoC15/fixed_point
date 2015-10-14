@@ -405,10 +405,10 @@
 
     const bool is_odd_scaling = ((boost::int_fast8_t(n) & INT8_C(1)) != INT8_C(0));
 
-    // Rescale the result. In certain cases there is one extra
-    // power of two. If so, either multiply with or divide by
-    // the square root of 2 in order to complete the rescaling
-    // of the result.
+    // Rescale the result. For n odd, there is one extra
+    // factor of two in the scaling. If so, either multiply with
+    // or divide by the square root of 2 in order to complete
+    // the rescaling of the result.
     if(n > 0)
     {
       if(is_odd_scaling)
@@ -519,7 +519,7 @@
     for(boost::uint_fast16_t i = UINT16_C(1); i <= boost::uint_fast16_t(local_negatable_type::all_bits / 2); i *= UINT16_C(2))
     {
       // Perform the next iteration of vi.
-      vi += vi * (-((a * vi) * 2U) + local_negatable_type(1U));
+      vi += vi * (-((a * vi) * 2U) + 1U);
 
       // Perform the next iteration of the result.
       a += (vi * (-((a) * (a)) + x));
@@ -1026,7 +1026,7 @@
     // Reduce the argument to the range 0 <= x <= +pi/2.
     int n = 0;
 
-    if(x > local_negatable_type::value_pi())
+    if(x >= local_negatable_type::value_pi())
     {
       n = int(x / local_negatable_type::value_pi());
 
@@ -1053,7 +1053,7 @@
     {
       if(x == local_negatable_type::value_pi())
       {
-        result = local_negatable_type(0);
+        result = local_negatable_type(-1);
       }
       else
       {
@@ -1680,6 +1680,18 @@
 
     return result;
   }
+
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> hypot(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y)
+  {
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+
+    const local_negatable_type x2(x * x);
+    const local_negatable_type y2(y * y);
+
+    return sqrt(x2 + y2);
+  }
+
   } } // namespace boost::fixed_point
 
 #endif // FIXED_POINT_NEGATABLE_CMATH_2015_08_21_HPP_
