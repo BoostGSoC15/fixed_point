@@ -87,7 +87,7 @@ clocked at 24 MHz. GCC 4.8.3 built with newlib has been used.
  exp (7/10)                    27                         54
  log (13/10)                   20                         54
  atan(1/2)                     16                         16
- d/dx[q(x)]                    33                         79
+ d/dx[q(x)]                    28                         79
 
 In the final table entry, d/dx represents the first derivative
 and q(x) represents the quadratic polynomial described in

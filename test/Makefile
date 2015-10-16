@@ -42,6 +42,7 @@ all_files : test_negatable_basic_arithmetic_fastest.exe            \
             test_negatable_func_exp_fastest.exe                    \
             test_negatable_func_exp_nearest_even.exe               \
             test_negatable_func_exp_small.exe                      \
+            test_negatable_func_exp_tiny.exe                       \
             test_negatable_func_floor_ceil.exe                     \
             test_negatable_func_frexp_ldexp.exe                    \
             test_negatable_func_hyperbolic_arccosine_big.exe       \
@@ -58,6 +59,7 @@ all_files : test_negatable_basic_arithmetic_fastest.exe            \
             test_negatable_func_hyperbolic_tangent_small.exe       \
             test_negatable_func_log_fastest.exe                    \
             test_negatable_func_log_nearest_even.exe               \
+            test_negatable_func_log_tiny.exe                       \
             test_negatable_func_sine_big.exe                       \
             test_negatable_func_sine_small.exe                     \
             test_negatable_func_sqrt_big.exe                       \

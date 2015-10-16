@@ -530,7 +530,70 @@
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> exp(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                              typename std::enable_if<int(24) >= (-FractionalResolution)>::type const*)
+                                                                              typename std::enable_if<int(11) >= (-FractionalResolution)>::type const*)
+  {
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+    typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
+    typedef typename local_negatable_type::value_type                               local_value_type;
+    typedef typename local_negatable_type::nothing                                  local_nothing;
+
+    // Handle zero argument.
+    if(x.data == 0)
+    {
+      return local_negatable_type(1);
+    }
+
+    // Handle unity argument.
+    if(local_unsigned_small_type(x.data) == local_negatable_type::radix_split_value())
+    {
+      return local_negatable_type::value_e();
+    }
+
+    // Handle reflection for negative arguments.
+    if(x.data < 0)
+    {
+      return 1 / exp(-x);
+    }
+
+    int nf = 0;
+
+    if(x > local_negatable_type::value_ln_two())
+    {
+      nf = int(x / local_negatable_type::value_ln_two());
+
+      x -= (local_negatable_type::value_ln_two() * nf);
+    }
+
+    // Use a polynomial approximation.
+    // exp(x) - 1 = approx. + 0.99792060811054451 x
+    //                      + 0.49948832659208106 x^2
+    //                      + 0.17621882066892929 x^3
+    //                      + 0.04348249331418186 x^4,
+    // in the range -1 <= x <= +1. These coefficients
+    // have been specifically derived for this work.
+
+    // Perform the polynomial approximation using a coefficient
+    // expansion via the method of Horner.
+    local_negatable_type result =
+      (((      local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0059) >> (11 + FractionalResolution)))   // 0.04348249331418186
+         * x + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0168) >> (11 + FractionalResolution))))  // 0.17621882066892929
+         * x + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x03FE) >> (11 + FractionalResolution))))  // 0.49948832659208106
+         * x + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x07FB) >> (11 + FractionalResolution))))  // 0.99792060811054451
+         * x;
+
+    ++result;
+
+    if(nf > 0)
+    {
+      result.data <<= nf;
+    }
+
+    return result;
+  }
+
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> exp(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
+                                                                              typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
@@ -636,7 +699,83 @@
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> log(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                              typename std::enable_if<int(24) >= (-FractionalResolution)>::type const*)
+                                                                              typename std::enable_if<int(11) >= (-FractionalResolution)>::type const*)
+  {
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+    typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
+    typedef typename local_negatable_type::value_type                               local_value_type;
+    typedef typename local_negatable_type::nothing                                  local_nothing;
+
+    local_negatable_type result;
+
+    if(x < 1)
+    {
+      result = ((x > 0) ? -log(1 / x) : local_negatable_type(0));
+    }
+    else if(x > 1)
+    {
+      int n = 0;
+
+      if(x > 2)
+      {
+        // Use a binary-halving mechanism to obtain the most significant bit.
+        // This will subsequently be used for argument reduction below.
+
+        BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t unsigned_small_digits =
+          static_cast<boost::uint_fast16_t>(std::numeric_limits<local_unsigned_small_type>::digits);
+
+        local_unsigned_small_type unsigned_small_mask((std::numeric_limits<local_unsigned_small_type>::max)());
+
+        local_unsigned_small_type tmp = static_cast<local_unsigned_small_type>(x.data);
+
+        const boost::uint_fast16_t msb = detail::msb_helper(tmp, unsigned_small_mask, unsigned_small_digits);
+
+        // Evaluate the necessary amount of right-shift.
+        n = int(msb) - local_negatable_type::radix_split;
+
+        x.data = local_value_type(local_unsigned_small_type(x.data) >> n);
+      }
+
+      // Use a polynomial approximation of the base-2 logarithm.
+      // log2(x + 1) = approx. + 1.4385022043619629 x
+      //                       - 0.6777697968275845 x^2
+      //                       + 0.3230078286559936 x^3
+      //                       - 0.0839120707923452 x^4,
+      // in the range 0 <= x <= 1. These coefficients
+      // have been specifically derived for this work.
+
+      // Note that the result of the polynomial aproximation
+      // is a base-2 logarithm.
+
+      // Perform the polynomial approximation using a coefficient
+      // expansion via the method of Horner.
+      const local_negatable_type z = (x - 1);
+
+      const local_negatable_type polynomial_approximation =
+        (((    - local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x00AB) >> (11 + FractionalResolution)))   // 0.0839120707923452
+           * z + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0295) >> (11 + FractionalResolution))))  // 0.3230078286559936
+           * z - local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x056C) >> (11 + FractionalResolution))))  // 0.6777697968275845
+           * z + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0B82) >> (11 + FractionalResolution))))  // 1.4385022043619629
+           * z;
+
+      // Scale the result to a base-e logarithm.
+      const local_negatable_type log_value = polynomial_approximation * local_negatable_type::value_ln_two();
+
+      // Scale with the logarithms of the powers of 2 if necessary.
+      result = ((n == 0) ? log_value : (log_value + (n * local_negatable_type::value_ln_two())));
+    }
+    else
+    {
+      // The argument is exactly equal to 1.
+      result = local_negatable_type(0);
+    }
+
+    return result;
+  }
+
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> log(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
+                                                                              typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
