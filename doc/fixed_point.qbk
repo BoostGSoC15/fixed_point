@@ -472,7 +472,7 @@ in Section 12.7 and [@http://link.springer.com/chapter/10.1007/978-3-642-34688-0
 
 This example shows how the famous
 [@https://en.wikipedia.org/wiki/Mandelbrot_set Mandelbrot set]
-can be [@../mandelbrot.png  generated] both using a low resolution
+can be [@../mandelbrot.jpg  generated] both using a low resolution
 `boost::fixed_point::negatable<16, -15>`  (32-bit),
 but equally easily using the same code but using a much higher resolution
 `boost::fixed_point::negatable<16, -111>`  (128-bit).

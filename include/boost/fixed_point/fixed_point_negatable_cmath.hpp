@@ -710,7 +710,7 @@
 
     if(x < 1)
     {
-      result = ((x > 0) ? -log(1 / x) : local_negatable_type(0));
+      result = ((x > 0) ? -log(1 / x) : -local_negatable_type::value_max());
     }
     else if(x > 1)
     {
@@ -786,7 +786,7 @@
 
     if(x < 1)
     {
-      result = ((x > 0) ? -log(1 / x) : local_negatable_type(0));
+      result = ((x > 0) ? -log(1 / x) : -local_negatable_type::value_max());
     }
     else if(x > 1)
     {
@@ -867,7 +867,7 @@
 
     if(x < 1)
     {
-      result = ((x > 0) ? -log(1 / x) : local_negatable_type(0));
+      result = ((x > 0) ? -log(1 / x) : -local_negatable_type::value_max());
     }
     else if(x > 1)
     {
@@ -1046,15 +1046,6 @@
         //                  + 0.0000025959374407 x^9,
         // in the range -pi/2 <= x <= +pi/2. These coefficients
         // have been specifically derived for this work.
-
-        // TBD: Here is a coefficient set with one more coefficient.
-        // Is it worth trying this coefficient set?
-        // sin(x) = approx. + 0.9999999999131411 x
-        //                  - 0.1666666656226060 x^3
-        //                  + 0.0083333297763049 x^5
-        //                  - 0.0001984075351818 x^7
-        //                  + 0.0000027521025326 x^9
-        //                  - 0.0000000238282134 x^11
 
         const local_negatable_type x2 = (x * x);
 
@@ -1321,10 +1312,18 @@
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    // Handle reflection for negative arguments.
+    // Handle negative arguments, zero argument and argument pi/2.
     if(x < 0)
     {
       return -tan(-x);
+    }
+    else if(x == 0)
+    {
+      return local_negatable_type(0);
+    }
+    else if(x == local_negatable_type::value_pi_half())
+    {
+      return local_negatable_type::value_max();
     }
 
     // Reduce the argument to the range 0 <= x <= +pi/2.
@@ -1391,6 +1390,27 @@
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> tan(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                               typename std::enable_if<int(24) < (-FractionalResolution)>::type const*)
   {
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+
+    // Handle negative arguments, zero argument and argument pi/2.
+    if(x < 0)
+    {
+      return -tan(-x);
+    }
+    else if(x == 0)
+    {
+      return local_negatable_type(0);
+    }
+    else if(x == local_negatable_type::value_pi_half())
+    {
+      return local_negatable_type::value_max();
+    }
+
+    // Use a relatively lazy calculation for tan(x) here.
+    // There is no support for sincos(negatable), so simply
+    // use the result of the division [sin(x) / cos(x)],
+    // where sin(x) and cos(x) are computed separately.
+
     return sin(x) / cos(x);
   }
 
@@ -1503,13 +1523,75 @@
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
-  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> acos(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> acos(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
+                                                                               typename std::enable_if<int(24) >= (-FractionalResolution)>::type const*)
+  {
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+    typedef typename local_negatable_type::value_type                               local_value_type;
+    typedef typename local_negatable_type::nothing                                  local_nothing;
+
+    if(x < 0)
+    {
+      return local_negatable_type::value_pi() - acos(-x);
+    }
+
+    local_negatable_type result;
+
+    if(x == 0)
+    {
+      result = local_negatable_type::value_pi_half();
+    }
+    else if(x == 1)
+    {
+      result = local_negatable_type(0);
+    }
+    else if(x > 1)
+    {
+      result = local_negatable_type(0);
+    }
+    else
+    {
+      // Use a polynomial approximation.
+      // acos(x) = approx. [sqrt(1 - x) * (+ 1.5707962797298
+      //                                   - 0.2145976333738 x^1
+      //                                   + 0.0889661326639 x^2
+      //                                   - 0.0501164255199 x^3
+      //                                   + 0.0307646026592 x^4
+      //                                   - 0.0169450735826 x^5
+      //                                   + 0.0065926664377 x^6
+      //                                   - 0.0012470498685 x^7)],
+      // in the range 0 <= x <= +1. These coefficients
+      // have been specifically derived for this work.
+      // These are the same coefficients that are used
+      // for asin(x) above.
+
+      // Perform the polynomial approximation using a coefficient
+      // expansion via the method of Horner.
+      const local_negatable_type polynomial_approximation =
+        (((((((    - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000051BA) >> (24 + FractionalResolution)))   // 0.0012470498685
+               * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0001B00E) >> (24 + FractionalResolution))))  // 0.0065926664377
+               * x - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00045683) >> (24 + FractionalResolution))))  // 0.0169450735826
+               * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0007E030) >> (24 + FractionalResolution))))  // 0.0307646026592
+               * x - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000CD46E) >> (24 + FractionalResolution))))  // 0.0501164255199
+               * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0016C67C) >> (24 + FractionalResolution))))  // 0.0889661326639
+               * x - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0036EFDE) >> (24 + FractionalResolution))))  // 0.2145976333738
+               * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x01921FB4) >> (24 + FractionalResolution)))); // 1.5707962797298
+
+      result = (sqrt(1 - x) * polynomial_approximation);
+    }
+
+    return result;
+  }
+
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> acos(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
+                                                                               typename std::enable_if<int(24) < (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     if(x < 0)
     {
-      return local_negatable_type::value_pi_half() - asin(x);
+      return local_negatable_type::value_pi() - acos(-x);
     }
 
     local_negatable_type result;
@@ -1730,7 +1812,7 @@
     {
       if(x < ldexp(local_negatable_type(1), -3))
       {
-        // Handle arguments greater than 0 but near 0.
+        // Handle arguments greater than 0 but less than 1/8.
         // Use a hypergeometric series representation here.
         const local_negatable_type one_half = ldexp(local_negatable_type(1), -1);
 
@@ -1760,7 +1842,7 @@
     }
     else
     {
-      // Handle arguments greater than 1 but near 1.
+      // Handle arguments greater than 1 but less than (1 + 1/8).
       // Use a hypergeometric series representation here.
       const local_negatable_type x_minus_one = x - 1;
 
@@ -1794,17 +1876,21 @@
 
     local_negatable_type result;
 
-    if((x == 0) || (x >= 1))
+    if(x == 0)
     {
-      // Handle arguments identically equal to 0
-      // and arguments greater than or equal to 1.
+      // Handle arguments identically equal to 0.
       result = local_negatable_type(0);
+    }
+    else if(x >= 1)
+    {
+      // Handle arguments greater than or equal to 1.
+      result = local_negatable_type::value_max();
     }
     else
     {
       if(x < ldexp(local_negatable_type(1), -3))
       {
-        // Handle small arguments greater than 0.
+        // Handle small arguments greater than 0 but less than 1/8.
         // Use a hypergeometric series representation here.
         const local_negatable_type one_half = ldexp(local_negatable_type(1), -1);
 
