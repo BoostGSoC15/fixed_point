@@ -20,6 +20,32 @@
   namespace boost { namespace fixed_point { namespace detail {
 
   template<typename NumericType>
+  NumericType calculate_root_two()
+  {
+    // Provide an initial guess of 4/3.
+    NumericType a = NumericType(4) / 3;
+
+    // Estimate the zero'th term of the iteration with [1 / (2 * result)].
+    NumericType vi = NumericType(1U) / (a * NumericType(2U));
+
+    // Compute the square root of x using coupled Newton iteration.
+    // More precisely, this is the Schoenhage variation thereof.
+    // We begin with an estimate of 1 binary digit of precision and
+    // double the number of binary digits of precision with each iteration.
+
+    for(boost::uint_fast16_t i = UINT16_C(1); i <= boost::uint_fast16_t(std::numeric_limits<NumericType>::digits); i *= UINT16_C(2))
+    {
+      // Perform the next iteration of vi.
+      vi += vi * (-((a * vi) * NumericType(2U)) + NumericType(1U));
+
+      // Perform the next iteration of the result.
+      a += (vi * (-((a) * (a)) + NumericType(2U)));
+    }
+
+    return a;
+  }
+
+  template<typename NumericType>
   NumericType calculate_pi()
   {
     // Use a quadratically converging Gauss-AGM method for computing pi.

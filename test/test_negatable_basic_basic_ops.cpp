@@ -32,11 +32,11 @@ BOOST_AUTO_TEST_CASE(test_negatable_basic)
        << std::fixed
        << x;
 
-    const std::string control_string =
+    const std::string reference_string =
         std::string("-1.")
       + std::string(std::string::size_type(std::numeric_limits<fixed_point_type>::digits10), char('0'));
 
-    BOOST_CHECK_EQUAL(os.str(), control_string);
+    BOOST_CHECK_EQUAL(os.str(), reference_string);
   }
 
   {
@@ -51,11 +51,11 @@ BOOST_AUTO_TEST_CASE(test_negatable_basic)
        << std::fixed
        << x;
 
-    const std::string control_string =
+    const std::string reference_string =
         std::string("-0.")
       + std::string(std::string::size_type(std::numeric_limits<fixed_point_type>::digits10), char('3'));
 
-    BOOST_CHECK_EQUAL(os.str(), control_string);
+    BOOST_CHECK_EQUAL(os.str(), reference_string);
   }
 
   {

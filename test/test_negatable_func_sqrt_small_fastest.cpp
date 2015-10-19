@@ -7,11 +7,11 @@
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 //! \file
-//!\brief Tests for sqrt(fixed_point) with round::fastest. Along the way, also test numerous fixed_point arithmetic operations.
+//!\brief Tests for sqrt(fixed_point) with round::fastest.
 
 #include <cmath>
 
-#define BOOST_TEST_MODULE test_negatable_func_sqrt_fastest
+#define BOOST_TEST_MODULE test_negatable_func_sqrt_small_fastest
 #define BOOST_LIB_DIAGNOSTIC
 
 #include <boost/fixed_point/fixed_point.hpp>
@@ -35,7 +35,7 @@ namespace local
     // Use at least 8 range bits.
 
     BOOST_STATIC_ASSERT(-FixedPointType::resolution >= 6);
-    BOOST_STATIC_ASSERT( FixedPointType::range      >= 8);
+    BOOST_STATIC_ASSERT( FixedPointType::range      >= 7);
 
     using std::sqrt;
 
@@ -44,7 +44,7 @@ namespace local
     const FixedPointType a3 (  8.375L);                                      const FloatPointType b3(  8.375L);
     const FixedPointType a4 ( 64.125L);                                      const FloatPointType b4( 64.125L);
     const FixedPointType a5 (100.875L);                                      const FloatPointType b5(100.875L);
-    const FixedPointType a6 (FixedPointType(  1) /  3);                      const FloatPointType b6(FloatPointType(  1) /  3);
+    const FixedPointType a6 (FixedPointType(  1) / 10);                      const FloatPointType b6(FloatPointType(  1) / 10);
     const FixedPointType a7 (FixedPointType( 12) / 10);                      const FloatPointType b7(FloatPointType( 12) / 10);
     const FixedPointType a8 (FixedPointType(111) / 10);                      const FloatPointType b8(FloatPointType(111) / 10);
     const FixedPointType a9 (boost::math::constants::phi<FixedPointType>()); const FloatPointType b9(boost::math::constants::phi<FloatPointType>());
@@ -61,16 +61,14 @@ namespace local
   }
 }
 
-BOOST_AUTO_TEST_CASE(test_negatable_func_sqrt_fastest)
+BOOST_AUTO_TEST_CASE(test_negatable_func_sqrt_small_fastest)
 {
-  // Test sqrt() round::fastest for negatable in various key digit
-  // regions such as 16, 24, 32, 53, 64, 113.
+  // Test sqrt() round::fastest for negatable in various key small digit ranges
 
-  { typedef boost::fixed_point::negatable<8,   -7, boost::fixed_point::round::fastest> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable<8,  -15, boost::fixed_point::round::fastest> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable<8,  -23, boost::fixed_point::round::fastest> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable<8,  -44, boost::fixed_point::round::fastest> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable<8,  -55, boost::fixed_point::round::fastest> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable<8, -104, boost::fixed_point::round::fastest> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
-  { typedef boost::fixed_point::negatable<8, -247, boost::fixed_point::round::fastest> fixed_point_type; local::test_sqrt<fixed_point_type>(8); }
+  { typedef boost::fixed_point::negatable<7,  -8, boost::fixed_point::round::fastest> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable<7, -16, boost::fixed_point::round::fastest> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+  { typedef boost::fixed_point::negatable<7, -24, boost::fixed_point::round::fastest> fixed_point_type; local::test_sqrt<fixed_point_type>(4); }
+
+  { typedef boost::fixed_point::negatable<4, -11, boost::fixed_point::round::fastest> fixed_point_type; BOOST_CHECK_EQUAL(sqrt(fixed_point_type(1)), fixed_point_type(1)); }
+  { typedef boost::fixed_point::negatable<7, -24, boost::fixed_point::round::fastest> fixed_point_type; BOOST_CHECK_EQUAL(sqrt(fixed_point_type(1)), fixed_point_type(1)); }
 }

@@ -102,8 +102,8 @@ BOOST_AUTO_TEST_CASE(test_negatable_math_trapezoid_integral)
   // Compute y = cyl_bessel_j(2, 123 / 100).
   const fixed_point_type j2   = local::cyl_bessel_j(UINT8_C(2), fixed_point_type(123) / 100);
 
-  // Assign the known control value of the Bessel function.
-  const float_point_type ctrl = float_point_type("0.166369383786814073512678524315131594371033482453328555149562207827319927054822411949870923");
+  // Assign the known reference value of the Bessel function.
+  const float_point_type reference = float_point_type("0.166369383786814073512678524315131594371033482453328555149562207827319927054822411949870923");
 
-  BOOST_CHECK_CLOSE_FRACTION(j2, ctrl, tol);
+  BOOST_CHECK_CLOSE_FRACTION(j2, reference, tol);
 }

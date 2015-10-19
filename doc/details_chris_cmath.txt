@@ -1,0 +1,41 @@
+
+There is support for most <cmath> functions for the fixed-point
+negatable class. These include elementary transcendental functions,
+exponential functions, power functions, logarithmic functions,
+and various other mathematical support functions.
+
+Elementary transcendental functions have been implemented in
+three precision ranges:
+1) for (-resolution <= 11),
+2) for (-resolution >  11) && (-resolution <= 24),
+3) for (-resolution >  24).
+
+The first precision range with (-resolution <= 11) is intended
+for optimized calculations with tiny 16-bit fixed-point
+negatable numbers. The elementary transcendental functions in this
+precision range have been specifically optimized for the type
+negatable<4, -11>. The elementary transcendental functions
+in this precision range will also work properly with other
+fixed-point splits as long as (-resolution) remains 11 or less.
+
+The second precision range with (-resolution > 11) && (-resolution <= 24)
+is intended for optimized calculations with 32-bit negatable numbers.
+The elementary transcendental functions in this precision range
+have been optimized for the type negatable<7, -24>. This type has
+approximately the same number of fractional digits as single-precision
+floating-point in IEEE-754. The elementary transcendental functions
+in this precision range will also work properly with other
+fixed-point splits as long as (-resolution) remains 24 or less.
+
+The third range is for larger negatable numbers and extends
+the range of the functions to negatable types built from
+both wide built-in types as well as multiple-precision back-ends.
+This extends the fixed-point negatable <cmath> functions well beyond
+the range of built-in types to a precision limited only by the
+underlying range of the multiple-precision back-end itself.
+
+Implementation notes:
+Elementary transcendental functions use polynomial approximations
+in the smaller two precision ranges. In the larger precision range,
+various calculational methods are used, in particular Taylor series
+expansion and Newton-Raphson iteration.

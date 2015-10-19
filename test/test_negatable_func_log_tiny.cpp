@@ -7,9 +7,9 @@
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 //! \file
-//!\brief Tests for log(fixed_point) round::fastest.
+//!\brief Tests for the transcendental logarithm function of (fixed_point) for a tiny digit range.
 
-#define BOOST_TEST_MODULE test_negatable_func_log_fastest
+#define BOOST_TEST_MODULE test_negatable_func_log_tiny
 #define BOOST_LIB_DIAGNOSTIC
 
 #include <cmath>
@@ -35,7 +35,7 @@ namespace local
     // Use at least  5 range bits.
 
     BOOST_STATIC_ASSERT(-FixedPointType::resolution >= 10);
-    BOOST_STATIC_ASSERT( FixedPointType::range      >=  5);
+    BOOST_STATIC_ASSERT( FixedPointType::range      >=  4);
 
     const FixedPointType a1(+2L    );                                      const FloatPointType b1(+2L    );
     const FixedPointType a2(+3L    );                                      const FloatPointType b2(+3L    );
@@ -44,7 +44,7 @@ namespace local
     const FixedPointType a5(+0.125L);                                      const FloatPointType b5(+0.125L);
     const FixedPointType a6(+0.875L);                                      const FloatPointType b6(+0.875L);
     const FixedPointType a7(FixedPointType( 1) /  3);                      const FloatPointType b7(FloatPointType( 1) /  3);
-    const FixedPointType a8(FixedPointType(21) / 10);                      const FloatPointType b8(FloatPointType(21) / 10);
+    const FixedPointType a8(FixedPointType(13) / 10);                      const FloatPointType b8(FloatPointType(13) / 10);
     const FixedPointType a9(boost::math::constants::pi<FixedPointType>()); const FloatPointType b9(boost::math::constants::pi<FloatPointType>());
 
     using std::log;
@@ -61,11 +61,9 @@ namespace local
   }
 }
 
-BOOST_AUTO_TEST_CASE(test_negatable_func_log_fastest)
+BOOST_AUTO_TEST_CASE(test_negatable_func_log_tiny)
 {
-  // Test log() for negatable round::fastest in key digit regions.
+  typedef boost::fixed_point::negatable<4, -11> fixed_point_type;
 
-  { typedef boost::fixed_point::negatable< 5,  -10, boost::fixed_point::round::fastest> fixed_point_type; local::test_log<fixed_point_type>( 4); }
-  { typedef boost::fixed_point::negatable< 7,  -24, boost::fixed_point::round::fastest> fixed_point_type; local::test_log<fixed_point_type>( 6); }
-  { typedef boost::fixed_point::negatable<10, -117, boost::fixed_point::round::fastest> fixed_point_type; local::test_log<fixed_point_type>(12); }
+  local::test_log<fixed_point_type>(3);
 }

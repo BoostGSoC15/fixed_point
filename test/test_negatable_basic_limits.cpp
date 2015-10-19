@@ -324,6 +324,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_basic_limits_epsilon)
     BOOST_CHECK_EQUAL((std::numeric_limits<large_fixed_point_type>::epsilon()), large_float_point_type("3.45446742203777785015454074512015982844640014577451255400948138806743672126497e-77"));
     // 2^-(255-1) = 2^254 = 
   }
+
   { // Default constructor clears data member so value is zero.
     negatable<0, -255> x;
     BOOST_CHECK_EQUAL(x, 0);

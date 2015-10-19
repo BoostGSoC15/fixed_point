@@ -21,7 +21,7 @@
 namespace local
 {
   // Table[N[Sinh[Pi / i], 40], {i, 1, 32, 1}]
-  const std::array<std::string, 33U> data =
+  const std::array<std::string, 33U> reference =
   {{
     std::string("0.0"),
     std::string("11.548739357257748377977334315388409684500"),
@@ -69,19 +69,19 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_hyperbolic_sine_big)
   const fixed_point_type local_pi = boost::math::constants::pi<fixed_point_type>();
 
   // Check positive arguments.
-  for(int i = 1; i < int(local::data.size()); ++i)
+  for(int i = 1; i < int(local::reference.size()); ++i)
   {
     const fixed_point_type x = sinh(local_pi / fixed_point_type(i));
-    const float_point_type y = float_point_type(local::data[i]);
+    const float_point_type y = float_point_type(local::reference[i]);
 
     BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
   }
 
   // Check negative arguments.
-  for(int i = 1; i < int(local::data.size()); ++i)
+  for(int i = 1; i < int(local::reference.size()); ++i)
   {
     const fixed_point_type x = sinh(-local_pi / fixed_point_type(i));
-    const float_point_type y = -float_point_type(local::data[i]);
+    const float_point_type y = -float_point_type(local::reference[i]);
 
     BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
   }

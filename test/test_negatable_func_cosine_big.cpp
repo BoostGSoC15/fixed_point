@@ -22,7 +22,7 @@
 namespace local
 {
   // Table[N[Cos[n / 10], 40], {n, 1, 127, 1}]
-  const std::array<std::string, 128U> data =
+  const std::array<std::string, 128U> reference =
   {{
     std::string("+0.0"),
     std::string("+0.9950041652780257660955619878038702948386"),
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_cosine_big)
   for(int i = 1; i < 128; ++i)
   {
     const fixed_point_type x = cos(fixed_point_type(i) / 10);
-    const float_point_type y = float_point_type(local::data[i]);
+    const float_point_type y = float_point_type(local::reference[i]);
 
     BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
   }
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_cosine_big)
   for(int i = 1; i < 128; ++i)
   {
     const fixed_point_type x = cos(fixed_point_type(-i) / 10);
-    const float_point_type y = float_point_type(local::data[i]);
+    const float_point_type y = float_point_type(local::reference[i]);
 
     BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
   }

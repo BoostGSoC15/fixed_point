@@ -237,7 +237,7 @@ public:
       {
         const boost::uint_fast32_t color = mandelbrot_color_histogram[mandelbrot_iteration_matrix[col][row]];
 
-        // Mix a baby-blue color.
+        // Mix the color supplied in the template hue parameters.
         const boost::uint8_t rh = static_cast<boost::uint8_t>((mandelbrot_configuration_object.red_hue  () * color) / UINT32_C(255));
         const boost::uint8_t gh = static_cast<boost::uint8_t>((mandelbrot_configuration_object.green_hue() * color) / UINT32_C(255));
         const boost::uint8_t bh = static_cast<boost::uint8_t>((mandelbrot_configuration_object.blue_hue () * color) / UINT32_C(255));
@@ -265,8 +265,8 @@ private:
 
 int main()
 {
-  // This is the classic full immage rendered in baby-blue tones (and black).
-  //typedef mandelbrot_configuration<128, UINT16_C(10000), -10,
+  // This is the classic full immage rendered in aqua tones (and black).
+  //typedef mandelbrot_configuration<128, UINT16_C(2000), -11,
   //                                 UINT32_C(80),
   //                                 UINT32_C(255),
   //                                 UINT32_C(255)> mandelbrot_configuration_type;
@@ -274,17 +274,26 @@ int main()
   //const mandelbrot_configuration_type mandelbrot_configuration_object(-2.000L, +0.500L,
   //                                                                    -1.000L, +1.000L);
 
-  // This is a fanning image rendered in fuschia tones (and black).
-  typedef mandelbrot_configuration<128, UINT16_C(10000), -21,
+  // This is an upper part of the image rendered in yellow and black tones.
+  typedef mandelbrot_configuration<128, UINT16_C(2000), -13,
                                    UINT32_C(255),
-                                   UINT32_C(0),
-                                   UINT32_C(210)> mandelbrot_configuration_type;
+                                   UINT32_C(255),
+                                   UINT32_C(0)> mandelbrot_configuration_type;
 
-  const mandelbrot_configuration_type mandelbrot_configuration_object(-0.749730L - 0.0002315L, -0.749730L + 0.0002315L,
-                                                                      -0.046608L - 0.0002315L, -0.046608L + 0.0002315L);
+  const mandelbrot_configuration_type mandelbrot_configuration_object(-0.1208L - 0.1616L, -0.1208L + 0.1616L,
+                                                                      +0.7607L - 0.1616L, +0.7607L + 0.1616L);
+ 
+  // This is a fanning image rendered in fuschia tones (and black).
+  //typedef mandelbrot_configuration<128, UINT16_C(10000), -22,
+  //                                 UINT32_C(255),
+  //                                 UINT32_C(0),
+  //                                 UINT32_C(210)> mandelbrot_configuration_type;
 
-  // This is a swirly rectangular image rendered in gray tones (and black).
-  //typedef mandelbrot_configuration<128, UINT16_C(10000), -45,
+  //const mandelbrot_configuration_type mandelbrot_configuration_object(-0.749730L - 0.0002315L, -0.749730L + 0.0002315L,
+  //                                                                    -0.046608L - 0.0002315L, -0.046608L + 0.0002315L);
+
+  // This is a swirly seahorse image rendered in gray tones (and black).
+  //typedef mandelbrot_configuration<128, UINT16_C(10000), -46,
   //                                 UINT32_C(255),
   //                                 UINT32_C(255),
   //                                 UINT32_C(255)> mandelbrot_configuration_type;
