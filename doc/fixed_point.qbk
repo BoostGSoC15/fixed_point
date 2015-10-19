@@ -233,18 +233,21 @@ Use `boost::fixed_point::negatable<2, -5>` for this fixed-point type.
 
 [h5  Differences between Proposal N3352 and this library]
 
-At the moment, there are several differences between the Fixed_point Library
-and proposal __n3352. This fixed-point library only implements a subset of
-proposal __n3352 including the `nonnegative` and `negatable` representations only.
-In addition, proposal __n3352 specifies seven rounding modes and five
-overflow modes.
+At the moment, there are several significant differences between the Fixed_point Library
+and proposal __n3352.
 
+The Fixed_point Library only implements a subset of
+proposal __n3352 including the `negatable` representation only.
+
+In addition, proposal __n3352 specifies seven rounding modes
+and five overflow modes.
 This library, however, supports only two common
-rounding modes and two common overflow modes. Proposal __n3352 does not
+rounding modes only one overflow mode (the overflow mode undefined).
+
+Proposal __n3352 does not 
 mention any interaction of with elementary transcendental functions.
-The Boost.Fixed-point Library, however, has nearly complete support of `cmath` functions
-for the negatable representation and partial support of `cmath` functions
-for the nonnegative representation.
+The Boost.Fixed-point Library, however, has nearly complete support of
+`cmath` functions for the negatable representation.
 
 What the final scope of the library should be is discussed in the __rationale section.
 
@@ -415,8 +418,8 @@ The type `negatable<7, -24>`, for example, has approximately
 the decimal point and approximately 2 decimal integral
 digits to the left. The type `negatable<4, -11>` has merely
 3-4 decimal fractional digits of precision to the right of
-the decimal point and only about 1 integral decimal digit
-to the right.
+the decimal point and only about 1 decimal integral digit
+to the left.
 
 [h5 Efficiency measurements]
 
@@ -453,7 +456,7 @@ and q(x) represents the quadratic polynomial described in
 [/TODO Sect.X.Y].
 
 All of the calculations have produced approximately 6-7 decimal
-digits of accuracy. In general, the fixed-point calculations
+digits of precision. In general, the fixed-point calculations
 require less run time than the floating-point calculations.
 For certain mathematical operations such as taking the first
 derivative, the run-time savings can be significant.
@@ -496,9 +499,8 @@ setting -O2
 (see [@https://gcc.gnu.org/onlinedocs/gcc-4.3.1/gcc/Optimize-Options.html#Optimize-Options]).
 
 Inline functions have been enabled with the allowed
-inline function-depth set to 32 lines using `--param=max-inline-recursive-depth=32`.
-
-[note Is max-inline-recursive-depth=32 right?]
+inline function-depth set to 32 lines using two
+compiler options `-finline-functions` and `-finline-limit=32`.
 
 It can be observed that the fixed-point calculation requires
 less code than the floating-point calculation. For a large fixed-point
