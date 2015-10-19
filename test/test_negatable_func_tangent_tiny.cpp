@@ -7,27 +7,27 @@
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 //! \file
-//!\brief Tests for the trogonometric tangent function of (fixed_point) for a small digit range.
+//!\brief Tests for the trogonometric tangent function of (fixed_point) for a tiny digit range.
 
 #include <cmath>
 
-#define BOOST_TEST_MODULE test_negatable_func_tangent_small
+#define BOOST_TEST_MODULE test_negatable_func_tangent_tiny
 #define BOOST_LIB_DIAGNOSTIC
 
 #include <boost/fixed_point/fixed_point.hpp>
 #include <boost/test/included/unit_test.hpp>
 
-BOOST_AUTO_TEST_CASE(test_negatable_func_tangent_small)
+BOOST_AUTO_TEST_CASE(test_negatable_func_tangent_tiny)
 {
-  typedef boost::fixed_point::negatable<7, -24> fixed_point_type;
+  typedef boost::fixed_point::negatable<4, -11> fixed_point_type;
   typedef fixed_point_type::float_type          float_point_type;
 
-  const fixed_point_type tol = ldexp(fixed_point_type(1), fixed_point_type::resolution + 7);
+  const fixed_point_type tol = ldexp(fixed_point_type(1), fixed_point_type::resolution + 4);
 
   using std::tan;
 
   // Check positive arguments.
-  for(int i = 1; i < 64; ++i)
+  for(int i = 1; i < 16; ++i)
   {
     const fixed_point_type x = tan(fixed_point_type(i) / 10);
     const float_point_type y = tan(float_point_type(i) / 10);
@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_tangent_small)
   }
 
   // Check negative arguments.
-  for(int i = 1; i < 64; ++i)
+  for(int i = 1; i < 16; ++i)
   {
     const fixed_point_type x = tan(fixed_point_type(-i) / 10);
     const float_point_type y = tan(float_point_type(-i) / 10);

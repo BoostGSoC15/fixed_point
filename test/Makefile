@@ -39,6 +39,7 @@ all_files : test_negatable_basic_arithmetic_fastest.exe            \
             test_negatable_func_arctangent_small.exe               \
             test_negatable_func_cosine_big.exe                     \
             test_negatable_func_cosine_small.exe                   \
+            test_negatable_func_cosine_tiny.exe                    \
             test_negatable_func_exp_fastest.exe                    \
             test_negatable_func_exp_nearest_even.exe               \
             test_negatable_func_exp_small.exe                      \
@@ -62,12 +63,14 @@ all_files : test_negatable_basic_arithmetic_fastest.exe            \
             test_negatable_func_log_tiny.exe                       \
             test_negatable_func_sine_big.exe                       \
             test_negatable_func_sine_small.exe                     \
+            test_negatable_func_sine_tiny.exe                      \
             test_negatable_func_sqrt_big.exe                       \
             test_negatable_func_sqrt_small_fastest.exe             \
             test_negatable_func_sqrt_small_nearest_even.exe        \
             test_negatable_func_sqrt_tiny.exe                      \
             test_negatable_func_tangent_big.exe                    \
             test_negatable_func_tangent_small.exe                  \
+            test_negatable_func_tangent_tiny.exe                   \
             test_negatable_math_bernoulli_b2n.exe                  \
             test_negatable_math_cbrt_fastest.exe                   \
             test_negatable_math_cbrt_nearest_even.exe              \
