@@ -95,7 +95,8 @@ doxygen autodoc
     <doxygen:param>WARN_LOGFILE=AutoDoxywarnings.log # This may not be empty (usually not a good sign!), depending on options chosen.
     # Much better to send message to a logfile than the default stderr.
     # and make sure that there are no Doxygen errors or significant warnings in the log file.
-    # #<reftitle>"Reference" # Default is "Reference" but helpful to specify library.
+
+    # #<reftitle>"Reference" # Default is "Reference" but helpful to specify library name.
     <xsl:param>"boost.doxygen.reftitle=Boost.Fixed_point C++ Reference"
     # See Doxygen configuration for detailed explanation of these options.
   ;
@@ -167,9 +168,12 @@ boostbook standalone
         <format>pdf:<xsl:param>preferred.mediaobject.role=print
         <format>pdf:<xsl:param>img.src.path=$(images_location)/
         <format>pdf:<xsl:param>draft.mode="no"
-        <format>pdf:<xsl:param>boost.url.prefix=http://www.boost.org/doc/libs/release/libs/fixed_point/doc/html
 
-        # Index generation conditionally defined above.
+       # Use local preference for syntax coloring.
+      <format>pdf:<xsl:param>html.stylesheet=fixed_point.css
+      <format>pdf:<xsl:param>boost.url.prefix=http://www.boost.org/doc/libs/release/libs/fixed_point/doc/html
+
+       # Index generation conditionally defined above.
    ;
 
    # Copy boostbook.css and custom colors fixed_point.css from doc/ to doc/html/

@@ -46,21 +46,21 @@ void show_fixed_point()
     << "\n max_digits10 = " << std::numeric_limits<T>::max_digits10
     << "\n radix = " << std::numeric_limits<T>::digits
     << "\n epsilon = " << std::numeric_limits<T>::epsilon()
-    << "\n lowest = " << std::numeric_limits<fixed_point_type>::lowest()
+    << "\n lowest = " << std::numeric_limits<T>::lowest()
     << "\n min = " << std::numeric_limits<T>::min()
     << "\n max = " << std::numeric_limits<T>::max();
 
-  if (std::numeric_limits<fixed_point_type>::has_infinity)
+  if (std::numeric_limits<T>::has_infinity)
   {
-    std::cout << "\n infinity = " << std::numeric_limits<fixed_point_type>::infinity();
+    std::cout << "\n infinity = " << std::numeric_limits<T>::infinity();
   }
   else
   {
     std::cout << "\n Type does not have an infinity!";
   }
-  if (std::numeric_limits<fixed_point_type>::has_quiet_NaN)
+  if (std::numeric_limits<T>::has_quiet_NaN)
   {
-    std::cout << "\n NaN = " << std::numeric_limits<fixed_point_type>::quiet_NaN();
+    std::cout << "\n NaN = " << std::numeric_limits<T>::quiet_NaN();
   }
   else
   {
