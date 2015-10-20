@@ -244,10 +244,10 @@ and five overflow modes.
 This library, however, supports only two common
 rounding modes only one overflow mode (the overflow mode undefined).
 
-Proposal __n3352 does not 
+Proposal __n3352 does not
 mention any interaction of with elementary transcendental functions.
 The Boost.Fixed-point Library, however, has nearly complete support of
-`cmath` functions for the negatable representation.
+__cmath functions for the negatable representation.
 
 What the final scope of the library should be is discussed in the __rationale section.
 
@@ -330,7 +330,7 @@ A number of fixed-point libraries have been written; why would one choose this l
 
 * Boost license, free for all uses, including commercial.
 
-* Compatible with C++ standard including `std::numeric_limits` and `cmath` libraries.
+* Compatible with C++ standard including `std::numeric_limits` and __cmath libraries.
 
 * Range and resolution are chosen using C++ templates.
 
@@ -388,8 +388,8 @@ for example, is shown below.
 the inclusion of any fixed-point header files.]
 
 Here, we have configured for a 32-bit bare-metal microcontroller
-environment defined an efficient 32-bit negatable type that has
-well-optimized `<cmath>` functions in its precision range.
+environment and defined an efficient 32-bit negatable type that has
+well-optimized __cmath functions in its precision range.
 
 Consider also a tiny 8-bit microcontroller. The 32-bit fixed-point type
 shown above might be too bulky for such a tiny microcontroller.
@@ -406,7 +406,7 @@ the following.
 
 Here, we have configured for a 16-bit bare-metal microcontroller
 environment by defining an efficient 16-bit negatable type that
-has well-optimized `<cmath>` functions within its modest 16-bit
+has well-optimized __cmath functions within its modest 16-bit
 precision range.
 
 When using small fixed-point types such as `negatable<4, -11>`
@@ -1229,7 +1229,7 @@ In `namespace overflow` some `struct` like `modulus`, `exception` etc are provid
 
 [section:cmath C math functions]
 
-There is support for most <cmath> functions for the fixed-point
+There is support for most  functions in the __cmath for the fixed-point
 negatable class. These include elementary transcendental functions,
 exponential functions, power functions, logarithmic functions,
 and various other mathematical support functions.
@@ -1247,7 +1247,7 @@ So the user can just write:
   fixed_point_type x(42);
   sqrt(x);
 
- Elementary transcendental functions have been implemented in
+Elementary transcendental functions have been implemented in
 three precision ranges :
 
 # (-resolution <= 11)
