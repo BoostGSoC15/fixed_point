@@ -236,7 +236,7 @@ Use `boost::fixed_point::negatable<2, -5>` for this fixed-point type.
 At the moment, there are several significant differences between the Fixed_point Library
 and proposal __n3352.
 
-The Fixed_point Library only implements a subset of
+The Fixed_point Library implements a subset of
 proposal __n3352 including the `negatable` representation only.
 
 In addition, proposal __n3352 specifies seven rounding modes
@@ -257,7 +257,7 @@ For most computing tasks, floating-point works very well.
 
 * The __IEEE754 layout is very cleverly devised to provide a good resolution and a wide exponent range
 making very efficient use of the 32 and 64 bits available
-(including an cunning extra implicit significand bit).
+(including a cunning extra implicit significand bit).
 * Hardware microcode, refined for decades, provides very fast instructions.
 
 There are, nonetheless, a variety of application domains for which fixed-point
@@ -297,8 +297,7 @@ low power-consumption modes.
 
 * In fact, then, the main reason to choose fixed-point may be [*to reduce power consumption];
 that often means longer battery life, helpful for portable devices like watches, but
-even more for implanted medical devices and space-craft where battery charges and changes
-are especially inconvenient.
+even more for implanted devices having inconvenient battery charges and changes.
 
 * Storing many floating-point values takes up more memory than would be possible using `fixed_point`.
 Memory is cheap, but using less can speed data transfer and reduce cache misses.
@@ -369,9 +368,8 @@ in this application range.
 
 In order to configure the fixed-point negatable class
 for efficient use with a bare-metal embedded microcontroller system,
-two preprocessor macros need to be defined.
-
-[/todo (also shown in Sect.X.Y) ]
+two preprocessor macros need to be defined
+(these are also shown in the example in Section X.Y).
 
 An efficient configuration for a 32-bit microcontroller,
 for example, is shown below.
@@ -396,10 +394,10 @@ shown above might be too bulky for such a tiny microcontroller.
 In this case, a possible efficient configuration might use
 the following.
 
-	#define BOOST_FIXED_POINT_DISABLE_MULTIPRECISION // Do not use Boost.Multiprecision.
-	#define BOOST_FIXED_POINT_DISABLE_IOSTREAM       // Do not use I/O streaming.
+  #define BOOST_FIXED_POINT_DISABLE_MULTIPRECISION // Do not use Boost.Multiprecision.
+  #define BOOST_FIXED_POINT_DISABLE_IOSTREAM       // Do not use I/O streaming.
 
-	#include <boost/fixed_point/fixed_point.hpp>
+  #include <boost/fixed_point/fixed_point.hpp>
 
   // Define an efficient 16-bit fixed-point type.
   typedef boost::fixed_point::negatable<4, -11> fixed_point_type;
@@ -414,8 +412,8 @@ or `negatable<7, -24>`, it is important to note that
 the range and precision of the fixed-point type can be quite
 limited in comparison with, say, built-in floating-point types.
 The type `negatable<7, -24>`, for example, has approximately
-7 decimal fractional digits of precision to the right of
-the decimal point and approximately 2 decimal integral
+24 decimal fractional digits of precision to the right of
+the decimal point and approximately 7 decimal integral
 digits to the left. The type `negatable<4, -11>` has merely
 3-4 decimal fractional digits of precision to the right of
 the decimal point and only about 1 decimal integral digit
@@ -431,10 +429,7 @@ a 32-bit microcontroller clocked at 24 MHz and an
 microcontrollers lack a dedicated hardware FPU.
 Timing results have been obtained with a digital oscilloscope
 in combination with a standard I/O pin toggle mechanism,
-as described in Section 2.2 of __CMK_realtime.
-
-[note Is Section 2.2 of __CMK_realtime correct?]
-
+as described in Section 9.4 of __CMK_realtime.
 
 The following table shows run times for various mathematical calculations
 for `negatable<7, -24>` and built-in single-precision floating-point.
@@ -448,7 +443,7 @@ clocked at 24 MHz. GCC 4.8.3 built with newlib has been used.
 [[exp (7/10) ][                  27            ][            54]]
 [[log (13/10) ][                 20           ][             54]]
 [[atan(1/2)  ][                   16            ][            16]]
-[[d/dx[q(x)]  ][                  28           ][             79]]
+[[d/dx[q(x)]  ][                  27           ][             79]]
 ] [/table]
 
 In the final table entry, d/dx represents the first derivative
@@ -465,8 +460,8 @@ If fewer digits of precision are acceptable for the calculation,
 even further increases of speed are possible using a less wide
 fixed-point type such as `negatable<4, -11>`.
 
-The benchmark in the table below, for instance, shows the result
-of calculations of `sqrt(6/10)` using both `negatable<4, -11>`
+The benchmark results in the table below, for instance, represent
+calculations of `sqrt(6/10)` using both `negatable<4, -11>`
 and built-in 32-bit single-precision floating-point.
 
 [table:32bit_speed Comparing speed of fixed-point and floating-point with a 32-bit microcontroller
@@ -482,7 +477,7 @@ Another perspective on resource consumption can be obtained
 by measuring the size of the code used in a benchmark.
 
 Consider the `sqrt(1/6)` calculation performed for
-`negatable<7, -24>` and built-in 32-bit single-precision floating-point.
+comparing `negatable<7, -24>` with built-in 32-bit single-precision floating-point.
 The following code sizes were obtained for this particular benchmark.
 
 [table:32bit_size Comparing code size with a 32-bit Microcontroller
@@ -582,7 +577,7 @@ The full code is at  [@../../example/fixed_point_constants.cpp  fixed_point_cons
 
 [endsect] [/section:numeric_limits Example of a fixed_point type and its numeric_limits]
 
-[section:bare_derivative Example of a bare-metal fixed_point type evaluating  derivative.]
+[section:bare_derivative Example of a bare-metal fixed_point type evaluating a derivative.]
 
 [import ../example/fixed_point_bare_metal_derivative_example.cpp]
 
@@ -1281,6 +1276,7 @@ underlying range of the multiple-precision back-end itself.
 [h5 Implementation]
 
 Elementary transcendental functions use polynomial approximations
+in combination with argument reduction schemes
 in the smaller two precision ranges. In the larger precision range,
 various calculation methods are used,
 in particular, Taylor series expansion and Newton-Raphson iteration.
