@@ -7,7 +7,7 @@
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 //! \file
-//!\brief Tests for the trogonometric arccosine function of (fixed_point) for a small digit range.
+//!\brief Tests for the trigonometric arccosine function of (fixed_point) for a small digit range.
 
 #include <cmath>
 

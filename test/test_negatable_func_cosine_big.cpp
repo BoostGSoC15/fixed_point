@@ -7,7 +7,7 @@
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 //! \file
-//!\brief Tests for the trogonometric cosine function of (fixed_point) for a big digit range.
+//!\brief Tests for the trigonometric cosine function of (fixed_point) for a big digit range.
 
 #include <array>
 #include <cmath>
