@@ -33,10 +33,13 @@ all_files : test_negatable_basic_arithmetic_fastest.exe            \
             test_negatable_constants_local_pi.exe                  \
             test_negatable_func_arccosine_big.exe                  \
             test_negatable_func_arccosine_small.exe                \
+            test_negatable_func_arccosine_tiny.exe                 \
             test_negatable_func_arcsine_big.exe                    \
             test_negatable_func_arcsine_small.exe                  \
+            test_negatable_func_arcsine_tiny.exe                   \
             test_negatable_func_arctangent_big.exe                 \
             test_negatable_func_arctangent_small.exe               \
+            test_negatable_func_arctangent_tiny.exe                \
             test_negatable_func_cosine_big.exe                     \
             test_negatable_func_cosine_small.exe                   \
             test_negatable_func_cosine_tiny.exe                    \

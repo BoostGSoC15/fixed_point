@@ -7,30 +7,30 @@
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 //! \file
-//!\brief Tests for the trigonometric tangent function of (fixed_point) for a tiny digit range.
+//!\brief Tests for the trigonometric arcsine function of (fixed_point) for a tiny digit range.
 
 #include <cmath>
 
-#define BOOST_TEST_MODULE test_negatable_func_tangent_tiny
+#define BOOST_TEST_MODULE test_negatable_func_arcsine_tiny
 #define BOOST_LIB_DIAGNOSTIC
 
 #include <boost/fixed_point/fixed_point.hpp>
 #include <boost/test/included/unit_test.hpp>
 
-BOOST_AUTO_TEST_CASE(test_negatable_func_tangent_tiny)
+BOOST_AUTO_TEST_CASE(test_negatable_func_arcsine_tiny)
 {
   typedef boost::fixed_point::negatable<4, -11> fixed_point_type;
   typedef fixed_point_type::float_type          float_point_type;
 
   const fixed_point_type tol = ldexp(fixed_point_type(1), fixed_point_type::resolution + 4);
 
-  using std::tan;
-
   // Check positive arguments.
   for(int i = 1; i < 16; ++i)
   {
-    const fixed_point_type x = tan(fixed_point_type(i) / 10);
-    const float_point_type y = tan(float_point_type(i) / 10);
+    const fixed_point_type x = asin(fixed_point_type(i) / 15);
+
+    using std::asin;
+    const float_point_type y = asin(float_point_type(i) / 15);
 
     BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
   }
@@ -38,21 +38,18 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_tangent_tiny)
   // Check negative arguments.
   for(int i = 1; i < 16; ++i)
   {
-    const fixed_point_type x = tan(fixed_point_type(-i) / 10);
-    const float_point_type y = tan(float_point_type(-i) / 10);
+    const fixed_point_type x = asin(fixed_point_type(-i) / 15);
+
+    using std::asin;
+    const float_point_type y = asin(float_point_type(-i) / 15);
 
     BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
   }
 
-  const fixed_point_type local_pi_over_four = boost::fixed_point::negatable_constants<fixed_point_type>::pi() / 4;
-
-  BOOST_CHECK_EQUAL(tan(+local_pi_over_four), fixed_point_type(+1));
-  BOOST_CHECK_EQUAL(tan(-local_pi_over_four), fixed_point_type(-1));
-
-  BOOST_CHECK_EQUAL(tan(fixed_point_type(0)), fixed_point_type(0));
-
   const fixed_point_type local_pi_half = boost::fixed_point::negatable_constants<fixed_point_type>::pi_half();
 
-  BOOST_CHECK_EQUAL(tan(+local_pi_half), +(std::numeric_limits<fixed_point_type>::max)());
-  BOOST_CHECK_EQUAL(tan(-local_pi_half), -(std::numeric_limits<fixed_point_type>::max)());
+  BOOST_CHECK_EQUAL(asin(fixed_point_type(0)), fixed_point_type(0));
+
+  BOOST_CHECK_EQUAL(asin(fixed_point_type(+1)), +local_pi_half);
+  BOOST_CHECK_EQUAL(asin(fixed_point_type(-1)), -local_pi_half);
 }

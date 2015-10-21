@@ -41,17 +41,20 @@
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
+    const local_unsigned_small_type integral_part_mask =
+      detail::bit_mask_helper<local_unsigned_small_type,
+                              boost::uint32_t(-FractionalResolution),
+                              boost::uint32_t(IntegralRange + 1)>::value();
+
     if(x.data < 0)
     {
-      const local_unsigned_small_type u(-x.data);
+      const local_unsigned_small_type u_mask(local_unsigned_small_type(-x.data) & integral_part_mask);
 
-      const local_unsigned_small_type u_mask(u & local_negatable_type::unsigned_integer_part_mask());
-
-      return ((u == u_mask) ? x : (local_negatable_type(local_nothing(), -local_value_type(u_mask)) - 1));
+      return ((local_unsigned_small_type(-x.data) == u_mask) ? x : (local_negatable_type(local_nothing(), -local_value_type(u_mask)) - 1));
     }
     else
     {
-      const local_unsigned_small_type u_mask(local_unsigned_small_type(x.data) & local_negatable_type::unsigned_integer_part_mask());
+      const local_unsigned_small_type u_mask(local_unsigned_small_type(x.data) & integral_part_mask);
 
       return local_negatable_type(local_nothing(), u_mask);
     }
@@ -65,9 +68,14 @@
     typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
+    const local_unsigned_small_type integral_part_mask =
+      detail::bit_mask_helper<local_unsigned_small_type,
+                              boost::uint32_t(-FractionalResolution),
+                              boost::uint32_t(IntegralRange + 1)>::value();
+
     if(x.data < 0)
     {
-      const local_unsigned_small_type u_mask(local_unsigned_small_type(-x.data) & local_negatable_type::unsigned_integer_part_mask());
+      const local_unsigned_small_type u_mask(local_unsigned_small_type(-x.data) & integral_part_mask);
 
       return local_negatable_type(local_nothing(), -local_value_type(u_mask));
     }
@@ -75,7 +83,7 @@
     {
       const local_unsigned_small_type u(x.data);
 
-      const local_unsigned_small_type u_mask(u & local_negatable_type::unsigned_integer_part_mask());
+      const local_unsigned_small_type u_mask(u & integral_part_mask);
 
       return ((u == u_mask) ? x : (local_negatable_type(local_nothing(), local_value_type(u_mask)) + 1));
     }
@@ -1637,7 +1645,78 @@
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> asin(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                               typename std::enable_if<int(24) >= (-FractionalResolution)>::type const*)
+                                                                               typename std::enable_if<int(11) >= (-FractionalResolution)>::type const*)
+  {
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+    typedef typename local_negatable_type::value_type                               local_value_type;
+    typedef typename local_negatable_type::nothing                                  local_nothing;
+
+    if(x < 0)
+    {
+      return -asin(-x);
+    }
+
+    local_negatable_type result;
+
+    if(x == 0)
+    {
+      result = local_negatable_type(0);
+    }
+    else if(x == 1)
+    {
+      result = local_negatable_type::value_pi_half();
+    }
+    else if(x > 1)
+    {
+      result = local_negatable_type(0);
+    }
+    else
+    {
+      if(x < ldexp(local_negatable_type(1), -2))
+      {
+        const local_negatable_type x2 = (x * x);
+
+        // Use the Taylor series representation for small argument.
+        // asin(x) = approx. x + (x^3)/6 + 3(x^5)/40 + 5(x^7)/112
+
+        result = (((     + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x005B) >> (11 + FractionalResolution)))
+                    * x2 + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0099) >> (11 + FractionalResolution))))
+                    * x2 + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0155) >> (11 + FractionalResolution))))
+                    * x2 + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0800) >> (11 + FractionalResolution))))
+                    * x;
+      }
+      else
+      {
+        // Use a polynomial approximation.
+        // asin(x) = approx. pi/2 - [sqrt(1 - x) * (+ 1.5707288
+        //                                          - 0.2121144 x^1
+        //                                          + 0.0742610 x^2
+        //                                          - 0.0187293 x^3],
+        // in the range 0 <= x <= +1. These coefficients
+        // have been taken from Eq. 4.4.45 in Abramowitz & Stegun,
+        // "Handbook of Mathematical Functions", 0009-Revised edition
+        // (Dover Publications, 1965).
+        // The coefficients originate from C. Hastings, "Approximations
+        // for Digital Computers" (Princeton Univ. Press, 1955).
+
+        // Perform the polynomial approximation using a coefficient
+        // expansion via the method of Horner.
+        const local_negatable_type polynomial_approximation =
+          (((    - local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0026) >> (11 + FractionalResolution)))   // 0.0187293
+             * x + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0098) >> (11 + FractionalResolution))))  // 0.0742610
+             * x - local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x01B2) >> (11 + FractionalResolution))))  // 0.2121144
+             * x + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0C90) >> (11 + FractionalResolution)))); // 1.5707288
+
+        result = local_negatable_type::value_pi_half() - (sqrt(1 - x) * polynomial_approximation);
+      }
+    }
+
+    return result;
+  }
+
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> asin(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
+                                                                               typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
@@ -1696,7 +1775,7 @@
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> asin(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                               typename std::enable_if<int(24) < (-FractionalResolution)>::type const*)
+                                                                               typename std::enable_if<int(24) <  (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
@@ -1745,7 +1824,65 @@
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> acos(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                               typename std::enable_if<int(24) >= (-FractionalResolution)>::type const*)
+                                                                               typename std::enable_if<int(11) >= (-FractionalResolution)>::type const*)
+  {
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+    typedef typename local_negatable_type::value_type                               local_value_type;
+    typedef typename local_negatable_type::nothing                                  local_nothing;
+
+    if(x < 0)
+    {
+      return local_negatable_type::value_pi() - acos(-x);
+    }
+
+    local_negatable_type result;
+
+    if(x == 0)
+    {
+      result = local_negatable_type::value_pi_half();
+    }
+    else if(x == 1)
+    {
+      result = local_negatable_type(0);
+    }
+    else if(x > 1)
+    {
+      result = local_negatable_type(0);
+    }
+    else
+    {
+      // Use a polynomial approximation.
+      // acos(x) = approx. sqrt(1 - x) * (+ 1.5707962797298
+      //                                  - 0.2145976333738 x^1
+      //                                  + 0.0889661326639 x^2
+      //                                  - 0.0501164255199 x^3)],
+      // in the range 0 <= x <= +1. These coefficients
+      // have been taken from Eq. 4.4.45 in Abramowitz & Stegun,
+      // "Handbook of Mathematical Functions", 0009-Revised edition
+      // (Dover Publications, 1965).
+      // The coefficients originate from C. Hastings, "Approximations
+      // for Digital Computers" (Princeton Univ. Press, 1955).
+
+      // These are the same coefficients that are used
+      // for asin(x) above.
+
+      // Perform the polynomial approximation using a coefficient
+      // expansion via the method of Horner.
+      const local_negatable_type polynomial_approximation =
+        (((    - local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0026) >> (11 + FractionalResolution)))   // 0.0187293
+           * x + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0098) >> (11 + FractionalResolution))))  // 0.0742610
+           * x - local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x01B2) >> (11 + FractionalResolution))))  // 0.2121144
+           * x + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0C90) >> (11 + FractionalResolution)))); // 1.5707288
+
+      result = (sqrt(1 - x) * polynomial_approximation);
+    }
+
+    return result;
+  }
+
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> acos(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
+                                                                               typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
@@ -1806,7 +1943,7 @@
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> acos(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                               typename std::enable_if<int(24) < (-FractionalResolution)>::type const*)
+                                                                               typename std::enable_if<int(24) <  (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
@@ -1839,7 +1976,59 @@
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> atan(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                               typename std::enable_if<int(24) >= (-FractionalResolution)>::type const*)
+                                                                               typename std::enable_if<int(11) >= (-FractionalResolution)>::type const*)
+  {
+    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+    typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
+    typedef typename local_negatable_type::value_type                               local_value_type;
+    typedef typename local_negatable_type::nothing                                  local_nothing;
+
+    if(x.data < 0)
+    {
+      return -atan(-x);
+    }
+
+    local_negatable_type result;
+
+    if(x.data == 0)
+    {
+      result = local_negatable_type(0);
+    }
+    else if(local_unsigned_small_type(x.data) == local_negatable_type::radix_split_value())
+    {
+      result = ldexp(local_negatable_type::value_pi(), -2);
+    }
+    else if(local_unsigned_small_type(x.data) > local_negatable_type::radix_split_value())
+    {
+      result = local_negatable_type::value_pi_half() - atan(1 / x);
+    }
+    else
+    {
+      // Use a polynomial approximation.
+      // atan(x) / x = approx. + 0.9998329769337240
+      //                       - 0.3268824051434949 x^2
+      //                       + 0.1590294514698240 x^4
+      //                       - 0.0469818803609288 x^6,
+      // in the range 0 <= x <= 1. These coefficients
+      // have been specifically derived for this work.
+      const local_negatable_type x2 = (x * x);
+
+      // Perform the polynomial approximation using a coefficient
+      // expansion via the method of Horner.
+      result = (((     - local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0060) >> (11 + FractionalResolution)))    // 0.014236215058440372
+                  * x2 + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0145) >> (11 + FractionalResolution))))   // 0.059227914090755230
+                  * x2 - local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x029D) >> (11 + FractionalResolution))))   // 0.122639496662731095
+                  * x2 + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x07FF) >> (11 + FractionalResolution))));  // 0.999996396967490826
+
+      result *= x;
+    }
+
+    return result;
+  }
+
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> atan(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
+                                                                               typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
@@ -1895,7 +2084,7 @@
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> atan(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                               typename std::enable_if<int(24) < (-FractionalResolution)>::type const*)
+                                                                               typename std::enable_if<int(24) <  (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
@@ -1985,9 +2174,9 @@
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     const local_negatable_type ep = exp(x);
-    const local_negatable_type em = 1 / ep;
+    const local_negatable_type em = 1U / ep;
 
-    return (ep - em) / 2;
+    return (ep - em) / 2U;
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
@@ -1996,9 +2185,9 @@
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     const local_negatable_type ep = exp(x);
-    const local_negatable_type em = 1 / ep;
+    const local_negatable_type em = 1U / ep;
 
-    return (ep + em) / 2;
+    return (ep + em) / 2U;
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>

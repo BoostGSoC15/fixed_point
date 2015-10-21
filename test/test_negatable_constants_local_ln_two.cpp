@@ -68,8 +68,8 @@ namespace local
   private:
     static FixedPointType tolerance_maker(const int fuzzy_bits)
     {
-      return ldexp(FixedPointType(1),
-        FixedPointType::resolution + fuzzy_bits);
+      return ldexp(FixedPointType(0.5F),
+                   FixedPointType::resolution + (fuzzy_bits + 1));
     }
   };
 
@@ -98,8 +98,8 @@ namespace local
   private:
     static FixedPointType tolerance_maker(const int fuzzy_bits)
     {
-      return ldexp(FixedPointType(1),
-                   FixedPointType::resolution + fuzzy_bits);
+      return ldexp(FixedPointType(0.5F),
+                   FixedPointType::resolution + (fuzzy_bits + 1));
     }
   };
 
@@ -128,26 +128,20 @@ namespace local
     }
 
   private:
-    static FixedPointType tolerance_maker(const int fuzzy_bits)
+    static FixedPointType tolerance_maker(int fuzzy_bits)
     {
-      return ldexp(FixedPointType(1),
-                   FixedPointType::resolution + fuzzy_bits);
+      return ldexp(FixedPointType(0.5F),
+                   FixedPointType::resolution + (fuzzy_bits + 1));
     }
   };
 }
 
 BOOST_AUTO_TEST_CASE(test_negatable_constants_local_ln_two)
 {
-  { typedef boost::fixed_point::negatable<0,    -5> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::ln_two(1)); }
-  { typedef boost::fixed_point::negatable<0,    -7> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::ln_two(1)); }
-  { typedef boost::fixed_point::negatable<1,   -14> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::ln_two(2)); }
-  { typedef boost::fixed_point::negatable<1,   -21> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::ln_two(4)); }
-  { typedef boost::fixed_point::negatable<2,   -29> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::ln_two(4)); }
-  { typedef boost::fixed_point::negatable<2,   -50> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::ln_two(((-fixed_point_type::resolution + 9) * 2) / 10)); }
-  { typedef boost::fixed_point::negatable<2,   -61> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::ln_two(((-fixed_point_type::resolution + 9) * 2) / 10)); }
-  { typedef boost::fixed_point::negatable<2,  -110> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::ln_two(((-fixed_point_type::resolution + 9) * 2) / 10)); }
-  { typedef boost::fixed_point::negatable<2,  -125> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::ln_two(((-fixed_point_type::resolution + 9) * 2) / 10)); }
-  { typedef boost::fixed_point::negatable<2,  -253> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::ln_two(((-fixed_point_type::resolution + 9) * 2) / 10)); }
-  { typedef boost::fixed_point::negatable<2,  -509> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::ln_two(((-fixed_point_type::resolution + 9) * 1) / 10)); }
-  { typedef boost::fixed_point::negatable<2, -1021> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::ln_two(((-fixed_point_type::resolution + 9) * 1) / 10)); }
+  { typedef boost::fixed_point::negatable<0,   -7> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::ln_two(1)); }
+  { typedef boost::fixed_point::negatable<1,  -14> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::ln_two(2)); }
+  { typedef boost::fixed_point::negatable<2,  -22> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::ln_two(4)); }
+  { typedef boost::fixed_point::negatable<2,  -29> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::ln_two(4)); }
+  { typedef boost::fixed_point::negatable<2,  -51> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::ln_two(((-fixed_point_type::resolution + 9) * 2) / 10)); }
+  { typedef boost::fixed_point::negatable<2, -509> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::ln_two(((-fixed_point_type::resolution + 9) * 2) / 10)); }
 }

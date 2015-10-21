@@ -63,12 +63,9 @@
     static_assert((BitPosition + BitCount) <= boost::uint32_t(std::numeric_limits<UnsignedIntegralType>::digits),
                   "The requested bit_mask value exceeds the maximum value of the UnsignedIntegralType.");
 
-    static const UnsignedIntegralType& value()
+    static UnsignedIntegralType value() BOOST_NOEXCEPT
     {
-      static const UnsignedIntegralType the_bit_mask =
-        static_cast<UnsignedIntegralType>(static_cast<UnsignedIntegralType>(static_cast<UnsignedIntegralType>(~static_cast<UnsignedIntegralType>(0U)) >> (boost::uint32_t(std::numeric_limits<UnsignedIntegralType>::digits) - BitCount)) << BitPosition);
-
-      return the_bit_mask;
+      return static_cast<UnsignedIntegralType>(static_cast<UnsignedIntegralType>(static_cast<UnsignedIntegralType>(~static_cast<UnsignedIntegralType>(0U)) >> (boost::uint32_t(std::numeric_limits<UnsignedIntegralType>::digits) - BitCount)) << BitPosition);
     }
   };
 
