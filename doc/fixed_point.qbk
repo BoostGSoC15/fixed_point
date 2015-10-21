@@ -166,6 +166,8 @@
 [def __examples [link fixed.examples examples]]
 [def __intro [link fixed.intro introduction]]
 [def __rationale [link fixed.design design rationale]]
+[def __bare_derivative [link fixed.examples.bare_derivative evaluating derivative example]]
+[def __microcontrollers [link fixed.microcontrollers.8bit_speed 8-bit microcontroller]]
 
 [section:intro Introduction]
 The proposed Boost.Fixed-point Library provides fixed-point types in C++ that have different
@@ -369,15 +371,14 @@ in this application range.
 
 In order to configure the fixed-point negatable class
 for efficient use with a bare-metal embedded microcontroller system,
+(see __bare_derivative and __CMK_realtime Section 9.4),
 two preprocessor macros need to be defined.
-
-[/todo (also shown in Sect.X.Y) ]
 
 An efficient configuration for a 32-bit microcontroller,
 for example, is shown below.
 
   #define BOOST_FIXED_POINT_DISABLE_MULTIPRECISION // Do not use Boost.Multiprecision.
-  #define BOOST_FIXED_POINT_DISABLE_IOSTREAM       // Do not use I/O streaming.
+  #define BOOST_FIXED_POINT_DISABLE_IOSTREAM    // Do not use I/O streaming.
 
   #include <boost/fixed_point/fixed_point.hpp>
 
@@ -431,10 +432,7 @@ a 32-bit microcontroller clocked at 24 MHz and an
 microcontrollers lack a dedicated hardware FPU.
 Timing results have been obtained with a digital oscilloscope
 in combination with a standard I/O pin toggle mechanism,
-as described in Section 2.2 of __CMK_realtime.
-
-[note Is Section 2.2 of __CMK_realtime correct?]
-
+as described in Section 9.4 of __CMK_realtime.
 
 The following table shows run times for various mathematical calculations
 for `negatable<7, -24>` and built-in single-precision floating-point.
@@ -451,9 +449,9 @@ clocked at 24 MHz. GCC 4.8.3 built with newlib has been used.
 [[d/dx[q(x)]  ][                  28           ][             79]]
 ] [/table]
 
-In the final table entry, d/dx represents the first derivative
-and q(x) represents the quadratic polynomial described in
-[/TODO Sect.X.Y].
+In the final table entry, ['d/dx] represents the first derivative
+and ['q(x)] represents the quadratic polynomial described in the
+__bare_derivative.
 
 All of the calculations have produced approximately 6-7 decimal
 digits of precision. In general, the fixed-point calculations
@@ -511,9 +509,9 @@ It is, therefore, a good idea to periodically check the code size
 of a fixed-point project and adjust the compiler parameters
 according to the needs of the project.
 
-[h4 Results from an 8-bit microcontroller]
+[/h4 Results from an 8-bit microcontroller]
 
-[TODO]
+[/link fixed.microcontrollers.8bit_speed 8-bit microcontroller]
 
 [endsect] [/section:microcontrollers Using Fixed-point with Microcontrollers]
 
