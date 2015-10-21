@@ -120,7 +120,7 @@
         (BitCount <= boost::uint32_t(UINT32_C(1) << 28)) ? boost::uint32_t(UINT32_C(1) << 28) :
         (BitCount <= boost::uint32_t(UINT32_C(1) << 29)) ? boost::uint32_t(UINT32_C(1) << 29) :
         (BitCount <= boost::uint32_t(UINT32_C(1) << 30)) ? boost::uint32_t(UINT32_C(1) << 30) :
-        (BitCount <= boost::uint32_t(UINT32_C(1) << 31));
+        (boost::uint32_t(UINT32_C(1) << 31));
 
       typedef boost::multiprecision::cpp_int_backend<unsigned(bit_count_nearest_power_of_two),
                                                      unsigned(bit_count_nearest_power_of_two),
@@ -356,7 +356,7 @@
       // When being converted to uint64_t in this precision range,
       // multiprecision does not yet handle this case. In particular,
       // see the TODO in the comment at line 1113 of cpp_bin_float.hpp
-      // from Boost 1.58. Hence we need this work-around.0
+      // from Boost 1.58. Hence we need this work-around.
 
       template<typename FloatingPointType>
       struct conversion_helper<boost::uint64_t,
@@ -472,8 +472,8 @@
 
     boost::uint8_t mask;
 
-    return ((hi_byte != UINT8_C(0)) ? 8U + msb_helper(hi_byte, mask, UINT32_C(0))
-                                    : 0U + msb_helper(lo_byte, mask, UINT32_C(0)));
+    return ((hi_byte != UINT8_C(0)) ? 8U + msb_helper(hi_byte, mask, UINT16_C(0))
+                                    : 0U + msb_helper(lo_byte, mask, UINT16_C(0)));
   }
 
   template<>
@@ -486,8 +486,8 @@
 
     boost::uint16_t mask;
 
-    return ((hi_word != UINT16_C(0)) ? 16U + msb_helper(hi_word, mask, UINT32_C(0))
-                                     :  0U + msb_helper(lo_word, mask, UINT32_C(0)));
+    return ((hi_word != UINT16_C(0)) ? 16U + msb_helper(hi_word, mask, UINT16_C(0))
+                                     :  0U + msb_helper(lo_word, mask, UINT16_C(0)));
   }
 
   template<typename ArithmeticType>

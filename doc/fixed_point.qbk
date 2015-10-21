@@ -404,7 +404,7 @@ the following.
   // Define an efficient 16-bit fixed-point type.
   typedef boost::fixed_point::negatable<4, -11> fixed_point_type;
 
-Here, we have configured for a 16-bit bare-metal microcontroller
+Here, we have configured for a tiny 8-bit bare-metal microcontroller
 environment by defining an efficient 16-bit negatable type that
 has well-optimized __cmath functions within its modest 16-bit
 precision range.
@@ -439,7 +439,7 @@ This benchmark has been performed with the 32-bit microcontroller
 clocked at 24 MHz. GCC 4.8.3 built with newlib has been used.
 
 [table:8bit_speed Comparing speed of fixed-point and floating-point with a 8-bit microcontroller
-[[function] [run-time `negatable<4, -11>` ([mu]s)] [run-time 32-bit `float` ([mu]s)]]
+[[function] [run-time `negatable<7, -24>` ([mu]s)] [run-time 32-bit `float` ([mu]s)]]
 [[sqrt(6/10) ][                   17            ][            17 ]]
 [[sin (1/2)     ][                  15            ][            27]]
 [[exp (7/10) ][                  27            ][            54]]
@@ -640,14 +640,11 @@ in Section 12.7 and [@http://link.springer.com/chapter/10.1007/978-3-642-34688-0
 
 This example shows how the famous
 [@https://en.wikipedia.org/wiki/Mandelbrot_set Mandelbrot set]
-can be [@../mandelbrot.jpg  generated] both using a low resolution
-`boost::fixed_point::negatable<16, -15>`  (32-bit),
-but equally easily using the same code but using a much higher resolution
-`boost::fixed_point::negatable<16, -111>`  (128-bit).
+can be [@../mandelbrot.jpg generated] both using a medium-high resolution
+type, `boost::fixed_point::negatable<16, -111>` (fits in 128-bit).
 Even higher resolution is only limited by ones memory and patience.
 
-Full code is at [@../../example/fixed_point_mandelbrot_lo_res.cpp fixed_point_mandelbrot_lo_res.cpp]
-and  [@../../example/fixed_point_mandelbrot_hi_res.cpp fixed_point_mandelbrot_hi_res.cpp].
+Full code is at [@../../example/fixed_point_mandelbrot.cpp fixed_point_mandelbrot.cpp].
 
 [endsect] [/section:mandelbrot Example of evaluating a Mandelbrot function at low and high-precision]
 
@@ -861,7 +858,7 @@ with this include:
 
   #include <typeinfo>
 
-To output the name of fixed_point type `negatable<0, -8>` use the __negatable_value_type:
+To output the name of fixed_point type `negatable<0, -7>` use the __negatable_value_type:
 
 [fixed_point_type_representation_example_1]
 
@@ -1288,7 +1285,7 @@ in particular, Taylor series expansion and Newton-Raphson iteration.
 [section:boostmath Using the Fixed-point Library with Boost.Math]
 
 The fixed-point Library can be used with Boost.Math,
-in particular when using the the __negatable and __nonnegative classes.
+and some Boost.Math functions work well when used with the __negatable class.
 Due to limitations in numeric limits of the fixed-point type, however,
 care must be taken when selecting the fixed-point range and resolution
 for a given calculation.

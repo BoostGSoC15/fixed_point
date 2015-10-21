@@ -314,6 +314,9 @@
 
     const bool is_odd_scaling = ((boost::int_fast8_t(n) & INT8_C(1)) != INT8_C(0));
 
+    const local_negatable_type cp(std::sqrt(2.0L));
+    const local_negatable_type cm(1.0L / std::sqrt(2.0L));
+
     // Rescale the result. In certain cases there is one extra
     // power of two. If so, either multiply with or divide by
     // the square root of 2 in order to complete the rescaling
@@ -323,7 +326,7 @@
       if(is_odd_scaling)
       {
         // Multiply with sqrt(2).
-        result *= local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x016A09E6) >> (24 + FractionalResolution)));
+        result *= local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0B50) >> (11 + FractionalResolution)));
       }
 
       // Left-shift the result by 1/2 of the even factors of 2.
@@ -334,7 +337,7 @@
       if(is_odd_scaling)
       {
         // Divide by sqrt(2), which is actually accomplished via multiplication by [1 / sqrt(2)].
-        result *= local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00B504F3) >> (24 + FractionalResolution)));
+        result *= local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x05A8) >> (11 + FractionalResolution)));
       }
 
       // Right-shift the result by 1/2 of the even factors of 2.
