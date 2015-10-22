@@ -370,7 +370,7 @@ in this application range.
 
 In order to configure the fixed-point negatable class
 for efficient use with a bare-metal embedded microcontroller system,
-(see __bare_derivative and __CMK_realtime Section 9.4),
+(see __bare_derivative and __CMK_realtime Section 9.6),
 two preprocessor macros need to be defined.
 
 An efficient configuration for a 32-bit microcontroller,
@@ -431,7 +431,7 @@ a 32-bit microcontroller clocked at 24 MHz and an
 microcontrollers lack a dedicated hardware FPU.
 Timing results have been obtained with a digital oscilloscope
 in combination with a standard I/O pin toggle mechanism,
-as described in Section 9.4 of __CMK_realtime.
+as described in Section 9.6 of __CMK_realtime.
 
 The following table shows run times for various mathematical calculations
 for `negatable<7, -24>` and built-in single-precision floating-point.
