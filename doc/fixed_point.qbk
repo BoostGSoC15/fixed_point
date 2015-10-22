@@ -553,7 +553,7 @@ We can show the __numeric_limits for this type thus:
 
 [show_numeric_limits_1]
 
-and the output is:
+and the output showing limits is:
 
 [numeric_limits_output_1]
 
@@ -564,18 +564,19 @@ This ensures no loss of precision or double rounding during construction.
 [fixed_example_1]
 
 We can inspect the __significand or fraction (also called  mantissa but this term is now deprecated)
-and the exponent parts using the using __cmath function __frexp, and alter the exponent using __ldexp.
+and the exponent parts using the using __cmath function __frexp,
+and alter the exponent using __ldexp.
 
 Of course, other __cmath functions such as trigonometric, exponential, logarithmic, etc.
 (`#include <cmath>`) are available. Thus the user can simply call, for example,
 `sqrt(negatable)` without requiring any namespace decoration.
 
-TODO Examples snippet needed here.
+[numeric_limits_output_2]
 
 [warning Some __cmath functions are not applicable to `fixed_point` values;
 others may not yet be implemented.]
 
-The full code is at  [@../../example/fixed_point_constants.cpp  fixed_point_constants.cpp].
+The full code is at  [@../../example/fixed_point_limits.cpp  fixed_point_limits.cpp].
 
 [endsect] [/section:numeric_limits Example of a fixed_point type and its numeric_limits]
 
@@ -901,15 +902,14 @@ This will have a marked effect on any operation like output that uses this.
 [[Header][Contains]]
 [[boost/fixed_point/fixed_point.hpp] [includes all other headers]]
 [[boost/fixed_point/fixed_point_negatable.hpp] [negatable type]]
-[[boost/fixed_point/fixed_point_nonnegative.hpp] [nonnegative type]]
 [[boost/fixed_point/fixed_point_round.hpp] [rounding `structs`]]
 [[boost/fixed_point/fixed_point_overflow.hpp] [overflow `structs`]]
 ] [/table Top level headers]
 
 [table Implementation Headers
 [[Header][Contains]]
-[[boost/fixed_point/detail/fixed_point.hpp] [negatable and nonnegative implemention details]]
-[[boost/fixed_point/detail/fixed_point_constants.hpp] [negatable and nonnegative implemention details]]
+[[boost/fixed_point/detail/fixed_point.hpp] [negatable implemention details]]
+[[boost/fixed_point/detail/fixed_point_constants.hpp] [negatable implemention details]]
 [[boost/fixed_point/detail/fixed_point_cstdfloat.hpp] [provide local floating-point type definitions having specified widths]]
 [[boost/fixed_point/detail/fixed_point_stdfloat.hpp] [provide local floating-point type definitions having specified widths]]
 ]  [/table Implementation Headers]

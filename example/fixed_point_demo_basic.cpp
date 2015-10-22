@@ -47,7 +47,7 @@ int main()
       << typeid(fixed_point_type).name()
       << "\n digits10 = " << std::numeric_limits<fixed_point_type>::digits10
       << "\n max_digits10 = " << std::numeric_limits<fixed_point_type>::max_digits10
-      << "\n radix = " << std::numeric_limits<fixed_point_type>::digits
+      << "\n radix = " << std::numeric_limits<fixed_point_type>::radix
       << "\n epsilon = " << std::numeric_limits<fixed_point_type>::epsilon()
       << "\n max = " << std::numeric_limits<fixed_point_type>::max()
       << "\n min = " << std::numeric_limits<fixed_point_type>::min()
@@ -100,8 +100,8 @@ int main()
 //[fixed_example_functions
 
     // Probably not needed because should be found by __ADL.
-    using boost::fixed_point::frexp;
-    using boost::fixed_point::ldexp;
+    //using boost::fixed_point::frexp;
+    //using boost::fixed_point::ldexp;
 
     int exponential;
     fixed_point_type xx = frexp(x, &exponential);
@@ -110,11 +110,11 @@ int main()
     exponential++; // double the value.
     fixed_point_type x2 = ldexp(x, exponential);
 
-    // Show how the fraction and exponent parts become after changing exponent.
+    // Show the fraction and exponent parts after changing the exponent.
     std::cout << "frexp(x, &exponential) = " << frexp(x2, &exponential) // -0.614990234
       << " exponential = " << exponential << std::endl; // 1
 
-    // Other cmath functions are available of course, for example:
+    // Other C numeric math functions (cmath) are available of course, for example:
     std::cout << "ldexp(x, exponential); = " << x2 << std::endl; // -1.22998047
     std::cout << "abs(x2) = " << abs(x2) << std::endl; // 1.22998047
     std::cout << "fabs(x2) = " << fabs(x2) << std::endl; // 1.22998047
@@ -130,16 +130,16 @@ int main()
 }
 
 
-
 /*
 //[numeric_limits_output_1
-Numeric_limits for type class boost::fixed_point::negatable<15,-16,struct boost::fixed_point::round::fastest,struct boost::fixed_point::overflow::undefined>
+Numeric_limits for type
+class boost::fixed_point::negatable<15,-16,struct boost::fixed_point::round::fastest,struct boost::fixed_point::overflow::undefined>
 digits10 = 9
 max_digits10 = 11
-radix = 31
-epsilon = 0.000106811523
+radix = 2
+epsilon = 3.05175781e-05
 max = 32768
-min = 1.52587891e-005
+min = 1.52587891e-05
 lowest = -32768
 Type does not have an infinity!
 Type does not have a NaN!
@@ -149,10 +149,13 @@ x = -x / 2 = -0.614990234
 frexp(x, &exponential) = -0.614990234 exponential = 0
 frexp(x, &exponential) = -0.614990234 exponential = 1
 ldexp(x, exponential); = -1.22998047
+//] [/numeric_limits_output_1]
+
+//[numeric_limits_output_2
 abs(x2) = 1.22998047
 fabs(x2) = 1.22998047
-sqrt(y) = 0.2135162
-//]
+sqrt(y) = 0.213516235
+//] [/numeric_limits_output_2]
 
 
 
