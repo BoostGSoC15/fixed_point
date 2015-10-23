@@ -588,12 +588,6 @@
       data = ((!is_neg) ? value_type(u_round) : -value_type(u_round));
     }
 
-    /*! Destructor.\n
-        It has trivial complexity because the negatable class does not do any allocation
-        or complex operations (if any) that are not already handled by the underlying @c value_type.
-    */
-    ~negatable() { }
-
     /*! Assigment operators.\n
     */
     // This is the standard assigment operator.
@@ -1062,8 +1056,8 @@
     \sa http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/tut/ints/cpp_int.html
     */
     template<typename IntegralType>
-    negatable(const nothing&,
-              const IntegralType& n) : data(static_cast<value_type>(n)) { }
+    BOOST_CONSTEXPR negatable(const nothing&,
+                              const IntegralType& n) : data(static_cast<value_type>(n)) { }
 
     template<typename UnsignedIntegralType>
     static value_type make_from_unsigned_integral_type(const UnsignedIntegralType& u)
@@ -1268,41 +1262,25 @@
       return (round_up ? INT8_C(1) : INT8_C(0));
     }
 
-    static const unsigned_small_type& radix_split_value() BOOST_NOEXCEPT
-    {
-      initialization_helper.force_premain_init_of_static_constants();
-
-      static const unsigned_small_type the_radix_split_value(unsigned_small_type(1U) << radix_split);
-
-      return the_radix_split_value;
-    }
-
     /*! Compute (during pre-main static initialization) the maximum value that the type can represent.\n
         Used to define function @c std::numeric_limits<>::max()
         and, when negated, @c std::numeric_limits<>::lowest().
     */
-    static const negatable& value_max() BOOST_NOEXCEPT
+    static negatable value_max() BOOST_NOEXCEPT
     {
-      initialization_helper.force_premain_init_of_static_constants();
+      BOOST_CONSTEXPR int total_right_shift = std::numeric_limits<unsigned_small_type>::digits - (IntegralRange - FractionalResolution);
 
-      const unsigned_small_type mask_of_value_max =
-        detail::bit_mask_helper<unsigned_small_type,
-                                0U,
-                                boost::uint32_t(IntegralRange - FractionalResolution)>::value();
+      const unsigned_small_type the_value_max((std::numeric_limits<unsigned_small_type>::max)() >> total_right_shift);
 
-      static const negatable the_value_max(nothing(), static_cast<value_type>(mask_of_value_max));
-
-      return the_value_max;
+      return negatable(nothing(), static_cast<value_type>(the_value_max));
     }
 
     /*! Compute (during pre-main static initialization) the minimum value that the type can represent.\n
         Used to define function @c std::numeric_limits<>::min().
     */
-    static const negatable& value_min() BOOST_NOEXCEPT
+    static negatable value_min() BOOST_NOEXCEPT
     {
-      initialization_helper.force_premain_init_of_static_constants();
-
-      static const negatable the_value_min(nothing(), static_cast<value_type>(1));
+      BOOST_CONSTEXPR_OR_CONST negatable the_value_min(nothing(), static_cast<value_type>(1));
 
       return the_value_min;
     }
@@ -1319,15 +1297,11 @@
         2^{-(8 - 1)} = 2^{-7} = 0.0078125.
         \sa http://en.cppreference.com/w/cpp/types/numeric_limits/epsilon
     */
-    static const negatable& epsilon_maker() BOOST_NOEXCEPT
+    static negatable epsilon_maker() BOOST_NOEXCEPT
     {
-      initialization_helper.force_premain_init_of_static_constants();
+      BOOST_CONSTEXPR_OR_CONST negatable the_value_epsilon(nothing(), value_type(2));
 
-      BOOST_CONSTEXPR int total_right_shift = -(resolution + 1);
-
-      static const negatable the_epsilon(nothing(), static_cast<value_type>(radix_split_value() >> total_right_shift));
-
-      return the_epsilon;
+      return the_value_epsilon;
     }
 
     /*! Compute (during pre-main static initialization) the representation of the mathematical constant sqrt(2).\n
@@ -1423,9 +1397,9 @@
     {
       static negatable calculate_pi()
       {
-        BOOST_CONSTEXPR_OR_CONST value_type pi_data = value_type(UINT64_C(0x6487ED5110B4611A) >> (61 - int(BitCount)));
+        BOOST_CONSTEXPR_OR_CONST negatable the_value_pi(nothing(), value_type(UINT64_C(0x6487ED5110B4611A) >> (61 - int(BitCount))));
 
-        return negatable(nothing(), pi_data);
+        return the_value_pi;
       }
     };
 
@@ -1445,9 +1419,9 @@
     {
       static negatable calculate_ln_two()
       {
-        BOOST_CONSTEXPR_OR_CONST value_type ln_two_data = value_type(UINT64_C(0x58B90BFBE8E7BCD6) >> (UINT32_C(63) - (BitCount)));
+        BOOST_CONSTEXPR_OR_CONST negatable the_value_ln_two(nothing(), value_type(UINT64_C(0x58B90BFBE8E7BCD6) >> (UINT32_C(63) - (BitCount))));
 
-        return negatable(nothing(), ln_two_data);
+        return the_value_ln_two;
       }
     };
 
@@ -1467,9 +1441,9 @@
     {
       static negatable calculate_e()
       {
-        BOOST_CONSTEXPR_OR_CONST value_type e_data = value_type(UINT64_C(0x56FC2A2C515DA54D) >> (61 - int(BitCount)));
+        BOOST_CONSTEXPR_OR_CONST negatable the_value_e(nothing(), value_type(UINT64_C(0x56FC2A2C515DA54D) >> (61 - int(BitCount))));
 
-        return negatable(nothing(), e_data);
+        return the_value_e;
       }
     };
 
@@ -1483,10 +1457,6 @@
     {
       initializer()
       {
-        static_cast<void>(negatable::radix_split_value());
-        static_cast<void>(negatable::value_max());
-        static_cast<void>(negatable::value_min());
-        static_cast<void>(negatable::epsilon_maker());
         static_cast<void>(negatable::value_root_two());
         static_cast<void>(negatable::value_pi());
         static_cast<void>(negatable::value_pi_half());

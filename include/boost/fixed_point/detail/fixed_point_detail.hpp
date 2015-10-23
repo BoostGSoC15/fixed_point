@@ -53,41 +53,6 @@
                               : UnsignedIntegralType(u << -shift_count));
   }
 
-  template<typename UnsignedIntegralType,
-           const boost::uint32_t BitPosition,
-           const boost::uint32_t BitCount,
-           typename EnableType = void>
-  struct bit_mask_helper
-  {
-    // Ensure that the requested bit mask is in range.
-    static_assert((BitPosition + BitCount) <= boost::uint32_t(std::numeric_limits<UnsignedIntegralType>::digits),
-                  "The requested bit_mask value exceeds the maximum value of the UnsignedIntegralType.");
-
-    static UnsignedIntegralType value() BOOST_NOEXCEPT
-    {
-      return static_cast<UnsignedIntegralType>(static_cast<UnsignedIntegralType>(static_cast<UnsignedIntegralType>(~static_cast<UnsignedIntegralType>(0U)) >> (boost::uint32_t(std::numeric_limits<UnsignedIntegralType>::digits) - BitCount)) << BitPosition);
-    }
-  };
-
-  template<typename UnsignedIntegralType,
-           const boost::uint32_t BitPosition,
-           const boost::uint32_t BitCount>
-  struct bit_mask_helper<UnsignedIntegralType,
-                         BitPosition,
-                         BitCount,
-                         typename std::enable_if<   std::is_integral<UnsignedIntegralType>::value
-                                                 && std::is_unsigned<UnsignedIntegralType>::value>::type>
-  {
-    // Ensure that the requested bit mask is in range.
-    static_assert((BitPosition + BitCount) <= boost::uint32_t(std::numeric_limits<UnsignedIntegralType>::digits),
-                  "The requested bit_mask value exceeds the maximum value of the UnsignedIntegralType.");
-
-    static UnsignedIntegralType value() BOOST_NOEXCEPT
-    {
-      return static_cast<UnsignedIntegralType>(static_cast<UnsignedIntegralType>(static_cast<UnsignedIntegralType>(~static_cast<UnsignedIntegralType>(0U)) >> (std::numeric_limits<UnsignedIntegralType>::digits - BitCount)) << BitPosition);
-    }
-  };
-
   #if !defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
 
     template<const boost::uint32_t BitCount,

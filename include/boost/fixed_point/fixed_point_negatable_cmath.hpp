@@ -23,14 +23,14 @@
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> abs(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    return ((x.data < 0) ? -x : x);
+    return ((x < 0) ? -x : x);
   }
 
   //! @c std::fabs function (identical to abs and provided for completeness).
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> fabs(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    return ((x.data < 0) ? -x : x);
+    return ((x < 0) ? -x : x);
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
@@ -41,12 +41,9 @@
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    const local_unsigned_small_type integral_part_mask =
-      detail::bit_mask_helper<local_unsigned_small_type,
-                              boost::uint32_t(-FractionalResolution),
-                              boost::uint32_t(IntegralRange + 1)>::value();
+    const local_unsigned_small_type integral_part_mask((local_unsigned_small_type(((std::numeric_limits<local_negatable_type>::max)()).data) >> (-FractionalResolution)) << (-FractionalResolution));
 
-    if(x.data < 0)
+    if(x < 0)
     {
       const local_unsigned_small_type u_mask(local_unsigned_small_type(-x.data) & integral_part_mask);
 
@@ -68,12 +65,9 @@
     typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    const local_unsigned_small_type integral_part_mask =
-      detail::bit_mask_helper<local_unsigned_small_type,
-                              boost::uint32_t(-FractionalResolution),
-                              boost::uint32_t(IntegralRange + 1)>::value();
+    const local_unsigned_small_type integral_part_mask((local_unsigned_small_type(((std::numeric_limits<local_negatable_type>::max)()).data) >> (-FractionalResolution)) << (-FractionalResolution));
 
-    if(x.data < 0)
+    if(x < 0)
     {
       const local_unsigned_small_type u_mask(local_unsigned_small_type(-x.data) & integral_part_mask);
 
@@ -92,7 +86,7 @@
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> trunc(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    return ((x.data < 0) ? -floor(-x) : floor(x));
+    return ((x < 0) ? -floor(-x) : floor(x));
   }
 
   /*! @c std::frexp function \<cmath\> implementation for negatable types.\n
@@ -110,7 +104,7 @@
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    if(x.data == 0)
+    if(x == 0)
     {
       *exp2 = 0;
 
@@ -118,7 +112,7 @@
     }
     else
     {
-      const bool is_neg = (x.data < 0);
+      const bool is_neg = (x < 0);
 
       // Extract the unsigned representation of the data field.
       local_unsigned_small_type result((!is_neg) ? local_unsigned_small_type(x.data) : local_unsigned_small_type(-x.data));
@@ -174,7 +168,7 @@
     }
     else if(exp2 < 0)
     {
-      const bool is_neg = (x.data < 0);
+      const bool is_neg = (x < 0);
 
       local_unsigned_small_type result((!is_neg) ? local_unsigned_small_type(x.data) : local_unsigned_small_type(-x.data));
 
@@ -227,11 +221,11 @@
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle arguments negative, zero, or unity.
-    if(x.data <= 0)
+    if(x <= 0)
     {
       return local_negatable_type(0);
     }
-    else if(x.data == local_negatable_type::radix_split_value())
+    else if(x == local_negatable_type(1))
     {
       return local_negatable_type(1);
     }
@@ -323,7 +317,9 @@
       if(is_odd_scaling)
       {
         // Multiply with sqrt(2).
-        result *= local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0B50) >> (11 + FractionalResolution)));
+        BOOST_CONSTEXPR_OR_CONST local_negatable_type sqrt_two(local_nothing(), local_value_type(UINT16_C(0x0B50) >> (11 + FractionalResolution)));
+
+        result *= sqrt_two;
       }
 
       // Left-shift the result by 1/2 of the even factors of 2.
@@ -334,7 +330,9 @@
       if(is_odd_scaling)
       {
         // Divide by sqrt(2), which is actually accomplished via multiplication by [1 / sqrt(2)].
-        result *= local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x05A8) >> (11 + FractionalResolution)));
+        BOOST_CONSTEXPR_OR_CONST local_negatable_type one_over_sqrt_two(local_nothing(), local_value_type(UINT16_C(0x05A8) >> (11 + FractionalResolution)));
+
+        result *= one_over_sqrt_two;
       }
 
       // Right-shift the result by 1/2 of the even factors of 2.
@@ -354,11 +352,11 @@
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle arguments negative, zero, or unity.
-    if(x.data <= 0)
+    if(x <= 0)
     {
       return local_negatable_type(0);
     }
-    else if(local_unsigned_small_type(x.data) == local_negatable_type::radix_split_value())
+    else if(x == 1)
     {
       return local_negatable_type(1);
     }
@@ -422,7 +420,9 @@
       if(is_odd_scaling)
       {
         // Multiply with sqrt(2).
-        result *= local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x016A09E6) >> (24 + FractionalResolution)));
+        BOOST_CONSTEXPR_OR_CONST local_negatable_type root_two(local_nothing(), local_value_type(UINT32_C(0x016A09E6) >> (24 + FractionalResolution)));
+
+        result *= root_two;
       }
 
       // Left-shift the result by 1/2 of the even factors of 2.
@@ -433,7 +433,9 @@
       if(is_odd_scaling)
       {
         // Divide by sqrt(2), which is actually accomplished via multiplication by [1 / sqrt(2)].
-        result *= local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00B504F3) >> (24 + FractionalResolution)));
+        BOOST_CONSTEXPR_OR_CONST local_negatable_type one_over_root_two(local_nothing(), local_value_type(UINT32_C(0x00B504F3) >> (24 + FractionalResolution)));
+
+        result *= one_over_root_two;
       }
 
       // Right-shift the result by 1/2 of the even factors of 2.
@@ -452,11 +454,11 @@
     typedef typename local_negatable_type::value_type                               local_value_type;
 
     // Handle arguments negative, zero, or unity.
-    if(x.data <= 0)
+    if(x <= 0)
     {
       return local_negatable_type(0);
     }
-    else if(x.data == local_negatable_type::radix_split_value())
+    else if(x == local_negatable_type(1))
     {
       return local_negatable_type(1);
     }
@@ -541,24 +543,23 @@
                                                                               typename std::enable_if<int(11) >= (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
-    typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle zero argument.
-    if(x.data == 0)
+    if(x == 0)
     {
       return local_negatable_type(1);
     }
 
     // Handle unity argument.
-    if(local_unsigned_small_type(x.data) == local_negatable_type::radix_split_value())
+    if(x == local_negatable_type(1))
     {
       return local_negatable_type::value_e();
     }
 
     // Handle reflection for negative arguments.
-    if(x.data < 0)
+    if(x < 0)
     {
       return 1 / exp(-x);
     }
@@ -604,24 +605,23 @@
                                                                               typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
-    typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle zero argument.
-    if(x.data == 0)
+    if(x == 0)
     {
       return local_negatable_type(1);
     }
 
     // Handle unity argument.
-    if(local_unsigned_small_type(x.data) == local_negatable_type::radix_split_value())
+    if(x == local_negatable_type(1))
     {
       return local_negatable_type::value_e();
     }
 
     // Handle reflection for negative arguments.
-    if(x.data < 0)
+    if(x < 0)
     {
       return 1 / exp(-x);
     }
@@ -1017,7 +1017,7 @@
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle reflection for negative arguments.
-    if(x.data < 0)
+    if(x < 0)
     {
       return -sin(-x);
     }
@@ -1076,7 +1076,7 @@
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle reflection for negative arguments.
-    if(x.data < 0)
+    if(x < 0)
     {
       return -sin(-x);
     }
@@ -1137,7 +1137,7 @@
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     // Handle reflection for negative arguments.
-    if(x.data < 0)
+    if(x < 0)
     {
       return -sin(-x);
     }
@@ -1215,7 +1215,7 @@
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle reflection for negative arguments.
-    if(x.data < 0)
+    if(x < 0)
     {
       x = -x;
     }
@@ -1258,7 +1258,7 @@
     }
     else
     {
-      if(x.data == 0)
+      if(x == 0)
       {
         result = local_negatable_type(1);
       }
@@ -1299,7 +1299,7 @@
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle reflection for negative arguments.
-    if(x.data < 0)
+    if(x < 0)
     {
       x = -x;
     }
@@ -1343,7 +1343,7 @@
     }
     else
     {
-      if(x.data == 0)
+      if(x == 0)
       {
         result = local_negatable_type(1);
       }
@@ -1979,26 +1979,25 @@
                                                                                typename std::enable_if<int(11) >= (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
-    typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    if(x.data < 0)
+    if(x < 0)
     {
       return -atan(-x);
     }
 
     local_negatable_type result;
 
-    if(x.data == 0)
+    if(x == 0)
     {
       result = local_negatable_type(0);
     }
-    else if(local_unsigned_small_type(x.data) == local_negatable_type::radix_split_value())
+    else if(x == local_negatable_type(1))
     {
       result = ldexp(local_negatable_type::value_pi(), -2);
     }
-    else if(local_unsigned_small_type(x.data) > local_negatable_type::radix_split_value())
+    else if(x > local_negatable_type(1))
     {
       result = local_negatable_type::value_pi_half() - atan(1 / x);
     }
@@ -2031,26 +2030,25 @@
                                                                                typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
-    typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    if(x.data < 0)
+    if(x < 0)
     {
       return -atan(-x);
     }
 
     local_negatable_type result;
 
-    if(x.data == 0)
+    if(x == 0)
     {
       result = local_negatable_type(0);
     }
-    else if(local_unsigned_small_type(x.data) == local_negatable_type::radix_split_value())
+    else if(x == local_negatable_type(1))
     {
       result = ldexp(local_negatable_type::value_pi(), -2);
     }
-    else if(local_unsigned_small_type(x.data) > local_negatable_type::radix_split_value())
+    else if(x > local_negatable_type(1))
     {
       result = local_negatable_type::value_pi_half() - atan(1 / x);
     }
@@ -2087,8 +2085,6 @@
                                                                                typename std::enable_if<int(24) <  (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
-    typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
-    typedef typename local_negatable_type::value_type                               local_value_type;
 
     if(x < 0)
     {
@@ -2097,15 +2093,15 @@
 
     local_negatable_type result;
 
-    if(x.data == 0)
+    if(x == 0)
     {
       result = local_negatable_type(0);
     }
-    else if(local_unsigned_small_type(x.data) == local_negatable_type::radix_split_value())
+    else if(x == local_negatable_type(1))
     {
       result = ldexp(local_negatable_type::value_pi(), -2);
     }
-    else if(local_unsigned_small_type(x.data) > local_value_type(local_negatable_type::radix_split_value()))
+    else if(x > local_negatable_type(1))
     {
       result = local_negatable_type::value_pi_half() - atan(1 / x);
     }

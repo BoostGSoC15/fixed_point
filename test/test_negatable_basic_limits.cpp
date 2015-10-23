@@ -114,8 +114,6 @@ BOOST_AUTO_TEST_CASE(test_negatable_basic_limits_max)
     std::cout << "frac " << s << ", exp =  " << e <<", eps = " << eps << ", ulp = " << ulp << std::endl;
     #endif
 
-    fixed_point_type_2m5 max = 1 - eps/2;
-
     BOOST_CHECK_EQUAL(e, 2);
     BOOST_CHECK_EQUAL(s, 1 - ulp);
     BOOST_CHECK_EQUAL(s, 1 - 0.03125);
@@ -151,7 +149,6 @@ BOOST_AUTO_TEST_CASE(test_negatable_basic_limits_max)
     std::cout << "frac " << s << ", exp =  " << e << ", eps = " << eps << ", ulp = " << ulp << std::endl;
     #endif
 
-    fixed_point_type_15m16 max = 1 - eps / 2;
     BOOST_CHECK_EQUAL(e, 15);
     BOOST_CHECK_EQUAL(s, 1 - ulp);
   }
@@ -200,6 +197,8 @@ BOOST_AUTO_TEST_CASE(test_negatable_basic_limits_misc)
     fixed_point_type_2m5 y(1);
     int e;
     fixed_point_type_2m5 s = frexp(y, &e);
+
+    static_cast<void>(s);
 
     #if defined(ENABLE_LOCAL_TEST_DEBUG_MESSAGES)
     std::cout << s << " " << e << std::endl; // 0.5 1
