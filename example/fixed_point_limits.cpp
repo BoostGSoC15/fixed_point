@@ -21,54 +21,59 @@
 
 // Below are snippets of code that can be included into a Quickbook file.
 
+#include <exception>
 #include <iostream>
 #include <iomanip>
-#include <exception>
-#include <typeinfo>
 #include <limits>
+#include <typeinfo>
 
 #include <boost/fixed_point/fixed_point.hpp>
-#include <boost/math/special_functions/pow.hpp> 
-// file:///I:/modular-boost/libs/math/doc/html/math_toolkit/powers/ct_pow.html
-
-//typedef boost::fixed_point::negatable<5, -2> fixed_point_type;
-typedef boost::fixed_point::negatable<15, -15> fixed_point_type;
+#include <boost/math/special_functions/pow.hpp>
 
 template <typename T>
 void show_fixed_point()
 {
   std::cout.precision(std::numeric_limits<T>::max_digits10);
-  //std::cout.precision(4);
 
-  std::cout << "Numeric_limits of type:"
-    << typeid(fixed_point_type).name() 
-    << "\n digits10 = " << std::numeric_limits<T>::digits10
-    << "\n max_digits10 = " << std::numeric_limits<T>::max_digits10
-    << "\n radix = " << std::numeric_limits<T>::digits
-    << "\n epsilon = " << std::numeric_limits<T>::epsilon()
-    << "\n lowest = " << std::numeric_limits<fixed_point_type>::lowest()
-    << "\n min = " << std::numeric_limits<T>::min()
-    << "\n max = " << std::numeric_limits<T>::max();
+  std::cout << std::boolalpha
+            << std::showpoint
+            << std::showpos;
 
-  if (std::numeric_limits<fixed_point_type>::has_infinity)
+  std::cout << "Numeric_limits of type: "
+            << typeid(T).name()
+            << "\n digits10     = " <<  std::numeric_limits<T>::digits10
+            << "\n max_digits10 = " <<  std::numeric_limits<T>::max_digits10
+            << "\n radix        = " <<  std::numeric_limits<T>::radix
+            << "\n epsilon      = " <<  std::numeric_limits<T>::epsilon()
+            << "\n lowest       = " <<  std::numeric_limits<T>::lowest()
+            << "\n min          = " << (std::numeric_limits<T>::min)()
+            << "\n max          = " << (std::numeric_limits<T>::max)();
+
+  if (std::numeric_limits<T>::has_infinity)
   {
-    std::cout << "\n infinity = " << std::numeric_limits<fixed_point_type>::infinity();
+    std::cout << "\n infinity = " << std::numeric_limits<T>::infinity();
   }
   else
   {
     std::cout << "\n Type does not have an infinity!";
   }
-  if (std::numeric_limits<fixed_point_type>::has_quiet_NaN)
+
+  if (std::numeric_limits<T>::has_quiet_NaN)
   {
-    std::cout << "\n NaN = " << std::numeric_limits<fixed_point_type>::quiet_NaN();
+    std::cout << "\n NaN = " << std::numeric_limits<T>::quiet_NaN();
   }
   else
   {
     std::cout << "\n Type does not have a NaN!";
   };
+
   std::cout << std::endl;
 
 } // template <typename T> void show_fixed_point
+
+
+// Define a local fixed-point negatable type.
+typedef boost::fixed_point::negatable<15, -15> fixed_point_type;
 
 
 int main()
@@ -76,37 +81,30 @@ int main()
   try
   {
     std::cout.precision(std::numeric_limits<fixed_point_type>::max_digits10);
-    //std::cout.precision(4);
 
-    // std::cout << "Number of possible value is range + abs(resolution) = 2^" << 15 << " = " << boost::math::pow<15>(2) << std::endl;
-    std::cout << "Number of possible value is range + abs(resolution) = 2^" << 15 << " = " << boost::math::pow<15>(2) << std::endl;
+    std::cout << "Number of possible values is 2^[range + abs(resolution)] = 2^"
+              << std::numeric_limits<fixed_point_type>::digits
+              << " = " << boost::math::pow<std::numeric_limits<fixed_point_type>::digits>(2)
+              << std::endl;
+
     if (std::numeric_limits<fixed_point_type>::has_infinity)
     {
       std::cout << "\n infinity = " << std::numeric_limits<fixed_point_type>::infinity();
     }
+
     if (std::numeric_limits<fixed_point_type>::has_quiet_NaN)
     {
       std::cout << "\n NaN = " << std::numeric_limits<fixed_point_type>::quiet_NaN();
     }
+
     std::cout << std::endl;
 
     show_fixed_point<fixed_point_type>();
 
-    std::cout << std::boolalpha << std::showpoint 
-      //<< std::scientific 
-      << std::fixed 
-      << std::endl;
+    std::cout << std::endl;
   }
-  catch (std::exception ex)
+  catch (const std::exception& ex)
   {
     std::cout << ex.what() << std::endl;
   }
 }
-
-
-
-/*
-
-
-
-*/

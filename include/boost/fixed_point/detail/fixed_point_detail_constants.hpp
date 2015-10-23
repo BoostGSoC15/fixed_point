@@ -9,7 +9,7 @@
 
 // fixed_point_detail_constants.hpp implements templates
 // for computing fixed-point representations of mathematical
-// constants such as pi and log(2).
+// constants such as pi, log(2), and e.
 
 #ifndef FIXED_POINT_DETAIL_CONSTANTS_2015_08_16_HPP_
   #define FIXED_POINT_DETAIL_CONSTANTS_2015_08_16_HPP_
@@ -18,6 +18,32 @@
   #include <limits>
 
   namespace boost { namespace fixed_point { namespace detail {
+
+  template<typename NumericType>
+  NumericType calculate_root_two()
+  {
+    // Provide an initial guess of 4/3.
+    NumericType a = NumericType(4) / 3;
+
+    // Estimate the zero'th term of the iteration with [1 / (2 * result)].
+    NumericType vi = NumericType(1U) / (a * NumericType(2U));
+
+    // Compute the square root of x using coupled Newton iteration.
+    // More precisely, this is the Schoenhage variation thereof.
+    // We begin with an estimate of 1 binary digit of precision and
+    // double the number of binary digits of precision with each iteration.
+
+    for(boost::uint_fast16_t i = UINT16_C(1); i <= boost::uint_fast16_t(std::numeric_limits<NumericType>::digits); i *= UINT16_C(2))
+    {
+      // Perform the next iteration of vi.
+      vi += vi * (-((a * vi) * NumericType(2U)) + NumericType(1U));
+
+      // Perform the next iteration of the result.
+      a += (vi * (-((a) * (a)) + NumericType(2U)));
+    }
+
+    return a;
+  }
 
   template<typename NumericType>
   NumericType calculate_pi()
@@ -115,6 +141,35 @@
     const NumericType val_ln_two = calculate_pi<NumericType>() / (ak * (2 * m));
 
     return val_ln_two;
+  }
+
+  template<typename NumericType>
+  NumericType calculate_e()
+  {
+    NumericType term(1);
+    NumericType sum (2);
+
+    BOOST_CONSTEXPR_OR_CONST boost::uint32_t maximum_number_of_iterations = UINT32_C(10000);
+
+    // Perform the series expansion of Euler's constant, e = exp(1).
+    for(boost::uint32_t n = UINT32_C(2); n < maximum_number_of_iterations; ++n)
+    {
+      term /= n;
+
+      const bool minimum_number_of_iterations_is_complete = (n > UINT32_C(4));
+
+      using std::fabs;
+
+      if(   (minimum_number_of_iterations_is_complete)
+         && (fabs(term) <= std::numeric_limits<NumericType>::epsilon()))
+      {
+        break;
+      }
+
+      sum += term;
+    }
+
+    return sum;
   }
   } } } // namespace boost::fixed_point::detail
 

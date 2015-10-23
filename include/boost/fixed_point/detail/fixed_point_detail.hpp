@@ -53,44 +53,6 @@
                               : UnsignedIntegralType(u << -shift_count));
   }
 
-  template<typename UnsignedIntegralType,
-           const boost::uint32_t BitPosition,
-           const boost::uint32_t BitCount,
-           typename EnableType = void>
-  struct bit_mask_helper
-  {
-    // Ensure that the requested bit mask is in range.
-    static_assert((BitPosition + BitCount) <= boost::uint32_t(std::numeric_limits<UnsignedIntegralType>::digits),
-                  "The requested bit_mask value exceeds the maximum value of the UnsignedIntegralType.");
-
-    static const UnsignedIntegralType& value()
-    {
-      static const UnsignedIntegralType the_bit_mask =
-        static_cast<UnsignedIntegralType>(static_cast<UnsignedIntegralType>(static_cast<UnsignedIntegralType>(~static_cast<UnsignedIntegralType>(0U)) >> (boost::uint32_t(std::numeric_limits<UnsignedIntegralType>::digits) - BitCount)) << BitPosition);
-
-      return the_bit_mask;
-    }
-  };
-
-  template<typename UnsignedIntegralType,
-           const boost::uint32_t BitPosition,
-           const boost::uint32_t BitCount>
-  struct bit_mask_helper<UnsignedIntegralType,
-                         BitPosition,
-                         BitCount,
-                         typename std::enable_if<   std::is_integral<UnsignedIntegralType>::value
-                                                 && std::is_unsigned<UnsignedIntegralType>::value>::type>
-  {
-    // Ensure that the requested bit mask is in range.
-    static_assert((BitPosition + BitCount) <= boost::uint32_t(std::numeric_limits<UnsignedIntegralType>::digits),
-                  "The requested bit_mask value exceeds the maximum value of the UnsignedIntegralType.");
-
-    static UnsignedIntegralType value() BOOST_NOEXCEPT
-    {
-      return static_cast<UnsignedIntegralType>(static_cast<UnsignedIntegralType>(static_cast<UnsignedIntegralType>(~static_cast<UnsignedIntegralType>(0U)) >> (std::numeric_limits<UnsignedIntegralType>::digits - BitCount)) << BitPosition);
-    }
-  };
-
   #if !defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
 
     template<const boost::uint32_t BitCount,
@@ -123,7 +85,7 @@
         (BitCount <= boost::uint32_t(UINT32_C(1) << 28)) ? boost::uint32_t(UINT32_C(1) << 28) :
         (BitCount <= boost::uint32_t(UINT32_C(1) << 29)) ? boost::uint32_t(UINT32_C(1) << 29) :
         (BitCount <= boost::uint32_t(UINT32_C(1) << 30)) ? boost::uint32_t(UINT32_C(1) << 30) :
-        (BitCount <= boost::uint32_t(UINT32_C(1) << 31));
+        (boost::uint32_t(UINT32_C(1) << 31));
 
       typedef boost::multiprecision::cpp_int_backend<unsigned(bit_count_nearest_power_of_two),
                                                      unsigned(bit_count_nearest_power_of_two),
@@ -359,7 +321,7 @@
       // When being converted to uint64_t in this precision range,
       // multiprecision does not yet handle this case. In particular,
       // see the TODO in the comment at line 1113 of cpp_bin_float.hpp
-      // from Boost 1.58. Hence we need this work-around.0
+      // from Boost 1.58. Hence we need this work-around.
 
       template<typename FloatingPointType>
       struct conversion_helper<boost::uint64_t,
@@ -455,13 +417,13 @@
       const boost::uint_fast8_t lo_nibble( u8       & UINT8_C(0x0F));
       const boost::uint_fast8_t hi_nibble((u8 >> 4) & UINT8_C(0x0F));
 
-      BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t hi_bit_value[16U] =
+      BOOST_CONSTEXPR_OR_CONST boost::uint_fast8_t hi_bit_value[16U] =
       {
         // x0  x1, x2, x3, x4, x5, x6, x7, x8, x9, xA, xB, xC, xD, xE, xF
            0U, 0U, 1U, 1U, 2U, 2U, 2U, 2U, 3U, 3U, 3U, 3U, 3U, 3U, 3U, 3U
       };
 
-      return ((hi_nibble != UINT8_C(0)) ? (UINT32_C(4) + hi_bit_value[hi_nibble])
+      return ((hi_nibble != UINT8_C(0)) ? (UINT8_C(4) + hi_bit_value[hi_nibble])
                                         : hi_bit_value[lo_nibble]);
   }
 
@@ -475,8 +437,8 @@
 
     boost::uint8_t mask;
 
-    return ((hi_byte != UINT8_C(0)) ? 8U + msb_helper(hi_byte, mask, UINT32_C(0))
-                                    : 0U + msb_helper(lo_byte, mask, UINT32_C(0)));
+    return ((hi_byte != UINT8_C(0)) ? 8U + msb_helper(hi_byte, mask, UINT16_C(0))
+                                    : 0U + msb_helper(lo_byte, mask, UINT16_C(0)));
   }
 
   template<>
@@ -489,8 +451,8 @@
 
     boost::uint16_t mask;
 
-    return ((hi_word != UINT16_C(0)) ? 16U + msb_helper(hi_word, mask, UINT32_C(0))
-                                     :  0U + msb_helper(lo_word, mask, UINT32_C(0)));
+    return ((hi_word != UINT16_C(0)) ? 16U + msb_helper(hi_word, mask, UINT16_C(0))
+                                     :  0U + msb_helper(lo_word, mask, UINT16_C(0)));
   }
 
   template<typename ArithmeticType>
@@ -502,7 +464,7 @@
     }
     else if(p2 < 0)
     {
-      return 1 / power_of_two_helper<ArithmeticType>(-p2);
+      return ArithmeticType(1) / power_of_two_helper<ArithmeticType>(-p2);
     }
     else
     {
