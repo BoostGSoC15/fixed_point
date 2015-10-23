@@ -452,13 +452,13 @@
       const boost::uint_fast8_t lo_nibble( u8       & UINT8_C(0x0F));
       const boost::uint_fast8_t hi_nibble((u8 >> 4) & UINT8_C(0x0F));
 
-      BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t hi_bit_value[16U] =
+      BOOST_CONSTEXPR_OR_CONST boost::uint_fast8_t hi_bit_value[16U] =
       {
         // x0  x1, x2, x3, x4, x5, x6, x7, x8, x9, xA, xB, xC, xD, xE, xF
            0U, 0U, 1U, 1U, 2U, 2U, 2U, 2U, 3U, 3U, 3U, 3U, 3U, 3U, 3U, 3U
       };
 
-      return ((hi_nibble != UINT8_C(0)) ? (UINT32_C(4) + hi_bit_value[hi_nibble])
+      return ((hi_nibble != UINT8_C(0)) ? (UINT8_C(4) + hi_bit_value[hi_nibble])
                                         : hi_bit_value[lo_nibble]);
   }
 
@@ -499,7 +499,7 @@
     }
     else if(p2 < 0)
     {
-      return 1 / power_of_two_helper<ArithmeticType>(-p2);
+      return ArithmeticType(1) / power_of_two_helper<ArithmeticType>(-p2);
     }
     else
     {

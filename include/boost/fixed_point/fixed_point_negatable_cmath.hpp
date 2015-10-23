@@ -314,9 +314,6 @@
 
     const bool is_odd_scaling = ((boost::int_fast8_t(n) & INT8_C(1)) != INT8_C(0));
 
-    const local_negatable_type cp(std::sqrt(2.0L));
-    const local_negatable_type cm(1.0L / std::sqrt(2.0L));
-
     // Rescale the result. In certain cases there is one extra
     // power of two. If so, either multiply with or divide by
     // the square root of 2 in order to complete the rescaling
@@ -2351,7 +2348,18 @@
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
-    return local_negatable_type(0);
+    local_negatable_type result(x);
+
+    if(y > x)
+    {
+      result.data = result.data + 1;
+    }
+    else if(y < x)
+    {
+      --(result.data);
+    }
+
+    return result;
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
