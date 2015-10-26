@@ -40,6 +40,7 @@ all_files : test_negatable_basic_arithmetic_fastest.exe            \
             test_negatable_func_arctangent_big.exe                 \
             test_negatable_func_arctangent_small.exe               \
             test_negatable_func_arctangent_tiny.exe                \
+            test_negatable_func_copysign.exe                       \
             test_negatable_func_cosine_big.exe                     \
             test_negatable_func_cosine_small.exe                   \
             test_negatable_func_cosine_tiny.exe                    \
@@ -64,6 +65,9 @@ all_files : test_negatable_basic_arithmetic_fastest.exe            \
             test_negatable_func_log_fastest.exe                    \
             test_negatable_func_log_nearest_even.exe               \
             test_negatable_func_log_tiny.exe                       \
+            test_negatable_func_nearbyint.exe                      \
+            test_negatable_func_nextafter                          \
+            test_negatable_func_nextafter_big                      \
             test_negatable_func_sine_big.exe                       \
             test_negatable_func_sine_small.exe                     \
             test_negatable_func_sine_tiny.exe                      \

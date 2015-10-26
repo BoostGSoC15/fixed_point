@@ -23,14 +23,14 @@
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> abs(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    return ((x < 0) ? -x : x);
+    return ((x.data < 0) ? -x : x);
   }
 
   //! @c std::fabs function (identical to abs and provided for completeness).
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> fabs(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    return ((x < 0) ? -x : x);
+    return ((x.data < 0) ? -x : x);
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
@@ -43,7 +43,7 @@
 
     const local_unsigned_small_type integral_part_mask((local_unsigned_small_type(((std::numeric_limits<local_negatable_type>::max)()).data) >> (-FractionalResolution)) << (-FractionalResolution));
 
-    if(x < 0)
+    if(x.data < 0)
     {
       const local_unsigned_small_type u_mask(local_unsigned_small_type(-x.data) & integral_part_mask);
 
@@ -67,7 +67,7 @@
 
     const local_unsigned_small_type integral_part_mask((local_unsigned_small_type(((std::numeric_limits<local_negatable_type>::max)()).data) >> (-FractionalResolution)) << (-FractionalResolution));
 
-    if(x < 0)
+    if(x.data < 0)
     {
       const local_unsigned_small_type u_mask(local_unsigned_small_type(-x.data) & integral_part_mask);
 
@@ -86,7 +86,7 @@
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> trunc(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    return ((x < 0) ? -floor(-x) : floor(x));
+    return ((x.data < 0) ? -floor(-x) : floor(x));
   }
 
   /*! @c std::frexp function \<cmath\> implementation for negatable types.\n
@@ -104,7 +104,7 @@
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    if(x == 0)
+    if(x.data == 0)
     {
       *exp2 = 0;
 
@@ -112,7 +112,7 @@
     }
     else
     {
-      const bool is_neg = (x < 0);
+      const bool is_neg = (x.data < 0);
 
       // Extract the unsigned representation of the data field.
       local_unsigned_small_type result((!is_neg) ? local_unsigned_small_type(x.data) : local_unsigned_small_type(-x.data));
@@ -168,7 +168,7 @@
     }
     else if(exp2 < 0)
     {
-      const bool is_neg = (x < 0);
+      const bool is_neg = (x.data < 0);
 
       local_unsigned_small_type result((!is_neg) ? local_unsigned_small_type(x.data) : local_unsigned_small_type(-x.data));
 
@@ -203,7 +203,7 @@
 
     local_negatable_type fractional_part = x - (integer_part * y);
 
-    if((x < 0) != (y < 0))
+    if((x.data < 0) != (y < 0))
     {
       fractional_part -= y;
     }
@@ -246,10 +246,10 @@
     local_negatable_type qx_denominator;
 
     // Here we break the reduced argument range yet further in half.
-    // This results in two ranges:
-    //  *lower* half of the range with (x >= 1/2 && x < 3/4)
-    // and an
-    //  *upper* half of the range with (x >= 3/4 && x < 1).
+    // This results in two sub-ranges:
+    //  the *lower* half of the range with (x >= 1/2 && x < 3/4)
+    // and
+    //  the *upper* half of the range with (x >= 3/4 && x < 1).
 
     if(x < local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0600) >> (11 + FractionalResolution))))
     {
@@ -317,9 +317,9 @@
       if(is_odd_scaling)
       {
         // Multiply with sqrt(2).
-        BOOST_CONSTEXPR_OR_CONST local_negatable_type sqrt_two(local_nothing(), local_value_type(UINT16_C(0x0B50) >> (11 + FractionalResolution)));
+        BOOST_CONSTEXPR_OR_CONST local_negatable_type root_two(local_nothing(), local_value_type(UINT16_C(0x0B50) >> (11 + FractionalResolution)));
 
-        result *= sqrt_two;
+        result *= root_two;
       }
 
       // Left-shift the result by 1/2 of the even factors of 2.
@@ -330,9 +330,9 @@
       if(is_odd_scaling)
       {
         // Divide by sqrt(2), which is actually accomplished via multiplication by [1 / sqrt(2)].
-        BOOST_CONSTEXPR_OR_CONST local_negatable_type one_over_sqrt_two(local_nothing(), local_value_type(UINT16_C(0x05A8) >> (11 + FractionalResolution)));
+        BOOST_CONSTEXPR_OR_CONST local_negatable_type one_over_root_two(local_nothing(), local_value_type(UINT16_C(0x05A8) >> (11 + FractionalResolution)));
 
-        result *= one_over_sqrt_two;
+        result *= one_over_root_two;
       }
 
       // Right-shift the result by 1/2 of the even factors of 2.
@@ -547,7 +547,7 @@
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle zero argument.
-    if(x == 0)
+    if(x.data == 0)
     {
       return local_negatable_type(1);
     }
@@ -559,7 +559,7 @@
     }
 
     // Handle reflection for negative arguments.
-    if(x < 0)
+    if(x.data < 0)
     {
       return 1 / exp(-x);
     }
@@ -609,7 +609,7 @@
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle zero argument.
-    if(x == 0)
+    if(x.data == 0)
     {
       return local_negatable_type(1);
     }
@@ -621,7 +621,7 @@
     }
 
     // Handle reflection for negative arguments.
-    if(x < 0)
+    if(x.data < 0)
     {
       return 1 / exp(-x);
     }
@@ -675,13 +675,13 @@
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     // Handle zero argument.
-    if(x == 0)
+    if(x.data == 0)
     {
       return local_negatable_type(1);
     }
 
     // Handle reflection for negative arguments.
-    if(x < 0)
+    if(x.data < 0)
     {
       return 1 / exp(-x);
     }
@@ -718,7 +718,7 @@
 
     if(x < 1)
     {
-      result = ((x > 0) ? -log(1 / x) : -local_negatable_type::value_max());
+      result = ((x.data > 0) ? -log(1 / x) : -local_negatable_type::value_max());
     }
     else if(x > 1)
     {
@@ -794,7 +794,7 @@
 
     if(x < 1)
     {
-      result = ((x > 0) ? -log(1 / x) : -local_negatable_type::value_max());
+      result = ((x.data > 0) ? -log(1 / x) : -local_negatable_type::value_max());
     }
     else if(x > 1)
     {
@@ -875,7 +875,7 @@
 
     if(x < 1)
     {
-      result = ((x > 0) ? -log(1 / x) : -local_negatable_type::value_max());
+      result = ((x.data > 0) ? -log(1 / x) : -local_negatable_type::value_max());
     }
     else if(x > 1)
     {
@@ -958,11 +958,11 @@
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
-    if(x == 0)
+    if(x.data == 0)
     {
       return local_negatable_type(0);
     }
-    else if(a == 0)
+    else if(a.data == 0)
     {
       return local_negatable_type(1);
     }
@@ -1017,7 +1017,7 @@
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle reflection for negative arguments.
-    if(x < 0)
+    if(x.data < 0)
     {
       return -sin(-x);
     }
@@ -1076,7 +1076,7 @@
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle reflection for negative arguments.
-    if(x < 0)
+    if(x.data < 0)
     {
       return -sin(-x);
     }
@@ -1137,7 +1137,7 @@
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     // Handle reflection for negative arguments.
-    if(x < 0)
+    if(x.data < 0)
     {
       return -sin(-x);
     }
@@ -1215,7 +1215,7 @@
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle reflection for negative arguments.
-    if(x < 0)
+    if(x.data < 0)
     {
       x = -x;
     }
@@ -1258,7 +1258,7 @@
     }
     else
     {
-      if(x == 0)
+      if(x.data == 0)
       {
         result = local_negatable_type(1);
       }
@@ -1299,7 +1299,7 @@
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle reflection for negative arguments.
-    if(x < 0)
+    if(x.data < 0)
     {
       x = -x;
     }
@@ -1343,7 +1343,7 @@
     }
     else
     {
-      if(x == 0)
+      if(x.data == 0)
       {
         result = local_negatable_type(1);
       }
@@ -1386,7 +1386,7 @@
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     // Handle reflection for negative arguments.
-    if(x < 0)
+    if(x.data < 0)
     {
       x = -x;
     }
@@ -1464,11 +1464,11 @@
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle negative arguments, zero argument and argument pi/2.
-    if(x < 0)
+    if(x.data < 0)
     {
       return -tan(-x);
     }
-    else if(x == 0)
+    else if(x.data == 0)
     {
       return local_negatable_type(0);
     }
@@ -1542,11 +1542,11 @@
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle negative arguments, zero argument and argument pi/2.
-    if(x < 0)
+    if(x.data < 0)
     {
       return -tan(-x);
     }
-    else if(x == 0)
+    else if(x.data == 0)
     {
       return local_negatable_type(0);
     }
@@ -1622,11 +1622,11 @@
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     // Handle negative arguments, zero argument and argument pi/2.
-    if(x < 0)
+    if(x.data < 0)
     {
       return -tan(-x);
     }
-    else if(x == 0)
+    else if(x.data == 0)
     {
       return local_negatable_type(0);
     }
@@ -1636,9 +1636,10 @@
     }
 
     // Use a relatively lazy calculation for tan(x) here.
-    // There is no support for sincos(negatable), so simply
-    // use the result of the division [sin(x) / cos(x)],
-    // where sin(x) and cos(x) are computed separately.
+    // Since there is no support for the potentially supported
+    // function sincos(negatable), we simply use the result
+    // of the division tan(x) = [sin(x) / cos(x)] for tangent.
+    // Here, sin(x) and cos(x) are computed separately.
 
     return sin(x) / cos(x);
   }
@@ -1651,14 +1652,14 @@
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    if(x < 0)
+    if(x.data < 0)
     {
       return -asin(-x);
     }
 
     local_negatable_type result;
 
-    if(x == 0)
+    if(x.data == 0)
     {
       result = local_negatable_type(0);
     }
@@ -1722,14 +1723,14 @@
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    if(x < 0)
+    if(x.data < 0)
     {
       return -asin(-x);
     }
 
     local_negatable_type result;
 
-    if(x == 0)
+    if(x.data == 0)
     {
       result = local_negatable_type(0);
     }
@@ -1779,14 +1780,14 @@
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
-    if(x < 0)
+    if(x.data < 0)
     {
       return -asin(-x);
     }
 
     local_negatable_type result;
 
-    if(x == 0)
+    if(x.data == 0)
     {
       result = local_negatable_type(0);
     }
@@ -1830,14 +1831,14 @@
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    if(x < 0)
+    if(x.data < 0)
     {
       return local_negatable_type::value_pi() - acos(-x);
     }
 
     local_negatable_type result;
 
-    if(x == 0)
+    if(x.data == 0)
     {
       result = local_negatable_type::value_pi_half();
     }
@@ -1888,14 +1889,14 @@
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    if(x < 0)
+    if(x.data < 0)
     {
       return local_negatable_type::value_pi() - acos(-x);
     }
 
     local_negatable_type result;
 
-    if(x == 0)
+    if(x.data == 0)
     {
       result = local_negatable_type::value_pi_half();
     }
@@ -1947,14 +1948,14 @@
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
-    if(x < 0)
+    if(x.data < 0)
     {
       return local_negatable_type::value_pi() - acos(-x);
     }
 
     local_negatable_type result;
 
-    if(x == 0)
+    if(x.data == 0)
     {
       result = local_negatable_type::value_pi_half();
     }
@@ -1982,14 +1983,14 @@
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    if(x < 0)
+    if(x.data < 0)
     {
       return -atan(-x);
     }
 
     local_negatable_type result;
 
-    if(x == 0)
+    if(x.data == 0)
     {
       result = local_negatable_type(0);
     }
@@ -2014,12 +2015,11 @@
 
       // Perform the polynomial approximation using a coefficient
       // expansion via the method of Horner.
-      result = (((     - local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0060) >> (11 + FractionalResolution)))    // 0.014236215058440372
-                  * x2 + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0145) >> (11 + FractionalResolution))))   // 0.059227914090755230
-                  * x2 - local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x029D) >> (11 + FractionalResolution))))   // 0.122639496662731095
-                  * x2 + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x07FF) >> (11 + FractionalResolution))));  // 0.999996396967490826
-
-      result *= x;
+      result = (((     - local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0060) >> (11 + FractionalResolution)))   // 0.014236215058440372
+                  * x2 + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0145) >> (11 + FractionalResolution))))  // 0.059227914090755230
+                  * x2 - local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x029D) >> (11 + FractionalResolution))))  // 0.122639496662731095
+                  * x2 + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x07FF) >> (11 + FractionalResolution))))  // 0.999996396967490826
+                  * x;
     }
 
     return result;
@@ -2033,14 +2033,14 @@
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    if(x < 0)
+    if(x.data < 0)
     {
       return -atan(-x);
     }
 
     local_negatable_type result;
 
-    if(x == 0)
+    if(x.data == 0)
     {
       result = local_negatable_type(0);
     }
@@ -2067,14 +2067,13 @@
 
       // Perform the polynomial approximation using a coefficient
       // expansion via the method of Horner.
-      result = (((((     - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0003A4FC) >> (24 + FractionalResolution)))    // 0.014236215058440372
-                    * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000F298F) >> (24 + FractionalResolution))))   // 0.059227914090755230
-                    * x2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x001F654D) >> (24 + FractionalResolution))))   // 0.122639496662731095
-                    * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0032329B) >> (24 + FractionalResolution))))   // 0.196084683947839669
-                    * x2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00554255) >> (24 + FractionalResolution))))   // 0.333043397362190827
-                    * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00FFFFC3) >> (24 + FractionalResolution))));  // 0.999996396967490826
-
-      result *= x;
+      result = (((((     - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0003A4FC) >> (24 + FractionalResolution)))   // 0.014236215058440372
+                    * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x000F298F) >> (24 + FractionalResolution))))  // 0.059227914090755230
+                    * x2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x001F654D) >> (24 + FractionalResolution))))  // 0.122639496662731095
+                    * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0032329B) >> (24 + FractionalResolution))))  // 0.196084683947839669
+                    * x2 - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00554255) >> (24 + FractionalResolution))))  // 0.333043397362190827
+                    * x2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00FFFFC3) >> (24 + FractionalResolution))))  // 0.999996396967490826
+                    * x;
     }
 
     return result;
@@ -2086,14 +2085,14 @@
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
-    if(x < 0)
+    if(x.data < 0)
     {
       return -atan(-x);
     }
 
     local_negatable_type result;
 
-    if(x == 0)
+    if(x.data == 0)
     {
       result = local_negatable_type(0);
     }
@@ -2142,7 +2141,7 @@
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     // Handle the negative arguments and zero arguments.
-    const bool x_is_neg = (x < 0);
+    const bool x_is_neg = (x.data < 0);
 
     if(y == 0)
     {
@@ -2151,7 +2150,7 @@
 
     const bool y_is_neg = (y < 0);
 
-    if(x == 0)
+    if(x.data == 0)
     {
       return ((!y_is_neg) ? local_negatable_type::value_pi_half() : -local_negatable_type::value_pi_half());
     }
@@ -2202,7 +2201,7 @@
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
-    if(x < 0)
+    if(x.data < 0)
     {
       // Handle negative argument.
       return -asinh(-x);
@@ -2210,7 +2209,7 @@
 
     local_negatable_type result;
 
-    if(x == 0)
+    if(x.data == 0)
     {
       result = local_negatable_type(0);
     }
@@ -2274,7 +2273,7 @@
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
-    if(x < 0)
+    if(x.data < 0)
     {
       // Handle negative argument.
       return -atanh(-x);
@@ -2282,7 +2281,7 @@
 
     local_negatable_type result;
 
-    if(x == 0)
+    if(x.data == 0)
     {
       // Handle arguments identically equal to 0.
       result = local_negatable_type(0);
@@ -2324,19 +2323,42 @@
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
-  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> copysign(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> copysign(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
-    return local_negatable_type(0);
+    const bool y_is_neg = (y.data < 0);
+    const bool x_is_neg = (x.data < 0);
+
+    const local_negatable_type x_abs = ((!x_is_neg) ? x : -x);
+
+    return ((!y_is_neg) ? x_abs : -x_abs);
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> nearbyint(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+    typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
+    typedef typename local_negatable_type::value_type                               local_value_type;
+    typedef typename local_negatable_type::float_type                               local_floating_point_type;
 
-    return local_negatable_type(0);
+    const bool is_neg = (x.data < 0);
+
+    const local_negatable_type negatable_tmp = ((!is_neg) ? (+x * 2) : (-x * 2));
+
+    const local_floating_point_type floating_point_tmp = negatable_tmp.template convert_to_floating_point_type<local_floating_point_type>();
+
+    local_unsigned_small_type unsigned_integral_tmp;
+
+    detail::conversion_helper<local_unsigned_small_type,
+                              local_floating_point_type>::convert_floating_point_to_unsigned_integer(floating_point_tmp,
+                                                                                                     unsigned_integral_tmp);
+
+    const boost::int_fast8_t rounding_result = local_negatable_type::binary_round(unsigned_integral_tmp);
+
+    return ((!is_neg) ? local_negatable_type(+local_value_type(unsigned_integral_tmp + rounding_result))
+                      : local_negatable_type(-local_value_type(unsigned_integral_tmp + rounding_result)));
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
@@ -2348,7 +2370,7 @@
 
     if(y > x)
     {
-      result.data = result.data + 1;
+      ++(result.data);
     }
     else if(y < x)
     {
@@ -2357,31 +2379,6 @@
 
     return result;
   }
-
-  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
-  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> nexttoward(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y)
-  {
-    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
-
-    return local_negatable_type(0);
-  }
-
-  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
-  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> remainder(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
-  {
-    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
-
-    return local_negatable_type(0);
-  }
-
-  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
-  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> rint(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
-  {
-    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
-
-    return local_negatable_type(0);
-  }
-
   } } // namespace boost::fixed_point
 
 #endif // FIXED_POINT_NEGATABLE_CMATH_2015_08_21_HPP_

@@ -68,6 +68,9 @@ g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-unin
 g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_arctangent_small.cpp -o test_negatable_func_arctangent_tiny.exe
 .\test_negatable_func_arctangent_tiny.exe
 
+g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_copysign.cpp -o test_negatable_func_copysign.exe
+.\test_negatable_func_copysign.exe
+
 g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_cosine_big.cpp -o test_negatable_func_cosine_big.exe
 .\test_negatable_func_cosine_big.exe
 
@@ -139,6 +142,15 @@ g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-unin
 
 g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_log_tiny.cpp -o test_negatable_func_log_tiny.exe
 .\test_negatable_func_log_tiny.exe
+
+g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_nearbyint.cpp -o test_negatable_func_nearbyint.exe
+.\test_negatable_func_nearbyint.exe
+
+g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_nextafter.cpp -o test_negatable_func_nextafter.exe
+.\test_negatable_func_nextafter.exe
+
+g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_nextafter_big.cpp -o test_negatable_func_nextafter_big.exe
+.\test_negatable_func_nextafter_big.exe
 
 g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_sine_big.cpp -o test_negatable_func_sine_big.exe
 .\test_negatable_func_sine_big.exe
