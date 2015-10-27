@@ -2341,24 +2341,36 @@
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
-    typedef typename local_negatable_type::float_type                               local_floating_point_type;
+    typedef typename local_negatable_type::nothing                                  local_nothing;
 
     const bool is_neg = (x.data < 0);
 
-    const local_negatable_type negatable_tmp = ((!is_neg) ? (+x * 2) : (-x * 2));
+    local_unsigned_small_type u_round = ((!is_neg) ? local_unsigned_small_type( x.data)
+                                                   : local_unsigned_small_type(-x.data));
 
-    const local_floating_point_type floating_point_tmp = negatable_tmp.template convert_to_floating_point_type<local_floating_point_type>();
+    // Shift to the right in order to obtain the rounding result.
+    // Note that the amount of right shift is one bit less than the
+    // fractional resolution, leaving one bit for rounding.
+    BOOST_CONSTEXPR int total_right_shift = (-FractionalResolution) - 1;
 
-    local_unsigned_small_type unsigned_integral_tmp;
+    u_round = detail::right_shift_helper(u_round, total_right_shift);
 
-    detail::conversion_helper<local_unsigned_small_type,
-                              local_floating_point_type>::convert_floating_point_to_unsigned_integer(floating_point_tmp,
-                                                                                                     unsigned_integral_tmp);
+    const boost::int_fast8_t rounding_result = local_negatable_type::binary_round(u_round);
 
-    const boost::int_fast8_t rounding_result = local_negatable_type::binary_round(unsigned_integral_tmp);
+    // Round the result.
+    local_unsigned_small_type result = local_unsigned_small_type(local_value_type(u_round) + rounding_result);
 
-    return ((!is_neg) ? local_negatable_type(+local_value_type(unsigned_integral_tmp + rounding_result))
-                      : local_negatable_type(-local_value_type(unsigned_integral_tmp + rounding_result)));
+    // Shift the result back to the left.
+    result = detail::left_shift_helper(result, -FractionalResolution);
+
+    const local_unsigned_small_type integral_part_mask((local_unsigned_small_type(((std::numeric_limits<local_negatable_type>::max)()).data) >> (-FractionalResolution)) << (-FractionalResolution));
+
+    // Mask out the fractional part (after rounding), leaving the nearby integer value.
+    result &= local_value_type(integral_part_mask);
+
+    // Return the result as a signed negatable object.
+    return ((!is_neg) ? local_negatable_type(local_nothing(),  local_value_type(result))
+                      : local_negatable_type(local_nothing(), -local_value_type(result)));
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>

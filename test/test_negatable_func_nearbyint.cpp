@@ -19,12 +19,12 @@
 
 BOOST_AUTO_TEST_CASE(test_negatable_func_nearbyint)
 {
+  using std::nearbyint;
+
   // Test nearbyint(x) for round-mode nearest-even.
   {
     typedef boost::fixed_point::negatable<7, -8, boost::fixed_point::round::nearest_even> fixed_point_type;
     typedef fixed_point_type::float_type                                                  float_point_type;
-
-    using std::nearbyint;
 
     fixed_point_type x;
     float_point_type y;
@@ -44,8 +44,6 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_nearbyint)
   {
     typedef boost::fixed_point::negatable<7, -8, boost::fixed_point::round::fastest> fixed_point_type;
     typedef fixed_point_type::float_type                                             float_point_type;
-
-    using std::nearbyint;
 
     fixed_point_type x;
     float_point_type y;
