@@ -16,9 +16,9 @@
   #include <boost/fixed_point/detail/fixed_point_detail_cstdfloat.hpp>
 
   #if (   !defined(BOOST_FIXED_POINT_FLOAT32_C)  \
-       && !defined(BOOST_FIXED_POINT_FLOAT32_C)  \
-       && !defined(BOOST_FIXED_POINT_FLOAT32_C)  \
-       && !defined(BOOST_FIXED_POINT_FLOAT32_C))
+       && !defined(BOOST_FIXED_POINT_FLOAT64_C)  \
+       && !defined(BOOST_FIXED_POINT_FLOAT80_C)  \
+       && !defined(BOOST_FIXED_POINT_FLOAT128_C))
     #error Configuration error: Sorry, fixed_point can not detect any IEEE-754 built-in floating-point types!
   #endif
 
