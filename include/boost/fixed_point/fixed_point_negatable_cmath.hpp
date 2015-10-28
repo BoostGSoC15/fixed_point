@@ -2348,9 +2348,8 @@
     local_unsigned_small_type u_round = ((!is_neg) ? local_unsigned_small_type( x.data)
                                                    : local_unsigned_small_type(-x.data));
 
-    // Shift to the right in order to obtain the rounding result.
-    // Note that the amount of right shift is one bit less than the
-    // fractional resolution, leaving one bit for rounding.
+    // Shift to the right. The amount of right shift is one bit less than
+    // the fractional resolution. This reserves one bit for rounding.
     BOOST_CONSTEXPR int total_right_shift = (-FractionalResolution) - 1;
 
     u_round = detail::right_shift_helper(u_round, total_right_shift);

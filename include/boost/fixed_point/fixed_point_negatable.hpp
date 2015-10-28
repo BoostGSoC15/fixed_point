@@ -1656,7 +1656,7 @@
   struct negatable_constants<negatable<IntegralRange, FractionalResolution, round::nearest_even, overflow::undefined>>
   {
   private:
-    typedef negatable<IntegralRange, FractionalResolution, round::fastest, overflow::undefined> local_negatable_type;
+    typedef negatable<IntegralRange, FractionalResolution, round::nearest_even, overflow::undefined> local_negatable_type;
 
   public:
     BOOST_STATIC_CONSTEXPR local_negatable_type root_two() { return local_negatable_type::value_root_two(); }
