@@ -26,10 +26,10 @@ namespace local
 
     const FixedPointType a1(FixedPointType( 21) / 10); const FloatPointType b1(FloatPointType( 21) / 10);
     const FixedPointType a2(FixedPointType(-21) / 10); const FloatPointType b2(FloatPointType(-21) / 10);
-    const FixedPointType a3(FixedPointType(  7) /  1); const FloatPointType b3(FloatPointType(  7) /  1);
-    const FixedPointType a4(FixedPointType( -4) /  1); const FloatPointType b4(FloatPointType( -4) /  1);
-    const FixedPointType a5(FixedPointType( -5) / 10); const FloatPointType b5(FloatPointType( -5) / 10);
-    const FixedPointType a6(FixedPointType(  5) / 10); const FloatPointType b6(FloatPointType(  5) / 10);
+    const FixedPointType a3(FixedPointType( 17) /  2); const FloatPointType b3(FloatPointType( 17) /  2);
+    const FixedPointType a4(FixedPointType(-14) /  3); const FloatPointType b4(FloatPointType(-14) /  3);
+    const FixedPointType a5(FixedPointType( -7) / 10); const FloatPointType b5(FloatPointType( -7) / 10);
+    const FixedPointType a6(FixedPointType(  7) / 10); const FloatPointType b6(FloatPointType(  7) / 10);
     const FixedPointType a7(FixedPointType(  1.23L));  const FloatPointType b7(FloatPointType(  1.23L));
     const FixedPointType a8(FixedPointType(  3.14L));  const FloatPointType b8(FloatPointType(  3.14L));
     const FixedPointType a9(FixedPointType( -3.14L));  const FloatPointType b9(FloatPointType( -3.14L));
@@ -58,12 +58,10 @@ namespace local
 
 BOOST_AUTO_TEST_CASE(test_negatable_func_floor_ceil)
 {
-  { typedef boost::fixed_point::negatable<  6,  -17> fixed_point_type; static_cast<void>(local::test_floor_ceil<fixed_point_type>()); }
-  { typedef boost::fixed_point::negatable<  6,  -25> fixed_point_type; static_cast<void>(local::test_floor_ceil<fixed_point_type>()); }
-  { typedef boost::fixed_point::negatable<  6,  -46> fixed_point_type; static_cast<void>(local::test_floor_ceil<fixed_point_type>()); }
-  { typedef boost::fixed_point::negatable<  6,  -57> fixed_point_type; static_cast<void>(local::test_floor_ceil<fixed_point_type>()); }
-  { typedef boost::fixed_point::negatable<  6, -121> fixed_point_type; static_cast<void>(local::test_floor_ceil<fixed_point_type>()); }
-  { typedef boost::fixed_point::negatable<  6, -233> fixed_point_type; static_cast<void>(local::test_floor_ceil<fixed_point_type>()); }
-  { typedef boost::fixed_point::negatable< 39, -200> fixed_point_type; static_cast<void>(local::test_floor_ceil<fixed_point_type>()); }
-  { typedef boost::fixed_point::negatable<100, -139> fixed_point_type; static_cast<void>(local::test_floor_ceil<fixed_point_type>()); }
+  { typedef boost::fixed_point::negatable<6,  -17> fixed_point_type; static_cast<void>(local::test_floor_ceil<fixed_point_type>()); }
+  { typedef boost::fixed_point::negatable<6,  -25> fixed_point_type; static_cast<void>(local::test_floor_ceil<fixed_point_type>()); }
+  { typedef boost::fixed_point::negatable<6,  -46> fixed_point_type; static_cast<void>(local::test_floor_ceil<fixed_point_type>()); }
+  { typedef boost::fixed_point::negatable<6,  -57> fixed_point_type; static_cast<void>(local::test_floor_ceil<fixed_point_type>()); }
+  { typedef boost::fixed_point::negatable<6, -121> fixed_point_type; static_cast<void>(local::test_floor_ceil<fixed_point_type>()); }
+  { typedef boost::fixed_point::negatable<6, -249> fixed_point_type; static_cast<void>(local::test_floor_ceil<fixed_point_type>()); }
 }
