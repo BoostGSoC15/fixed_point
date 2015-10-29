@@ -24,6 +24,7 @@ all_files : test_negatable_basic_arithmetic_fastest.exe            \
             test_negatable_basic_basic_ops.exe                     \
             test_negatable_basic_bit_pattern.exe                   \
             test_negatable_basic_construct.exe                     \
+            test_negatable_basic_is_fixed_point.exe                \
             test_negatable_basic_limits.exe                        \
             test_negatable_basic_mixed_constructors_part1.exe      \
             test_negatable_basic_mixed_constructors_part2.exe      \

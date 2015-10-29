@@ -1879,6 +1879,23 @@
 
   #endif // !BOOST_FIXED_POINT_DISABLE_IOSTREAM
 
+  // Implement is_fixed_point for compile-time querying
+  // of whether or not a given type is fixed_point.
+
+  template<typename T>
+  struct is_fixed_point : std::false_type
+  {
+  };
+
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  struct is_fixed_point<negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>>
+    : std::true_type
+  {
+  };
+
   } } // namespace boost::fixed_point
 
   // Here we include specializations of std::numeric_limits<negatable>.
