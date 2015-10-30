@@ -641,9 +641,18 @@ in Section 12.7 and [@http://link.springer.com/chapter/10.1007/978-3-642-34688-0
 
 This example shows how the famous
 [@https://en.wikipedia.org/wiki/Mandelbrot_set Mandelbrot set]
-can be [@../mandelbrot.jpg generated] both using a medium-high resolution
-type, `boost::fixed_point::negatable<16, -111>` (fits in 128-bit).
-Even higher resolution is only limited by ones memory and patience.
+
+[$../mandelbrot.jpg  [width 200px] [height 200px]]
+generated at quite low-resolution using a 32-bit integer type.
+
+Some more images are at:
+[@../../example/mandelbrot_01_aqua_full.jpg aqua full],
+[@../../example/mandelbrot_02_yellow_top.jpg yellow top],
+[@../../example/mandelbrot_03_fuschia_swirl.jpg swirl],
+[@../../example/mandelbrot_04_black_white_seahorses.jpg  black and white seahorses].
+
+Images can be generated at higher resolution using `boost::fixed_point::negatable<16, -111>`
+(fits in 128-bit integer type. Even higher resolution is only limited by ones computer memory and patience.
 
 Full code is at [@../../example/fixed_point_mandelbrot.cpp fixed_point_mandelbrot.cpp].
 
@@ -1470,7 +1479,6 @@ Vicente Botet Escriba prototyped a [@http://svn.boost.org/svn/boost/sandbox/fixe
 
 [@http://2015.cppnow.org/participant/vicente-j-botet-escriba/ Phil Endecott reviewed past discussions on fixed-point.]
 
-
 [endsect] [/section:ack Acknowledgements]
 
 [section:references References]
@@ -1501,6 +1509,10 @@ can save much memory when there are very many values to store.
 Using less memory can also reduce cache misses and can reduce disk I/O.
 The type is always converted to a __fundamental_types floating-point type for any computation;
 instructions `vcvtph2ps` and `vcvtps2ph` are provided to convert to and from 32-bit float efficiently.
+
+#[@http://sites.ieee.org/scv-cs/files/2013/03/Right-SizingPrecision1.pdf Right-sizing Precision]
+Unleashed Computing: The need to right-size precision to save energy,
+bandwidth, storage, and electrical power, John L. Gustafson, AMD.
 
 #[@https://en.wikipedia.org/wiki/ARM_architecture ARM architecture].
 
