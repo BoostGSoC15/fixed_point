@@ -19,11 +19,15 @@
 
 BOOST_AUTO_TEST_CASE(test_negatable_basic_is_fixed_point)
 {
-  typedef boost::fixed_point::negatable<7, -8> fixed_point_type;
+  typedef boost::fixed_point::negatable<7, -8> fixed_point_type1;
+  typedef boost::fixed_point::negatable<7, -8, boost::fixed_point::round::nearest_even> fixed_point_type2;
 
   bool b;
 
-  b = boost::fixed_point::is_fixed_point<fixed_point_type>::value;
+  b = boost::fixed_point::is_fixed_point<fixed_point_type1>::value;
+  BOOST_CHECK_EQUAL(b, true);
+
+  b = boost::fixed_point::is_fixed_point<fixed_point_type2>::value;
   BOOST_CHECK_EQUAL(b, true);
 
   b = boost::fixed_point::is_fixed_point<int>::value;
