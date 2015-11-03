@@ -20,10 +20,11 @@
   // using preprocessor definitions. Not all of these are supported
   // at the moment. The potential options include:
 
-  // Is supported now     : #define BOOST_FIXED_POINT_DISABLE_IOSTREAM
-  // Is supported now     : #define BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
-  // Is not yet supported : #define BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH
-  // Is not yet supported : #define BOOST_FIXED_POINT_DISABLE_CPP11
+  // Is supported now  : #define BOOST_FIXED_POINT_DISABLE_IOSTREAM
+  // Is supported now  : #define BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
+  // Not yet supported : #define BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH
+  // Not yet supported : #define BOOST_FIXED_POINT_DISABLE_CPP11
+  // Not yet supported : #define BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS
 
   // With BOOST_FIXED_POINT_DISABLE_IOSTREAM, all I/O streaming
   // is disabled, as is the inclusion of associated standard
@@ -53,6 +54,11 @@
   // the wrong message about language technology, but could
   // increase the range of potential target compilers
   // (especially for embedded systems).
+
+  // With BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS,
+  // multiple-precision backends (when used) will use the ones
+  // based on GMP instead of Boost.Multiprecision's self-written
+  // multiple-precision backends.
 
   #include <boost/fixed_point/fixed_point_negatable.hpp>
 
