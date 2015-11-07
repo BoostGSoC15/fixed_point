@@ -59,7 +59,11 @@ doxygen autodoc
    [ glob ../include/boost/fixed_point/fixed_point_negatable.hpp ]
    [ glob ../include/boost/fixed_point/fixed_point_round.hpp ]
    [ glob ../include/boost/fixed_point/fixed_point_overflow.hpp ]
-   [ glob ../include/boost/fixed_point/fixed_point_nonnegative.hpp ]
+   [ glob ../include/boost/fixed_point/fixed_point_negatable_next.hpp ]
+   [ glob ../include/boost/fixed_point/fixed_point_negatable_cmath.hpp ]
+
+   # No longer implemented [ glob ../include/boost/fixed_point/fixed_point_nonnegative.hpp ]
+
 
     # [ glob $(here)/../include/boost/fixed_point/*.hpp ]
     # [ glob $(here)/../include/boost/fixed_point/detail/fixed_point/*.hpp ]
