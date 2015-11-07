@@ -769,7 +769,7 @@ The full code is at [@../../example/fixed_point_constants.cpp  fixed_point_const
 
 [endsect] [/section:constants Constants]
 
-[section:how_to_tell How to Determine the Kind of a Number From `std::numeric_limits`]
+[section:how_to_tell How to Determine the Kind of a Number from `std::numeric_limits`]
 
 Based on the information above, one can see that different kinds of numbers can be
 differentiated based on the information stored in `std::numeric_limits`.  This is
