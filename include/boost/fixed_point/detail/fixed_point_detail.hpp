@@ -34,9 +34,13 @@
   template<typename UnsignedIntegralType>
   UnsignedIntegralType left_shift_helper(UnsignedIntegralType& u, const int shift_count)
   {
-    static_assert(    (std::numeric_limits<UnsignedIntegralType>::is_integer == true)
-                   && (std::numeric_limits<UnsignedIntegralType>::is_signed  == false),
-                   "The UnsignedIntegralType for left shift must be an unsigned integral type.");
+    #if !defined(BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS)
+
+      static_assert(    (std::numeric_limits<UnsignedIntegralType>::is_integer == true)
+                     && (std::numeric_limits<UnsignedIntegralType>::is_signed  == false),
+                     "The UnsignedIntegralType for left shift must be an unsigned integral type.");
+
+    #endif
 
     return ((shift_count > 0) ? UnsignedIntegralType(u << +shift_count)
                               : UnsignedIntegralType(u >> -shift_count));
@@ -87,19 +91,28 @@
         (BitCount <= boost::uint32_t(UINT32_C(1) << 30)) ? boost::uint32_t(UINT32_C(1) << 30) :
         (boost::uint32_t(UINT32_C(1) << 31));
 
-      typedef boost::multiprecision::cpp_int_backend<unsigned(bit_count_nearest_power_of_two),
-                                                     unsigned(bit_count_nearest_power_of_two),
-                                                     boost::multiprecision::signed_magnitude,
-                                                     boost::multiprecision::unchecked,
-                                                     void>
-      signed_integral_backend_type;
+      #if defined(BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS)
 
-      typedef boost::multiprecision::cpp_int_backend<unsigned(bit_count_nearest_power_of_two),
-                                                     unsigned(bit_count_nearest_power_of_two),
-                                                     boost::multiprecision::unsigned_magnitude,
-                                                     boost::multiprecision::unchecked,
-                                                     void>
-      unsigned_integral_backend_type;
+        typedef boost::multiprecision::gmp_int signed_integral_backend_type;
+        typedef boost::multiprecision::gmp_int unsigned_integral_backend_type;
+
+      #else
+
+        typedef boost::multiprecision::cpp_int_backend<unsigned(bit_count_nearest_power_of_two),
+                                                       unsigned(bit_count_nearest_power_of_two),
+                                                       boost::multiprecision::signed_magnitude,
+                                                       boost::multiprecision::unchecked,
+                                                       void>
+        signed_integral_backend_type;
+
+        typedef boost::multiprecision::cpp_int_backend<unsigned(bit_count_nearest_power_of_two),
+                                                       unsigned(bit_count_nearest_power_of_two),
+                                                       boost::multiprecision::unsigned_magnitude,
+                                                       boost::multiprecision::unchecked,
+                                                       void>
+        unsigned_integral_backend_type;
+
+      #endif
 
     public:
       typedef boost::multiprecision::number<signed_integral_backend_type,
@@ -165,9 +178,18 @@
     struct float_type_helper
     {
     private:
-      typedef boost::multiprecision::backends::cpp_bin_float<unsigned(BitCount),
-                                                             boost::multiprecision::backends::digit_base_2>
-      floating_point_backend_type;
+
+      #if defined(BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS)
+
+        typedef boost::multiprecision::gmp_float<unsigned((static_cast<long long>(static_cast<long long>(BitCount) * 301LL) + 500LL) / 1000LL)> floating_point_backend_type;
+
+      #else
+
+        typedef boost::multiprecision::backends::cpp_bin_float<unsigned(BitCount),
+                                                               boost::multiprecision::backends::digit_base_2>
+        floating_point_backend_type;
+
+      #endif
 
     public:
       typedef boost::multiprecision::number<floating_point_backend_type,

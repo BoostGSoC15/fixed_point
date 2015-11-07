@@ -56,9 +56,9 @@
   // (especially for embedded systems).
 
   // With BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS,
-  // multiple-precision backends (when used) will use the ones
-  // based on GMP instead of Boost.Multiprecision's self-written
-  // multiple-precision backends.
+  // multiple-precision backends are used, this will ensure that
+  // the those based on GMP are used instead of those based based
+  // on Boost.Multiprecision's self-written backends.
 
   #include <boost/fixed_point/fixed_point_negatable.hpp>
 

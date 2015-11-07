@@ -144,15 +144,11 @@ namespace local
 BOOST_AUTO_TEST_CASE(test_negatable_constants_local_pi)
 {
   { typedef boost::fixed_point::negatable< 2,    -3> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::pi(1)); }
-  { typedef boost::fixed_point::negatable< 2,    -5> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::pi(1)); }
-  { typedef boost::fixed_point::negatable< 2,   -13> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::pi(2)); }
   { typedef boost::fixed_point::negatable< 4,   -19> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::pi(4)); }
   { typedef boost::fixed_point::negatable< 4,   -27> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::pi(4)); }
   { typedef boost::fixed_point::negatable< 8,   -44> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::pi(((-fixed_point_type::resolution + 9) * 2) / 10)); }
   { typedef boost::fixed_point::negatable< 8,   -55> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::pi(((-fixed_point_type::resolution + 9) * 2) / 10)); }
-  { typedef boost::fixed_point::negatable<16,   -96> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::pi(((-fixed_point_type::resolution + 9) * 2) / 10)); }
   { typedef boost::fixed_point::negatable<16,  -111> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::pi(((-fixed_point_type::resolution + 9) * 2) / 10)); }
   { typedef boost::fixed_point::negatable<16,  -223> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::pi(((-fixed_point_type::resolution + 9) * 2) / 10)); }
-  { typedef boost::fixed_point::negatable<16,  -495> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::pi(((-fixed_point_type::resolution + 9) * 1) / 10)); }
   { typedef boost::fixed_point::negatable<16, -1007> fixed_point_type; static_cast<void>(local::constants_helper<fixed_point_type, fixed_point_type::float_type>::pi(((-fixed_point_type::resolution + 9) * 1) / 10)); }
 }
