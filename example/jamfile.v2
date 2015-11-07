@@ -59,16 +59,14 @@ run fixed_point_bernoulli_b2n.cpp ;
 run fixed_point_constants.cpp ;
 run fixed_point_demo_basic.cpp ;
 run fixed_point_laguerre_approx_cos.cpp ;
-run fixed_point_limits.cpp ;
 run fixed_point_polynomial_approx_sin.cpp ;
 run fixed_point_polynomial_approx_tgamma.cpp ;
 run fixed_point_type_examples.cpp ;
+run fixed_point_limits.cpp ;
 
 #  The Mandelbrot set example needs a jpeg library (such as jpeg-6b on windows or libjpeg on *nix)
 
 #run fixed_point_mandelbrot.cpp ;
-
-run fixed_point_bernoulli_b2n.cpp ;
 
 
 
