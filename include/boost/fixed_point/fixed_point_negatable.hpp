@@ -1107,9 +1107,9 @@
                                                                     : unsigned_small_digits);
 
       // Define a local_unsigned_conversion_type.
-      typedef
-      typename detail::integer_type_helper<unsigned_conversion_digits>::exact_unsigned_type
-      local_unsigned_conversion_type;
+      typedef typename
+        detail::integer_type_helper<unsigned_conversion_digits>::exact_unsigned_type
+        local_unsigned_conversion_type;
 
       const bool is_neg = (f < FloatingPointType(0));
 
@@ -1287,11 +1287,11 @@
         Epsilon is defined as the smallest number that,
         when added to one, yields a result different from one.
         By this definition, epsilon equals the value of the unit
-        in the last place relative to 1 (i.e. b^{ -(p - 1) }),
+        in the last place relative to 1, in other words b^(-p + 1),
         where p is the total number of significand bits including
         any implicit bit. For negatable<7, -8>, for example,
         we have p = 8 and b = 2, so the value of epsilon is:
-        2^{-(8 - 1)} = 2^{-7} = 0.0078125.
+        2^(-8 + 1) = 2^{-7} = 0.0078125.
         \sa http://en.cppreference.com/w/cpp/types/numeric_limits/epsilon
     */
     static negatable epsilon_maker() BOOST_NOEXCEPT
@@ -1629,11 +1629,15 @@
     template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> nextafter (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> y);
   };
 
-  //! Once-only instances of static constant variables of the negative class.
-  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::range;
-  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::resolution;
-  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::all_bits;
-  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::radix_split;
+  #if !defined(BOOST_NO_INCLASS_MEMBER_INITIALIZATION)
+
+    //! Once-only instances of static constant variables of the negative class.
+    template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::range;
+    template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::resolution;
+    template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::all_bits;
+    template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::radix_split;
+
+  #endif // !BOOST_NO_INCLASS_MEMBER_INITIALIZATION
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   typename negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::initializer negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::initialization_helper;
@@ -1878,6 +1882,23 @@
     }
 
   #endif // !BOOST_FIXED_POINT_DISABLE_IOSTREAM
+
+  // Implement is_fixed_point for compile-time querying
+  // of whether or not a given type is fixed_point.
+
+  template<typename T>
+  struct is_fixed_point : std::false_type
+  {
+  };
+
+  template<const int IntegralRange,
+           const int FractionalResolution,
+           typename RoundMode,
+           typename OverflowMode>
+  struct is_fixed_point<negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>>
+    : std::true_type
+  {
+  };
 
   } } // namespace boost::fixed_point
 

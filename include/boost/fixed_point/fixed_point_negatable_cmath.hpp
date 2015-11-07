@@ -49,11 +49,15 @@
 
       return ((local_unsigned_small_type(-x.data) == u_mask) ? x : (local_negatable_type(local_nothing(), -local_value_type(u_mask)) - 1));
     }
-    else
+    else if(x.data > 0)
     {
       const local_unsigned_small_type u_mask(local_unsigned_small_type(x.data) & integral_part_mask);
 
       return local_negatable_type(local_nothing(), u_mask);
+    }
+    else
+    {
+      return local_negatable_type(0U);
     }
   }
 
@@ -73,13 +77,17 @@
 
       return local_negatable_type(local_nothing(), -local_value_type(u_mask));
     }
-    else
+    else if(x.data > 0)
     {
       const local_unsigned_small_type u(x.data);
 
       const local_unsigned_small_type u_mask(u & integral_part_mask);
 
       return ((u == u_mask) ? x : (local_negatable_type(local_nothing(), local_value_type(u_mask)) + 1));
+    }
+    else
+    {
+      return local_negatable_type(0U);
     }
   }
 
@@ -108,7 +116,7 @@
     {
       *exp2 = 0;
 
-      return local_negatable_type(0);
+      return local_negatable_type(0U);
     }
     else
     {
@@ -190,7 +198,7 @@
 
     if(y == 0)
     {
-      return local_negatable_type(0);
+      return local_negatable_type(0U);
     }
 
     // Calculate the fractional part of x such that:
@@ -223,17 +231,17 @@
     // Handle arguments negative, zero, or unity.
     if(x <= 0)
     {
-      return local_negatable_type(0);
+      return local_negatable_type(0U);
     }
-    else if(x == local_negatable_type(1))
+    else if(x == local_negatable_type(1U))
     {
-      return local_negatable_type(1);
+      return local_negatable_type(1U);
     }
 
     int n;
 
     // Use range reduction for (x < +1/2) or (x > 1).
-    if((x < ldexp(local_negatable_type(1), -1)) || (x > 1))
+    if((x < ldexp(local_negatable_type(1U), -1)) || (x > 1))
     {
       x = frexp(x, &n);
     }
@@ -354,17 +362,17 @@
     // Handle arguments negative, zero, or unity.
     if(x <= 0)
     {
-      return local_negatable_type(0);
+      return local_negatable_type(0U);
     }
     else if(x == 1)
     {
-      return local_negatable_type(1);
+      return local_negatable_type(1U);
     }
 
     int n;
 
     // Use range reduction for (x < +1/2) or (x > 1).
-    if((x < ldexp(local_negatable_type(1), -1)) || (x > 1))
+    if((x < ldexp(local_negatable_type(1U), -1)) || (x > 1))
     {
       x = frexp(x, &n);
     }
@@ -456,11 +464,11 @@
     // Handle arguments negative, zero, or unity.
     if(x <= 0)
     {
-      return local_negatable_type(0);
+      return local_negatable_type(0U);
     }
-    else if(x == local_negatable_type(1))
+    else if(x == local_negatable_type(1U))
     {
-      return local_negatable_type(1);
+      return local_negatable_type(1U);
     }
 
     // Find the most significant bit in order to perform range reduction.
@@ -490,15 +498,15 @@
     a.data = local_value_type(local_unsigned_small_type(a.data) >> 1);
 
     // Here is the addition of (1/2) to complete the initial guess.
-    a += ldexp(local_negatable_type(1), -1);
+    a += ldexp(local_negatable_type(1U), -1);
 
     // Remove the scaling from the reduced guess of the result
     // and use this as the proper initial guess of sqrt(x).
-    if(n2 / 2 > 0)
+    if((n2 / 2) > 0)
     {
       a.data <<= (n2 / 2);
     }
-    else if(n2 / 2 < 0)
+    else if((n2 / 2) < 0)
     {
       a.data = local_value_type(local_unsigned_small_type(a.data) >> (-n2 / 2));
     }
@@ -549,11 +557,11 @@
     // Handle zero argument.
     if(x.data == 0)
     {
-      return local_negatable_type(1);
+      return local_negatable_type(1U);
     }
 
     // Handle unity argument.
-    if(x == local_negatable_type(1))
+    if(x == local_negatable_type(1U))
     {
       return local_negatable_type::value_e();
     }
@@ -611,11 +619,11 @@
     // Handle zero argument.
     if(x.data == 0)
     {
-      return local_negatable_type(1);
+      return local_negatable_type(1U);
     }
 
     // Handle unity argument.
-    if(x == local_negatable_type(1))
+    if(x == local_negatable_type(1U))
     {
       return local_negatable_type::value_e();
     }
@@ -677,7 +685,7 @@
     // Handle zero argument.
     if(x.data == 0)
     {
-      return local_negatable_type(1);
+      return local_negatable_type(1U);
     }
 
     // Handle reflection for negative arguments.
@@ -775,7 +783,7 @@
     else
     {
       // The argument is exactly equal to 1.
-      result = local_negatable_type(0);
+      result = local_negatable_type(0U);
     }
 
     return result;
@@ -857,7 +865,7 @@
     else
     {
       // The argument is exactly equal to 1.
-      result = local_negatable_type(0);
+      result = local_negatable_type(0U);
     }
 
     return result;
@@ -930,7 +938,7 @@
     else
     {
       // The argument is exactly equal to 1.
-      result = local_negatable_type(0);
+      result = local_negatable_type(0U);
     }
 
     return result;
@@ -960,11 +968,11 @@
 
     if(x.data == 0)
     {
-      return local_negatable_type(0);
+      return local_negatable_type(0U);
     }
     else if(a.data == 0)
     {
-      return local_negatable_type(1);
+      return local_negatable_type(1U);
     }
     else
     {
@@ -979,7 +987,7 @@
 
     if(n == 0)
     {
-      return local_negatable_type(1);
+      return local_negatable_type(1U);
     }
     else if(n < 0)
     {
@@ -988,7 +996,7 @@
     else
     {
       // The variable xn stores the binary powers of x.
-      local_negatable_type result(((n % 2) != 0) ? x : local_negatable_type(1));
+      local_negatable_type result(((n % 2) != 0) ? x : local_negatable_type(1U));
 
       while((n /= 2) != 0)
       {
@@ -1042,7 +1050,7 @@
     {
       if(x == local_negatable_type::value_pi_half())
       {
-        result = local_negatable_type(1);
+        result = local_negatable_type(1U);
       }
       else
       {
@@ -1101,7 +1109,7 @@
     {
       if(x == local_negatable_type::value_pi_half())
       {
-        result = local_negatable_type(1);
+        result = local_negatable_type(1U);
       }
       else
       {
@@ -1234,7 +1242,7 @@
 
     const local_negatable_type delta = local_negatable_type::value_pi_half() - x;
 
-    if(fabs(delta) < ldexp(local_negatable_type(1), -2))
+    if(fabs(delta) < ldexp(local_negatable_type(1U), -2))
     {
       const local_negatable_type delta2 = (delta * delta);
 
@@ -1260,11 +1268,11 @@
     {
       if(x.data == 0)
       {
-        result = local_negatable_type(1);
+        result = local_negatable_type(1U);
       }
       else if(x == local_negatable_type::value_pi_half())
       {
-        result = local_negatable_type(0);
+        result = local_negatable_type(0U);
       }
       else
       {
@@ -1318,7 +1326,7 @@
 
     const local_negatable_type delta = local_negatable_type::value_pi_half() - x;
 
-    if(fabs(delta) < ldexp(local_negatable_type(1), -2))
+    if(fabs(delta) < ldexp(local_negatable_type(1U), -2))
     {
       const local_negatable_type delta2 = (delta * delta);
 
@@ -1345,11 +1353,11 @@
     {
       if(x.data == 0)
       {
-        result = local_negatable_type(1);
+        result = local_negatable_type(1U);
       }
       else if(x == local_negatable_type::value_pi_half())
       {
-        result = local_negatable_type(0);
+        result = local_negatable_type(0U);
       }
       else
       {
@@ -1470,7 +1478,7 @@
     }
     else if(x.data == 0)
     {
-      return local_negatable_type(0);
+      return local_negatable_type(0U);
     }
     else if(x == local_negatable_type::value_pi_half())
     {
@@ -1526,7 +1534,7 @@
       else
       {
         // The argument is exactly +pi/4.
-        result = local_negatable_type(1);
+        result = local_negatable_type(1U);
       }
     }
 
@@ -1548,7 +1556,7 @@
     }
     else if(x.data == 0)
     {
-      return local_negatable_type(0);
+      return local_negatable_type(0U);
     }
     else if(x == local_negatable_type::value_pi_half())
     {
@@ -1608,7 +1616,7 @@
       else
       {
         // The argument is exactly +pi/4.
-        result = local_negatable_type(1);
+        result = local_negatable_type(1U);
       }
     }
 
@@ -1628,7 +1636,7 @@
     }
     else if(x.data == 0)
     {
-      return local_negatable_type(0);
+      return local_negatable_type(0U);
     }
     else if(x == local_negatable_type::value_pi_half())
     {
@@ -1661,7 +1669,7 @@
 
     if(x.data == 0)
     {
-      result = local_negatable_type(0);
+      result = local_negatable_type(0U);
     }
     else if(x == 1)
     {
@@ -1669,11 +1677,11 @@
     }
     else if(x > 1)
     {
-      result = local_negatable_type(0);
+      result = local_negatable_type(0U);
     }
     else
     {
-      if(x < ldexp(local_negatable_type(1), -2))
+      if(x < ldexp(local_negatable_type(1U), -2))
       {
         const local_negatable_type x2 = (x * x);
 
@@ -1732,7 +1740,7 @@
 
     if(x.data == 0)
     {
-      result = local_negatable_type(0);
+      result = local_negatable_type(0U);
     }
     else if(x == 1)
     {
@@ -1740,7 +1748,7 @@
     }
     else if(x > 1)
     {
-      result = local_negatable_type(0);
+      result = local_negatable_type(0U);
     }
     else
     {
@@ -1789,7 +1797,7 @@
 
     if(x.data == 0)
     {
-      result = local_negatable_type(0);
+      result = local_negatable_type(0U);
     }
     else if(x == 1)
     {
@@ -1797,17 +1805,15 @@
     }
     else if(x > 1)
     {
-      result = local_negatable_type(0);
+      result = local_negatable_type(0U);
     }
     else
     {
-      const local_negatable_type one_half     = ldexp(local_negatable_type(1), -1);
-      const local_negatable_type three_halves = local_negatable_type(3) / 2;
+      const local_negatable_type one_half     = ldexp(local_negatable_type(1U), -1);
+      const local_negatable_type three_halves = ldexp(local_negatable_type(3U), -1);
 
       if(x < one_half)
       {
-        const local_negatable_type half = local_negatable_type(1) / 2;
-
         result = x * detail::hypergeometric_2f1(one_half, one_half, three_halves, (x * x));
       }
       else
@@ -1844,11 +1850,11 @@
     }
     else if(x == 1)
     {
-      result = local_negatable_type(0);
+      result = local_negatable_type(0U);
     }
     else if(x > 1)
     {
-      result = local_negatable_type(0);
+      result = local_negatable_type(0U);
     }
     else
     {
@@ -1902,11 +1908,11 @@
     }
     else if(x == 1)
     {
-      result = local_negatable_type(0);
+      result = local_negatable_type(0U);
     }
     else if(x > 1)
     {
-      result = local_negatable_type(0);
+      result = local_negatable_type(0U);
     }
     else
     {
@@ -1961,11 +1967,11 @@
     }
     else if(x == 1)
     {
-      result = local_negatable_type(0);
+      result = local_negatable_type(0U);
     }
     else if(x > 1)
     {
-      result = local_negatable_type(0);
+      result = local_negatable_type(0U);
     }
     else
     {
@@ -1992,13 +1998,13 @@
 
     if(x.data == 0)
     {
-      result = local_negatable_type(0);
+      result = local_negatable_type(0U);
     }
-    else if(x == local_negatable_type(1))
+    else if(x == local_negatable_type(1U))
     {
       result = ldexp(local_negatable_type::value_pi(), -2);
     }
-    else if(x > local_negatable_type(1))
+    else if(x > local_negatable_type(1U))
     {
       result = local_negatable_type::value_pi_half() - atan(1 / x);
     }
@@ -2042,13 +2048,13 @@
 
     if(x.data == 0)
     {
-      result = local_negatable_type(0);
+      result = local_negatable_type(0U);
     }
-    else if(x == local_negatable_type(1))
+    else if(x == local_negatable_type(1U))
     {
       result = ldexp(local_negatable_type::value_pi(), -2);
     }
-    else if(x > local_negatable_type(1))
+    else if(x > local_negatable_type(1U))
     {
       result = local_negatable_type::value_pi_half() - atan(1 / x);
     }
@@ -2094,22 +2100,25 @@
 
     if(x.data == 0)
     {
-      result = local_negatable_type(0);
+      result = local_negatable_type(0U);
     }
-    else if(x == local_negatable_type(1))
+    else if(x == local_negatable_type(1U))
     {
       result = ldexp(local_negatable_type::value_pi(), -2);
     }
-    else if(x > local_negatable_type(1))
+    else if(x > local_negatable_type(1U))
     {
       result = local_negatable_type::value_pi_half() - atan(1 / x);
     }
-    else if(x < ldexp(local_negatable_type(1), -3))
+    else if(x < ldexp(local_negatable_type(1U), -3))
     {
+      const local_negatable_type one_half     = ldexp(local_negatable_type(1U), -1);
+      const local_negatable_type three_halves = ldexp(local_negatable_type(3U), -1);
+
       // Use a hypergeometric series expansion for small argument.
-      result = x * detail::hypergeometric_2f1( local_negatable_type(1),
-                                               local_negatable_type(1) / 2,
-                                               local_negatable_type(3) / 2,
+      result = x * detail::hypergeometric_2f1( local_negatable_type(1U),
+                                               one_half,
+                                               three_halves,
                                               -(x * x));
     }
     else
@@ -2119,7 +2128,7 @@
       // Obtain an initial guess using a two-term Pade approximation
       // for atan(x). The coefficients for this Pade approximation
       // have been specifically derived for this work.
-      result = (x * 3) / (3 + (x * x));
+      result = (x * 3U) / (3U + (x * x));
 
       // Do the Newton-Raphson iteration. Start with four binary digits
       // of precision obtained from the initial guess above.
@@ -2145,7 +2154,7 @@
 
     if(y == 0)
     {
-      return ((!x_is_neg) ? local_negatable_type(0) : local_negatable_type::value_pi());
+      return ((!x_is_neg) ? local_negatable_type(0U) : local_negatable_type::value_pi());
     }
 
     const bool y_is_neg = (y < 0);
@@ -2211,17 +2220,18 @@
 
     if(x.data == 0)
     {
-      result = local_negatable_type(0);
+      result = local_negatable_type(0U);
     }
     else
     {
-      if(x < ldexp(local_negatable_type(1), -3))
+      if(x < ldexp(local_negatable_type(1U), -3))
       {
         // Handle arguments greater than 0 but less than 1/8.
         // Use a hypergeometric series representation here.
-        const local_negatable_type one_half = ldexp(local_negatable_type(1), -1);
+        const local_negatable_type one_half     = ldexp(local_negatable_type(1U), -1);
+        const local_negatable_type three_halves = ldexp(local_negatable_type(3U), -1);
 
-        result = x * detail::hypergeometric_2f1(one_half, one_half, local_negatable_type(3) / 2, -(x * x));
+        result = x * detail::hypergeometric_2f1(one_half, one_half, three_halves, -(x * x));
       }
       else
       {
@@ -2243,7 +2253,7 @@
     if(x <= 1)
     {
       // Handle arguments less than or equal to 1.
-      result = local_negatable_type(0);
+      result = local_negatable_type(0U);
     }
     else
     {
@@ -2251,12 +2261,13 @@
       // Use a hypergeometric series representation here.
       const local_negatable_type x_minus_one = x - 1;
 
-      if(x_minus_one < ldexp(local_negatable_type(1), -3))
+      if(x_minus_one < ldexp(local_negatable_type(1U), -3))
       {
-        const local_negatable_type one_half = ldexp(local_negatable_type(1), -1);
+        const local_negatable_type one_half     = ldexp(local_negatable_type(1U), -1);
+        const local_negatable_type three_halves = ldexp(local_negatable_type(3U), -1);
 
         result =   sqrt(2 * x_minus_one)
-                 * detail::hypergeometric_2f1(one_half, one_half, local_negatable_type(3) / 2, -x_minus_one / 2);
+                 * detail::hypergeometric_2f1(one_half, one_half, three_halves, -x_minus_one / 2);
       }
       else
       {
@@ -2284,7 +2295,7 @@
     if(x.data == 0)
     {
       // Handle arguments identically equal to 0.
-      result = local_negatable_type(0);
+      result = local_negatable_type(0U);
     }
     else if(x >= 1)
     {
@@ -2293,13 +2304,14 @@
     }
     else
     {
-      if(x < ldexp(local_negatable_type(1), -3))
+      if(x < ldexp(local_negatable_type(1U), -3))
       {
         // Handle small arguments greater than 0 but less than 1/8.
         // Use a hypergeometric series representation here.
-        const local_negatable_type one_half = ldexp(local_negatable_type(1), -1);
+        const local_negatable_type one_half     = ldexp(local_negatable_type(1U), -1);
+        const local_negatable_type three_halves = ldexp(local_negatable_type(3U), -1);
 
-        result = x * detail::hypergeometric_2f1(local_negatable_type(1), one_half, local_negatable_type(3) / 2, (x * x));
+        result = x * detail::hypergeometric_2f1(local_negatable_type(1U), one_half, three_halves, (x * x));
       }
       else
       {
@@ -2325,14 +2337,7 @@
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> copysign(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y)
   {
-    typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
-
-    const bool y_is_neg = (y.data < 0);
-    const bool x_is_neg = (x.data < 0);
-
-    const local_negatable_type x_abs = ((!x_is_neg) ? x : -x);
-
-    return ((!y_is_neg) ? x_abs : -x_abs);
+    return (((x.data < 0) == (y.data < 0)) ? x : -x);
   }
 
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>

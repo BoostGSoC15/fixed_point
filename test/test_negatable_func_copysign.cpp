@@ -27,23 +27,23 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_copysign)
   fixed_point_type x;
   float_point_type y;
 
-  x = copysign(fixed_point_type(1), fixed_point_type(1));
-  y = copysign(float_point_type(1), float_point_type(1));
+  x = copysign(fixed_point_type(1), fixed_point_type(2));
+  y = copysign(float_point_type(1), float_point_type(2));
 
   BOOST_CHECK_EQUAL(x, fixed_point_type(y));
 
-  x = copysign(fixed_point_type(1), fixed_point_type(-1));
-  y = copysign(float_point_type(1), float_point_type(-1));
+  x = copysign(fixed_point_type(1), fixed_point_type(-2));
+  y = copysign(float_point_type(1), float_point_type(-2));
 
   BOOST_CHECK_EQUAL(x, fixed_point_type(y));
 
-  x = copysign(fixed_point_type(-1), fixed_point_type(1));
-  y = copysign(float_point_type(-1), float_point_type(1));
+  x = copysign(fixed_point_type(-1), fixed_point_type(2));
+  y = copysign(float_point_type(-1), float_point_type(2));
 
   BOOST_CHECK_EQUAL(x, fixed_point_type(y));
 
-  x = copysign(fixed_point_type(-1), fixed_point_type(-1));
-  y = copysign(float_point_type(-1), float_point_type(-1));
+  x = copysign(fixed_point_type(-1), fixed_point_type(-2));
+  y = copysign(float_point_type(-1), float_point_type(-2));
 
   BOOST_CHECK_EQUAL(x, fixed_point_type(y));
 }

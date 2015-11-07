@@ -20,6 +20,9 @@ g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-unin
 g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_basic_construct.cpp -o test_negatable_basic_construct.exe
 .\test_negatable_basic_construct.exe
 
+g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_basic_is_fixed_point.cpp -o test_negatable_basic_is_fixed_point.exe
+.\test_negatable_basic_is_fixed_point.exe
+
 g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_basic_limits.cpp -o test_negatable_basic_limits.exe
 .\test_negatable_basic_limits.exe
 
@@ -59,7 +62,7 @@ g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-unin
 g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_arcsine_tiny.cpp -o test_negatable_func_arcsine_tiny.exe
 .\test_negatable_func_arcsine_tiny.exe
 
-g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_tangent_big.cpp -o test_negatable_func_arctangent_big.exe
+g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_arctangent_big.cpp -o test_negatable_func_arctangent_big.exe
 .\test_negatable_func_arctangent_big.exe
 
 g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_arctangent_small.cpp -o test_negatable_func_arctangent_small.exe
