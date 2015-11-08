@@ -57,8 +57,8 @@ test-suite "Fixed_point"
     :
       [ run test_negatable_basic_arithmetic_fastest.cpp boost_unit_test ]
       [ run test_negatable_basic_arithmetic_nearest_even.cpp boost_unit_test ]
-      [ run test_negatable_basic_bare_metal_config_16bit metal_config.cpp boost_unit_test ]
-      [ run test_negatable_basic_bare metal_config_32bit.cpp boost_unit_test ]
+      [ run test_negatable_basic_bare_metal_config_16bit.cpp boost_unit_test ]
+      [ run test_negatable_basic_bare_metal_config_32bit.cpp boost_unit_test ]
       [ run test_negatable_basic_basic_ops.cpp boost_unit_test ]
       [ run test_negatable_basic_bit_pattern.cpp boost_unit_test ]
       [ run test_negatable_basic_construct.cpp boost_unit_test ]
@@ -136,5 +136,8 @@ test-suite "Fixed_point"
       [ run test_negatable_round_trip_digits10_050.cpp boost_unit_test ]
       [ run test_negatable_round_trip_digits10_100.cpp boost_unit_test ]
       [ run test_negatable_round_trip_digits10_999.cpp boost_unit_test ]
+
+
+      [ run test_negatable_func_next_prior.cpp boost_unit_test ]
 
     ;

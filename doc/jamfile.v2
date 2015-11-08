@@ -64,6 +64,8 @@ doxygen autodoc
 
    # No longer implemented [ glob ../include/boost/fixed_point/fixed_point_nonnegative.hpp ]
 
+   # Warning - ensure that the same files are scanned for the index (unless intended otherwise).
+
 
     # [ glob $(here)/../include/boost/fixed_point/*.hpp ]
     # [ glob $(here)/../include/boost/fixed_point/detail/fixed_point/*.hpp ]
