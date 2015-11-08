@@ -218,6 +218,13 @@
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> copysign  (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> nearbyint (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> nextafter (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y);
+
+  // Additional forward declarations of functions that need friend access to value_type data.
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>          negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>             fixed_prior   (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>          negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>             fixed_next    (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> typename negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::value_type fixed_distance(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y);
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>          negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>             fixed_advance (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, typename negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::value_type distance);
+
   } } // namespace boost::fixed_point:
 
   namespace std
@@ -1648,7 +1655,14 @@
     template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> copysign  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> y);
     template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> nearbyint (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
     template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> nextafter (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> y);
-  };
+
+    // Additional functions that need to be friend to allow access to private value_type data.
+
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend          negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2>             fixed_prior   (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend          negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2>             fixed_next    (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend typename negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2>::value_type fixed_distance(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> y);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend          negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2>             fixed_advance (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2>::value_type distance);
+  }; // class negatable
 
   #if !defined(BOOST_NO_INCLASS_MEMBER_INITIALIZATION)
 

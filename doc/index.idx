@@ -3,31 +3,34 @@
 # (See accompanying file
 # LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-# Draft of index file for fixed-point documentation.
+# Draft of index file for class fixed_point documentation.
 #
 # Rewrite the class scanner to accept declarations, not just definitions,
 # as the docs don't include full definitions.
 #
 !define-scanner class_name "^[[:space:]]*(template[[:space:]]*<[^;:{]+>[[:space:]]*)?(class|struct)[[:space:]]*(\<\w+\>([[:blank:]]*\([^)]*\))?[[:space:]]*)*(\<\w*\>)[[:space:]]*(<[^;:{]+>)?[[:space:]]*(\{|:[^;\{()]*\{)" "(?:class|struct)[^;{]+\\<\5\\>\\s*[;{]" \5
 
-!scan-path ../include/boost/fixed_point fixed_point.hpp
-!scan-path ../include/boost/fixed_point fixed_point_negatable.hpp
-!scan-path ../include/boost/fixed_point fixed_point.nonnegative.hpp
-!scan-path ../include/boost/fixed_point fixed_point_overflow.hpp
-!scan-path ../include/boost/fixed_point fixed_point_round.hpp
+!scan-path "../include/boost/fixed_point" "fixed_point.hpp"
+!scan-path "../include/boost/fixed_point" "fixed_point_negatable.hpp"
+#!scan-path "../include/boost/fixed_point" "fixed_point.nonnegative.hpp"
+!scan-path "../include/boost/fixed_point" "fixed_point_negatable_cmath.hpp"
+!scan-path "../include/boost/fixed_point" "fixed_point_negatable_next.hpp"
+!scan-path "../include/boost/fixed_point" "fixed_point_overflow.hpp"
+!scan-path "../include/boost/fixed_point" fixed_point_round.hpp"
 
 # Might be useful to Doxygen document everything for maintainance?
-#!scan "../include/boost/fixed_point/detail/" "*.hpp" true
+#!scan "../include/boost/fixed_point/detail/" ".*\.hpp" true
 
-# Index all examples.
+# Index all examples (and tests?).
 !scan-path "../example" ".*\.cpp" true
-
+!scan-path "../test" ".*\.cpp" true
 
 dec
 hex
 precision
 oct
 scientific
+
 # All BOOST_FIXED_POINT macros
 BOOST_FIXED_POINT_DISABLE_IOSTREAM
 BOOST_FIXED_POINT_DISABLE_CPP11
@@ -35,8 +38,7 @@ BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
 BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH
 
 #  Misc terms to index.
-acknowledgement \<acknowledgement\w*\>
-Arduino
+acknowledgement (?i)\<acknowledgement\w*\>
 bare-metal \<\w*(bare|metal)\w*\>
 derivative
 example \<example\w*\>
@@ -44,6 +46,7 @@ FAQ
 header
 history
 microcontroller
+mandelbrot
 pi
 reference \<reference\w*\>
 
