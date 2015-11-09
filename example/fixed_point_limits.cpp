@@ -41,7 +41,8 @@ void show_fixed_point_limits()
   std::cout.precision(std::numeric_limits<T>::digits10);
   std::cout << std::boolalpha
             << std::showpoint
-            << std::showpos;
+            << std::showpos
+            << std::setprecision(std::numeric_limits<T>::max_digits10);
 
   // Show the relevant numeric_limits.
   std::cout << "Numeric_limits of type:\n"
@@ -74,7 +75,7 @@ void show_fixed_point_limits()
   std::cout << std::endl;
 } // template <typename T> void show_fixed_point_limits
 
-/*! As an example, define a local fixed-point negatable type using 31 + sign bits, 
+/*! As an example, define a local fixed-point negatable type using 31 + sign bits,
 splitting the bits equally to range and resolution.
 */
 typedef boost::fixed_point::negatable<15, -16> fixed_point_type;
@@ -105,22 +106,18 @@ int main()
 //[fixed_point_limits_output
 
 Number of possible values is 2^[range + abs(resolution)] = 2^31 = -2147483648
-
 Numeric_limits of type:
 class boost::fixed_point::negatable<15,-16,struct boost::fixed_point::round::fastest,struct boost::fixed_point::overflow::undefined>
-radix        = +2
-digits10     = +9
-max_digits10 = +11
-epsilon      = +3.05175781e-05
-lowest       = -32768.0000
-min          = +1.52587891e-05
-max          = +32768.0000
+ radix        = +2
+ digits10     = +9
+ max_digits10 = +11
+ epsilon      = +3.0517578125e-005
+ lowest       = -32767.999985
+ min          = +1.5258789063e-005
+ max          = +32767.999985
 Type does not have an infinity.
 Type does not have a NaN.
-
-Press any key to continue . . .
 
 //] [/fixed_point_limits_output]
 
 */
-
