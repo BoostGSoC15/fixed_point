@@ -41,8 +41,7 @@ void show_fixed_point_limits()
   std::cout.precision(std::numeric_limits<T>::digits10);
   std::cout << std::boolalpha
             << std::showpoint
-            << std::showpos
-            << std::setprecision(std::numeric_limits<T>::max_digits10);
+            << std::showpos;
 
   // Show the relevant numeric_limits.
   std::cout << "Numeric_limits of type:\n"
@@ -90,7 +89,7 @@ int main()
               << " = " << static_cast<long>(boost::math::pow<std::numeric_limits<fixed_point_type>::digits>(2))
               << std::endl;
     //] [/fixed_point_limits_1]
-    std::cout.precision(std::numeric_limits<fixed_point_type>::digits10); // Show all significant decimal digits.
+    std::cout.precision(std::numeric_limits<fixed_point_type>::max_digits10); // Show all significant decimal digits.
     //[fixed_point_limits_2
     show_fixed_point_limits<fixed_point_type>();
     //] [/fixed_point_limits_2]
