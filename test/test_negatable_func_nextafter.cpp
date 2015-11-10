@@ -64,9 +64,10 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_nextafter)
   BOOST_CHECK_EQUAL(x, fixed_point_type(y));
   BOOST_CHECK_EQUAL(x, fixed_point_type(-0.25F));
 
-  // Check the maximum argument.
+  // Check the prior to maximum argument.
   x = nextafter((std::numeric_limits<fixed_point_type>::max)() - fixed_point_type(increment),
                 (std::numeric_limits<fixed_point_type>::max)());
 
+  // Check the maximum argument, returns max.
   BOOST_CHECK_EQUAL(x, (std::numeric_limits<fixed_point_type>::max)());
 }

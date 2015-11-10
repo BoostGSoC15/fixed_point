@@ -1,13 +1,16 @@
 # Copyright 2015 Paul A. Bristow
+
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file
 # LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-# Draft of index file for class fixed_point documentation.
+# Index file for class fixed_point documentation.
+
+# http://www.boost.org/doc/libs/release/tools/auto_index/doc/html/boost_autoindex/tut/build_docs.html
 #
 # Rewrite the class scanner to accept declarations, not just definitions,
 # as the docs don't include full definitions.
-#
+
 !define-scanner class_name "^[[:space:]]*(template[[:space:]]*<[^;:{]+>[[:space:]]*)?(class|struct)[[:space:]]*(\<\w+\>([[:blank:]]*\([^)]*\))?[[:space:]]*)*(\<\w*\>)[[:space:]]*(<[^;:{]+>)?[[:space:]]*(\{|:[^;\{()]*\{)" "(?:class|struct)[^;{]+\\<\5\\>\\s*[;{]" \5
 
 !scan-path "../include/boost/fixed_point" "fixed_point.hpp"
@@ -18,11 +21,12 @@
 !scan-path "../include/boost/fixed_point" "fixed_point_overflow.hpp"
 !scan-path "../include/boost/fixed_point" fixed_point_round.hpp"
 
-# Might be useful to Doxygen document everything for maintainance?
+# Might be useful to Doxygen document everything for maintenance?
 #!scan "../include/boost/fixed_point/detail/" ".*\.hpp" true
 
-# Index all examples (and tests?).
+# Index all examples.
 !scan-path "../example" ".*\.cpp" true
+# Might index examples too?
 !scan-path "../test" ".*\.cpp" true
 
 dec
@@ -31,7 +35,7 @@ precision
 oct
 scientific
 
-# All BOOST_FIXED_POINT macros
+# All BOOST_FIXED_POINT fixed_point macros
 BOOST_FIXED_POINT_DISABLE_IOSTREAM
 BOOST_FIXED_POINT_DISABLE_CPP11
 BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
@@ -50,7 +54,21 @@ mandelbrot
 pi
 reference \<reference\w*\>
 
+# exclude a few useless search terms
+!exclude with
+!exclude 2
+!exclude the
+!exclude and
+!exclude x
+!exclude is
+!exclude O
+!exclude of
+!exclude a
 
+
+
+#  Avoid repeated index entries for acknowledgement
+!rewrite-name Acknowledgements,.* acknowledgement
 
 
 
