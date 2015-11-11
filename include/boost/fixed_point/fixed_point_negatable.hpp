@@ -1075,8 +1075,8 @@
     static value_type make_from_signed_integral_type(const SignedIntegralType& n)
     {
       // Here, we make a negatable value_type from a signed integral source value.
-      return ((!(n < 0)) ? +value_type((unsigned_small_type(+n) << radix_split))
-                         : -value_type((unsigned_small_type(-n) << radix_split)));
+      return ((n >= 0) ? +value_type((unsigned_small_type(+n) << radix_split))
+                       : -value_type((unsigned_small_type(-n) << radix_split)));
     }
 
     template<typename FloatingPointType>

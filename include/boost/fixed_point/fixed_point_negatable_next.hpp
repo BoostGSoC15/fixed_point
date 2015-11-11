@@ -17,11 +17,10 @@
 #ifndef FIXED_POINT_NEGATABLE_NEXT_HPP_
 #define FIXED_POINT_NEGATABLE_NEXT_HPP_
 
-#include <boost/fixed_point/fixed_point.hpp>
-#include <boost/fixed_point/fixed_point_negatable.hpp>
-
 #include <limits> // For numeric_limits.
-#include <cmath> // For nextafter.
+#include <cmath>  // For nextafter.
+
+#include <boost/fixed_point/fixed_point.hpp>
 
 namespace boost {
   namespace fixed_point {
@@ -45,11 +44,23 @@ namespace boost {
     */
     template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
     negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>
-      fixed_next(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>
-        x)
+      fixed_next(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
     {
       typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
-      return nextafter(x, std::numeric_limits<local_negatable_type>::max());
+
+      static_assert(is_fixed_point<local_negatable_type>::value,
+                    "Error: fixed_next can only be instantiated with a fixed-point negatable type.");
+
+      local_negatable_type result(x);
+
+      if(x < (std::numeric_limits<local_negatable_type>::max)())
+      {
+        const local_negatable_type dx = ldexp(local_negatable_type(1), local_negatable_type::resolution);
+
+        result += dx;
+      }
+
+      return result;
     } // fixed_next
 
     // Definition of fixed_prior.
@@ -71,11 +82,23 @@ namespace boost {
     */
     template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
     negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>
-      fixed_prior(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>
-        x)
+      fixed_prior(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
     {
       typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
-      return nextafter(x, -(std::numeric_limits<local_negatable_type>::max)()); // Note most negative value -max.
+
+      static_assert(is_fixed_point<local_negatable_type>::value,
+                    "Error: fixed_next can only be instantiated with a fixed-point negatable type.");
+
+      local_negatable_type result(x);
+
+      if(x > std::numeric_limits<local_negatable_type>::lowest())
+      {
+        const local_negatable_type dx = ldexp(local_negatable_type(1), local_negatable_type::resolution);
+
+        result -= dx;
+      }
+
+      return result;
     } // fixed_prior
 
     // Definition of fixed_advance.

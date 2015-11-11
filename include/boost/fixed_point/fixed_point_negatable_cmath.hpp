@@ -2451,15 +2451,26 @@
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
+    static_assert(is_fixed_point<local_negatable_type>::value,
+                  "Error: fixed_next can only be instantiated with a fixed-point negatable type.");
+
     local_negatable_type result(x);
+
+    const local_negatable_type dx = ldexp(local_negatable_type(1), local_negatable_type::resolution);
 
     if(y > x)
     {
-      ++(result.data);
+      if(x < (std::numeric_limits<local_negatable_type>::max)())
+      {
+        result += dx;
+      }
     }
     else if(y < x)
     {
-      --(result.data);
+      if(x > std::numeric_limits<local_negatable_type>::lowest())
+      {
+        result -= dx;
+      }
     }
 
     return result;
