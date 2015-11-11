@@ -21,8 +21,6 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_nextafter)
 {
   typedef boost::fixed_point::negatable<7, -8> fixed_point_type;
 
-  const fixed_point_type tol = ldexp(fixed_point_type(1), fixed_point_type::resolution + 1);
-
   using std::ldexp;
 
   const fixed_point_type increment = ldexp(fixed_point_type(1), -8);
