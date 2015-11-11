@@ -21,13 +21,11 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_nextafter_big)
 {
   typedef boost::fixed_point::negatable<7, -120> fixed_point_type;
 
-  using std::ldexp;
-
   const fixed_point_type increment = ldexp(fixed_point_type(1), -120);
 
   // Check positive argument.
   fixed_point_type x(0);
-  fixed_point_type y = fixed_point_type(1) / 10;
+  const fixed_point_type y = fixed_point_type(1) / 10;
 
   x = nextafter(x, y);
 
