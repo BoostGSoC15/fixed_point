@@ -98,6 +98,7 @@
 [def __float_format [@https://en.wikipedia.org/wiki/Single-precision_floating-point_format 32-bit float format]]
 [def __double_format [@https://en.wikipedia.org/wiki/Double-precision_floating-point_format 64-bit double format]]
 [def __quad_format [@https://en.wikipedia.org/wiki/Quadruple-precision_floating-point_format 128-bit quad format]]
+[def __n1169 [@http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1169.pdf C extensions to support embedded processors N1169]]
 [def __n3352 [@http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html C++ Binary Fixed-Point Arithmetic N3352]]
 [def __CMK_realtime [@http://dx.doi.org/DOI:10.1007/978-3-642-34688-0 Real-Time C++, C M Kormanyos]]
 [def __normalization [@https://en.wikibooks.org/wiki/Floating_Point/Normalization normalization]]
@@ -1482,6 +1483,8 @@ Vicente Botet Escriba prototyped a [@http://svn.boost.org/svn/boost/sandbox/fixe
 [endsect] [/section:ack Acknowledgements]
 
 [section:references References]
+
+#__n1169
 
 #__n3352
 
