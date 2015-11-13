@@ -149,6 +149,9 @@ g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-unin
 g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_nearbyint.cpp -o test_negatable_func_nearbyint.exe
 .\test_negatable_func_nearbyint.exe
 
+g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_next_prior.cpp -o test_negatable_func_next_prior.exe
+.\test_negatable_func_next_prior.exe
+
 g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_func_nextafter.cpp -o test_negatable_func_nextafter.exe
 .\test_negatable_func_nextafter.exe
 
@@ -241,5 +244,8 @@ g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-unin
 
 g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_round_trip_digits10_999.cpp -o test_negatable_round_trip_digits10_999.exe
 .\test_negatable_round_trip_digits10_999.exe
+
+g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_round_trip_edge_cases.cpp -o test_negatable_round_trip_edge_cases.exe
+.\test_negatable_round_trip_edge_cases.exe
 
 del /Q *.exe
