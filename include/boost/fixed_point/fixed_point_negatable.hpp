@@ -1868,11 +1868,14 @@
       // Express the fixed-point number as a floating-point representation.
       std::basic_ostringstream<char_type, traits_type> ostr;
 
-      ostr.flags    (out.flags());
-      ostr.imbue    (out.getloc());
-      ostr.precision(out.precision());
+      const std::streamsize prec = out.precision();
 
-      static_cast<void>(ostr << x.template convert_to_floating_point_type<local_float_type>());
+      ostr.flags(out.flags());
+      ostr.imbue(out.getloc());
+
+      static_cast<void>(ostr << std::setprecision(prec)
+                             << std::fixed
+                             << x.template convert_to_floating_point_type<local_float_type>());
 
       return (out << ostr.str());
     }
