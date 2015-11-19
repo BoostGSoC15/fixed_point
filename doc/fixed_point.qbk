@@ -1525,6 +1525,8 @@ bandwidth, storage, and electrical power, John L. Gustafson, AMD.
 
 [/todo Need more background references?]
 
+#[@https://gcc.gnu.org/wiki/Ieee128PowerPC#Transition 128 bit Float on GCC (especially on PowerPC)]
+
 [endsect] [/section:ack References]
 
 [xinclude autodoc.xml] [/ Using Doxygen reference documentation.]

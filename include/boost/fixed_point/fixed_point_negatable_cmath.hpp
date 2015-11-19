@@ -2442,9 +2442,27 @@
                       : local_negatable_type(local_nothing(), -local_value_type(result)));
   }
 
-  /*! Returns the next representable value of from in the direction.
+  /*! Next representable value of x in the direction of y.
+    \returns Returns the next representable value of x in the direction of y.
+    \param x value whose next or prior value is required.
+    \param y direction 
+
     \sa http://en.cppreference.com/w/cpp/numeric/math/nextafter
-    \note nextafter((std::numeric_limits<>::max)(), (std::numeric_limits<>::max)()) returns (std::numeric_limits<>::max)();
+     \sa http://en.cppreference.com/w/cpp/numeric/math/nexttoward - identical to nextafter for fixed_point.
+   \sa @c fixed_next and @c fixed_prior functions.
+
+    \note 
+      @c nextafter(x, x); returns x unchanged.\n
+      \code
+        nextafter((std::numeric_limits<>::max)(), (std::numeric_limits<>::max)()) returns (std::numeric_limits<>::max)();
+        nextafter((std::numeric_limits<>::lowest)(), (std::numeric_limits<>::max)()) returns (std::numeric_limits<>::lowest)();
+      \endcode
+
+      \warning Call without a @c std:: namespace qualifier, for example:
+      \code
+        fixed_point_type_7m8 x = static_cast<fixed_point_type_7m8>(1);
+        nextafter(x, (std::numeric_limits<fixed_point_type_7m8>::max)()); // nextafter(x, max) = 1.00391
+      \endcode
   */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> nextafter(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y)

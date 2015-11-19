@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_next_prior)
 
   tests(fixed_point_type_2m5(0));
 
-  //tests(fixed_point_type_0m7(0));  fails!
+  tests(fixed_point_type_0m7(0));  // fails!
 
 
 } // BOOST_AUTO_TEST_CASE(test_negatable_func_next_prior)

@@ -11,6 +11,21 @@
 # Rewrite the class scanner to accept declarations, not just definitions,
 # as the docs don't include full definitions.
 
+#* If a section merely *mentions* a class then that section does not
+# appear in the class's index entry.
+#* Likewise if a section merely contains the class's forward declaration,
+# then that section doesn't appear in the class's index entry.
+
+# Only if a *full definition* is found will an entry appear in the index.
+
+# This is normally a "good thing".  It means you don't get lots of trivial
+# entries, and go straight to the meat of the thing: the section that
+# documents the class definition.
+
+# However, it means that if the docs nowhere contain a full definition
+# then the class doesn't appear in the index: unless you loosen up the
+# regex to catch more uses of the class name thus:
+
 !define-scanner class_name "^[[:space:]]*(template[[:space:]]*<[^;:{]+>[[:space:]]*)?(class|struct)[[:space:]]*(\<\w+\>([[:blank:]]*\([^)]*\))?[[:space:]]*)*(\<\w*\>)[[:space:]]*(<[^;:{]+>)?[[:space:]]*(\{|:[^;\{()]*\{)" "(?:class|struct)[^;{]+\\<\5\\>\\s*[;{]" \5
 
 !scan-path "../include/boost/fixed_point" "fixed_point.hpp"
