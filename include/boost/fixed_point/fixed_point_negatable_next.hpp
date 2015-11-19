@@ -124,7 +124,7 @@
   /*! Function @c fixed_distance finds the number of gaps/bits/ULP between any two @c fixed_point values.
     If the significands of @c fixed_point values are viewed as the underlying integral type,
     then their difference is the number of ULP/gaps/bits different.\n
-    \returns the number of gaps/bits/ULP between any two @c fixed_point values as the
+    \returns the @b signed number of gaps/bits/ULP between any two @c fixed_point values as the
     integral representation type used for the fixed_point type\n
     For example, if x is any @c boost::fixed_point fixed_point type, then
     \code
