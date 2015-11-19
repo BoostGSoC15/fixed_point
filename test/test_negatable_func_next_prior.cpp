@@ -53,6 +53,8 @@ void tests(T value)
 
 BOOST_AUTO_TEST_CASE(test_negatable_func_next_prior)
 {
+  typedef boost::fixed_point::negatable< 2,   -5> fixed_point_type_2m5;        //  8-bit fixed_point type 2 range 5 resolution.
+  typedef boost::fixed_point::negatable< 0,   -7> fixed_point_type_0m7;        //  8-bit fixed_point type - all resolution bits used.
   typedef boost::fixed_point::negatable< 7,   -8> fixed_point_type;        //  16-bit fixed_point type.
   typedef boost::fixed_point::negatable<15,  -48> fixed_point_type_15m48;  //  64-bit fixed_point type.
   typedef boost::fixed_point::negatable<15, -240> fixed_point_type_15m240; // 256-bit using multiprecision
@@ -122,4 +124,10 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_next_prior)
 
   tests(fixed_prior((std::numeric_limits<big_fixed_point_type>::max)()));   // penultimate value.
   tests(fixed_next((std::numeric_limits<big_fixed_point_type>::lowest)())); // penultimate value.
+
+  tests(fixed_point_type_2m5(0));
+
+  //tests(fixed_point_type_0m7(0));  fails!
+
+
 } // BOOST_AUTO_TEST_CASE(test_negatable_func_next_prior)
