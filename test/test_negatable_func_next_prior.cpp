@@ -22,20 +22,20 @@ void tests(T value)
 {
   using namespace boost::fixed_point;
 
-  T x(value);
-  T xn = fixed_next(x);
-  T xp = fixed_prior(x);
+  const T x(value);
+  const T xn = fixed_next(x);
+  const T xp = fixed_prior(x);
 
   BOOST_CHECK_EQUAL(fixed_prior(xn),  x); // next then prior should be x.
   BOOST_CHECK_EQUAL(fixed_next(xp), x);   // prior then next should be x.
 
-  T xx = fixed_next(xp);
+  const T xx = fixed_next(xp);
 
   const bool b = (xx == x);
 
   BOOST_CHECK_EQUAL(b, true);
 
-  T np = fixed_next(xp);
+  const T np = fixed_next(xp);
 
   //std::cout
   //  << "\n x = " << x
@@ -68,11 +68,13 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_next_prior)
   using boost::fixed_point::fixed_distance;
 
   // Simple test using unity and a single fixed_point type.
-  fixed_point_type x(1);
+  const fixed_point_type x(1);
   BOOST_CHECK_EQUAL(x.bit_pattern(), "0000000100000000");
-  fixed_point_type xn = fixed_next(x);
+
+  const fixed_point_type xn = fixed_next(x);
   BOOST_CHECK_EQUAL(xn.bit_pattern(), "0000000100000001");
-  fixed_point_type xp = fixed_prior(x);
+
+  const fixed_point_type xp = fixed_prior(x);
   BOOST_CHECK_EQUAL(xp.bit_pattern(), "0000000011111111");
   BOOST_CHECK_EQUAL(fixed_prior(xn), x);
   BOOST_CHECK_EQUAL(fixed_next(xp), x);
@@ -80,14 +82,14 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_next_prior)
   BOOST_CHECK_EQUAL(fixed_advance(xp, 2), xn);
 
   // Check that nextafter gives same results.
-  // (Useful in case fixed_next etc are not implemented using nextafter).
-  BOOST_CHECK_EQUAL(fixed_prior(x), nextafter(x, x-1));
-  BOOST_CHECK_EQUAL(fixed_next(x), nextafter(x, x+1));
+  // (Useful in case fixed_next, etc. are not implemented using nextafter).
+  BOOST_CHECK_EQUAL(fixed_prior(x), nextafter(x, x - 1));
+  BOOST_CHECK_EQUAL(fixed_next(x),  nextafter(x, x + 1));
 
   // Repeat above tests using multiple types and multiple values.
-  tests(fixed_point_type(1));
+  tests(fixed_point_type( 1));
   tests(fixed_point_type(-1));
-  tests(fixed_point_type(0));
+  tests(fixed_point_type( 0));
   tests((std::numeric_limits<fixed_point_type>::min)()); // small value.
 
   tests(fixed_prior((std::numeric_limits<fixed_point_type>::max)()));   // penultimate value.
@@ -98,32 +100,31 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_next_prior)
 
   // Use a 64-bit type  fixed_point_type_15m48
 
-  tests(fixed_point_type_15m48(1));
+  tests(fixed_point_type_15m48( 1));
   tests(fixed_point_type_15m48(-1));
-  tests(fixed_point_type_15m48(0));
+  tests(fixed_point_type_15m48( 0));
   tests((std::numeric_limits<fixed_point_type>::min)()); // small value.
 
   tests(fixed_prior((std::numeric_limits<fixed_point_type_15m48>::max)()));   // penultimate value.
-  tests(fixed_next((std::numeric_limits<fixed_point_type_15m48>::lowest)())); // penultimate value.
+  tests(fixed_next ( std::numeric_limits<fixed_point_type_15m48>::lowest())); // penultimate value.
 
     // Test using a big 256-bit type using multiprecision.
-  tests(fixed_point_type_15m240(1));
+  tests(fixed_point_type_15m240( 1));
   tests(fixed_point_type_15m240(-1));
-  tests(fixed_point_type_15m240(0));
-  // test_negatable_func_next_prior.cpp(31): error : in "test_negatable_func_next_prior": check fixed_next(xp) == x has failed [0 != 0]
+  tests(fixed_point_type_15m240( 0));
   tests((std::numeric_limits<fixed_point_type_15m240>::min)()); // small value.
 
   tests(fixed_prior((std::numeric_limits<fixed_point_type_15m240>::max)()));   // penultimate value.
-  tests(fixed_next((std::numeric_limits<fixed_point_type_15m240>::lowest)())); // penultimate value.
+  tests(fixed_next ( std::numeric_limits<fixed_point_type_15m240>::lowest())); // penultimate value.
 
   // Test using a big 256-bit type using multiprecision.
-  tests(big_fixed_point_type(1));
+  tests(big_fixed_point_type( 1));
   tests(big_fixed_point_type(-1));
-  tests(big_fixed_point_type(0));
+  tests(big_fixed_point_type( 0));
   tests((std::numeric_limits<big_fixed_point_type>::min)()); // small value.
 
   tests(fixed_prior((std::numeric_limits<big_fixed_point_type>::max)()));   // penultimate value.
-  tests(fixed_next((std::numeric_limits<big_fixed_point_type>::lowest)())); // penultimate value.
+  tests(fixed_next ( std::numeric_limits<big_fixed_point_type>::lowest())); // penultimate value.
 
   tests(fixed_point_type_2m5(0));
 
