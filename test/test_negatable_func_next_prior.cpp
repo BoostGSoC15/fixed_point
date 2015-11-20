@@ -15,6 +15,7 @@
 #include <boost/fixed_point/fixed_point_negatable_next.hpp> // Functions under test.
 
 #include <boost/test/included/unit_test.hpp>
+//#include <boost/test/unit_test.hpp> // If using test library.
 
 // Basic tests using any type and any value (except max, lowest or -max).
 template<typename T>
@@ -53,8 +54,14 @@ void tests(T value)
 
 BOOST_AUTO_TEST_CASE(test_negatable_func_next_prior)
 {
-  typedef boost::fixed_point::negatable< 2,   -5> fixed_point_type_2m5;    //  8-bit fixed_point type 2 range 5 resolution.
-  typedef boost::fixed_point::negatable< 7,   -8> fixed_point_type;        //  16-bit fixed_point type.
+  typedef boost::fixed_point::negatable< 0,   -7> fixed_point_type_0m7;   //  8-bit fixed_point type using all 7 bits for resolution.
+  typedef boost::fixed_point::negatable< 2,   -5> fixed_point_type_2m5;   //  8-bit fixed_point type 2 range 5 resolution.
+  typedef boost::fixed_point::negatable< 7,   -8> fixed_point_type_7m8;   //  16-bit fixed_point type with even split.
+  typedef boost::fixed_point::negatable<0,   -15> fixed_point_type_0m15;  //  16-bit fixed_point type using all 15 bits for resolution.
+  typedef boost::fixed_point::negatable<0,   -31> fixed_point_type_0m31;  //  32-bit fixed_point type using all 31 bits for resolution.
+  typedef boost::fixed_point::negatable<8,   -23> fixed_point_type_8m23;  //  32-bit fixed_point type using 8 for range and 23 bits for resolution.
+  typedef boost::fixed_point::negatable<0,  -63> fixed_point_type_0m63;   //  64-bit fixed_point type using all 63 bits for resolution.
+
   typedef boost::fixed_point::negatable<15,  -48> fixed_point_type_15m48;  //  64-bit fixed_point type.
   typedef boost::fixed_point::negatable<15, -240> fixed_point_type_15m240; // 256-bit using multiprecision
   typedef boost::fixed_point::negatable<55, -200> big_fixed_point_type;    // 256-bit using multiprecision
@@ -67,13 +74,13 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_next_prior)
   using boost::fixed_point::fixed_distance;
 
   // Simple test using unity and a single fixed_point type.
-  const fixed_point_type x(1);
+  const fixed_point_type_7m8 x(1);
   BOOST_CHECK_EQUAL(x.bit_pattern(), "0000000100000000");
 
-  const fixed_point_type xn = fixed_next(x);
+  const fixed_point_type_7m8 xn = fixed_next(x);
   BOOST_CHECK_EQUAL(xn.bit_pattern(), "0000000100000001");
 
-  const fixed_point_type xp = fixed_prior(x);
+  const fixed_point_type_7m8 xp = fixed_prior(x);
   BOOST_CHECK_EQUAL(xp.bit_pattern(), "0000000011111111");
   BOOST_CHECK_EQUAL(fixed_prior(xn), x);
   BOOST_CHECK_EQUAL(fixed_next(xp), x);
@@ -85,24 +92,32 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_next_prior)
   BOOST_CHECK_EQUAL(fixed_prior(x), nextafter(x, x - 1));
   BOOST_CHECK_EQUAL(fixed_next(x),  nextafter(x, x + 1));
 
+  // Use 8-bit all solution bit type fixed_point_type_0m7
+  //  tests(fixed_point_type_7m8( 1)); // Cannot represent unity with this type.
+  // tests(fixed_point_type_0m7(-1)); // not negative unity.
+  tests(fixed_point_type_0m7( 0));
+  tests((std::numeric_limits<fixed_point_type_0m7>::min)()); // small value.
+
   // Repeat above tests using multiple types and multiple values.
-  tests(fixed_point_type( 1));
-  tests(fixed_point_type(-1));
-  tests(fixed_point_type( 0));
-  tests((std::numeric_limits<fixed_point_type>::min)()); // small value.
+  tests(fixed_point_type_7m8( 1));
+  tests(fixed_point_type_7m8(-1));
+  tests(fixed_point_type_7m8( 0));
+  tests((std::numeric_limits<fixed_point_type_7m8>::min)()); // small value.
 
-  tests(fixed_prior((std::numeric_limits<fixed_point_type>::max)()));   // penultimate value.
-  tests(fixed_next ( std::numeric_limits<fixed_point_type>::lowest())); // penultimate value.
+  tests(fixed_prior((std::numeric_limits<fixed_point_type_7m8>::max)()));   // penultimate value.
+  tests(fixed_next ( std::numeric_limits<fixed_point_type_7m8>::lowest())); // penultimate value.
 
-  //tests((std::numeric_limits<fixed_point_type>::max)());    // Expected to fail!
-  //tests((std::numeric_limits<fixed_point_type>::lowest)()); // Expected to fail!
+  //tests((std::numeric_limits<fixed_point_type_7m8>::max)());    // Expected to fail!
+  //tests((std::numeric_limits<fixed_point_type_7m8>::lowest)()); // Expected to fail!
 
-  // Use a 64-bit type  fixed_point_type_15m48
-
+  // Use a 64-bit types:  fixed_point_type_15m48
   tests(fixed_point_type_15m48( 1));
   tests(fixed_point_type_15m48(-1));
   tests(fixed_point_type_15m48( 0));
-  tests((std::numeric_limits<fixed_point_type>::min)()); // small value.
+  tests((std::numeric_limits<fixed_point_type_7m8>::min)()); // small value.
+  // fixed_point_type_0m63 all resolution bits.
+  tests((std::numeric_limits<fixed_point_type_0m63>::min)()); // small value.
+
 
   tests(fixed_prior((std::numeric_limits<fixed_point_type_15m48>::max)()));   // penultimate value.
   tests(fixed_next ( std::numeric_limits<fixed_point_type_15m48>::lowest())); // penultimate value.
@@ -126,13 +141,5 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_next_prior)
   tests(fixed_next ( std::numeric_limits<big_fixed_point_type>::lowest())); // penultimate value.
 
   tests(fixed_point_type_2m5(0));
-
-  {
-    typedef boost::fixed_point::negatable<0, -7> fixed_point_type_0m7;    //  8-bit fixed_point type - all resolution bits are used.
-
-    const fixed_point_type_0m7 x = fixed_next(fixed_point_type_0m7(0));
-
-    BOOST_CHECK_EQUAL(x, (std::numeric_limits<fixed_point_type_0m7>::min)());
-  }
 
 } // BOOST_AUTO_TEST_CASE(test_negatable_func_next_prior)
