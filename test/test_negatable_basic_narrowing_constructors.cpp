@@ -26,6 +26,13 @@ BOOST_AUTO_TEST_CASE(test_negatable_basic_narrowing_constructors)
 
     // Here we require explicit construction from 16-bit
     // unsiged integer boost::uint16_t.
+    // In other words,
+    // fixed_point_type z = boost::uint16_t(1U);
+    // will not work because uint16_t has more
+    // digits than the IntegralRange digits of y.
+
+    // But using explicit construction, this code
+    // sequence is OK.
     fixed_point_type y(boost::uint16_t(1U));
   }
 
@@ -52,4 +59,18 @@ BOOST_AUTO_TEST_CASE(test_negatable_basic_narrowing_constructors)
     fixed_point_type z(boost::uint32_t(1U));
   }
 
-} // BOOST_AUTO_TEST_CASE(test_negatable_basic_narrowing_constructors)
+  {
+    typedef boost::fixed_point::negatable<64, -63> fixed_point_type;
+
+    fixed_point_type x;
+
+    // These are all OK because x has 64 IntegralRange digits.
+    x = boost::uint8_t(1U);
+    x = boost::uint16_t(1U);
+    x = boost::uint32_t(1U);
+    x = boost::uint64_t(1U);
+  }
+
+  // If the code compiles, then the test passes.
+  BOOST_CHECK(true);
+}
