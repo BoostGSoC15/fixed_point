@@ -1924,15 +1924,18 @@
 
   } } // namespace boost::fixed_point
 
-  // Here we include specializations of std::numeric_limits<negatable>.
-  #include <boost/fixed_point/fixed_point_negatable_limits.hpp>
-
-  // Here we include helper functions that compute hypergeometric series.
-  // These are useful for numerous internal calculations of elementary
-  // transcendental <cmath> functions.
-  #include <boost/fixed_point/detail/fixed_point_detail_hypergeometric.hpp>
-
-  // Here we include headers for negatable <cmath> functions.
-  #include <boost/fixed_point/fixed_point_negatable_cmath.hpp>
-
 #endif // FIXED_POINT_NEGATABLE_2015_03_06_HPP_
+
+// Here we include specializations of std::numeric_limits<negatable>.
+#include <boost/fixed_point/fixed_point_negatable_limits.hpp>
+
+// Here we include helper functions that compute hypergeometric series.
+// These are useful for numerous internal calculations of elementary
+// transcendental <cmath> functions.
+#include <boost/fixed_point/detail/fixed_point_detail_hypergeometric.hpp>
+
+// Here we include headers for negatable <cmath> functions.
+#include <boost/fixed_point/fixed_point_negatable_cmath.hpp>
+
+// Here we include headers for negatable <cmath> functions.
+#include <boost/fixed_point/fixed_point_negatable_next.hpp>

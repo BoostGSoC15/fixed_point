@@ -54,19 +54,16 @@ void tests(T value)
 
 BOOST_AUTO_TEST_CASE(test_negatable_func_next_prior)
 {
-  typedef boost::fixed_point::negatable< 0,   -7> fixed_point_type_0m7;   //  8-bit fixed_point type using all 7 bits for resolution.
-  typedef boost::fixed_point::negatable< 2,   -5> fixed_point_type_2m5;   //  8-bit fixed_point type 2 range 5 resolution.
-  typedef boost::fixed_point::negatable< 7,   -8> fixed_point_type_7m8;   //  16-bit fixed_point type with even split.
-  typedef boost::fixed_point::negatable<0,   -15> fixed_point_type_0m15;  //  16-bit fixed_point type using all 15 bits for resolution.
-  typedef boost::fixed_point::negatable<0,   -31> fixed_point_type_0m31;  //  32-bit fixed_point type using all 31 bits for resolution.
-  typedef boost::fixed_point::negatable<8,   -23> fixed_point_type_8m23;  //  32-bit fixed_point type using 8 for range and 23 bits for resolution.
-  typedef boost::fixed_point::negatable<0,  -63> fixed_point_type_0m63;   //  64-bit fixed_point type using all 63 bits for resolution.
-
+  typedef boost::fixed_point::negatable< 0,  -7> fixed_point_type_0m7;     //  8-bit fixed_point type using all 7 bits for resolution.
+  typedef boost::fixed_point::negatable< 2,  -5> fixed_point_type_2m5;     //  8-bit fixed_point type 2 range 5 resolution.
+  typedef boost::fixed_point::negatable< 7,  -8> fixed_point_type_7m8;     //  16-bit fixed_point type with even split.
+  typedef boost::fixed_point::negatable< 0,  -15> fixed_point_type_0m15;   //  16-bit fixed_point type using all 15 bits for resolution.
+  typedef boost::fixed_point::negatable< 0,  -31> fixed_point_type_0m31;   //  32-bit fixed_point type using all 31 bits for resolution.
+  typedef boost::fixed_point::negatable< 8,  -23> fixed_point_type_8m23;   //  32-bit fixed_point type using 8 for range and 23 bits for resolution.
+  typedef boost::fixed_point::negatable< 0,  -63> fixed_point_type_0m63;   //  64-bit fixed_point type using all 63 bits for resolution.
   typedef boost::fixed_point::negatable<15,  -48> fixed_point_type_15m48;  //  64-bit fixed_point type.
   typedef boost::fixed_point::negatable<15, -240> fixed_point_type_15m240; // 256-bit using multiprecision
   typedef boost::fixed_point::negatable<55, -200> big_fixed_point_type;    // 256-bit using multiprecision
-
-  using std::nextafter;
 
   using boost::fixed_point::fixed_next;
   using boost::fixed_point::fixed_prior;

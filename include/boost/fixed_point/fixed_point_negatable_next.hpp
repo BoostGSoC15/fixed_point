@@ -17,10 +17,6 @@
 #ifndef FIXED_POINT_NEGATABLE_NEXT_HPP_
   #define FIXED_POINT_NEGATABLE_NEXT_HPP_
 
-  #include <limits> // For numeric_limits.
-
-  #include <boost/fixed_point/fixed_point.hpp>
-
   namespace boost { namespace fixed_point {
 
   // Forward declaration of fixed_next are now in fixed_point_negatable.hpp with their friend declarations.
