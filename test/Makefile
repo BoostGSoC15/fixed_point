@@ -30,6 +30,7 @@ all_files : test_negatable_basic_arithmetic_fastest.exe            \
             test_negatable_basic_mixed_constructors_part2.exe      \
             test_negatable_basic_mixed_math.exe                    \
             test_negatable_basic_multiply.exe                      \
+            test_negatable_basic_narrowing_constructors.exe        \
             test_negatable_constants_local_ln_two.exe              \
             test_negatable_constants_local_pi.exe                  \
             test_negatable_func_arccosine_big.exe                  \

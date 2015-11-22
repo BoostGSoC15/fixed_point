@@ -38,6 +38,9 @@ g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-unin
 g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_basic_multiply.cpp -o test_negatable_basic_multiply.exe
 .\test_negatable_basic_multiply.exe
 
+g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_basic_narrowing_constructors.cpp -o test_negatable_basic_narrowing_constructors.exe
+.\test_negatable_basic_narrowing_constructors.exe
+
 g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_59_0 test_negatable_constants_local_ln_two.cpp -o test_negatable_constants_local_ln_two.exe
 .\test_negatable_constants_local_ln_two.exe
 
