@@ -34,6 +34,8 @@ BOOST_AUTO_TEST_CASE(test_negatable_basic_narrowing_constructors)
     x = fixed_point_type(1U);
 
     x = static_cast<fixed_point_type>(1U);
+
+    static_cast<void>(x);
   }
 
   {
@@ -53,6 +55,9 @@ BOOST_AUTO_TEST_CASE(test_negatable_basic_narrowing_constructors)
     // But using explicit construction, this code
     // sequence is OK.
     fixed_point_type y(boost::uint16_t(1U));
+
+    static_cast<void>(x);
+    static_cast<void>(y);
   }
 
   {
@@ -76,6 +81,10 @@ BOOST_AUTO_TEST_CASE(test_negatable_basic_narrowing_constructors)
     // But using explicit construction, this code
     // sequence is OK.
     fixed_point_type z(boost::uint32_t(1U));
+
+    static_cast<void>(x);
+    static_cast<void>(y);
+    static_cast<void>(z);
   }
 
   {
@@ -88,6 +97,8 @@ BOOST_AUTO_TEST_CASE(test_negatable_basic_narrowing_constructors)
     x = boost::uint16_t(1U);
     x = boost::uint32_t(1U);
     x = boost::uint64_t(1U);
+
+    static_cast<void>(x);
   }
 
   // If the code compiles, then the test passes.
