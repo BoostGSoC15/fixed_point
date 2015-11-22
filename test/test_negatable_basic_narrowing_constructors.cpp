@@ -18,6 +18,25 @@
 BOOST_AUTO_TEST_CASE(test_negatable_basic_narrowing_constructors)
 {
   {
+    // This fixed-point negatable type has only 2 IntegralRange digits.
+    // For all practical purposes, all constructions and assignments
+    // must be explicit.
+    //
+    // For example, the following should fail.
+    //  fixed_point_type x = std::uint8_t(1U);
+    // But the following should succeed.
+    //  fixed_point_type x(std::uint8_t(1U));
+
+    typedef boost::fixed_point::negatable<2, -5> fixed_point_type;
+
+    fixed_point_type x(std::uint8_t(1U));
+
+    x = fixed_point_type(1U);
+
+    x = static_cast<fixed_point_type>(1U);
+  }
+
+  {
     typedef boost::fixed_point::negatable<8, -7> fixed_point_type;
 
     // This is OK because 8 range digits in fixed_point_type
@@ -27,7 +46,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_basic_narrowing_constructors)
     // Here we require explicit construction from 16-bit
     // unsiged integer boost::uint16_t.
     // In other words,
-    // fixed_point_type y = boost::uint16_t(1U);
+    // fixed_point_type z = boost::uint16_t(1U);
     // will not work because uint16_t has more
     // digits than the IntegralRange digits of y.
 
