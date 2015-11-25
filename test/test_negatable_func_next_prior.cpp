@@ -38,14 +38,6 @@ void tests(T value)
 
   const T np = fixed_next(xp);
 
-  //std::cout
-  //  << "\n x = " << x
-  //  << "x = " << x.bit_pattern() << "\n"
-  //  << "np = " << np.bit_pattern() << "\n" // expect same as x
-  // // << "xp = " << xp.bit_pattern() << "\n"
-  // // << "xn = " << xn.bit_pattern() << "\n"
-  //  << std::endl;
-
   BOOST_CHECK_EQUAL(np.bit_pattern(), x.bit_pattern()); // prior then next should be x.
   BOOST_CHECK_EQUAL(np, x);
   BOOST_CHECK_EQUAL(fixed_distance(xp, xn), 2);
@@ -54,12 +46,9 @@ void tests(T value)
 
 BOOST_AUTO_TEST_CASE(test_negatable_func_next_prior)
 {
-  typedef boost::fixed_point::negatable< 0,  -7> fixed_point_type_0m7;     //  8-bit fixed_point type using all 7 bits for resolution.
-  typedef boost::fixed_point::negatable< 2,  -5> fixed_point_type_2m5;     //  8-bit fixed_point type 2 range 5 resolution.
-  typedef boost::fixed_point::negatable< 7,  -8> fixed_point_type_7m8;     //  16-bit fixed_point type with even split.
-  typedef boost::fixed_point::negatable< 0,  -15> fixed_point_type_0m15;   //  16-bit fixed_point type using all 15 bits for resolution.
-  typedef boost::fixed_point::negatable< 0,  -31> fixed_point_type_0m31;   //  32-bit fixed_point type using all 31 bits for resolution.
-  typedef boost::fixed_point::negatable< 8,  -23> fixed_point_type_8m23;   //  32-bit fixed_point type using 8 for range and 23 bits for resolution.
+  typedef boost::fixed_point::negatable< 0,   -7> fixed_point_type_0m7;     //  8-bit fixed_point type using all 7 bits for resolution.
+  typedef boost::fixed_point::negatable< 2,   -5> fixed_point_type_2m5;     //  8-bit fixed_point type 2 range 5 resolution.
+  typedef boost::fixed_point::negatable< 7,   -8> fixed_point_type_7m8;     //  16-bit fixed_point type with even split.
   typedef boost::fixed_point::negatable< 0,  -63> fixed_point_type_0m63;   //  64-bit fixed_point type using all 63 bits for resolution.
   typedef boost::fixed_point::negatable<15,  -48> fixed_point_type_15m48;  //  64-bit fixed_point type.
   typedef boost::fixed_point::negatable<15, -240> fixed_point_type_15m240; // 256-bit using multiprecision
@@ -90,8 +79,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_next_prior)
   BOOST_CHECK_EQUAL(fixed_next(x),  nextafter(x, x + 1));
 
   // Use 8-bit all solution bit type fixed_point_type_0m7
-  //  tests(fixed_point_type_7m8( 1)); // Cannot represent unity with this type.
-  // tests(fixed_point_type_0m7(-1)); // not negative unity.
+  // tests(fixed_point_type_0m7(-1)); // Cannot represent unity with this type.
   tests(fixed_point_type_0m7( 0));
   tests((std::numeric_limits<fixed_point_type_0m7>::min)()); // small value.
 

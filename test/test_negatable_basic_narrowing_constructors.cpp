@@ -14,9 +14,10 @@
 #include <boost/fixed_point/fixed_point.hpp>
 #include <boost/test/included/unit_test.hpp>
 
-
 BOOST_AUTO_TEST_CASE(test_negatable_basic_narrowing_constructors)
 {
+  bool result = true;
+
   {
     // This fixed-point negatable type has only 2 IntegralRange digits.
     // For all practical purposes, all constructions and assignments
@@ -35,7 +36,7 @@ BOOST_AUTO_TEST_CASE(test_negatable_basic_narrowing_constructors)
 
     x = static_cast<fixed_point_type>(1U);
 
-    static_cast<void>(x);
+    result &= (x == 1U);
   }
 
   {
@@ -56,8 +57,8 @@ BOOST_AUTO_TEST_CASE(test_negatable_basic_narrowing_constructors)
     // sequence is OK.
     fixed_point_type y(boost::uint16_t(1U));
 
-    static_cast<void>(x);
-    static_cast<void>(y);
+    result &= (x == 1U);
+    result &= (y == 1U);
   }
 
   {
@@ -82,9 +83,9 @@ BOOST_AUTO_TEST_CASE(test_negatable_basic_narrowing_constructors)
     // sequence is OK.
     fixed_point_type z(boost::uint32_t(1U));
 
-    static_cast<void>(x);
-    static_cast<void>(y);
-    static_cast<void>(z);
+    result &= (x == 1U);
+    result &= (y == 1U);
+    result &= (z == 1U);
   }
 
   {
@@ -98,9 +99,9 @@ BOOST_AUTO_TEST_CASE(test_negatable_basic_narrowing_constructors)
     x = boost::uint32_t(1U);
     x = boost::uint64_t(1U);
 
-    static_cast<void>(x);
+    result &= (x == 1U);
   }
 
   // If the code compiles, then the test passes.
-  BOOST_CHECK(true);
+  BOOST_CHECK(result);
 }
