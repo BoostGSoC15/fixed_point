@@ -240,15 +240,17 @@
       @c negatable<10,  -53> @c y; // 64-bit \n
       @c negatable<10, -245> @c y; // 256-bit (requires use of @c cpp_bin_float)\n
 
-    \tparam IntegralRange integer >= 0, defines a range of signed number n that is 2^-IntegralRange < n < 2^IntegralRange.
-    \tparam FractionalResolution integer <= -1, defines resolution. 
-      The resolution of a fractional number is 2^FractionalResolution.
-    \tparam RoundMode struct defining the rounding behaviour, default @c round::fastest.\n
-    \tparam OverflowMode struct defining the behaviour from rounding, default @c overflow::undefined.
     \note  Not all rounding or all overflow modes proposed in N3352 are yet implemented.
     \sa http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html
   */
 
+  /*! negatable class used for signed fractional arithmetic.
+      \tparam IntegralRange integer >= 0, defines a range of signed number n that is 2^-IntegralRange < n < 2^IntegralRange.
+    \tparam FractionalResolution integer <= -1, defines resolution. 
+      The resolution of a fractional number is 2^FractionalResolution.
+    \tparam RoundMode struct defining the rounding behaviour, default @c round::fastest.\n
+    \tparam OverflowMode struct defining the behaviour from rounding, default @c overflow::undefined.
+*/
   template<const int IntegralRange,
            const int FractionalResolution,
            typename RoundMode = round::fastest,
@@ -351,11 +353,15 @@
     // The class default constructor is implemented below.
 
     /*! Default constructor.\n By design choice, this clears the data member.\n 
-        So after defining @c negatable<15,-16> @c x; then @c x==0; 
+        So after defining @c negatable<15,-16> @c x; then @c x==0;\n\n
+        It is therefore more efficient to construct with an initial value @c negatable<2,5> @c x(0) rather than 
+        @c nagatable<2,5> @c x; @c x=0;
     */
     negatable() : data() { }
 
-    /*! Constructors from built-in signed integral types. Lossy construction is made explicit.
+    /*! Constructors from built-in signed integral types.\n 
+    Lossy construction is made @c explicit, so one cannot write @c negatable<> @c x=1, but @b must write @c negatable<> @c x(1).
+    Non-lossy construction is NOT explicit.
     */
 
     // This is non-explicit because the conversion from SignedIntegralType to fixed-point is non-lossy.
@@ -374,10 +380,10 @@
                                                                && (std::numeric_limits<SignedIntegralType>::digits > IntegralRange)>::type const* = nullptr)
       : data(make_from_signed_integral_type(n)) { }
 
-    /*! Constructors from built-in unsigned integral types. Lossy construction is made explicit.
+    /*! Constructors from built-in unsigned integral types.
+     \note This is non-explicit because the conversion from UnsignedIntegralType to fixed-point is non-lossy.
     */
 
-    // This is non-explicit because the conversion from UnsignedIntegralType to fixed-point is non-lossy.
     template<typename UnsignedIntegralType>
     BOOST_CONSTEXPR negatable(const UnsignedIntegralType& u,
                               typename std::enable_if<   (std::is_integral<UnsignedIntegralType>::value == true)
@@ -393,8 +399,8 @@
                                                                && (std::numeric_limits<UnsignedIntegralType>::digits > IntegralRange)>::type const* = nullptr)
       : data(make_from_unsigned_integral_type(u)) { }
 
-    /*! Constructors enabled when value_type and unsigned_small_type are non-built-in types.\n
-        These constructors are explicit.
+    /*! Constructors enabled when @c value_type and @c unsigned_small_type are non-built-in types.\n
+        These constructors are all explicit.
     */
 
     template<typename ValueType>
@@ -1268,12 +1274,13 @@
     }
 
     /*! Compute (during pre-main static initialization) the maximum value that the type can represent.\n
-        Used to define function @c std::numeric_limits<>::max()
-        and, when negated, @c std::numeric_limits<>::lowest().
+        Used to define function @c std::numeric_limits<>::max().\n
+        For example, @c negatable<0, -7> xmax((std::numeric_limits<negatable<0, -7>>::max)()); == 0.9922\n
+        Bit pattern 11...111
     */
     static negatable value_max() BOOST_NOEXCEPT
     {
-      BOOST_CONSTEXPR int total_right_shift = std::numeric_limits<unsigned_small_type>::digits - (IntegralRange - FractionalResolution);
+     BOOST_CONSTEXPR int total_right_shift = std::numeric_limits<unsigned_small_type>::digits - (IntegralRange - FractionalResolution);
 
       const unsigned_small_type the_value_max((std::numeric_limits<unsigned_small_type>::max)() >> total_right_shift);
 
@@ -1281,13 +1288,28 @@
     }
 
     /*! Compute (during pre-main static initialization) the minimum value that the type can represent.\n
-        Used to define function @c std::numeric_limits<>::min().
+        Used to define function @c std::numeric_limits<>::min().\n
+        Bit pattern 0...001
     */
     static negatable value_min() BOOST_NOEXCEPT
     {
       BOOST_CONSTEXPR_OR_CONST negatable the_value_min(nothing(), static_cast<value_type>(1));
 
       return the_value_min;
+    }
+
+
+    /*! Compute (during pre-main static initialization) the lowest value that the type can represent.\n
+    Used to define function @c std::numeric_limits<>::lowest().\n
+    Bit pattern 10...000.
+    */
+    static negatable value_lowest() BOOST_NOEXCEPT
+    {
+      BOOST_CONSTEXPR int total_left_shift = (IntegralRange - FractionalResolution);
+
+      const unsigned_small_type the_value_lowest(static_cast<value_type>(1) << total_left_shift);
+
+      return negatable(nothing(), static_cast<value_type>(the_value_lowest));
     }
 
     /*! Compute machine epsilon (during pre-main static initialization)

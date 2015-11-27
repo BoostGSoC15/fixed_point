@@ -64,7 +64,7 @@
 
     BOOST_STATIC_CONSTEXPR local_negatable_type (min)        () BOOST_NOEXCEPT { return local_negatable_type::value_min(); }
     BOOST_STATIC_CONSTEXPR local_negatable_type (max)        () BOOST_NOEXCEPT { return local_negatable_type::value_max(); }
-    BOOST_STATIC_CONSTEXPR local_negatable_type lowest       () BOOST_NOEXCEPT { return -(max)(); }
+    BOOST_STATIC_CONSTEXPR local_negatable_type lowest       () BOOST_NOEXCEPT { return local_negatable_type::value_lowest(); }
     BOOST_STATIC_CONSTEXPR local_negatable_type epsilon      () BOOST_NOEXCEPT { return local_negatable_type::epsilon_maker(); }
     BOOST_STATIC_CONSTEXPR local_negatable_type round_error  () BOOST_NOEXCEPT { return local_negatable_type(1); }
     BOOST_STATIC_CONSTEXPR local_negatable_type infinity     () BOOST_NOEXCEPT { return local_negatable_type(0); }
@@ -134,7 +134,7 @@
 
     BOOST_STATIC_CONSTEXPR local_negatable_type (min)        () BOOST_NOEXCEPT { return local_negatable_type::value_min(); }
     BOOST_STATIC_CONSTEXPR local_negatable_type (max)        () BOOST_NOEXCEPT { return local_negatable_type::value_max(); }
-    BOOST_STATIC_CONSTEXPR local_negatable_type lowest       () BOOST_NOEXCEPT { return -(max)(); }
+    BOOST_STATIC_CONSTEXPR local_negatable_type lowest       () BOOST_NOEXCEPT { return  local_negatable_type::value_lowest(); }
     BOOST_STATIC_CONSTEXPR local_negatable_type epsilon      () BOOST_NOEXCEPT { return local_negatable_type::epsilon_maker(); }
     BOOST_STATIC_CONSTEXPR local_negatable_type round_error  () BOOST_NOEXCEPT { return local_negatable_type(1) / 2; }
     BOOST_STATIC_CONSTEXPR local_negatable_type infinity     () BOOST_NOEXCEPT { return local_negatable_type(0); }
