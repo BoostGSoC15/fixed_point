@@ -1305,11 +1305,13 @@
     */
     static negatable value_lowest() BOOST_NOEXCEPT
     {
-      BOOST_CONSTEXPR int total_left_shift = (IntegralRange - FractionalResolution);
+      //BOOST_CONSTEXPR int total_left_shift = (IntegralRange - FractionalResolution);
 
-      const unsigned_small_type the_value_lowest(static_cast<value_type>(1) << total_left_shift);
+      //const unsigned_small_type the_value_lowest(unsigned_small_type(1) << total_left_shift);
 
-      return negatable(nothing(), static_cast<value_type>(the_value_lowest));
+      //return negatable(nothing(), static_cast<value_type>(the_value_lowest));
+
+      return -value_max() - negatable(nothing(), value_type(1));
     }
 
     /*! Compute machine epsilon (during pre-main static initialization)
