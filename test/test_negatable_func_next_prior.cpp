@@ -12,10 +12,7 @@
 #define BOOST_LIB_DIAGNOSTIC
 
 #include <boost/fixed_point/fixed_point.hpp>
-#include <boost/fixed_point/fixed_point_negatable_next.hpp> // Functions under test.
-
 #include <boost/test/included/unit_test.hpp>
-//#include <boost/test/unit_test.hpp> // If using test library.
 
 // Basic tests using any type and any value (except max, lowest or -max).
 template<typename T>
