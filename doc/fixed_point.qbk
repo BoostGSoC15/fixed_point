@@ -406,9 +406,9 @@ and if later assigning a value after construction, explicit conversion is still 
       //x = 2; // binary '=': no operator found which takes a right-hand operand of type 'int' (or there is no acceptable conversion)
       x = negatable<2, -5>(2); // x == 2.0000
 
-This is tedious and adds much clutter, so a `typedef` may be convenient:
+This is tedious and adds much clutter, so a small `typedef` may be convenient:
 
-   typedef negatable<2, -5> tiny_fp; // Declare a fixed_point type,
+   typedef negatable<2, -5> my_fp; // Declare a fixed_point type,
                                                     // using a 8-bit integral type (`unsigned char`),
                                                     // and split of 2 bits for range and 5 bits for resolution.
                                                    // with rounding as fastest (no rounding) and overflow undefined.
@@ -416,42 +416,45 @@ This is tedious and adds much clutter, so a `typedef` may be convenient:
 [tip It is very likely to be more efficient to use the converting constructor  `negatable<2, -5> x1(1);`
 because construction followed by inialization will involve a temporary variable.]
 
-[warning There is major pit awaiting the unwary if the fixed_point type cannot represent the value!]
+[warning There is major pit awaiting the unwary if the [^fixed_point] type cannot represent the value assigned!]
 
-In this example, the value unity will cause surprise:
+In this example, constructing with the value ['unity] will cause surprise:
 
   negatable<0, -7> x1(1);
 
-This is because this type has no bits used for the range and so the maximum value that can be represented is only 0.9922.
+This is because this type has [*zero] bits used for the range and so the maximum value that can be represented is only 0.9922.
 
 ``
   class boost::fixed_point::negatable<0,-7,struct boost::fixed_point::round::fastest,struct boost::fixed_point::overflow::undefined>
   Range 0, Resolution 7, all_bits 8, 256 values, digits10 = 1, max_digits10 = 4
-  Range from lowest -1.0000 10000000, zero 0.0000 , min 0.0078 00000001 to max 0.9922 01111111 in steps of 0.0078:
+  Range from lowest -1.0000 10000000, zero 0.0000, min 0.0078 00000001 to max 0.9922 01111111 in steps of 0.0078:
   -1.0000, -0.9922, -0.9844 ... -0.0156, -0.0078 , 0.0000, 0.0078, 0.0156 ... 0.9766, 0.9844 to 0.9922
 
 ``
-Storing the value 1 therefore causes overflow and, inline with C/C++ norms,
-the value stored [*wraps around to -1, the lowest value], `std::numeric_limits<>::lowest()` -1.0000.
+Storing the value 1 therefore causes overflow and, in line with C/C++ norms,
+the value stored [*wraps around to -1, the lowest value], `std::numeric_limits<>::lowest()` == -1.0000.
 
-This behaviour is analogous to normal `short int`
+This behaviour is analogous to `short int`
 where assigning a value that exceeds `(std::numeric_limits<short int>::max)()` (32767)
-silently causes overflow and goes negative to `std::numeric_limits<short int>::lowest()` (-32768)
-and is because an integral type is used to hold the `fixed_point` value.
+silently causes overflow and goes negative to `std::numeric_limits<short int>::lowest()` (-32768).
+For `fixed_point` it is because an integral type is used to hold the `fixed_point` value.
 
 But unlike the built-in integers, when used in a simple assignment or constructor, the compiler can warn
 
    short int j(32768); //  warning C4309: 'initializing': truncation of constant value
    short int k = 32768; //  warning C4309: 'initializing': truncation of constant value
 
-For Boost `fixed_point`, there is no compiler warning.
+but for Boost `fixed_point`, there is no compiler warning.
 
 [warning
-The same pitfall applies for all negatable types when the value provided
-exceeds the size of the integral type used to store the fixed_point data.]
+The same pitfall applies for [*all] negatable types when the value provided
+exceeds the size of the integral type used to store the [^fixed_point] data.]
+
+[note This behaviour might change if other overflow was other than
+`boost::fixed_point::overflow::undefined`, for example, saturation at the maximum value.
+But at present only `overflow::undefined` is implemented.]
 
 [endsect] [/section:construction Constructors and Destructors]
-
 
 [endsect] [/section:synposis Synposis]
 
