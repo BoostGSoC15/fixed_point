@@ -1888,18 +1888,17 @@
 
       typedef typename negatable_type::float_type local_float_type;
 
-      // Send a fixed-point number to the output stream.
-      // Express the fixed-point number as a floating-point representation.
+      /*! Send a fixed-point number to the output stream.\n
+      Express the fixed-point number as a floating-point representation,
+      using the @c flags and precision of the @c ostream out.
+      */
       std::basic_ostringstream<char_type, traits_type> ostr;
-
-      const std::streamsize prec = out.precision();
-
+      // Copy all ostream settings from out to local ostr.
       ostr.flags(out.flags());
       ostr.imbue(out.getloc());
+      ostr.precision(out.precision());
 
-      static_cast<void>(ostr << std::setprecision(prec)
-                             << std::fixed
-                             << x.template convert_to_floating_point_type<local_float_type>());
+      static_cast<void>(ostr << x.template convert_to_floating_point_type<local_float_type>());
 
       return (out << ostr.str());
     }
