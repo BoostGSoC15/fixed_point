@@ -37,6 +37,7 @@
   {
     return ((x.data < 0) ? -x : x);
   }
+
   /*! Floor function, computes largest integer value not greater than arg.
   \sa http://en.cppreference.com/w/cpp/numeric/math/floor
   */
@@ -67,6 +68,7 @@
       return local_negatable_type(0U);
     }
   }
+
   /*! Ceiling function computes the smallest integer value not less than arg.
     \sa http://en.cppreference.com/w/cpp/numeric/math/ceil
   */
@@ -99,6 +101,7 @@
       return local_negatable_type(0U);
     }
   }
+
   /*! truncation function computes the nearest integer not greater in magnitude than arg.
   \sa  http://en.cppreference.com/w/cpp/numeric/math/trunc
   */
@@ -201,10 +204,10 @@
       return x;
     }
   }
+
   /*! Computes the fixed_point remainder of the division operation.
    \sa http://en.cppreference.com/w/cpp/numeric/math/fmod
    */
-
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> fmod(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y)
   {
@@ -232,6 +235,7 @@
 
     return fractional_part;
   }
+
   /*! Computes square root for fractional resolution < 11 bits.
   */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
@@ -364,7 +368,7 @@
 
     return result;
   }
- 
+
   /*! Computes square root for fractional resolution < 24 bits.
   */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
@@ -563,6 +567,7 @@
 
     return a;
   }
+
   /*! Computes exponent for fractional resolution < 11 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> exp(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
@@ -811,7 +816,6 @@
   }
 
   /*! Computes natural log for fractional resolution < 24 bits. */
-
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> log(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                               typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
@@ -985,6 +989,13 @@
 
     // Consider warm-caching log(10) as a constant value.
     return log(x) / log(local_negatable_type(10));
+  }
+
+  /*! Computes log to base a. */
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> loga(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> a)
+  {
+    return log(x) / log(a);
   }
 
   /*! Computes power x ^ a. */

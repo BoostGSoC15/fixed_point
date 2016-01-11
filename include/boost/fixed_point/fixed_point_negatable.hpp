@@ -177,6 +177,7 @@
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> log  (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, typename std::enable_if< int(24) <  (-FractionalResolution)>::type const* = nullptr);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> log2 (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> log10(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> loga (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> a);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> pow  (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> a);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> pow  (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, int n);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sin  (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, typename std::enable_if< int(11) >= (-FractionalResolution)>::type const* = nullptr);
@@ -216,7 +217,7 @@
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> typename negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::value_type fixed_distance(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>          negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>             fixed_advance (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, typename negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::value_type distance);
 
-  } } // namespace boost::fixed_point:
+  } } // namespace boost::fixed_point
 
   namespace std
   {
@@ -350,8 +351,6 @@
   public:
     // The public class constructors follow below.
 
-    // The class default constructor is implemented below.
-
     /*! Default constructor.\n By design choice, this clears the data member.\n 
         So after defining @c negatable<15,-16> @c x; then @c x==0;\n\n
         It is therefore more efficient to construct with an initial value @c negatable<2,5> @c x(0) rather than 
@@ -383,7 +382,6 @@
     /*! Constructors from built-in unsigned integral types.
      \note This is non-explicit because the conversion from UnsignedIntegralType to fixed-point is non-lossy.
     */
-
     template<typename UnsignedIntegralType>
     BOOST_CONSTEXPR negatable(const UnsignedIntegralType& u,
                               typename std::enable_if<   (std::is_integral<UnsignedIntegralType>::value == true)
@@ -402,7 +400,6 @@
     /*! Constructors enabled when @c value_type and @c unsigned_small_type are non-built-in types.\n
         These constructors are all explicit.
     */
-
     template<typename ValueType>
     explicit negatable(const ValueType& n,
                        typename std::enable_if<   (std::is_same<ValueType, value_type>::value == true)
@@ -1377,7 +1374,7 @@
       return the_value_ln_two;
     }
 
-    /*! Compute (during pre-main static initialization) the representation of the mathematical constant pi.\n
+    /*! Compute (during pre-main static initialization) the representation of the mathematical constant e.\n
     */
     static const negatable& value_e()
     {
@@ -1482,7 +1479,7 @@
 
     friend struct initializer;
 
-    struct initializer
+    struct initializer final
     {
       initializer()
       {
@@ -1892,7 +1889,9 @@
       Express the fixed-point number as a floating-point representation,
       using the @c flags and precision of the @c ostream out.
       */
+
       std::basic_ostringstream<char_type, traits_type> ostr;
+
       // Copy all ostream settings from out to local ostr.
       ostr.flags(out.flags());
       ostr.imbue(out.getloc());
