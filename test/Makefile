@@ -30,6 +30,7 @@ all_files : test_negatable_basic_arithmetic_fastest.exe            \
             test_negatable_basic_mixed_constructors_part2.exe      \
             test_negatable_basic_mixed_math.exe                    \
             test_negatable_basic_multiply.exe                      \
+            test_negatable_basic_narrowing_constructors.exe        \
             test_negatable_constants_local_ln_two.exe              \
             test_negatable_constants_local_pi.exe                  \
             test_negatable_func_arccosine_big.exe                  \
@@ -67,6 +68,7 @@ all_files : test_negatable_basic_arithmetic_fastest.exe            \
             test_negatable_func_log_nearest_even.exe               \
             test_negatable_func_log_tiny.exe                       \
             test_negatable_func_nearbyint.exe                      \
+            test_negatable_func_next_prior.exe                     \
             test_negatable_func_nextafter                          \
             test_negatable_func_nextafter_big                      \
             test_negatable_func_sine_big.exe                       \
@@ -97,7 +99,8 @@ all_files : test_negatable_basic_arithmetic_fastest.exe            \
             test_negatable_round_trip_digits10_018.exe             \
             test_negatable_round_trip_digits10_050.exe             \
             test_negatable_round_trip_digits10_100.exe             \
-            test_negatable_round_trip_digits10_999.exe
+            test_negatable_round_trip_digits10_999.exe             \
+            test_negatable_round_trip_edge_cases.exe
 
 cleanup :
 	@-echo +++cleaning all executable files

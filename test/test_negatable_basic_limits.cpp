@@ -160,31 +160,11 @@ BOOST_AUTO_TEST_CASE(test_negatable_basic_limits_lowest)
   {
     typedef boost::fixed_point::negatable<2, -5> fixed_point_type_2m5;
 
-    fixed_point_type_2m5 x = (std::numeric_limits<fixed_point_type_2m5>::lowest)();
-    fixed_point_type_2m5 m = (std::numeric_limits<fixed_point_type_2m5>::max)();
+    fixed_point_type_2m5 x  =  (std::numeric_limits<fixed_point_type_2m5>::lowest)();
+    fixed_point_type_2m5 mm = -(std::numeric_limits<fixed_point_type_2m5>::max)();
 
-    BOOST_CHECK_EQUAL(x, -m);
-
-    //BOOST_CHECK_EQUAL(x.all_bits, 8);
-    //fixed_point_type_2m5 m = 3.969; // 
-
-    //#if defined(ENABLE_LOCAL_TEST_DEBUG_MESSAGES)
-    //std::cout << m.bit_pattern() << std::endl;
-    //#endif
-
-    //BOOST_CHECK_EQUAL(m.bit_pattern(), "01111111"); // All except sign bit set.
-    //BOOST_CHECK_EQUAL(m.bit_pattern().size(), std::size_t(x.range + (-x.resolution) + 1)); // 8 bits.
-    //BOOST_CHECK_EQUAL(x, m);
-    //int e;
-    //fixed_point_type_2m5 s = frexp(x, &e);
-
-    //#if defined(ENABLE_LOCAL_TEST_DEBUG_MESSAGES)
-    //std::cout << s << " " << e << std::endl;
-    //#endif
-
-    //BOOST_CHECK_EQUAL(e, 2);
-    //BOOST_CHECK_EQUAL(s, 1 - 0.03125);
-    //BOOST_CHECK_EQUAL(s, 0.96875);
+    BOOST_CHECK(x < mm);
+    BOOST_CHECK(mm > x);
   }
 } // BOOST_AUTO_TEST_CASE(test_negatable_numeric_limits_lowest)
 

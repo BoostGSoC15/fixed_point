@@ -12,13 +12,13 @@
 #include <sstream>
 #include <string>
 
-#define BOOST_TEST_MODULE test_negatable_basic
+#define BOOST_TEST_MODULE test_negatable_basic_basic_ops
 #define BOOST_LIB_DIAGNOSTIC
 
 #include <boost/fixed_point/fixed_point.hpp>
 #include <boost/test/included/unit_test.hpp>
 
-BOOST_AUTO_TEST_CASE(test_negatable_basic)
+BOOST_AUTO_TEST_CASE(test_negatable_basic_basic_ops)
 {
   {
     // Plain fixed-point
@@ -67,8 +67,13 @@ BOOST_AUTO_TEST_CASE(test_negatable_basic)
     std::ostringstream os;
 
     os << std::setprecision(std::numeric_limits<fixed_point_type_fastest_round>::digits10)
+       << std::fixed
        << x;
 
-    BOOST_CHECK_EQUAL(os.str(), std::string("-1.25"));
+    const std::string reference_string =
+        std::string("-1.25")
+      + std::string(std::string::size_type(std::numeric_limits<fixed_point_type_fastest_round>::digits10 - int(std::string("25").size())), char('0'));
+
+    BOOST_CHECK_EQUAL(os.str(), reference_string);
   }
 }

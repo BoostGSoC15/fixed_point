@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright Christopher Kormanyos 2013 - 2015.
+//  Copyright Christopher Kormanyos 2013 - 2016.
 //  Copyright Nikhar Agrawal 2015.
 //  Copyright Paul Bristow 2015.
 //  Distributed under the Boost Software License,
@@ -56,9 +56,9 @@
   // (especially for embedded systems).
 
   // With BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS,
-  // multiple-precision backends are used, this will ensure that
-  // the those based on GMP are used instead of those based based
-  // on Boost.Multiprecision's self-written backends.
+  // multiple-precision backends (when used) will use the ones
+  // based on GMP instead of Boost.Multiprecision's self-written
+  // multiple-precision backends.
 
   #include <boost/fixed_point/fixed_point_negatable.hpp>
 

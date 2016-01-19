@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright Christopher Kormanyos 2013 - 2015.
+//  Copyright Christopher Kormanyos 2013 - 2016.
 //  Copyright Nikhar Agrawal 2015.
 //  Copyright Paul Bristow 2015.
 //  Distributed under the Boost Software License,
@@ -36,9 +36,9 @@
   {
     #if !defined(BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS)
 
-      static_assert(    (std::numeric_limits<UnsignedIntegralType>::is_integer == true)
-                     && (std::numeric_limits<UnsignedIntegralType>::is_signed  == false),
-                     "The UnsignedIntegralType for left shift must be an unsigned integral type.");
+    static_assert(    (std::numeric_limits<UnsignedIntegralType>::is_integer == true)
+                   && (std::numeric_limits<UnsignedIntegralType>::is_signed  == false),
+                   "The UnsignedIntegralType for left shift must be an unsigned integral type.");
 
     #endif
 
@@ -98,19 +98,19 @@
 
       #else
 
-        typedef boost::multiprecision::cpp_int_backend<unsigned(bit_count_nearest_power_of_two),
-                                                       unsigned(bit_count_nearest_power_of_two),
-                                                       boost::multiprecision::signed_magnitude,
-                                                       boost::multiprecision::unchecked,
-                                                       void>
-        signed_integral_backend_type;
+      typedef boost::multiprecision::cpp_int_backend<unsigned(bit_count_nearest_power_of_two),
+                                                     unsigned(bit_count_nearest_power_of_two),
+                                                     boost::multiprecision::signed_magnitude,
+                                                     boost::multiprecision::unchecked,
+                                                     void>
+      signed_integral_backend_type;
 
-        typedef boost::multiprecision::cpp_int_backend<unsigned(bit_count_nearest_power_of_two),
-                                                       unsigned(bit_count_nearest_power_of_two),
-                                                       boost::multiprecision::unsigned_magnitude,
-                                                       boost::multiprecision::unchecked,
-                                                       void>
-        unsigned_integral_backend_type;
+      typedef boost::multiprecision::cpp_int_backend<unsigned(bit_count_nearest_power_of_two),
+                                                     unsigned(bit_count_nearest_power_of_two),
+                                                     boost::multiprecision::unsigned_magnitude,
+                                                     boost::multiprecision::unchecked,
+                                                     void>
+      unsigned_integral_backend_type;
 
       #endif
 
@@ -185,9 +185,9 @@
 
       #else
 
-        typedef boost::multiprecision::backends::cpp_bin_float<unsigned(BitCount),
-                                                               boost::multiprecision::backends::digit_base_2>
-        floating_point_backend_type;
+      typedef boost::multiprecision::backends::cpp_bin_float<unsigned(BitCount),
+                                                             boost::multiprecision::backends::digit_base_2>
+      floating_point_backend_type;
 
       #endif
 

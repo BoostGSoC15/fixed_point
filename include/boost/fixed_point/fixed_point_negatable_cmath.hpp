@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright Christopher Kormanyos 2013 - 2015.
+//  Copyright Christopher Kormanyos 2013 - 2016.
 //  Copyright Nikhar Agrawal 2015.
 //  Copyright Paul Bristow 2015.
 //  Distributed under the Boost Software License,
@@ -12,7 +12,7 @@
 
 /*!
   \file
-  \brief Implement most fixed-point negatable <cmath> functions.
+  \brief Implement most fixed-point negatable \<cmath\> functions.
 */
 
 #ifndef FIXED_POINT_NEGATABLE_CMATH_2015_08_21_HPP_
@@ -20,19 +20,27 @@
 
   namespace boost { namespace fixed_point {
 
+  /*! Absolute function. 
+  \sa http://en.cppreference.com/w/cpp/numeric/math/abs
+  */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> abs(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
     return ((x.data < 0) ? -x : x);
   }
 
-  //! @c std::fabs function (identical to abs and provided for completeness).
+  /*! @c std::fabs function (identical to @c abs and provided for completeness).
+    \sa http://en.cppreference.com/w/cpp/numeric/math/abs
+  */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> fabs(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
     return ((x.data < 0) ? -x : x);
   }
 
+  /*! Floor function, computes largest integer value not greater than arg.
+  \sa http://en.cppreference.com/w/cpp/numeric/math/floor
+  */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> floor(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
@@ -61,6 +69,9 @@
     }
   }
 
+  /*! Ceiling function computes the smallest integer value not less than arg.
+    \sa http://en.cppreference.com/w/cpp/numeric/math/ceil
+  */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> ceil(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
@@ -91,6 +102,9 @@
     }
   }
 
+  /*! truncation function computes the nearest integer not greater in magnitude than arg.
+  \sa  http://en.cppreference.com/w/cpp/numeric/math/trunc
+  */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> trunc(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
@@ -191,6 +205,9 @@
     }
   }
 
+  /*! Computes the fixed_point remainder of the division operation.
+   \sa http://en.cppreference.com/w/cpp/numeric/math/fmod
+   */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> fmod(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y)
   {
@@ -219,6 +236,8 @@
     return fractional_part;
   }
 
+  /*! Computes square root for fractional resolution < 11 bits.
+  */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sqrt(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                                typename std::enable_if<int(11) >= (-FractionalResolution)>::type const*)
@@ -350,6 +369,8 @@
     return result;
   }
 
+  /*! Computes square root for fractional resolution < 24 bits.
+  */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sqrt(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                                typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
@@ -453,6 +474,7 @@
     return result;
   }
 
+  /*! Computes sqrt for fractional resolution > 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sqrt(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                                typename std::enable_if<int(24) <  (-FractionalResolution)>::type const*)
@@ -546,6 +568,7 @@
     return a;
   }
 
+  /*! Computes exponent for fractional resolution < 11 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> exp(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                               typename std::enable_if<int(11) >= (-FractionalResolution)>::type const*)
@@ -608,6 +631,7 @@
     return result;
   }
 
+  /*! Computes exponent for fractional resolution  24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> exp(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                               typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
@@ -676,6 +700,7 @@
     return result;
   }
 
+  /*! Computes exponent for fractional resolution > 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> exp(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                               typename std::enable_if<int(24) <  (-FractionalResolution)>::type const*)
@@ -713,6 +738,7 @@
     return result;
   }
 
+  /*! Computes natural log for fractional resolution < 11 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> log(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                               typename std::enable_if<int(11) >= (-FractionalResolution)>::type const*)
@@ -789,6 +815,7 @@
     return result;
   }
 
+  /*! Computes natural log for fractional resolution < 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> log(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                               typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
@@ -871,6 +898,7 @@
     return result;
   }
 
+  /*! Computes natural log for fractional resolution > 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> log(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                               typename std::enable_if<int(24) <  (-FractionalResolution)>::type const*)
@@ -944,6 +972,7 @@
     return result;
   }
 
+  /*! Computes log to base 2. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> log2(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
@@ -952,6 +981,7 @@
     return log(x) / local_negatable_type::value_ln_two();
   }
 
+  /*! Computes log to base 10. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> log10(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
@@ -961,6 +991,14 @@
     return log(x) / log(local_negatable_type(10));
   }
 
+  /*! Computes log to base a. */
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> loga(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> a)
+  {
+    return log(x) / log(a);
+  }
+
+  /*! Computes power x ^ a. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> pow(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> a)
   {
@@ -1016,6 +1054,7 @@
     }
   }
 
+  /*! Computes sine function. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sin(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                               typename std::enable_if<int(11) >= (-FractionalResolution)>::type const*)
@@ -1075,6 +1114,7 @@
     return (((n % 2) == 0) ? result : -result);
   }
 
+  /*! Computes sine function for fractional resolution < 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sin(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                               typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
@@ -1138,6 +1178,7 @@
     return (((n % 2) == 0) ? result : -result);
   }
 
+  /*! Computes sine function for fractional resolution > 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sin(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                               typename std::enable_if<int(24) <  (-FractionalResolution)>::type const*)
@@ -1214,6 +1255,7 @@
     return (((n % 2) == 0) ? result : -result);
   }
 
+  /*! Computes cosine function for fractional resolution < 11 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> cos(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                               typename std::enable_if<int(11) >= (-FractionalResolution)>::type const*)
@@ -1298,6 +1340,7 @@
     return (((n % 2) == 0) ? result : -result);
   }
 
+  /*! Computes cosine function for fractional resolution < 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> cos(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                               typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
@@ -1387,6 +1430,7 @@
     return (((n % 2) == 0) ? result : -result);
   }
 
+  /*! Computes cosine function for fractional resolution > 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> cos(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                               typename std::enable_if<int(24) <  (-FractionalResolution)>::type const*)
@@ -1463,6 +1507,7 @@
     return (((n % 2) == 0) ? result : -result);
   }
 
+  /*! Computes tangent function for fractional resolution < 11 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> tan(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                               typename std::enable_if<int(11) >= (-FractionalResolution)>::type const*)
@@ -1541,6 +1586,7 @@
     return result;
   }
 
+  /*! Computes tangent function for fractional resolution < 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> tan(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                               typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
@@ -1623,6 +1669,7 @@
     return result;
   }
 
+  /*! Computes tangent function for fractional resolution > 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> tan(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                               typename std::enable_if<int(24) <  (-FractionalResolution)>::type const*)
@@ -1652,6 +1699,7 @@
     return sin(x) / cos(x);
   }
 
+  /*! Computes arc sine function for fractional resolution < 11 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> asin(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                                typename std::enable_if<int(11) >= (-FractionalResolution)>::type const*)
@@ -1723,6 +1771,7 @@
     return result;
   }
 
+  /*! Computes arc sine function for fractional resolution < 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> asin(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                                typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
@@ -1782,6 +1831,7 @@
     return result;
   }
 
+  /*! Computes arc sine function for fractional resolution > 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> asin(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                                typename std::enable_if<int(24) <  (-FractionalResolution)>::type const*)
@@ -1829,6 +1879,7 @@
     return result;
   }
 
+  /*! Computes arc cosine function for fractional resolution < 11 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> acos(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                                typename std::enable_if<int(11) >= (-FractionalResolution)>::type const*)
@@ -1887,6 +1938,7 @@
     return result;
   }
 
+  /*! Computes arc cosine function for fractional resolution < 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> acos(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                                typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
@@ -1948,6 +2000,7 @@
     return result;
   }
 
+  /*! Computes arc cosine function for fractional resolution > 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> acos(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                                typename std::enable_if<int(24) <  (-FractionalResolution)>::type const*)
@@ -1981,6 +2034,9 @@
     return result;
   }
 
+  /*! Computes arc or inverse tangent function atan.
+  \sa http://en.cppreference.com/w/cpp/numeric/math/atan
+  */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> atan(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                                typename std::enable_if<int(11) >= (-FractionalResolution)>::type const*)
@@ -2031,6 +2087,7 @@
     return result;
   }
 
+  /*! Computes arc tangent function for fractional resolution < 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> atan(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                                typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
@@ -2085,6 +2142,7 @@
     return result;
   }
 
+  /*! Computes arc tangent function for fractional resolution > 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> atan(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                                typename std::enable_if<int(24) <  (-FractionalResolution)>::type const*)
@@ -2144,6 +2202,8 @@
     return result;
   }
 
+  /*! Computes the arc tangent of y/x using the signs of arguments to determine the correct quadrant for any fractional resolution. 
+  */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> atan2(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
@@ -2172,6 +2232,7 @@
                                    : ((!x_is_neg) ? atan_term : (atan_term + local_negatable_type::value_pi())));
   }
 
+  /*! Compute hyperbolic sine sinh. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sinh(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
@@ -2183,6 +2244,7 @@
     return (ep - em) / 2U;
   }
 
+  /*! Compute hyperbolic cosine cosh. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> cosh(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
@@ -2194,6 +2256,7 @@
     return (ep + em) / 2U;
   }
 
+  /*! Compute hyperbolic tangent tanh. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> tanh(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
@@ -2205,6 +2268,7 @@
     return (ep - em) / (ep + em);
   }
 
+  /*! Compute inverse hyperbolic sine asinh. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> asinh(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
@@ -2243,6 +2307,7 @@
     return result;
   }
 
+  /*! Compute inverse hyperbolic cosine acosh. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> acosh(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
@@ -2279,6 +2344,7 @@
     return result;
   }
 
+  /*! Compute inverse hyperbolic tan atanh. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> atanh(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
@@ -2323,6 +2389,7 @@
     return result;
   }
 
+  /*! Compute hypotenuse function. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> hypot(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y)
   {
@@ -2334,12 +2401,21 @@
     return sqrt(x2 + y2);
   }
 
+  /*! copy sign function.
+  \return fixed_point value with the magnitude of x and the sign of y. 
+  \param x Magnitude.
+  \param y Sign.
+    \sa http://en.cppreference.com/w/cpp/numeric/math/copysign
+  */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> copysign(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y)
   {
     return (((x.data < 0) == (y.data < 0)) ? x : -x);
   }
 
+  /*! Rounds the floating-point argument arg to an integer value in floating-point format, using the current rounding mode.
+    \sa http://en.cppreference.com/w/cpp/numeric/math/nearbyint
+  */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> nearbyint(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
@@ -2377,20 +2453,55 @@
                       : local_negatable_type(local_nothing(), -local_value_type(result)));
   }
 
+  /*! Next representable value of x in the direction of y.
+    \returns Returns the next representable value of x in the direction of y.
+    \param x value whose next or prior value is required.
+    \param y direction 
+
+    \sa http://en.cppreference.com/w/cpp/numeric/math/nextafter
+     \sa http://en.cppreference.com/w/cpp/numeric/math/nexttoward - identical to nextafter for fixed_point.
+   \sa @c fixed_next and @c fixed_prior functions.
+
+    \note 
+      @c nextafter(x, x); returns x unchanged.\n
+      \code
+        nextafter((std::numeric_limits<>::max)(), (std::numeric_limits<>::max)()) returns (std::numeric_limits<>::max)();
+        nextafter((std::numeric_limits<>::lowest)(), (std::numeric_limits<>::max)()) returns (std::numeric_limits<>::lowest)();
+      \endcode
+
+      \warning Call without a @c std:: namespace qualifier, for example:
+      \code
+        fixed_point_type_7m8 x = static_cast<fixed_point_type_7m8>(1);
+        nextafter(x, (std::numeric_limits<fixed_point_type_7m8>::max)()); // nextafter(x, max) = 1.00391
+      \endcode
+  */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> nextafter(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+    typedef typename local_negatable_type::value_type                               local_value_type;
+    typedef typename local_negatable_type::nothing                                  local_nothing;
+
+    static_assert(is_fixed_point<local_negatable_type>::value,
+                  "Error: fixed_next can only be instantiated with a fixed-point negatable type.");
 
     local_negatable_type result(x);
 
+    const local_negatable_type dx = local_negatable_type(local_nothing(), local_value_type(1));
+
     if(y > x)
     {
-      ++(result.data);
+      if(x < (std::numeric_limits<local_negatable_type>::max)())
+      {
+        result += dx;
+      }
     }
     else if(y < x)
     {
-      --(result.data);
+      if(x > std::numeric_limits<local_negatable_type>::lowest())
+      {
+        result -= dx;
+      }
     }
 
     return result;

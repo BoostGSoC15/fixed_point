@@ -68,6 +68,7 @@ test-suite "Fixed_point"
       [ run test_negatable_basic_mixed_constructors_part2.cpp boost_unit_test ]
       [ run test_negatable_basic_mixed_math.cpp boost_unit_test ]
       [ run test_negatable_basic_multiply.cpp boost_unit_test ]
+      [ run test_negatable_basic_narrowing_constructors.cpp boost_unit_test ]
       [ run test_negatable_constants_local_ln_two.cpp boost_unit_test ]
       [ run test_negatable_constants_local_pi.cpp boost_unit_test ]
       [ run test_negatable_func_arccosine_big.cpp boost_unit_test ]
@@ -105,6 +106,7 @@ test-suite "Fixed_point"
       [ run test_negatable_func_log_nearest_even.cpp boost_unit_test ]
       [ run test_negatable_func_log_tiny.cpp boost_unit_test ]
       [ run test_negatable_func_nearbyint.cpp boost_unit_test ]
+      [ run test_negatable_func_next_prior.cpp boost_unit_test ]
       [ run test_negatable_func_nextafter.cpp boost_unit_test ]
       [ run test_negatable_func_nextafter_big.cpp boost_unit_test ]
       [ run test_negatable_func_sine_big.cpp boost_unit_test ]
@@ -136,6 +138,7 @@ test-suite "Fixed_point"
       [ run test_negatable_round_trip_digits10_050.cpp boost_unit_test ]
       [ run test_negatable_round_trip_digits10_100.cpp boost_unit_test ]
       [ run test_negatable_round_trip_digits10_999.cpp boost_unit_test ]
+      [ run test_negatable_round_trip_edge_cases.cpp boost_unit_test ]
 
 
       [ run test_negatable_func_next_prior.cpp boost_unit_test ]

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright Christopher Kormanyos 2013 - 2015.
+//  Copyright Christopher Kormanyos 2013 - 2016.
 //  Copyright Nikhar Agrawal 2015.
 //  Copyright Paul Bristow 2015.
 //  Distributed under the Boost Software License,
@@ -83,8 +83,8 @@
     #if defined(BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS)
       #include <boost/multiprecision/gmp.hpp>
     #else
-      #include <boost/multiprecision/cpp_bin_float.hpp>
-      #include <boost/multiprecision/cpp_int.hpp>
+    #include <boost/multiprecision/cpp_bin_float.hpp>
+    #include <boost/multiprecision/cpp_int.hpp>
     #endif
 
   #endif
@@ -186,6 +186,7 @@
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> log  (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, typename std::enable_if< int(24) <  (-FractionalResolution)>::type const* = nullptr);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> log2 (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> log10(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> loga (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> a);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> pow  (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> a);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> pow  (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, int n);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sin  (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, typename std::enable_if< int(11) >= (-FractionalResolution)>::type const* = nullptr);
@@ -225,7 +226,7 @@
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> typename negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::value_type fixed_distance(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>          negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>             fixed_advance (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, typename negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::value_type distance);
 
-  } } // namespace boost::fixed_point:
+  } } // namespace boost::fixed_point
 
   namespace std
   {
@@ -249,15 +250,17 @@
       @c negatable<10,  -53> @c y; // 64-bit \n
       @c negatable<10, -245> @c y; // 256-bit (requires use of @c cpp_bin_float)\n
 
-    \tparam IntegralRange integer >= 0, defines a range of signed number n that is 2^-IntegralRange < n < 2^IntegralRange.
-    \tparam FractionalResolution integer <= -1, defines resolution. 
-      The resolution of a fractional number is 2^FractionalResolution.
-    \tparam RoundMode struct defining the rounding behaviour, default @c round::fastest.\n
-    \tparam OverflowMode struct defining the behaviour from rounding, default @c overflow::undefined.
     \note  Not all rounding or all overflow modes proposed in N3352 are yet implemented.
     \sa http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html
   */
 
+  /*! negatable class used for signed fractional arithmetic.
+      \tparam IntegralRange integer >= 0, defines a range of signed number n that is 2^-IntegralRange < n < 2^IntegralRange.
+    \tparam FractionalResolution integer <= -1, defines resolution. 
+      The resolution of a fractional number is 2^FractionalResolution.
+    \tparam RoundMode struct defining the rounding behaviour, default @c round::fastest.\n
+    \tparam OverflowMode struct defining the behaviour from rounding, default @c overflow::undefined.
+*/
   template<const int IntegralRange,
            const int FractionalResolution,
            typename RoundMode = round::fastest,
@@ -302,8 +305,9 @@
     /*! Total number of bits in the negatable type, including sign.\n
         For example:
         \code
-        boost::fixed_point::negatable<2, -5> x; int n=x.all_bits; n==8 \n
-        x.range + (-x.resolution) + 1 == 2 + (-(-5)) + 1 == 8.
+          boost::fixed_point::negatable<2, -5> x;
+          int n=x.all_bits; n==8 
+          x.range + (-x.resolution) + 1 == 2 + (-(-5)) + 1 == 8.
         \endcode
     */
     BOOST_STATIC_CONSTEXPR int all_bits = (range + 1) + (-resolution); // +1 for the sign bit.
@@ -364,14 +368,16 @@
   public:
     // The public class constructors follow below.
 
-    // The class default constructor is implemented below.
-
     /*! Default constructor.\n By design choice, this clears the data member.\n 
-        So after defining @c negatable<15,-16> @c x; then @c x==0; 
+        So after defining @c negatable<15,-16> @c x; then @c x==0;\n\n
+        It is therefore more efficient to construct with an initial value @c negatable<2,5> @c x(0) rather than 
+        @c nagatable<2,5> @c x; @c x=0;
     */
     negatable() : data() { }
 
-    /*! Constructors from built-in signed integral types. Lossy construction is made explicit.
+    /*! Constructors from built-in signed integral types.\n 
+    Lossy construction is made @c explicit, so one cannot write @c negatable<> @c x=1, but @b must write @c negatable<> @c x(1).
+    Non-lossy construction is NOT explicit.
     */
 
     // This is non-explicit because the conversion from SignedIntegralType to fixed-point is non-lossy.
@@ -390,10 +396,9 @@
                                                                && (std::numeric_limits<SignedIntegralType>::digits > IntegralRange)>::type const* = nullptr)
       : data(make_from_signed_integral_type(n)) { }
 
-    /*! Constructors from built-in unsigned integral types. Lossy construction is made explicit.
+    /*! Constructors from built-in unsigned integral types.
+     \note This is non-explicit because the conversion from UnsignedIntegralType to fixed-point is non-lossy.
     */
-
-    // This is non-explicit because the conversion from UnsignedIntegralType to fixed-point is non-lossy.
     template<typename UnsignedIntegralType>
     BOOST_CONSTEXPR negatable(const UnsignedIntegralType& u,
                               typename std::enable_if<   (std::is_integral<UnsignedIntegralType>::value == true)
@@ -409,10 +414,9 @@
                                                                && (std::numeric_limits<UnsignedIntegralType>::digits > IntegralRange)>::type const* = nullptr)
       : data(make_from_unsigned_integral_type(u)) { }
 
-    /*! Constructors enabled when value_type and unsigned_small_type are non-built-in types.\n
-        These constructors are explicit.
+    /*! Constructors enabled when @c value_type and @c unsigned_small_type are non-built-in types.\n
+        These constructors are all explicit.
     */
-
     template<typename ValueType>
     explicit negatable(const ValueType& n,
                        typename std::enable_if<   (std::is_same<ValueType, value_type>::value == true)
@@ -421,11 +425,11 @@
 
     #if !defined(BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS)
 
-      template<typename UnsignedIntegralType>
-      explicit negatable(const UnsignedIntegralType& u,
-                         typename std::enable_if<   (std::is_same<UnsignedIntegralType, unsigned_small_type>::value == true)
-                                                 && (std::is_arithmetic<UnsignedIntegralType>::value == false)>::type const* = nullptr)
-        : data(value_type(u)) { }
+    template<typename UnsignedIntegralType>
+    explicit negatable(const UnsignedIntegralType& u,
+                       typename std::enable_if<   (std::is_same<UnsignedIntegralType, unsigned_small_type>::value == true)
+                                               && (std::is_arithmetic<UnsignedIntegralType>::value == false)>::type const* = nullptr)
+      : data(value_type(u)) { }
 
       #endif
 
@@ -505,9 +509,9 @@
 
       u_superior = (u_superior << total_left_shift);
 
-      const unsigned_small_type u = static_cast<unsigned_small_type>(u_superior);
+      const unsigned_small_type u_round = static_cast<unsigned_small_type>(u_superior);
 
-      data = ((!is_neg) ? value_type(u) : -value_type(u));
+      data = ((!is_neg) ? value_type(u_round) : -value_type(u_round));
     }
 
     // Here is the mixed-math class constructor for case 2).
@@ -532,9 +536,9 @@
 
       u_superior = (u_superior << total_left_shift);
 
-      const unsigned_small_type u = static_cast<unsigned_small_type>(u_superior);
+      const unsigned_small_type u_round = static_cast<unsigned_small_type>(u_superior);
 
-      data = ((!is_neg) ? value_type(u) : -value_type(u));
+      data = ((!is_neg) ? value_type(u_round) : -value_type(u_round));
     }
 
     // Here is the mixed-math class constructor for case 3).
@@ -1095,8 +1099,8 @@
     static value_type make_from_signed_integral_type(const SignedIntegralType& n)
     {
       // Here, we make a negatable value_type from a signed integral source value.
-      return ((!(n < 0)) ? +value_type((unsigned_small_type(+n) << radix_split))
-                         : -value_type((unsigned_small_type(-n) << radix_split)));
+      return ((n >= 0) ? +value_type((unsigned_small_type(+n) << radix_split))
+                       : -value_type((unsigned_small_type(-n) << radix_split)));
     }
 
     template<typename FloatingPointType>
@@ -1115,9 +1119,9 @@
       // no additional information is available for rounding,
       // and no extra binary digit is reserved for rounding.
 
-      BOOST_CONSTEXPR_OR_CONST boost::uint32_t floating_point_digits            = boost::uint32_t(std::numeric_limits<FloatingPointType>::digits);
+      BOOST_CONSTEXPR_OR_CONST boost::uint32_t floating_point_digits          = boost::uint32_t(std::numeric_limits<FloatingPointType>::digits);
       BOOST_CONSTEXPR_OR_CONST boost::uint32_t floating_point_digits_plus_round = boost::uint32_t(floating_point_digits + extra_rounding_bits);
-      BOOST_CONSTEXPR_OR_CONST boost::uint32_t unsigned_small_digits            = boost::uint32_t(std::numeric_limits<unsigned_small_type>::digits);
+      BOOST_CONSTEXPR_OR_CONST boost::uint32_t unsigned_small_digits          = boost::uint32_t(std::numeric_limits<unsigned_small_type>::digits);
 
       BOOST_CONSTEXPR_OR_CONST bool rounding_is_to_be_carried_out = (floating_point_digits_plus_round != unsigned_small_digits);
 
@@ -1288,12 +1292,13 @@
     }
 
     /*! Compute (during pre-main static initialization) the maximum value that the type can represent.\n
-        Used to define function @c std::numeric_limits<>::max()
-        and, when negated, @c std::numeric_limits<>::lowest().
+        Used to define function @c std::numeric_limits<>::max().\n
+        For example, @c negatable<0, -7> xmax((std::numeric_limits<negatable<0, -7>>::max)()); == 0.9922\n
+        Bit pattern 11...111
     */
     static negatable value_max() BOOST_NOEXCEPT
     {
-      BOOST_CONSTEXPR int total_right_shift = std::numeric_limits<unsigned_small_type>::digits - (IntegralRange - FractionalResolution);
+     BOOST_CONSTEXPR int total_right_shift = std::numeric_limits<unsigned_small_type>::digits - (IntegralRange - FractionalResolution);
 
       const unsigned_small_type the_value_max((std::numeric_limits<unsigned_small_type>::max)() >> total_right_shift);
 
@@ -1301,13 +1306,30 @@
     }
 
     /*! Compute (during pre-main static initialization) the minimum value that the type can represent.\n
-        Used to define function @c std::numeric_limits<>::min().
+        Used to define function @c std::numeric_limits<>::min().\n
+        Bit pattern 0...001
     */
     static negatable value_min() BOOST_NOEXCEPT
     {
       BOOST_CONSTEXPR_OR_CONST negatable the_value_min(nothing(), static_cast<value_type>(1));
 
       return the_value_min;
+    }
+
+
+    /*! Compute (during pre-main static initialization) the lowest value that the type can represent.\n
+    Used to define function @c std::numeric_limits<>::lowest().\n
+    Bit pattern 10...000.
+    */
+    static negatable value_lowest() BOOST_NOEXCEPT
+    {
+      //BOOST_CONSTEXPR int total_left_shift = (IntegralRange - FractionalResolution);
+
+      //const unsigned_small_type the_value_lowest(unsigned_small_type(1) << total_left_shift);
+
+      //return negatable(nothing(), static_cast<value_type>(the_value_lowest));
+
+      return -value_max() - negatable(nothing(), value_type(1));
     }
 
     /*! Compute machine epsilon (during pre-main static initialization)
@@ -1373,7 +1395,7 @@
       return the_value_ln_two;
     }
 
-    /*! Compute (during pre-main static initialization) the representation of the mathematical constant pi.\n
+    /*! Compute (during pre-main static initialization) the representation of the mathematical constant e.\n
     */
     static const negatable& value_e()
     {
@@ -1478,7 +1500,7 @@
 
     friend struct initializer;
 
-    struct initializer
+    struct initializer final
     {
       initializer()
       {
@@ -1492,9 +1514,10 @@
       void force_premain_init_of_static_constants() { }
     };
 
+    //! \cond DETAIL
+
     static initializer initialization_helper;
 
-    //! \cond DETAIL
     // Do not document the implementation details unless macro DETAIL is defined.
 
     //! Implementations of non-member unary plus and minus.
@@ -1585,7 +1608,6 @@
 
       return (supra_negatable_type(u).data <= supra_negatable_type(v).data);
     }
-
     //! \endcond // DETAIL
 
     #if !defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
@@ -1675,8 +1697,10 @@
 
   #endif // !BOOST_NO_INCLASS_MEMBER_INITIALIZATION
 
+  //! \cond DETAIL
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   typename negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::initializer negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::initialization_helper;
+  //! \endcond
 
   template<const int IntegralRange, const int FractionalResolution>
   struct negatable_constants<negatable<IntegralRange, FractionalResolution, round::fastest, overflow::undefined>>
@@ -1706,6 +1730,7 @@
     BOOST_STATIC_CONSTEXPR local_negatable_type e       () { return local_negatable_type::value_e       (); }
   };
 
+  //! \cond DETAIL
   // Implementations of non-member binary add, sub, mul, div of (negatable op arithmetic_type).
   template<typename ArithmeticType,
            const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
@@ -1862,6 +1887,7 @@
     return widest_resolution_negatable_type(a) /= b;
   }
 
+  //! \endcond // DETAIL
   #if !defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
 
     /*! @c std::ostream output @c operator\<\< \n
@@ -1881,12 +1907,16 @@
 
       typedef typename negatable_type::float_type local_float_type;
 
-      // Send a fixed-point number to the output stream.
-      // Express the fixed-point number as a floating-point representation.
+      /*! Send a fixed-point number to the output stream.\n
+      Express the fixed-point number as a floating-point representation,
+      using the @c flags and precision of the @c ostream out.
+      */
+
       std::basic_ostringstream<char_type, traits_type> ostr;
 
-      ostr.flags    (out.flags());
-      ostr.imbue    (out.getloc());
+      // Copy all ostream settings from out to local ostr.
+      ostr.flags(out.flags());
+      ostr.imbue(out.getloc());
       ostr.precision(out.precision());
 
       static_cast<void>(ostr << x.template convert_to_floating_point_type<local_float_type>());
@@ -1923,9 +1953,7 @@
   // of whether or not a given type is fixed_point.
 
   template<typename T>
-  struct is_fixed_point : std::false_type
-  {
-  };
+  struct is_fixed_point : std::false_type { };
 
   template<const int IntegralRange,
            const int FractionalResolution,
@@ -1938,15 +1966,18 @@
 
   } } // namespace boost::fixed_point
 
-  // Here we include specializations of std::numeric_limits<negatable>.
-  #include <boost/fixed_point/fixed_point_negatable_limits.hpp>
-
-  // Here we include helper functions that compute hypergeometric series.
-  // These are useful for numerous internal calculations of elementary
-  // transcendental <cmath> functions.
-  #include <boost/fixed_point/detail/fixed_point_detail_hypergeometric.hpp>
-
-  // Here we include headers for negatable <cmath> functions.
-  #include <boost/fixed_point/fixed_point_negatable_cmath.hpp>
-
 #endif // FIXED_POINT_NEGATABLE_2015_03_06_HPP_
+
+// Here we include specializations of std::numeric_limits<negatable>.
+#include <boost/fixed_point/fixed_point_negatable_limits.hpp>
+
+// Here we include helper functions that compute hypergeometric series.
+// These are useful for numerous internal calculations of elementary
+// transcendental <cmath> functions.
+#include <boost/fixed_point/detail/fixed_point_detail_hypergeometric.hpp>
+
+// Here we include headers for negatable <cmath> functions.
+#include <boost/fixed_point/fixed_point_negatable_cmath.hpp>
+
+// Here we include headers for negatable <cmath> functions.
+#include <boost/fixed_point/fixed_point_negatable_next.hpp>

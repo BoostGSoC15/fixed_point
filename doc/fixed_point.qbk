@@ -98,6 +98,7 @@
 [def __float_format [@https://en.wikipedia.org/wiki/Single-precision_floating-point_format 32-bit float format]]
 [def __double_format [@https://en.wikipedia.org/wiki/Double-precision_floating-point_format 64-bit double format]]
 [def __quad_format [@https://en.wikipedia.org/wiki/Quadruple-precision_floating-point_format 128-bit quad format]]
+[def __n1169 [@http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1169.pdf C extensions to support embedded processors N1169]]
 [def __n3352 [@http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html C++ Binary Fixed-Point Arithmetic N3352]]
 [def __CMK_realtime [@http://dx.doi.org/DOI:10.1007/978-3-642-34688-0 Real-Time C++, C M Kormanyos]]
 [def __normalization [@https://en.wikibooks.org/wiki/Floating_Point/Normalization normalization]]
@@ -124,6 +125,8 @@
 [def __radix [@https://en.wikipedia.org/wiki/Radix  radix]]
 
 [/Links to classes etc]
+
+[def __cppreference [@../html/boost_fixed_point_c___reference.html Boost Fixed_point C++ Reference section]]
 
 [def __negatable [classref boost::fixed_point::negatable  negatable]]
 [def __negatable_value_type [classref boost::fixed_point::negatable::value_type  value_type]]
@@ -168,6 +171,8 @@
 [def __rationale [link fixed.design design rationale]]
 [def __bare_derivative [link fixed.examples.bare_derivative evaluating derivative example]]
 [def __microcontrollers [link fixed.microcontrollers.8bit_speed 8-bit microcontroller]]
+[def __indexes [link fixed.indexes indexes]]
+
 
 [section:intro Introduction]
 The proposed Boost.Fixed-point Library provides fixed-point types in C++ that have different
@@ -221,7 +226,7 @@ and 8 bits for the fractional part that can fit into a 16-bit `short`.
 The Q7.8 represent can hold integer part values from 0 to 2[super 7] = 127,
 and fraction part from 0 to 1/2[super 8] = 1/256 = 0.00390625.
 [/Giving a total spread of values from  0.00396 to 127.996 in steps of 0.00396.]
-Giving a total spread of values from  about 0.004 to 128 in steps of 0.004.[br]
+Giving a total spread of values from about 0.004 to 128 in steps of 0.004.[br]
 Use `boost::fixed_point::negatable<7, -8>` for this fixed-point type.
 
 A tiny byte-sized Q2.5 representation has a sign bit, 2 bits of integer part before the binary point,
@@ -230,8 +235,18 @@ and 5 bits for the fractional part that can fit into a 8-bit `signed char`.
 The Q2.5 representation can hold integer part values from 0 to 2[super 2] = 4,
 and fraction part from 0 to 1/2[super 5] = 1/32 = 0.003125.
 [/Giving a total spread of values from  0.003125 to 3.696 in steps of 0.003125.]
-Giving a total spread of values from  about 0.003 to 4 in steps of 0.003.[br]
+Giving a total spread of values from about 0.003 to 4 in steps of 0.003.[br]
 Use `boost::fixed_point::negatable<2, -5>` for this fixed-point type.
+
+The Q0.7 representation can hold NO integer part values,
+and fraction part from 0 to 1/2[super 7] = 1/128 = 0.0078125.
+[/Giving a total spread of values from  0.007813 to 3.696 in steps of 0.0078125.]
+Giving a total spread of values from about 0.007813  to  (almost but not quite unity) 0.992188, in steps of 0.007813.[br]
+Range from -0.992188, zero 0.000000 , min 0.007813 to max 0.992188 in steps of 0.007813.[br]
+Use `boost::fixed_point::negatable<0, -7>` for this fixed-point type.
+
+[warning Any type with zero bits used for range cannot represent unity (or greater).
+This will cause surprise if you construct with a value >= 1 when the result is negative!]
 
 [h5  Differences between Proposal N3352 and this library]
 
@@ -250,6 +265,8 @@ Proposal __n3352 does not
 mention any interaction of with elementary transcendental functions.
 The Boost.Fixed-point Library, however, has nearly complete support of
 __cmath functions for the negatable representation.
+This allows many existing programs and algorithms to use fixed_point
+with little or no modification, a significant advantage.
 
 What the final scope of the library should be is discussed in the __rationale section.
 
@@ -352,6 +369,95 @@ than any other library. This is a unique feature.
 * Transparent testing.
 
 [endsect] [/section:why_this_fixed_point  Why use Boost.Fixed-point]
+
+[section:synopsis Synopsis]
+
+For full details see the __negatable section in the __cppreference, noting especially
+the items shown by color (and sometimes also in bold) are links which will usually provide
+more details.
+
+[section:construction Constructors and Destructors]
+
+An myriad collection of constructors are provided to allow initialization from
+various types including integral, floating-point and multiprecision types.
+
+Variants automatically select the appropriate integral type to hold the fixed-point values,
+from byte to multiprecision kilo bytes;
+this will normally be hidden from the user, but there are a few features that may surprise users.
+
+To conform to C++ norms, many constructors enforce
+ [@http://en.cppreference.com/w/cpp/language/explicit explicit conversions]
+from the input type where these might be 'lossy' (cause loss of precision).
+
+(The rules are similar to those for Boost multiprecision
+[@http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/tut/conversions.html conversions]).
+
+This means that one cannot write, for example,
+
+  negatable<2, -5> x1 = 1; // No suitable constructor from int to fixed_point.
+
+but should always prefer to write
+
+  negatable<2, -5> x1(1);
+
+and if later assigning a value after construction, explicit conversion is still required
+
+      negatable<2, -5> x; // x == 0
+      //x = 2; // binary '=': no operator found which takes a right-hand operand of type 'int' (or there is no acceptable conversion)
+      x = negatable<2, -5>(2); // x == 2.0000
+
+This is tedious and adds much clutter, so a small `typedef` may be convenient:
+
+   typedef negatable<2, -5> my_fp; // Declare a fixed_point type,
+                                                    // using a 8-bit integral type (`unsigned char`),
+                                                    // and split of 2 bits for range and 5 bits for resolution.
+                                                   // with rounding as fastest (no rounding) and overflow undefined.
+
+[tip It is very likely to be more efficient to use the converting constructor  `negatable<2, -5> x1(1);`
+because construction followed by inialization will involve a temporary variable.]
+
+[warning There is major pit awaiting the unwary if the [^fixed_point] type cannot represent the value assigned!]
+
+In this example, constructing with the value ['unity] will cause surprise:
+
+  negatable<0, -7> x1(1);
+
+This is because this type has [*zero] bits used for the range and so the maximum value that can be represented is only 0.9922.
+
+``
+  class boost::fixed_point::negatable<0,-7,struct boost::fixed_point::round::fastest,struct boost::fixed_point::overflow::undefined>
+  Range 0, Resolution 7, all_bits 8, 256 values, digits10 = 1, max_digits10 = 4
+  Range from lowest -1.0000 10000000, zero 0.0000, min 0.0078 00000001 to max 0.9922 01111111 in steps of 0.0078:
+  -1.0000, -0.9922, -0.9844 ... -0.0156, -0.0078 , 0.0000, 0.0078, 0.0156 ... 0.9766, 0.9844 to 0.9922
+
+``
+Storing the value 1 therefore causes overflow and, in line with C/C++ norms,
+the value stored [*wraps around to -1, the lowest value], `std::numeric_limits<>::lowest()` == -1.0000.
+
+This behaviour is analogous to `short int`
+where assigning a value that exceeds `(std::numeric_limits<short int>::max)()` (32767)
+silently causes overflow and goes negative to `std::numeric_limits<short int>::lowest()` (-32768).
+For `fixed_point` it is because an integral type is used to hold the `fixed_point` value.
+
+But unlike the built-in integers, when used in a simple assignment or constructor, the compiler can warn
+
+   short int j(32768); //  warning C4309: 'initializing': truncation of constant value
+   short int k = 32768; //  warning C4309: 'initializing': truncation of constant value
+
+but for Boost `fixed_point`, there is no compiler warning.
+
+[warning
+The same pitfall applies for [*all] negatable types when the value provided
+exceeds the size of the integral type used to store the [^fixed_point] data.]
+
+[note This behaviour might change if other overflow was other than
+`boost::fixed_point::overflow::undefined`, for example, saturation at the maximum value.
+But at present only `overflow::undefined` is implemented.]
+
+[endsect] [/section:construction Constructors and Destructors]
+
+[endsect] [/section:synposis Synposis]
+
 
 [endsect] [/section:intro Introduction]
 
@@ -513,7 +619,6 @@ according to the needs of the project.
 [/link fixed.microcontrollers.8bit_speed 8-bit microcontroller]
 
 [endsect] [/section:microcontrollers Using Fixed-point with Microcontrollers]
-
 
 [section:examples Examples]
 
@@ -929,8 +1034,7 @@ This will have a marked effect on any operation like output that uses this.
 
 [section:history Historial discussions]
 
-In response to Lawrance Crowl proposal __n3352, this a thread on the __boost discussion list.
-See this thread on
+In response to Lawrence Crowl proposal __n3352, see a thread on the __boost discussion list
 [@http://lists.boost.org/Archives/boost/2012/04/191987.php]
 on the __boost_archives.
 
@@ -1425,6 +1529,11 @@ This documentation aims to use of the following naming and formatting convention
 * Names that refer to ['concepts] in the generic programming sense
 (like template parameter names) are specified in CamelCase, for example [^IntegralRange].
 
+To find what you are looking for try:
+
+* Details of all classes, functions, parameters,  and template parameters are provided in the  __cppreference.
+* See the __indexes and click on links colored to show that they are links.
+
 [endsect] [/section:conventions Document Conventions]
 
 
@@ -1483,6 +1592,8 @@ Vicente Botet Escriba prototyped a [@http://svn.boost.org/svn/boost/sandbox/fixe
 
 [section:references References]
 
+#__n1169
+
 #__n3352
 
 #  Efficient Object-Oriented and Template Microcontroller Programming,
@@ -1522,9 +1633,13 @@ bandwidth, storage, and electrical power, John L. Gustafson, AMD.
 
 [/todo Need more background references?]
 
+#[@https://gcc.gnu.org/wiki/Ieee128PowerPC#Transition 128 bit Float on GCC (especially on PowerPC)]
+
 [endsect] [/section:ack References]
 
-[xinclude autodoc.xml] [/ Using Doxygen reference documentation.]
+[/link xml.autodoc C++ reference doesn't work]
+
+[xinclude autodoc.xml] [/ Using Doxygen generated C++ reference documentation.]
 
 [/Only want this if index enabled on the command line like fixed_point\doc>b2 --enable-index --hash]
 [section:indexes Indexes]
