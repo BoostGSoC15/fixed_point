@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright Christopher Kormanyos 2013 - 2015.
+//  Copyright Christopher Kormanyos 2013 - 2016.
 //  Copyright Nikhar Agrawal 2015.
 //  Copyright Paul Bristow 2015.
 //  Distributed under the Boost Software License,
@@ -2202,7 +2202,7 @@
     return result;
   }
 
-  /*! Computes the arc tangent of y/x using the signs of arguments to determine the correct quadrant.for any fractional resolution. 
+  /*! Computes the arc tangent of y/x using the signs of arguments to determine the correct quadrant for any fractional resolution. 
   */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> atan2(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
@@ -2307,7 +2307,7 @@
     return result;
   }
 
-  /*! Compute inverse hyperbolic cosine cosh. */
+  /*! Compute inverse hyperbolic cosine acosh. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> acosh(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
@@ -2431,7 +2431,7 @@
 
     // Shift to the right. The amount of right shift is one bit less than
     // the fractional resolution. This reserves one bit for rounding.
-    BOOST_CONSTEXPR int total_right_shift = (-FractionalResolution) - 1;
+    BOOST_CONSTEXPR int total_right_shift = (-FractionalResolution) - local_negatable_type::extra_rounding_bits;
 
     u_round = detail::right_shift_helper(u_round, total_right_shift);
 

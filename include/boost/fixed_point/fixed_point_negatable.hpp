@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright Christopher Kormanyos 2013 - 2015.
+//  Copyright Christopher Kormanyos 2013 - 2016.
 //  Copyright Nikhar Agrawal 2015.
 //  Copyright Paul Bristow 2015.
 //  Distributed under the Boost Software License,
@@ -46,6 +46,10 @@
     // When multiprecision is disabled but I/O streaming is enabled:
     //   * We must eliminate Boost.Multiprecision.
 
+    #if defined(BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS)
+      #error Error: BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS can not be defined when multiprecision is disabled via BOOST_FIXED_POINT_DISABLE_MULTIPRECISION.
+    #endif
+
     #include <algorithm>
     #include <cmath>
     #include <iomanip>
@@ -75,8 +79,13 @@
     #include <type_traits>
     #include <boost/lexical_cast.hpp>
     #include <boost/math/constants/constants.hpp>
+
+    #if defined(BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS)
+      #include <boost/multiprecision/gmp.hpp>
+    #else
     #include <boost/multiprecision/cpp_bin_float.hpp>
     #include <boost/multiprecision/cpp_int.hpp>
+    #endif
 
   #endif
 
@@ -273,6 +282,11 @@
     static_assert(   std::is_same<OverflowMode, overflow::undefined>::value,
                   "Error: Only undefined overflow mode is supported at the moment.");
 
+    #if defined(BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS)
+      static_assert(std::is_same<RoundMode, round::fastest>::value,
+                    "Error: GMP backends can only be used for fastest round mode at the moment.");
+    #endif
+
     // Make the integral range, the fractional resolution, and the total number
     // of bits available to the user. These just echo the values of the
     // template parameters.
@@ -306,6 +320,9 @@
 
     //! See also public static data items range and resolution.
     BOOST_STATIC_CONSTEXPR int radix_split = -FractionalResolution;
+
+    //! Represents the number of extra bits used for the rounding mode (restricted to 0 or 1).
+    BOOST_STATIC_CONSTEXPR int extra_rounding_bits =  (std::is_same<RoundMode, round::fastest>::value ? 0 : 1);
 
     // Friend forward declaration of another negatable class
     // with different template parameters.
@@ -406,11 +423,15 @@
                                                && (std::is_arithmetic<ValueType>::value == false)>::type const* = nullptr)
     : data(n) { }
 
+    #if !defined(BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS)
+
     template<typename UnsignedIntegralType>
     explicit negatable(const UnsignedIntegralType& u,
                        typename std::enable_if<   (std::is_same<UnsignedIntegralType, unsigned_small_type>::value == true)
                                                && (std::is_arithmetic<UnsignedIntegralType>::value == false)>::type const* = nullptr)
       : data(value_type(u)) { }
+
+      #endif
 
     /*! Constructors from built-in floating-point types: @c float, @c double or @c long @c double.\n
         Example: negatable<15,-16> x(2.3L);\n
@@ -488,7 +509,7 @@
 
       u_superior = (u_superior << total_left_shift);
 
-      unsigned_small_type u_round = static_cast<unsigned_small_type>(u_superior);
+      const unsigned_small_type u_round = static_cast<unsigned_small_type>(u_superior);
 
       data = ((!is_neg) ? value_type(u_round) : -value_type(u_round));
     }
@@ -515,7 +536,7 @@
 
       u_superior = (u_superior << total_left_shift);
 
-      unsigned_small_type u_round = static_cast<unsigned_small_type>(u_superior);
+      const unsigned_small_type u_round = static_cast<unsigned_small_type>(u_superior);
 
       data = ((!is_neg) ? value_type(u_round) : -value_type(u_round));
     }
@@ -538,7 +559,7 @@
       superior_unsigned_small_type u_superior((!is_neg) ? superior_unsigned_small_type(+other.data)
                                                         : superior_unsigned_small_type(-other.data));
 
-      BOOST_CONSTEXPR_OR_CONST int total_right_shift = (other_negatable_type::radix_split - radix_split) - 1;
+      BOOST_CONSTEXPR_OR_CONST int total_right_shift = (other_negatable_type::radix_split - radix_split) - extra_rounding_bits;
 
       u_superior = detail::right_shift_helper(u_superior, total_right_shift);
 
@@ -578,7 +599,7 @@
       superior_unsigned_small_type u_superior((!is_neg) ? superior_unsigned_small_type(+other.data)
                                                         : superior_unsigned_small_type(-other.data));
 
-      BOOST_CONSTEXPR_OR_CONST int total_right_shift = (other_negatable_type::radix_split - radix_split) - 1;
+      BOOST_CONSTEXPR_OR_CONST int total_right_shift = (other_negatable_type::radix_split - radix_split) - extra_rounding_bits;
 
       u_superior = detail::right_shift_helper(u_superior, total_right_shift);
 
@@ -737,7 +758,7 @@
       // because the value_type (even though just as wide as
       // @c unsigned_small_type) reserves one bit for the sign.
 
-      BOOST_CONSTEXPR int total_right_shift = (radix_split - 1);
+      BOOST_CONSTEXPR int total_right_shift = (radix_split - extra_rounding_bits);
 
       unsigned_small_type u_round = static_cast<unsigned_small_type>(result >> total_right_shift);
 
@@ -791,7 +812,7 @@
         // because the value_type (even though just as wide as
         // unsigned_small_type) reserves one bit for the sign.
 
-        result = (result << (radix_split + 1));
+        result = (result << (radix_split + extra_rounding_bits));
 
         result /= ((!v_is_neg) ? unsigned_small_type(v.data) : unsigned_small_type(-v.data));
 
@@ -846,7 +867,7 @@
       // because the value_type (even though just as wide as
       // unsigned_small_type) reserves one bit for the sign.
 
-      result = (result << 1);
+      result = (result << extra_rounding_bits);
 
       result *= u;
 
@@ -879,7 +900,7 @@
       // because the value_type (even though just as wide as
       // unsigned_small_type) reserves one bit for the sign.
 
-      result = (result << 1);
+      result = (result << extra_rounding_bits);
 
       result *= ((!v_is_neg) ? n : -n);
 
@@ -918,7 +939,7 @@
       // because the value_type (even though just as wide as
       // unsigned_small_type) reserves one bit for the sign.
 
-      result = (result << 1) / u;
+      result = (result << extra_rounding_bits) / u;
 
       // Round the result of the division.
       const boost::int_fast8_t rounding_result = binary_round(result);
@@ -949,7 +970,7 @@
       // because the value_type (even though just as wide as
       // unsigned_small_type) reserves one bit for the sign.
 
-      result = (result << 1);
+      result = (result << extra_rounding_bits);
 
       result /= ((!v_is_neg) ? unsigned_small_type(n) : unsigned_small_type(-n));
 
@@ -1099,19 +1120,19 @@
       // and no extra binary digit is reserved for rounding.
 
       BOOST_CONSTEXPR_OR_CONST boost::uint32_t floating_point_digits          = boost::uint32_t(std::numeric_limits<FloatingPointType>::digits);
-      BOOST_CONSTEXPR_OR_CONST boost::uint32_t floating_point_digits_plus_one = boost::uint32_t(floating_point_digits + 1);
+      BOOST_CONSTEXPR_OR_CONST boost::uint32_t floating_point_digits_plus_round = boost::uint32_t(floating_point_digits + extra_rounding_bits);
       BOOST_CONSTEXPR_OR_CONST boost::uint32_t unsigned_small_digits          = boost::uint32_t(std::numeric_limits<unsigned_small_type>::digits);
 
-      BOOST_CONSTEXPR_OR_CONST bool rounding_is_to_be_carried_out = (floating_point_digits_plus_one != unsigned_small_digits);
+      BOOST_CONSTEXPR_OR_CONST bool rounding_is_to_be_carried_out = (floating_point_digits_plus_round != unsigned_small_digits);
 
       // Determine the number of digits needed for the conversion.
-      // * If rounding is to be done, this is the larger of [digits(FloatingPointType) + 1]
+      // * If rounding is to be done, this is the larger of [digits(FloatingPointType) + extra_rounding_bits]
       //   and digits(unsigned_small_type).
       // * If rounding is *not* to be done, this is the larger of digits(FloatingPointType)
       //   and digits(unsigned_small_type).
 
       BOOST_CONSTEXPR_OR_CONST boost::uint32_t floating_point_conversion_digits =
-        (rounding_is_to_be_carried_out ? floating_point_digits_plus_one : floating_point_digits);
+        (rounding_is_to_be_carried_out ? floating_point_digits_plus_round : floating_point_digits);
 
       BOOST_CONSTEXPR_OR_CONST boost::uint32_t unsigned_conversion_digits =
         ((floating_point_conversion_digits > unsigned_small_digits) ? floating_point_conversion_digits
@@ -1243,7 +1264,7 @@
        For @c round::fastest, there is simply no rounding at all;
        the value is truncated.
      */
-      u_round = (u_round >> 1);
+      static_cast<void>(u_round);
 
       return INT8_C(0);
     }
@@ -1265,7 +1286,7 @@
       const bool round_up =   ((boost::uint_fast8_t(u_round & UINT8_C(1)) == UINT8_C(1))
                             && (boost::uint_fast8_t(u_round & UINT8_C(2)) == UINT8_C(2)));
 
-      u_round = (u_round >> 1);
+      u_round = (u_round >> extra_rounding_bits);
 
       return (round_up ? INT8_C(1) : INT8_C(0));
     }
@@ -1672,6 +1693,7 @@
     template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::resolution;
     template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::all_bits;
     template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::radix_split;
+    template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> BOOST_CONSTEXPR_OR_CONST int negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::extra_rounding_bits;
 
   #endif // !BOOST_NO_INCLASS_MEMBER_INITIALIZATION
 
@@ -1931,9 +1953,7 @@
   // of whether or not a given type is fixed_point.
 
   template<typename T>
-  struct is_fixed_point : std::false_type
-  {
-  };
+  struct is_fixed_point : std::false_type { };
 
   template<const int IntegralRange,
            const int FractionalResolution,
