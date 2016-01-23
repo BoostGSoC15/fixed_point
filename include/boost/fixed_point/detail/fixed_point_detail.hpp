@@ -445,7 +445,7 @@
            0U, 0U, 1U, 1U, 2U, 2U, 2U, 2U, 3U, 3U, 3U, 3U, 3U, 3U, 3U, 3U
       };
 
-      return ((hi_nibble != UINT8_C(0)) ? (UINT8_C(4) + hi_bit_value[hi_nibble])
+      return ((hi_nibble != UINT8_C(0)) ? boost::uint_fast16_t(UINT8_C(4) + hi_bit_value[hi_nibble])
                                         : hi_bit_value[lo_nibble]);
   }
 
@@ -459,8 +459,8 @@
 
     boost::uint8_t mask;
 
-    return ((hi_byte != UINT8_C(0)) ? 8U + msb_helper(hi_byte, mask, UINT16_C(0))
-                                    : 0U + msb_helper(lo_byte, mask, UINT16_C(0)));
+    return ((hi_byte != UINT8_C(0)) ? boost::uint_fast16_t(UINT8_C(8) + msb_helper(hi_byte, mask, UINT16_C(0)))
+                                    : boost::uint_fast16_t(UINT8_C(0) + msb_helper(lo_byte, mask, UINT16_C(0))));
   }
 
   template<>
@@ -473,8 +473,8 @@
 
     boost::uint16_t mask;
 
-    return ((hi_word != UINT16_C(0)) ? 16U + msb_helper(hi_word, mask, UINT16_C(0))
-                                     :  0U + msb_helper(lo_word, mask, UINT16_C(0)));
+    return ((hi_word != UINT16_C(0)) ? boost::uint_fast16_t(UINT16_C(16) + msb_helper(hi_word, mask, UINT16_C(0)))
+                                     : boost::uint_fast16_t(UINT16_C(0)  + msb_helper(lo_word, mask, UINT16_C(0))));
   }
 
   template<typename ArithmeticType>

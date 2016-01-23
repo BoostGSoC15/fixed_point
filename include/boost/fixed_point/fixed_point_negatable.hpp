@@ -902,7 +902,7 @@
 
       result = (result << extra_rounding_bits);
 
-      result *= ((!v_is_neg) ? n : -n);
+      result *= ((!v_is_neg) ? unsigned_small_type(n) : unsigned_small_type(-n));
 
       // Round the result of the division.
       const boost::int_fast8_t rounding_result = binary_round(result);
@@ -1298,14 +1298,14 @@
     */
     static negatable value_max() BOOST_NOEXCEPT
     {
-     BOOST_CONSTEXPR int total_right_shift = std::numeric_limits<unsigned_small_type>::digits - (IntegralRange - FractionalResolution);
+      BOOST_CONSTEXPR int total_right_shift = std::numeric_limits<unsigned_small_type>::digits - (IntegralRange - FractionalResolution);
 
       const unsigned_small_type the_value_max((std::numeric_limits<unsigned_small_type>::max)() >> total_right_shift);
 
       return negatable(nothing(), static_cast<value_type>(the_value_max));
     }
 
-    /*! Compute (during pre-main static initialization) the minimum value that the type can represent.\n
+    /*! Compute the minimum value that the type can represent.\n
         Used to define function @c std::numeric_limits<>::min().\n
         Bit pattern 0...001
     */
@@ -1316,8 +1316,7 @@
       return the_value_min;
     }
 
-
-    /*! Compute (during pre-main static initialization) the lowest value that the type can represent.\n
+    /*! Compute the lowest value that the type can represent.\n
     Used to define function @c std::numeric_limits<>::lowest().\n
     Bit pattern 10...000.
     */
@@ -1351,60 +1350,101 @@
       return the_value_epsilon;
     }
 
-    /*! Compute (during pre-main static initialization) the representation of the mathematical constant sqrt(2).\n
-    */
-    static const negatable& value_root_two()
-    {
-      initialization_helper.force_premain_init_of_static_constants();
+    #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
 
-      static const negatable the_value_root_two = root_two_helper<boost::uint32_t(-resolution)>::calculate_root_two();
+      /*! Return the representation of the mathematical constant sqrt(2).\n
+      */
+      static negatable value_root_two()
+      {
+        return root_two_helper<boost::uint32_t(-resolution)>::calculate_root_two();
+      }
 
-      return the_value_root_two;
-    }
+      /*! Return the representation of the mathematical constant pi.\n
+      */
+      static negatable value_pi()
+      {
+        return pi_helper<boost::uint32_t(-resolution)>::calculate_pi();
+      }
 
-    /*! Compute (during pre-main static initialization) the representation of the mathematical constant pi.\n
-    */
-    static const negatable& value_pi()
-    {
-      initialization_helper.force_premain_init_of_static_constants();
+      /*! Return the representation of the mathematical constant pi/2.\n
+      */
+      static negatable value_pi_half()
+      {
+        return pi_half_helper<boost::uint32_t(-resolution)>::calculate_pi_half();
+      }
 
-      static const negatable the_value_pi = pi_helper<boost::uint32_t(-resolution)>::calculate_pi();
+      /*! Return the representation of the mathematical constant log(2).\n
+      */
+      static negatable value_ln_two()
+      {
+        return ln_two_helper<boost::uint32_t(-resolution)>::calculate_ln_two();
+      }
 
-      return the_value_pi;
-    }
+      /*! Return the representation of the mathematical constant e.\n
+      */
+      static negatable value_e()
+      {
+        return e_helper<boost::uint32_t(-resolution)>::calculate_e();
+      }
 
-    /*! Compute (during pre-main static initialization) the representation of the mathematical constant pi/2.\n
-    */
-    static const negatable& value_pi_half()
-    {
-      initialization_helper.force_premain_init_of_static_constants();
+    #else
 
-      static const negatable the_value_pi_half = pi_helper<boost::uint32_t(-resolution)>::calculate_pi() / 2;
+      /*! Compute (during pre-main static initialization) the representation of the mathematical constant sqrt(2).\n
+      */
+      static const negatable& value_root_two()
+      {
+        initialization_helper.force_premain_init_of_static_constants();
 
-      return the_value_pi_half;
-    }
+        static const negatable the_value_root_two = root_two_helper<boost::uint32_t(-resolution)>::calculate_root_two();
 
-    /*! Compute (during pre-main static initialization) the representation of the mathematical constant log(2).\n
-    */
-    static const negatable& value_ln_two()
-    {
-      initialization_helper.force_premain_init_of_static_constants();
+        return the_value_root_two;
+      }
 
-      static const negatable the_value_ln_two = ln_two_helper<boost::uint32_t(-resolution)>::calculate_ln_two();
+      /*! Compute (during pre-main static initialization) the representation of the mathematical constant pi.\n
+      */
+      static const negatable& value_pi()
+      {
+        initialization_helper.force_premain_init_of_static_constants();
 
-      return the_value_ln_two;
-    }
+        static const negatable the_value_pi = pi_helper<boost::uint32_t(-resolution)>::calculate_pi();
 
-    /*! Compute (during pre-main static initialization) the representation of the mathematical constant e.\n
-    */
-    static const negatable& value_e()
-    {
-      initialization_helper.force_premain_init_of_static_constants();
+        return the_value_pi;
+      }
 
-      static const negatable the_value_e = e_helper<boost::uint32_t(-resolution)>::calculate_e();
+      /*! Compute (during pre-main static initialization) the representation of the mathematical constant pi/2.\n
+      */
+      static const negatable& value_pi_half()
+      {
+        initialization_helper.force_premain_init_of_static_constants();
 
-      return the_value_e;
-    }
+        static const negatable the_value_pi_half = value_pi() / 2;
+
+        return the_value_pi_half;
+      }
+
+      /*! Compute (during pre-main static initialization) the representation of the mathematical constant log(2).\n
+      */
+      static const negatable& value_ln_two()
+      {
+        initialization_helper.force_premain_init_of_static_constants();
+
+        static const negatable the_value_ln_two = ln_two_helper<boost::uint32_t(-resolution)>::calculate_ln_two();
+
+        return the_value_ln_two;
+      }
+
+      /*! Compute (during pre-main static initialization) the representation of the mathematical constant e.\n
+      */
+      static const negatable& value_e()
+      {
+        initialization_helper.force_premain_init_of_static_constants();
+
+        static const negatable the_value_e = e_helper<boost::uint32_t(-resolution)>::calculate_e();
+
+        return the_value_e;
+      }
+
+    #endif
 
     template<const boost::uint32_t BitCount,
              typename EnableType = void>
@@ -1420,11 +1460,9 @@
     struct root_two_helper<BitCount,
                            typename std::enable_if<(BitCount < 63U)>::type>
     {
-      static negatable calculate_root_two()
+      static BOOST_CONSTEXPR negatable calculate_root_two()
       {
-        BOOST_CONSTEXPR_OR_CONST value_type root_two_data = value_type(UINT64_C(0x5A827999FCEF3400) >> (62 - int(BitCount)));
-
-        return negatable(nothing(), root_two_data);
+        return negatable(nothing(), value_type(UINT64_C(0x5A827999FCEF3400) >> (62 - int(BitCount))));
       }
     };
 
@@ -1442,11 +1480,29 @@
     struct pi_helper<BitCount,
                      typename std::enable_if<(BitCount < 62U)>::type>
     {
-      static negatable calculate_pi()
+      static BOOST_CONSTEXPR negatable calculate_pi()
       {
-        BOOST_CONSTEXPR_OR_CONST negatable the_value_pi(nothing(), value_type(UINT64_C(0x6487ED5110B4611A) >> (61 - int(BitCount))));
+        return negatable(nothing(), value_type(UINT64_C(0x6487ED5110B4611A) >> (61 - int(BitCount))));
+      }
+    };
 
-        return the_value_pi;
+    template<const boost::uint32_t BitCount,
+             typename EnableType = void>
+    struct pi_half_helper
+    {
+      static negatable calculate_pi_half()
+      {
+        return negatable(boost::fixed_point::detail::calculate_pi<float_type>() / 2);
+      }
+    };
+
+    template<const boost::uint32_t BitCount>
+    struct pi_half_helper<BitCount,
+                          typename std::enable_if<(BitCount < 62U)>::type>
+    {
+      static BOOST_CONSTEXPR negatable calculate_pi_half()
+      {
+        return negatable(nothing(), value_type(UINT64_C(0x3243f6A8885A308D) >> (61 - int(BitCount))));
       }
     };
 
@@ -1464,11 +1520,9 @@
     struct ln_two_helper<BitCount,
                          typename std::enable_if<(BitCount < UINT32_C(64))>::type>
     {
-      static negatable calculate_ln_two()
+      static BOOST_CONSTEXPR negatable calculate_ln_two()
       {
-        BOOST_CONSTEXPR_OR_CONST negatable the_value_ln_two(nothing(), value_type(UINT64_C(0x58B90BFBE8E7BCD6) >> (UINT32_C(63) - (BitCount))));
-
-        return the_value_ln_two;
+        return negatable(nothing(), value_type(UINT64_C(0x58B90BFBE8E7BCD6) >> (UINT32_C(63) - (BitCount))));
       }
     };
 
@@ -1486,11 +1540,9 @@
     struct e_helper<BitCount,
                     typename std::enable_if<(BitCount < 62U)>::type>
     {
-      static negatable calculate_e()
+      static BOOST_CONSTEXPR negatable calculate_e()
       {
-        BOOST_CONSTEXPR_OR_CONST negatable the_value_e(nothing(), value_type(UINT64_C(0x56FC2A2C515DA54D) >> (61 - int(BitCount))));
-
-        return the_value_e;
+        return negatable(nothing(), value_type(UINT64_C(0x56FC2A2C515DA54D) >> (61 - int(BitCount))));
       }
     };
 
@@ -1504,11 +1556,28 @@
     {
       initializer()
       {
-        static_cast<void>(negatable::value_root_two());
-        static_cast<void>(negatable::value_pi());
-        static_cast<void>(negatable::value_pi_half());
-        static_cast<void>(negatable::value_ln_two());
-        static_cast<void>(negatable::value_e());
+        #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
+
+          // Multiprecision back-ends are disabled. In this case,
+          // the initialization structure does not initialize
+          // any static constants before the jump to main
+          // because the constants are derived from constexpr
+          // literal values.
+
+        #else
+
+          // Multiprecision back-ends are enabled. In this case,
+          // the initialization structure does initialize
+          // static constants before the jump to main in order
+          // to reduce the work of initialization to one time.
+
+          static_cast<void>(negatable::value_root_two());
+          static_cast<void>(negatable::value_pi());
+          static_cast<void>(negatable::value_pi_half());
+          static_cast<void>(negatable::value_ln_two());
+          static_cast<void>(negatable::value_e());
+
+        #endif
       }
 
       void force_premain_init_of_static_constants() { }
