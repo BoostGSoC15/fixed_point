@@ -1119,9 +1119,9 @@
       // no additional information is available for rounding,
       // and no extra binary digit is reserved for rounding.
 
-      BOOST_CONSTEXPR_OR_CONST boost::uint32_t floating_point_digits          = boost::uint32_t(std::numeric_limits<FloatingPointType>::digits);
+      BOOST_CONSTEXPR_OR_CONST boost::uint32_t floating_point_digits            = boost::uint32_t(std::numeric_limits<FloatingPointType>::digits);
       BOOST_CONSTEXPR_OR_CONST boost::uint32_t floating_point_digits_plus_round = boost::uint32_t(floating_point_digits + extra_rounding_bits);
-      BOOST_CONSTEXPR_OR_CONST boost::uint32_t unsigned_small_digits          = boost::uint32_t(std::numeric_limits<unsigned_small_type>::digits);
+      BOOST_CONSTEXPR_OR_CONST boost::uint32_t unsigned_small_digits            = boost::uint32_t(std::numeric_limits<unsigned_small_type>::digits);
 
       BOOST_CONSTEXPR_OR_CONST bool rounding_is_to_be_carried_out = (floating_point_digits_plus_round != unsigned_small_digits);
 
@@ -1252,20 +1252,16 @@
     }
 
     template<typename LocalRoundMode = RoundMode>
-    static boost::int_fast8_t
-      binary_round(unsigned_small_type& u_round,
-                   typename std::enable_if<std::is_same<LocalRoundMode, round::fastest>::value>::type* = nullptr)
+    BOOST_STATIC_CONSTEXPR boost::int_fast8_t
+      binary_round(unsigned_small_type&,
+                   typename std::enable_if<std::is_same<LocalRoundMode, round::fastest>::value>::type* = nullptr) BOOST_NOEXCEPT
     {
-      /*! Here, @c u_round contains the value to be rounded whereby
-       this value is left-shifted one binary digit larger than
-       the final result will be.
+      /*! Here, @c u_round contains the value to be rounded.
 
        Perform the rounding algorithm for @c round::fastest.
        For @c round::fastest, there is simply no rounding at all;
        the value is truncated.
      */
-      static_cast<void>(u_round);
-
       return INT8_C(0);
     }
 
@@ -1291,47 +1287,35 @@
       return (round_up ? INT8_C(1) : INT8_C(0));
     }
 
-    /*! Compute (during pre-main static initialization) the maximum value that the type can represent.\n
+    /*! Compute the maximum value that the type can represent.\n
         Used to define function @c std::numeric_limits<>::max().\n
         For example, @c negatable<0, -7> xmax((std::numeric_limits<negatable<0, -7>>::max)()); == 0.9922\n
         Bit pattern 11...111
     */
-    static negatable value_max() BOOST_NOEXCEPT
+    BOOST_STATIC_CONSTEXPR negatable value_max() BOOST_NOEXCEPT
     {
-      BOOST_CONSTEXPR int total_right_shift = std::numeric_limits<unsigned_small_type>::digits - (IntegralRange - FractionalResolution);
-
-      const unsigned_small_type the_value_max((std::numeric_limits<unsigned_small_type>::max)() >> total_right_shift);
-
-      return negatable(nothing(), static_cast<value_type>(the_value_max));
+      return negatable(nothing(), static_cast<value_type>((std::numeric_limits<unsigned_small_type>::max)() >> (std::numeric_limits<unsigned_small_type>::digits - (IntegralRange - FractionalResolution))));
     }
 
     /*! Compute the minimum value that the type can represent.\n
         Used to define function @c std::numeric_limits<>::min().\n
         Bit pattern 0...001
     */
-    static negatable value_min() BOOST_NOEXCEPT
+    BOOST_STATIC_CONSTEXPR negatable value_min() BOOST_NOEXCEPT
     {
-      BOOST_CONSTEXPR_OR_CONST negatable the_value_min(nothing(), static_cast<value_type>(1));
-
-      return the_value_min;
+      return negatable(nothing(), static_cast<value_type>(1));
     }
 
     /*! Compute the lowest value that the type can represent.\n
     Used to define function @c std::numeric_limits<>::lowest().\n
     Bit pattern 10...000.
     */
-    static negatable value_lowest() BOOST_NOEXCEPT
+    BOOST_STATIC_CONSTEXPR negatable value_lowest() BOOST_NOEXCEPT
     {
-      //BOOST_CONSTEXPR int total_left_shift = (IntegralRange - FractionalResolution);
-
-      //const unsigned_small_type the_value_lowest(unsigned_small_type(1) << total_left_shift);
-
-      //return negatable(nothing(), static_cast<value_type>(the_value_lowest));
-
       return -value_max() - negatable(nothing(), value_type(1));
     }
 
-    /*! Compute machine epsilon (during pre-main static initialization)
+    /*! Compute machine epsilon
         for @c std::numeric_limits<>::epsilon() function.
         Epsilon is defined as the smallest number that,
         when added to one, yields a result different from one.
@@ -1343,11 +1327,9 @@
         2^(-8 + 1) = 2^{-7} = 0.0078125.
         \sa http://en.cppreference.com/w/cpp/types/numeric_limits/epsilon
     */
-    static negatable epsilon_maker() BOOST_NOEXCEPT
+    BOOST_STATIC_CONSTEXPR negatable value_epsilon() BOOST_NOEXCEPT
     {
-      BOOST_CONSTEXPR_OR_CONST negatable the_value_epsilon(nothing(), value_type(2));
-
-      return the_value_epsilon;
+      return negatable(nothing(), value_type(2));
     }
 
     #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
@@ -1460,7 +1442,7 @@
     struct root_two_helper<BitCount,
                            typename std::enable_if<(BitCount < 63U)>::type>
     {
-      static BOOST_CONSTEXPR negatable calculate_root_two()
+      BOOST_STATIC_CONSTEXPR negatable calculate_root_two() BOOST_NOEXCEPT
       {
         return negatable(nothing(), value_type(UINT64_C(0x5A827999FCEF3400) >> (62 - int(BitCount))));
       }
@@ -1480,7 +1462,7 @@
     struct pi_helper<BitCount,
                      typename std::enable_if<(BitCount < 62U)>::type>
     {
-      static BOOST_CONSTEXPR negatable calculate_pi()
+      BOOST_STATIC_CONSTEXPR negatable calculate_pi() BOOST_NOEXCEPT
       {
         return negatable(nothing(), value_type(UINT64_C(0x6487ED5110B4611A) >> (61 - int(BitCount))));
       }
@@ -1500,7 +1482,7 @@
     struct pi_half_helper<BitCount,
                           typename std::enable_if<(BitCount < 62U)>::type>
     {
-      static BOOST_CONSTEXPR negatable calculate_pi_half()
+      BOOST_STATIC_CONSTEXPR negatable calculate_pi_half() BOOST_NOEXCEPT
       {
         return negatable(nothing(), value_type(UINT64_C(0x3243f6A8885A308D) >> (61 - int(BitCount))));
       }
@@ -1520,7 +1502,7 @@
     struct ln_two_helper<BitCount,
                          typename std::enable_if<(BitCount < UINT32_C(64))>::type>
     {
-      static BOOST_CONSTEXPR negatable calculate_ln_two()
+      BOOST_STATIC_CONSTEXPR negatable calculate_ln_two() BOOST_NOEXCEPT
       {
         return negatable(nothing(), value_type(UINT64_C(0x58B90BFBE8E7BCD6) >> (UINT32_C(63) - (BitCount))));
       }
@@ -1540,7 +1522,7 @@
     struct e_helper<BitCount,
                     typename std::enable_if<(BitCount < 62U)>::type>
     {
-      static BOOST_CONSTEXPR negatable calculate_e()
+      BOOST_STATIC_CONSTEXPR negatable calculate_e() BOOST_NOEXCEPT
       {
         return negatable(nothing(), value_type(UINT64_C(0x56FC2A2C515DA54D) >> (61 - int(BitCount))));
       }

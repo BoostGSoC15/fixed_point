@@ -66,7 +66,7 @@
     // with each iteration of the loop. After 20 iterations,
     // the precision is about 2.8 million decimal digits.
     // We are, however, not using that many digits in this
-    // application --- only up to a few thousand at most.
+    // application --- rarely more than a few thousand at most.
 
     const NumericType tolerance = ldexp(NumericType(1), -int((long(std::numeric_limits<NumericType>::digits) * 3L) / 4L));
 
