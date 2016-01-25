@@ -41,9 +41,10 @@ namespace local
     // (John Wiley and Sons, Inc., 1968), Eq. 2.4.4
     // in Sect. 2.4 on page 27.
     // In other words:
-    //  cos(pi x/2) = 1 - x^2 / {x - (x - 1) sqrt[(2 - x)/3]}.
+    //  cos(pi x/2) = 1 - chi^2 / {chi - (chi - 1) sqrt[(2 - chi) / 3]},
+    // where a scaled argument chi is used with
+    //  chi = x / (pi/2).
 
-    // Use the scaled argument chi = x / (pi/2).
     const NumericType chi  = (x * 2) / NumericType(3.14159265358979323846F);
 
     return 1 - ((chi * chi) / (chi - ((chi - 1) * sqrt((2 - chi) / 3))));

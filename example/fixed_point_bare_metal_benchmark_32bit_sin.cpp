@@ -1,13 +1,27 @@
 
-///////////////////////////////////////////////////////////////////////////////
-//  Copyright Christopher Kormanyos 2016.
-//  Distributed under the Boost Software License,
-//  Version 1.0. (See accompanying file LICENSE_1_0.txt
-//  or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
+// Use, modification and distribution are subject to the
+// Boost Software License, Version 1.0.
+// (See accompanying file LICENSE_1_0.txt
+// or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+// Copyright Christopher Kormanyos 2016.
+
+// This file is written to be included from a Quickbook .qbk document.
+// It can be compiled by the C++ compiler, and run. Any output can
+// also be added here as comment or included or pasted in elsewhere.
+// Caution: this file contains Quickbook markup as well as code
+// and comments: don't change any of the special comment markups!
+
+// This file also includes Doxygen-style documentation about the function of the code.
+// See http://www.doxygen.org for details.
+
+//! \file
+
+//! \brief Example program showing a bare metal real-time performance measurement of sin(negatable), 32-bit.
 
 #include <cmath>
 #include <mcal_benchmark.h>
+#include <mcal_cpu.h>
 #include <mcal_irq.h>
 #include <mcal_port.h>
 
@@ -57,9 +71,16 @@ void app::benchmark::task_func()
 
   if(value_is_ok)
   {
+    // The benchmark is OK.
+    // Perform one nop and leave.
+
+    mcal::cpu::nop();
   }
   else
   {
-    for(;;) { ; }
+    // The benchmark result is not OK!
+    // Remain in a blocking loop and crash the system.
+
+    for(;;) { mcal::cpu::nop(); }
   }
 }
