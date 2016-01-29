@@ -78,9 +78,9 @@ void app::benchmark::task_init()
 {
   port_type::set_direction_output();
 
-  a = numeric_type(12) / 10;
-  b = numeric_type(34) / 10;
-  c = numeric_type(56) / 10;
+  a = numeric_type(12U) / 10U;
+  b = numeric_type(34U) / 10U;
+  c = numeric_type(56U) / 10U;
 }
 
 void app::benchmark::task_func()
@@ -93,8 +93,8 @@ void app::benchmark::task_func()
   mcal::irq::disable_all();
   port_type::set_pin_high();
 
-  d = local::first_derivative(numeric_type(1) / 2U, // x-value
-                              numeric_type(1) / 4U, // step size dx
+  d = local::first_derivative(numeric_type(1U) / 2U, // x-value
+                              numeric_type(1U) / 4U, // step size dx
                               [](const numeric_type& x) -> numeric_type
                               {
                                 return (((a * x) + b) * x) + c;
