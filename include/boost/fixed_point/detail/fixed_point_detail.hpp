@@ -399,9 +399,8 @@
                                   UnsignedIntegralType& mask,
                                   const boost::uint_fast16_t bit_count)
   {
-    // Use binary-halving to find the most significant bit
-    // in an unsigned integral type. The binary-halving search
-    // uses a recursive function call.
+    // Use O(log2[N]) binary-halving in an unrolled loop to find the msb.
+    // The binary-halving search uses a recursive function call.
 
     static_assert(std::numeric_limits<UnsignedIntegralType>::is_signed == false,
                   "The UnsignedIntegralType for msb_meta_helper_nonconstant must be an unsigned (integral) type.");
@@ -429,52 +428,55 @@
     }
   }
 
-  template<>
-  boost::uint_fast16_t msb_helper(boost::uint8_t& u,
-                                  boost::uint8_t&,
-                                  const boost::uint_fast16_t)
-  {
-      const boost::uint_fast8_t u8 = static_cast<boost::uint_fast8_t>(u);
-
-      const boost::uint_fast8_t lo_nibble( u8       & UINT8_C(0x0F));
-      const boost::uint_fast8_t hi_nibble((u8 >> 4) & UINT8_C(0x0F));
-
-      BOOST_CONSTEXPR_OR_CONST boost::uint_fast8_t hi_bit_value[16U] =
-      {
-        // x0  x1, x2, x3, x4, x5, x6, x7, x8, x9, xA, xB, xC, xD, xE, xF
-           0U, 0U, 1U, 1U, 2U, 2U, 2U, 2U, 3U, 3U, 3U, 3U, 3U, 3U, 3U, 3U
-      };
-
-      return ((hi_nibble != UINT8_C(0)) ? boost::uint_fast16_t(UINT8_C(4) + hi_bit_value[hi_nibble])
-                                        : hi_bit_value[lo_nibble]);
-  }
-
-  template<>
-  boost::uint_fast16_t msb_helper(boost::uint16_t& u,
-                                  boost::uint16_t&,
-                                  const boost::uint_fast16_t)
-  {
-    boost::uint8_t lo_byte = static_cast<boost::uint8_t>(u);
-    boost::uint8_t hi_byte = static_cast<boost::uint8_t>(u >> 8);
-
-    boost::uint8_t mask;
-
-    return ((hi_byte != UINT8_C(0)) ? boost::uint_fast16_t(UINT8_C(8) + msb_helper(hi_byte, mask, UINT16_C(0)))
-                                    : boost::uint_fast16_t(UINT8_C(0) + msb_helper(lo_byte, mask, UINT16_C(0))));
-  }
-
+  // Make a template specialization of msb_helper() for std::uint32_t.
   template<>
   boost::uint_fast16_t msb_helper(boost::uint32_t& u,
                                   boost::uint32_t&,
                                   const boost::uint_fast16_t)
   {
-    boost::uint16_t lo_word = static_cast<boost::uint16_t>(u);
-    boost::uint16_t hi_word = static_cast<boost::uint16_t>(u >> 16);
+    std::uint_fast8_t r(0);
 
-    boost::uint16_t mask;
+    // Use O(log2[N]) binary-halving in an unrolled loop to find the msb.
+    if((u & UINT32_C(0xFFFF0000)) != UINT32_C(0)) { u >>= 16; r |= UINT8_C(16); }
+    if((u & UINT32_C(0x0000FF00)) != UINT32_C(0)) { u >>=  8; r |= UINT8_C( 8); }
+    if((u & UINT32_C(0x000000F0)) != UINT32_C(0)) { u >>=  4; r |= UINT8_C( 4); }
+    if((u & UINT32_C(0x0000000C)) != UINT32_C(0)) { u >>=  2; r |= UINT8_C( 2); }
+    if((u & UINT32_C(0x00000002)) != UINT32_C(0)) { u >>=  1; r |= UINT8_C( 1); }
 
-    return ((hi_word != UINT16_C(0)) ? boost::uint_fast16_t(UINT16_C(16) + msb_helper(hi_word, mask, UINT16_C(0)))
-                                     : boost::uint_fast16_t(UINT16_C(0)  + msb_helper(lo_word, mask, UINT16_C(0))));
+    return boost::uint_fast16_t(r);
+  }
+
+  // Make a template specialization of msb_helper() for std::uint16_t.
+  template<>
+  boost::uint_fast16_t msb_helper(boost::uint16_t& u,
+                                  boost::uint16_t&,
+                                  const boost::uint_fast16_t)
+  {
+    std::uint_fast8_t r(0);
+
+    // Use O(log2[N]) binary-halving in an unrolled loop to find the msb.
+    if((u & UINT16_C(0xFF00)) != UINT16_C(0)) { u >>= 8; r |= UINT8_C(8); }
+    if((u & UINT16_C(0x00F0)) != UINT16_C(0)) { u >>= 4; r |= UINT8_C(4); }
+    if((u & UINT16_C(0x000C)) != UINT16_C(0)) { u >>= 2; r |= UINT8_C(2); }
+    if((u & UINT16_C(0x0002)) != UINT16_C(0)) { u >>= 1; r |= UINT8_C(1); }
+
+    return boost::uint_fast16_t(r);
+  }
+
+  // Make a template specialization of msb_helper() for std::uint8_t.
+  template<>
+  boost::uint_fast16_t msb_helper(boost::uint8_t& u,
+                                  boost::uint8_t&,
+                                  const boost::uint_fast16_t)
+  {
+    std::uint_fast8_t r(0);
+
+    // Use O(log2[N]) binary-halving in an unrolled loop to find the msb.
+    if((u & UINT8_C(0xF0)) != UINT8_C(0)) { u >>= 4; r |= UINT8_C(4); }
+    if((u & UINT8_C(0x0C)) != UINT8_C(0)) { u >>= 2; r |= UINT8_C(2); }
+    if((u & UINT8_C(0x02)) != UINT8_C(0)) { u >>= 1; r |= UINT8_C(1); }
+
+    return boost::uint_fast16_t(r);
   }
 
   template<typename ArithmeticType>
