@@ -257,16 +257,18 @@
       return local_negatable_type(1U);
     }
 
-    int n;
+    boost::int_fast8_t n;
 
     // Use range reduction for (x < +1/2) or (x > 1).
     if((x < ldexp(local_negatable_type(1U), -1)) || (x > 1))
     {
-      x = frexp(x, &n);
+      int nn;
+      x = frexp(x, &nn);
+      n = boost::int_fast8_t(nn);
     }
     else
     {
-      n = 0;
+      n = INT8_C(0);
     }
 
     // Use a polynomial approximation.
@@ -289,7 +291,7 @@
     // power of two. If so, either multiply with or divide by
     // the square root of 2 in order to complete the rescaling
     // of the result.
-    if(n > 0)
+    if(n > INT8_C(0))
     {
       if(is_odd_scaling)
       {
@@ -300,7 +302,7 @@
       }
 
       // Left-shift the result by 1/2 of the even factors of 2.
-      result.data <<= (n / 2);
+      result.data <<= (boost::uint_fast8_t(n) / 2U);
     }
     else if(n < 0)
     {
@@ -313,7 +315,7 @@
       }
 
       // Right-shift the result by 1/2 of the even factors of 2.
-      result.data = local_value_type(local_unsigned_small_type(result.data) >> (-n / 2));
+      result.data = local_value_type(local_unsigned_small_type(result.data) >> (boost::uint_fast8_t(-n) / 2U));
     }
 
     return result;
