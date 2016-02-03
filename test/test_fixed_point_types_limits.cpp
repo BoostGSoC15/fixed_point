@@ -95,12 +95,19 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(max_test, T, test_types)
 
   T m((std::numeric_limits<T>::max)()); // Constructor.
   T x = m; // Use assignment operator.
+  BOOST_CHECK_EQUAL(x, m); // Check assignment operator.
+  // This and many other tests should be elsewhere.
 
   std::string s = m.bit_pattern(); // "00...001" 
   std::string e("0");
   e.append(m.all_bits - 1, '1');  // Expected string "011...111.
   BOOST_CHECK_EQUAL(s, e); // Not sign bit.
 } // BOOST_AUTO_TEST_CASE_TEMPLATE(maxtest_test, T, test_types)
+
+BOOST_AUTO_TEST_CASE_TEMPLATE(radix_test, T, test_types)
+{ // radix always 2 for all fixed_point types.
+  BOOST_CHECK_EQUAL(std::numeric_limits<T>::radix, 2);
+} // 
 
 
 /*

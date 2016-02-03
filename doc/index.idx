@@ -50,12 +50,6 @@ precision
 oct
 scientific
 
-# All BOOST_FIXED_POINT fixed_point macros
-BOOST_FIXED_POINT_DISABLE_IOSTREAM
-BOOST_FIXED_POINT_DISABLE_CPP11
-BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
-BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH
-
 #  Misc terms to index.
 acknowledgement (?i)\<acknowledgement\w*\>
 bare-metal \<\w*(bare|metal)\w*\>
@@ -68,6 +62,7 @@ microcontroller
 mandelbrot
 pi
 reference \<reference\w*\>
+GMP
 
 # exclude a few useless search terms
 !exclude with

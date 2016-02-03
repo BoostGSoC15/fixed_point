@@ -15,7 +15,8 @@
        Lawrence Crowl, "C++ binary fixed-point arithmetic" as specified in N3352.\n
 
    In this file, we implement a prototype for the proposed
-   @b negatable template class. (See fixed_point_nonnegative.hpp for an unsigned version).\n
+   @b negatable template class.\n
+   (See fixed_point_nonnegative.hpp for an unsigned version).\n
    \sa http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html
 */
 
@@ -256,7 +257,7 @@
 
   /*! negatable class used for signed fractional arithmetic.
       \tparam IntegralRange integer >= 0, defines a range of signed number n that is 2^-IntegralRange < n < 2^IntegralRange.
-    \tparam FractionalResolution integer <= -1, defines resolution. 
+    \tparam FractionalResolution integer <= -1, defines resolution.
       The resolution of a fractional number is 2^FractionalResolution.
     \tparam RoundMode struct defining the rounding behaviour, default @c round::fastest.\n
     \tparam OverflowMode struct defining the behaviour from rounding, default @c overflow::undefined.
@@ -306,7 +307,7 @@
         For example:
         \code
           boost::fixed_point::negatable<2, -5> x;
-          int n=x.all_bits; n==8 
+          int n=x.all_bits; n==8
           x.range + (-x.resolution) + 1 == 2 + (-(-5)) + 1 == 8.
         \endcode
     */
@@ -368,14 +369,14 @@
   public:
     // The public class constructors follow below.
 
-    /*! Default constructor.\n By design choice, this clears the data member.\n 
+    /*! Default constructor.\n By design choice, this clears the data member.\n
         So after defining @c negatable<15,-16> @c x; then @c x==0;\n\n
-        It is therefore more efficient to construct with an initial value @c negatable<2,5> @c x(0) rather than 
+        It is therefore more efficient to construct with an initial value @c negatable<2,5> @c x(0) rather than
         @c nagatable<2,5> @c x; @c x=0;
     */
     negatable() : data() { }
 
-    /*! Constructors from built-in signed integral types.\n 
+    /*! Constructors from built-in signed integral types.\n
     Lossy construction is made @c explicit, so one cannot write @c negatable<> @c x=1, but @b must write @c negatable<> @c x(1).
     Non-lossy construction is NOT explicit.
     */
@@ -1945,7 +1946,7 @@
         Send a fixed-point number to the output stream by first
         expressing the fixed-point number as a floating-point number.\n
 
-        \note Macro BOOST_FIXED_POINT_DISABLE_IOSTREAM can be defined to 
+        \note Macro BOOST_FIXED_POINT_DISABLE_IOSTREAM can be defined to
         disable all I/O streaming and the inclusion of associated standard
         library headers. This is intended to eliminate I/O stream
         overhead in particular for bare-metal microcontroller projects.
@@ -1975,9 +1976,20 @@
       return (out << ostr.str());
     }
 
-    /*! @c std::istream input @c operator>>
+    /*! @c std::istream input @c operator<<
         Receive a floating-point number from the input stream.
         Subsequently make a fixed-point object from it.
+
+        \note The C standard  7.22.1.3 allows @c operator<<
+        the result is either the nearest representable value,
+        or the larger or smaller representable value
+        immediately adjacent to the nearest representable value.
+
+        This means that 'round-tripping' fixed_point (perhaps serialization and deserialization)
+        may give a result that differs by 1 bit.
+
+        See the section on Serialization and Round-tripping.
+
     */
     template<typename char_type, typename traits_type, const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
     std::basic_istream<char_type, traits_type>& operator>>(std::basic_istream<char_type, traits_type>& in,
@@ -2000,8 +2012,18 @@
 
   #endif // !BOOST_FIXED_POINT_DISABLE_IOSTREAM
 
-  // Implement is_fixed_point for compile-time querying
-  // of whether or not a given type is fixed_point.
+
+    /*! Compile-time querying of whether or not a given type @c T is fixed_point.
+
+    Example: \code std::numeric_limits<negatable<7,-8>>::is_signed == true \endcode
+
+    \note Use @c std::numeric_limits<T>::is_signed to test
+    if type @c T is a signed fixed_point type like @c negatable\n
+    rather than an unsigned fixed point type like @c nonnegative.
+
+    Example: \code std::numeric_limits<negatable<7,-8> >::is_signed == true \endcode
+
+    */
 
   template<typename T>
   struct is_fixed_point : std::false_type { };
