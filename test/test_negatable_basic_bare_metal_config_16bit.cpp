@@ -95,8 +95,9 @@ BOOST_AUTO_TEST_CASE(test_negatable_basic_metal_config_16bit)
   // disabled in this bare-metal configuration.
   const fixed_point_type fraction = fabs(d / (fixed_point_type(46) / 10U));
   const fixed_point_type delta    = fabs(1 - fraction);
+  const fixed_point_type tol      = ldexp(fixed_point_type(1), fixed_point_type::resolution + 2);
 
-  const bool result_is_within_tolerance = (delta <= ldexp(fixed_point_type(1), fixed_point_type::resolution + 2));
+  const bool result_is_within_tolerance = (delta <= tol);
 
   BOOST_CHECK_EQUAL(result_is_within_tolerance, true);
 }

@@ -257,81 +257,33 @@
       return local_negatable_type(1U);
     }
 
-    int n;
+    boost::int_fast8_t n;
 
     // Use range reduction for (x < +1/2) or (x > 1).
     if((x < ldexp(local_negatable_type(1U), -1)) || (x > 1))
     {
-      x = frexp(x, &n);
+      int nn;
+      x = frexp(x, &nn);
+      n = boost::int_fast8_t(nn);
     }
     else
     {
-      n = 0;
+      n = INT8_C(0);
     }
 
-    local_negatable_type px_numerator;
-    local_negatable_type qx_denominator;
+    // Use a polynomial approximation.
+    // sqrt(x) = approx. + 0.316913013112361600
+    //                   + 0.881555860443492657 x
+    //                   - 0.199124755623756208 x^2,
+    // in the range 1/2 <= x <= 1. These coefficients
+    // have been specifically derived for this work.
 
-    // Here we break the reduced argument range yet further in half.
-    // This results in two sub-ranges:
-    //  the *lower* half of the range with (x >= 1/2 && x < 3/4)
-    // and
-    //  the *upper* half of the range with (x >= 3/4 && x < 1).
-
-    if(x < local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0600) >> (11 + FractionalResolution))))
-    {
-      // Compute the sqrt(x) in the lower half of the range with (x >= 1/2 && x < 3/4).
-
-      // Use an order 2/1 Pade approximation at (x = 5/8) resulting in:
-      //  sqrt(x) = approx. P(x) / Q(x),
-      // where
-      //  P(x) =   0.7905694150420948330
-      //         + 1.2649110640673517328 (x - (5/8))
-      //         + 0.2529822128134703466 (x - (5/8))^2
-      // and
-      //  Q(x) =   1.0000000000000000000
-      //         + 0.8000000000000000000 (x - (5/8))
-      // in the range +1/2 <= x <= +3/4. These coefficients
-      // have been specifically derived for this work.
-
-      // Set the variable xp = x - (5/8).
-      const local_negatable_type xp = x - local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0500) >> (11 + FractionalResolution)));
-
-      px_numerator   = ((       local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0206) >> (11 + FractionalResolution)))   // 0.2529822128134703466
-                         * xp + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0A1E) >> (11 + FractionalResolution))))  // 1.2649110640673517328
-                         * xp + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0653) >> (11 + FractionalResolution)))); // 0.7905694150420948330
-
-      qx_denominator = (        local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0666) >> (11 + FractionalResolution)))   // 0.8000000000000000000
-                         * xp + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0800) >> (11 + FractionalResolution)))); // 1.0000000000000000000
-    }
-    else
-    {
-      // Compute the sqrt(x) in the upper half of the range with (x >= 3/4 && x < 1).
-
-      // Use an order 2/1 Pade approximation at (x = 7/8) resulting in:
-      //  sqrt(x) = approx. P(x) / Q(x),
-      // where
-      //  P(x) =   0.9354143466934853464
-      //         + 1.0690449676496975387 (x - (7/8))
-      //         + 0.1527207096642425055 (x - (7/8))^2
-      // and
-      //  Q(x) =   1.0000000000000000000
-      //         + 0.5714285714285714286 (x - (7/8))
-      // in the range +3/4 <= x <= +1. These coefficients
-      // have been specifically derived for this work.
-
-      // Set the variable xp = x - (7/8).
-      const local_negatable_type xp = x - local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0700) >> (11 + FractionalResolution)));
-
-      px_numerator   = ((       local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0138) >> (11 + FractionalResolution)))   // 0.2529822128134703466
-                         * xp + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x088D) >> (11 + FractionalResolution))))  // 1.2649110640673517328
-                         * xp + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x077B) >> (11 + FractionalResolution)))); // 0.7905694150420948330
-
-      qx_denominator = (        local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0492) >> (11 + FractionalResolution)))   // 0.8000000000000000000
-                         * xp + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0800) >> (11 + FractionalResolution)))); // 1.0000000000000000000
-    }
-
-    local_negatable_type result = px_numerator / qx_denominator;
+    // Perform the polynomial approximation using a coefficient
+    // expansion via the method of Horner.
+    local_negatable_type result =
+      ((    - local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0197) >> (11 + FractionalResolution)))   // 0.199124755623756208
+        * x + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x070E) >> (11 + FractionalResolution))))  // 0.881555860443492657
+        * x + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0289) >> (11 + FractionalResolution)))); // 0.316913013112361600
 
     const bool is_odd_scaling = ((boost::int_fast8_t(n) & INT8_C(1)) != INT8_C(0));
 
@@ -339,7 +291,7 @@
     // power of two. If so, either multiply with or divide by
     // the square root of 2 in order to complete the rescaling
     // of the result.
-    if(n > 0)
+    if(n > INT8_C(0))
     {
       if(is_odd_scaling)
       {
@@ -350,7 +302,7 @@
       }
 
       // Left-shift the result by 1/2 of the even factors of 2.
-      result.data <<= (n / 2);
+      result.data <<= (boost::uint_fast8_t(n) / 2U);
     }
     else if(n < 0)
     {
@@ -363,7 +315,7 @@
       }
 
       // Right-shift the result by 1/2 of the even factors of 2.
-      result.data = local_value_type(local_unsigned_small_type(result.data) >> (-n / 2));
+      result.data = local_value_type(local_unsigned_small_type(result.data) >> (boost::uint_fast8_t(-n) / 2U));
     }
 
     return result;
@@ -402,41 +354,27 @@
       n = 0;
     }
 
-    // Use an order 4 Pade approximation at (x = 3/4) resulting in:
-    //  sqrt(x) = approx. P(x) / Q(x),
-    // where
-    //  P(x) =   0.8660254037844386468
-    //         + 2.5980762113533159403 (x - 0.75)
-    //         + 2.5980762113533159403 (x - 0.75)^2
-    //         + 0.9622504486493762742 (x - 0.75)^3
-    //         + 0.0962250448649376274 (x - 0.75)^4
-    // and
-    //  Q(x) =   1.0000000000000000000
-    //         + 2.3333333333333333333 (x - 0.75)
-    //         + 1.6666666666666666667 (x - 0.75)^2
-    //         + 0.3703703703703703704 (x - 0.75)^3
-    //         + 0.0123456790123456790 (x - 0.75)^4
-    // in the range +1/2 <= x <= +1. These coefficients
+    // Use a polynomial approximation.
+    // sqrt(x) = approx. + 0.189764675205404663
+    //                   + 1.604845171653826760 x
+    //                   - 1.865642707972329001 x^2
+    //                   + 2.060890668181265139 x^3
+    //                   - 1.509236742165254034 x^4
+    //                   + 0.635575974434820733 x^5
+    //                   - 0.116197063713519560 x^6,
+    // in the range 1/2 <= x <= 1. These coefficients
     // have been specifically derived for this work.
 
-    // Set the variable xp = x - (3/4).
-    const local_negatable_type xp = x - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00C00000) >> (24 + FractionalResolution)));
-
-    const local_negatable_type px_numerator =
-      ((((       local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0018A234) >> (24 + FractionalResolution)))   // 0.0962250448649376274
-          * xp + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00F6560B) >> (24 + FractionalResolution))))  // 0.9622504486493762742
-          * xp + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x02991B85) >> (24 + FractionalResolution))))  // 2.5980762113533159403
-          * xp + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x02991B85) >> (24 + FractionalResolution))))  // 2.5980762113533159403
-          * xp + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00DDB3D7) >> (24 + FractionalResolution)))); // 0.8660254037844386468
-
-    const local_negatable_type qx_denominator =
-      ((((       local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00032916) >> (24 + FractionalResolution)))   // 0.0123456790123456790
-          * xp + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x005ED097) >> (24 + FractionalResolution))))  // 0.3703703703703703704
-          * xp + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x01AAAAAA) >> (24 + FractionalResolution))))  // 1.6666666666666666667
-          * xp + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x02555555) >> (24 + FractionalResolution))))  // 2.3333333333333333333
-          * xp + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x01000000) >> (24 + FractionalResolution)))); // 1.0000000000000000000
-
-    local_negatable_type result = px_numerator / qx_denominator;
+    // Perform the polynomial approximation using a coefficient
+    // expansion via the method of Horner.
+    local_negatable_type result =
+      ((((((    - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x001DBF17) >> (24 + FractionalResolution)))   // 0.116197063713519560
+            * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00A2B51B) >> (24 + FractionalResolution))))  // 0.635575974434820733
+            * x - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x01825D56) >> (24 + FractionalResolution))))  // 1.509236742165254034
+            * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x020F9687) >> (24 + FractionalResolution))))  // 2.060890668181265139
+            * x - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x01DD9AC2) >> (24 + FractionalResolution))))  // 1.865642707972329001
+            * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x019AD722) >> (24 + FractionalResolution))))  // 1.604845171653826760
+            * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0030946A) >> (24 + FractionalResolution)))); // 0.189764675205404663
 
     const bool is_odd_scaling = ((boost::int_fast8_t(n) & INT8_C(1)) != INT8_C(0));
 
@@ -509,7 +447,7 @@
     // Here we use:
     //  sqrt(a) = approx. (a/2) + [8^(1/4) - 1]^2
     //          = approx. (a/2) + 0.4648
-    //          = approx. (a/2) + (1/2) [via naive simplification].
+    //          = approx. [(a + 1) /2] via naive simplification.
 
     // See, for example, J. F. Hart et al., Computer Approximations
     // (John Wiley and Sons, Inc., 1968), Eq. 2.4.3 on page 27.
@@ -517,10 +455,7 @@
     // Compute the reduced argument (a) and divide the value
     // of (a) once again by 2 in order to compute the first part
     // of the initial guess.
-    a.data = local_value_type(local_unsigned_small_type(a.data) >> 1);
-
-    // Here is the addition of (1/2) to complete the initial guess.
-    a += ldexp(local_negatable_type(1U), -1);
+    a.data = local_value_type(local_unsigned_small_type(local_unsigned_small_type(a.data) + local_unsigned_small_type(local_unsigned_small_type(1U) << local_negatable_type::radix_split)) >> 1);
 
     // Remove the scaling from the reduced guess of the result
     // and use this as the proper initial guess of sqrt(x).

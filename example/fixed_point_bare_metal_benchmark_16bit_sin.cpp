@@ -17,7 +17,7 @@
 
 //! \file
 
-//! \brief Example program showing a bare metal real-time performance measurement of atan(negatable), 32-bit.
+//! \brief Example program showing a bare metal real-time performance measurement of sin(negatable), 16-bit.
 
 #include <cmath>
 #include <mcal_benchmark.h>
@@ -30,7 +30,7 @@
 
 #include <boost/fixed_point/fixed_point.hpp>
 
-typedef boost::fixed_point::negatable<7, -24> numeric_type;
+typedef boost::fixed_point::negatable<4, -11> numeric_type;
 //typedef float numeric_type;
 
 namespace app
@@ -44,7 +44,7 @@ namespace app
   typedef mcal::benchmark::benchmark_port_type port_type;
 }
 
-numeric_type x = numeric_type(4) / 10;
+numeric_type x = numeric_type(1) / 2;
 numeric_type y;
 
 void app::benchmark::task_init()
@@ -55,19 +55,19 @@ void app::benchmark::task_init()
 
 void app::benchmark::task_func()
 {
-  using std::atan;
+  using std::sin;
 
   mcal::irq::disable_all();
   port_type::set_pin_high();
 
-  y = atan(x);
+  y = sin(x);
 
   port_type::set_pin_low();
   mcal::irq::enable_all();
 
-  // atan(4/10) = approx. 0.3805063771123649
-  const bool value_is_ok =    (y > (numeric_type(38) / 100))
-                           && (y < (numeric_type(39) / 100));
+  // sin(1/2) = approx. 0.4794255386042030
+  const bool value_is_ok =    (y > (numeric_type(4) / 10))
+                           && (y < (numeric_type(5) / 10));
 
   if(value_is_ok)
   {
