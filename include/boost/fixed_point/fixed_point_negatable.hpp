@@ -1031,8 +1031,23 @@
         return ss.str();
       }
 
-      // Supply a bit-field string representation get-function.
-      // This function is used primarily for debugging and testing purposes.
+      /*! Supply a bit-field string representation get-function.
+       This function is used primarily for debugging and testing purposes.
+
+       example:
+
+       \code 
+         typedef negatable<7, -8> fixed_point_type_7m8; // 16-bit even split.
+         fixed_point_type_7m8 x = 1;
+         fixed_point_type_7m8 xp = fixed_prior(x);
+         fixed_point_type_7m8 xn = fixed_next(x);
+         std::cout << x.bit_pattern() << " " << xn.bit_pattern() << " " << xp.bit_pattern() << std::endl;
+       \endcode
+       outputs
+
+       \code 0000000100000000 0000000100000001 0000000011111111 \endcode
+
+      */
       std::string bit_pattern() const
       {
         // Acquire the fixed-point data field and convert it to an unsigned type.
@@ -1072,7 +1087,7 @@
         std::reverse(answer.begin(), answer.end());
 
         return answer;
-      }
+      } //  std::string bit_pattern() const
 
     #endif // !BOOST_FIXED_POINT_DISABLE_IOSTREAM
 
