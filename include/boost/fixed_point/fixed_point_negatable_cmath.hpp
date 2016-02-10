@@ -440,7 +440,7 @@
     int n2;
     local_negatable_type a = frexp(x, &n2);
 
-    // Get the initial estimate of the square root.
+    // Get the initial guess of the square root.
 
     // Use the reduced argument (a) in order to create an
     // estimate for the initial guess of the square root of x.
@@ -452,9 +452,7 @@
     // See, for example, J. F. Hart et al., Computer Approximations
     // (John Wiley and Sons, Inc., 1968), Eq. 2.4.3 on page 27.
 
-    // Compute the reduced argument (a) and divide the value
-    // of (a) once again by 2 in order to compute the first part
-    // of the initial guess.
+    // Compute the initial guess [(a + 1) /2].
     a.data = local_value_type(local_unsigned_small_type(local_unsigned_small_type(a.data) + local_unsigned_small_type(local_unsigned_small_type(1U) << local_negatable_type::radix_split)) >> 1);
 
     // Remove the scaling from the reduced guess of the result
