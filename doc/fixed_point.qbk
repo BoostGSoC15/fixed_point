@@ -85,7 +85,7 @@
 [def __ARM_architecture  [@https://en.wikipedia.org/wiki/ARM_architecture ARM architecture]]
 [def __harvard_architecture [@https://en.wikipedia.org/wiki/Harvard_architecture Harvard architecture]]
 [def __von_neumann [@https://en.wikipedia.org/wiki/Von_Neumann_architecture Von Neumann architecture]]
-[def __microcontroller [@https://en.wikipedia.org/wiki/Microcontroller microcontroller]]
+[def __microcontroller [@https://en.wikipedia.org/wiki/Microcontroller microcontrollers]]
 [def __Arduino [@https://www.arduino.cc/ Arduino]]
 [def __Q_format [@https://en.wikipedia.org/wiki/Q_(number_format) Q number format]]
 [def __floating_point  [@http://en.wikipedia.org/wiki/Floating_point Floating point]]
@@ -120,6 +120,7 @@
 [def __ldexp [@http://en.cppreference.com/w/cpp/numeric/math/ldexp ldexp]]
 [def __is_fundamental [@http://en.cppreference.com/w/cpp/types/is_fundamental std::is_fundamental]]
 [def __built-in [@http://en.cppreference.com/w/cpp/types/is_fundamental built-in]]
+[def __fundamental  [@http://en.cppreference.com/w/cpp/types/is_fundamental fundamental]]
 [def __is_arithmetic [@http://en.cppreference.com/w/cpp/types/is_arithmetic std::is_arithmetic]]
 [def __is_floating_point[@http://en.cppreference.com/w/cpp/types/is_floating_point std::is_floating_point]]
 [def __is_iec559 [@http://en.cppreference.com/w/cpp/types/numeric_limits/is_iec559 std::numeric_limits::is_iec559]]
@@ -192,7 +193,7 @@
 
 [section:intro Introduction]
 The proposed Boost.Fixed-point Library provides fixed-point types in C++ that have different
-range and precision than C++'s ordinary __built-in types (also called fundamental types).
+range and precision than C++'s ordinary __built-in types (also called __fundamental types).
 The fixed-point types can also interoperate with the
 __built-in types in C++ using clearly defined conversion rules.
 This allows Boost.Fixed-point to be used for all
@@ -222,7 +223,7 @@ This means that if there is a __carry from an addition to the fractional part,
 it simply carrys into the integer part, which means that fast integer instructions can be used.
 (There is no __normalization as required by floating-point, so all operations take a constant fixed time).
 
-So fixed-point trades range and precision for consistent and (potentially) improved efficiency
+So fixed-point trades range and precision for consistent and (very probably) improved efficiency
 using integer-based computation.
 
 [h5 Fixed_point Q format]
@@ -231,10 +232,10 @@ The __Q_format is often used to specify the number of bits used for range and re
 
 Consider, for example, a Q15.16 representation of negatable. It has one sign bit,
 15 integral range bits and 16 fractional resolution bits.
-This format fits neatly into a 32-bit two's complement signed integer.
+This format fits neatly into a 32-bit two's complement signed integer,
 [/Giving a total spread of values from 1.526e-005 to 3.277e+004  in steps of 1.526e-005.]
-Giving a total spread of signed values from about 0.000015 to 32770  in steps of 0.000015.[br]
-Use `boost::fixed_point::negatable<15, -16>` for this fixed-point type.
+giving a total spread of signed values from about 0.000015 to 32770  in steps of 0.000015.[br]
+Use `boost::fixed_point::negatable<15, -16>` for a Q15.16 fixed-point type.
 
 A small Q7.8 representation has a sign bit, 7 bits of integer part before the binary point,
 and 8 bits for the fractional part that can fit into a 16-bit `short`.
@@ -243,7 +244,7 @@ The Q7.8 represent can hold integer part values from 0 to 2[super 7] = 127,
 and fraction part from 0 to 1/2[super 8] = 1/256 = 0.00390625.
 [/Giving a total spread of values from  0.00396 to 127.996 in steps of 0.00396.]
 Giving a total spread of values from about 0.004 to 128 in steps of 0.004.[br]
-Use `boost::fixed_point::negatable<7, -8>` for this fixed-point type.
+Use `boost::fixed_point::negatable<7, -8>` for a Q7.8 fixed-point type.
 
 A tiny byte-sized Q2.5 representation has a sign bit, 2 bits of integer part before the binary point,
 and 5 bits for the fractional part that can fit into a 8-bit `signed char`.
@@ -252,18 +253,18 @@ The Q2.5 representation can hold integer part values from 0 to 2[super 2] = 4,
 and fraction part from 0 to 1/2[super 5] = 1/32 = 0.003125.
 [/Giving a total spread of values from  0.003125 to 3.696 in steps of 0.003125.]
 Giving a total spread of values from about 0.003 to 4 in steps of 0.003.[br]
-Use `boost::fixed_point::negatable<2, -5>` for this fixed-point type.
+Use `boost::fixed_point::negatable<2, -5>` for a Q2.5 fixed-point type.
 
 The Q0.7 representation can hold NO integer part values,
 and fraction part from 0 to 1/2[super 7] = 1/128 = 0.0078125.
 [/Giving a total spread of values from  0.007813 to 3.696 in steps of 0.0078125.]
 Giving a total spread of values from about 0.007813  to  (almost but not quite unity) 0.992188, in steps of 0.007813.[br]
 Range from -0.992188, zero 0.000000 , min 0.007813 to max 0.992188 in steps of 0.007813.[br]
-Use `boost::fixed_point::negatable<0, -7>` for this fixed-point type.
+Use `boost::fixed_point::negatable<0, -7>` for a Q0.7 fixed-point type.
 
 [warning Any type with zero bits used for range [*cannot represent unity] (or greater).
 This will cause surprise if you construct with a value >= 1 when the result is negative!
-see __construction]
+See __construction.]
 
 [h5  Differences between Proposal N3352 and this library]
 
@@ -276,13 +277,13 @@ proposal __n3352 including the `negatable` representation only.
 In addition, proposal __n3352 specifies seven rounding modes
 and five overflow modes.
 This library, however, supports only two common
-rounding modes only one overflow mode (the overflow mode undefined).
+rounding modes and only one overflow mode (the overflow mode undefined).
 
 Proposal __n3352 does not
 mention any interaction of with elementary transcendental functions.
 The Boost.Fixed-point Library, however, has nearly complete support of
 __cmath functions for the negatable representation.
-This allows many existing programs and algorithms to use fixed_point
+This allows many existing programs and algorithms to use fixed-point
 with little or no modification, a significant advantage.
 
 What the final scope of the library should be is discussed in the __rationale section.
@@ -323,7 +324,7 @@ more efficient than software-emulated floating-point calculations
 and therefore more well-suited for small 8 or 16-bit microcontrollers.
 See __efficiency for some examples.
 
-* High-performance microcontrollers often have an FPU.
+* High-performance microcontrollers often have an floating-point unit (FPU).
 Deactivating the FPU and preferentially using fixed-point
 instead of floating-point can, nonetheless, be beneficial
 for certain reasons. Some project guidelines forbid the use of
@@ -342,7 +343,7 @@ that often means longer battery life, helpful for portable devices like watches,
 even more for implanted devices having inconvenient battery charges and changes.
 
 * Storing many floating-point values takes up more memory than would be possible using `fixed_point`.
-Memory is cheap, but using less can speed data transfer and reduce cache misses.
+Memory is cheap, but using less memory can speed data transfer and reduce cache misses.
 So if an entire array of data can be stored as a `negatable`
 using a small integral type ,`byte` or `short int`, in a very fast memory cache,
 it might be processed more quickly.
@@ -362,7 +363,7 @@ in the realm of near-integral math.
 
 * Avoiding __normalization means that the time for any operation is consistent and predictable.
 
-* Fixed-point can be sorted in linear time [bigo]N.
+* Fixed-point can be sorted in linear time [*['O]]N. [/Using bigo Unicode D476 is OK for html but not PDF]
 
 [endsect] [/section:why_fixed_point Why Fixed-Point (rather than floating-point?]
 
@@ -507,7 +508,7 @@ This example shows how a fixed_point type can be used in an 8-bit microcontrolle
 to evaluate the first derivative (and that can be used, for example, to trigger some action).
 
 It evaluates the first derivative of a real function
-using a three-point central-difference rule of ['O(dx^6)].
+using a three-point central-difference rule of ['[*O](dx^6)].
 
 For more details see this section on
 [@http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/tut/floats/fp_eg/nd.html Calculating a derivative].
@@ -589,7 +590,7 @@ The compution of an array of fixed-point Bernoulli numbers uses the
 [@http://www.boost.org/doc/libs/release/libs/math/doc/html/special.html  Boost.math special function]
 [@http://www.boost.org/doc/libs/release/libs/math/doc/html/math_toolkit/number_series/bernoulli_numbers.html bernoulli]
 (code at [@http://www.boost.org/doc/libs/release/boost/math/special_functions/bernoulli.hpp bernoulli.hpp])
-in exactly the same was as the floating-point example
+in exactly the same way as the floating-point example
 [@http://www.boost.org/doc/libs/release/libs/math/example/bernoulli_example.cpp bernoulli_example.cpp]
 but using a fixed-point type instead.
 
@@ -896,7 +897,7 @@ and sometimes also `std::ios::scientific` format to ensure that no information i
 
 The implication of the current standards (see __round_tripping_details)
 is that conversion of a decimal digit string
-to a floating-point type is [*not] guaranteed to be the nearest __representable value,
+to a floating-point type is [*not guaranteed] to be the nearest __representable value,
 but may be, in effect, be one bit 'wrong'.
 
 [warning This means that any fixed_point values after serialization and de-serialization may not be identical,
@@ -947,8 +948,9 @@ A possible alternative that would guarantee round-tripping and serialization wou
 [h5:round_trip_details  Round trip details]
 
 Conversion using `operator<<` or `strtof(), stdtod()...`
-is, in contrast to the conversion of decimal digit strings [*by the compiler],
-which [*does] guarantee the [*nearest __representable value].
+does not guarantee the nearest __representable value,
+(in contrast to the conversion of decimal digit strings [*by the compiler],
+which [*does] guarantee the [*nearest __representable value]).
 
 __cpp_standard [sect] 7.22.1.3
 says that we use [@http://c0x.coding-guidelines.com/6.4.4.2.html C0x]
@@ -1056,7 +1058,7 @@ The full code is at [@../../example/fixed_point_constants.cpp  fixed_point_const
 
 [section:rounding Rounding]
 
-Round has emerged as the most contentious and difficult area.
+Rounding has emerged as the most contentious and difficult area.
 
 [#combinatorial_explosion]
 Our starting point has been __n3352 that specifies seven rounding modes.
@@ -1064,7 +1066,7 @@ All have some uses and some logic for their inclusion.
 
 Five overflow modes are also specified and this leads to combinatorial explosion,
 for example, potentially requiring  7 rounding * 5 overflow,
-a total of 35 specializations of __limits for each fixed_point type!
+a total of 35 specializations of __numeric_limits for each fixed_point type!
 [*This suggests that the number of rounding and overflow mode
 should be considered rather carefully to make sure that they are really worthwhile.]
 
@@ -1080,15 +1082,15 @@ For the rounding mode nearest_even, if the 1/2 __ULP bit 1,
 then the result of any operation that leads to a result in the range ['\[x, x+ 1/2 ULP\]]
 would round to x and in the range ['(x+1/2ULP, x+1)] would round to x+1.
 
-If the 1/2 __ULP bit is 0, however, then any operation that leads to an intermediate value in the range ['\[x, x+1)] would round to x.
+If the 1/2 __ULP bit is 0, however, then any operation that
+leads to an intermediate value in the range ['\[x, x+1)] would round to ['x].
 
 [endsect] [/section:rounding Rounding]
 
-[section:overflow Over and Underflow]
 
 [section:mixed_mode Mixed-mode]
 
-Mixed math  are operations using fixed-point types of [*different range and/or precision].
+Mixed math are operations using fixed-point types of [*different range and/or precision].
 
 The minimal set of  needs:
 
@@ -1117,9 +1119,6 @@ end up with (a == b) and (b != a). It's another
 design choice.
 
 [endsect] [/section:mixed_mode Mixed-mode]
-
-
-[endsect] [/section:overflow Over and Underflow]
 
 [section:infinity Infinity and NotANumber (NaN)]
 
@@ -1445,16 +1444,16 @@ but this would take unfeasible test times for more than about 32-bit,
 so roughly random values covering the entire range of possible binary patterns
 are used for test values instead.
 
-[note History Random testing was used to track bugs in Microsoft Visual Studio stream
+[note History - Random testing was used to track bugs in Microsoft Visual Studio stream
 input from decimal digit strings.
 A fault was originally discovered by a user of __serialization when he found (after much debugging)
 a single value of  de-serialized data that was 1-bit different from that originally written.
 Random value testing then revealed that a small range of values could not be round-tripped in this way,
-and a third of the values in this range were 1-bit different.
+and a third of the values in this small range were 1-bit different.
 The __cpp_standard does not (yet) ['require] input from decimal digit strings to the nearest __representable value,
 but while other [@http://www.exploringbinary.com/visual-c-plus-plus-strtod-still-broken/#more-565 examples]
 were also found in all compilers, most are now achieve correct conversion for all values.
-]
+] [/note]
 
 [endsect] [/section:testing Testing]
 

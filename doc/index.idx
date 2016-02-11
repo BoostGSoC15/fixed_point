@@ -63,6 +63,7 @@ mandelbrot
 pi
 reference \<reference\w*\>
 GMP
+Q format
 
 # exclude a few useless search terms
 !exclude with
