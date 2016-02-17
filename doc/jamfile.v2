@@ -17,7 +17,7 @@ path-constant images_location : html ; # libs/fixed_point/doc
 path-constant here : . ; # libs/fixed_point/doc
 path-constant parent : .. ;  # libs.fixed_point
 path-constant boost-images : ../../../doc/src/images ;
-path-constant images_location : ../doc ; # location of SVG and PNG images referenced by Quickbook.
+path-constant images_location : ../example ; # location of SVG and PNG images referenced by Quickbook.
 # http://docbook.sourceforge.net/release/xsl/1.77.1/doc/html/img.src.path.html
 # relative to /doc ?
 

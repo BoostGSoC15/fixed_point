@@ -1,5 +1,5 @@
-I:/modular-boost/libs/fixed_point/include/boost/fixed_point/fixed_point_negatable.hpp:2023: warning: Illegal command \n as the argument of a \n command
-I:/modular-boost/libs/fixed_point/include/boost/fixed_point/fixed_point_negatable.hpp:1295: warning: explicit link request to 'max' could not be resolved
+I:/modular-boost/libs/fixed_point/include/boost/fixed_point/fixed_point_negatable.hpp:2038: warning: Illegal command \n as the argument of a \n command
+I:/modular-boost/libs/fixed_point/include/boost/fixed_point/fixed_point_negatable.hpp:1310: warning: explicit link request to 'max' could not be resolved
 I:/modular-boost/libs/fixed_point/include/boost/fixed_point/fixed_point.hpp:19: warning: Found unknown command `\detail'
 I:/modular-boost/libs/fixed_point/include/boost/fixed_point/fixed_point.hpp:24: warning: explicit link request to 'define' could not be resolved
 I:/modular-boost/libs/fixed_point/include/boost/fixed_point/fixed_point.hpp:26: warning: explicit link request to 'define' could not be resolved
