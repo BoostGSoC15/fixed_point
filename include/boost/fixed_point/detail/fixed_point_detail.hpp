@@ -36,9 +36,9 @@
   {
     #if !defined(BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS)
 
-    static_assert(    (std::numeric_limits<UnsignedIntegralType>::is_integer == true)
-                   && (std::numeric_limits<UnsignedIntegralType>::is_signed  == false),
-                   "The UnsignedIntegralType for left shift must be an unsigned integral type.");
+      static_assert(    (std::numeric_limits<UnsignedIntegralType>::is_integer == true)
+                     && (std::numeric_limits<UnsignedIntegralType>::is_signed  == false),
+                     "The UnsignedIntegralType for left shift must be an unsigned integral type.");
 
     #endif
 
@@ -49,9 +49,13 @@
   template<typename UnsignedIntegralType>
   UnsignedIntegralType right_shift_helper(UnsignedIntegralType& u, const int shift_count)
   {
-    static_assert(    (std::numeric_limits<UnsignedIntegralType>::is_integer == true)
-                   && (std::numeric_limits<UnsignedIntegralType>::is_signed  == false),
-                   "The UnsignedIntegralType for right shift must be an unsigned integral type.");
+    #if !defined(BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS)
+
+      static_assert(    (std::numeric_limits<UnsignedIntegralType>::is_integer == true)
+                     && (std::numeric_limits<UnsignedIntegralType>::is_signed  == false),
+                     "The UnsignedIntegralType for right shift must be an unsigned integral type.");
+
+    #endif
 
     return ((shift_count > 0) ? UnsignedIntegralType(u >> +shift_count)
                               : UnsignedIntegralType(u << -shift_count));
@@ -89,7 +93,7 @@
         (BitCount <= boost::uint32_t(UINT32_C(1) << 28)) ? boost::uint32_t(UINT32_C(1) << 28) :
         (BitCount <= boost::uint32_t(UINT32_C(1) << 29)) ? boost::uint32_t(UINT32_C(1) << 29) :
         (BitCount <= boost::uint32_t(UINT32_C(1) << 30)) ? boost::uint32_t(UINT32_C(1) << 30) :
-        (boost::uint32_t(UINT32_C(1) << 31));
+                    (boost::uint32_t(UINT32_C(1) << 31));
 
       #if defined(BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS)
 
@@ -185,9 +189,9 @@
 
       #else
 
-      typedef boost::multiprecision::backends::cpp_bin_float<unsigned(BitCount),
-                                                             boost::multiprecision::backends::digit_base_2>
-      floating_point_backend_type;
+        typedef boost::multiprecision::backends::cpp_bin_float<unsigned(BitCount),
+                                                               boost::multiprecision::backends::digit_base_2>
+        floating_point_backend_type;
 
       #endif
 
