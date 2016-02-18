@@ -48,7 +48,7 @@
   template<typename NumericType>
   NumericType calculate_pi()
   {
-    // Use a quadratically converging Gauss-AGM method for computing pi.
+    // Use a quadratically converging Gauss-AGM method to compute pi.
 
     using std::fabs;
     using std::ldexp;
@@ -83,7 +83,7 @@
 
       s += iterate_term;
 
-      const bool minimum_number_of_iterations_is_complete = (k > UINT8_C(3));
+      const bool minimum_number_of_iterations_is_complete = (k > UINT8_C(4));
 
       if((minimum_number_of_iterations_is_complete) && (fabs(iterate_term) <= tolerance))
       {
