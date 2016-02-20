@@ -17,7 +17,7 @@ path-constant images_location : html ; # libs/fixed_point/doc
 path-constant here : . ; # libs/fixed_point/doc
 path-constant parent : .. ;  # libs.fixed_point
 path-constant boost-images : ../../../doc/src/images ;
-path-constant images_location : ../doc ; # location of SVG and PNG images referenced by Quickbook.
+path-constant images_location : ../example ; # location of SVG and PNG images referenced by Quickbook.
 # http://docbook.sourceforge.net/release/xsl/1.77.1/doc/html/img.src.path.html
 # relative to /doc ?
 
@@ -54,8 +54,8 @@ else
 }
 
 doxygen autodoc
-  :
-   [ glob ../include/boost/fixed_point/fixed_point.hpp ] # These are your hpp header include files.
+  : # These are your hpp header include files.
+   [ glob ../include/boost/fixed_point/fixed_point.hpp ] # Include especially for the option macro definitions.
    [ glob ../include/boost/fixed_point/fixed_point_negatable.hpp ]
    [ glob ../include/boost/fixed_point/fixed_point_round.hpp ]
    [ glob ../include/boost/fixed_point/fixed_point_overflow.hpp ]
@@ -63,6 +63,8 @@ doxygen autodoc
    [ glob ../include/boost/fixed_point/fixed_point_negatable_cmath.hpp ]
 
    # No longer implemented [ glob ../include/boost/fixed_point/fixed_point_nonnegative.hpp ]
+
+   # Warning - ensure that the same files are scanned for the index (unless intended otherwise).
 
 
     # [ glob $(here)/../include/boost/fixed_point/*.hpp ]
@@ -82,6 +84,9 @@ doxygen autodoc
     <doxygen:param>RECURSIVE=YES
     <doxygen:param>ENABLE_PREPROCESSING=YES
     <doxygen:param>EXPAND_ONLY_PREDEF=YES
+    <doxygen:param>PREDEFINED=BOOST_DOXYGEN_GENERATION
+    #  All BOOST_FIXED_POINT_ optional macros are inside ifdef BOOST_DOXYGEN_GENERATION
+    # This ensures that they are processed and indexed by Doxygen.
     <doxygen:param>EXTRACT_ALL=YES
     <doxygen:param>EXTRACT_PRIVATE=YES
     <doxygen:param>HIDE_UNDOC_MEMBERS=NO
@@ -187,6 +192,7 @@ boostbook standalone
 
 # Copy and rename to fixed_point.pdf the generated pdf called fixed_point.auto_index.pdf
 # from \modular-boost\bin.v2\libs\fixed_point\doc\455e2f403de9f0fcee2d24dc44229719
+# or other with different hash if not using auto_index
 install pdfinstall : standalone : <location>. <install-type>PDF <name>fixed_point.pdf ;
 # Only copy pdf if called with b2 pdf (not the default html).
 explicit pdfinstall ;

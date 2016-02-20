@@ -19,48 +19,41 @@
 
 BOOST_AUTO_TEST_CASE(test_negatable_func_nextafter_big)
 {
-  typedef boost::fixed_point::negatable<7, -128> fixed_point_type;
-  typedef boost::fixed_point::detail::float32_t  float_point_type;
+  typedef boost::fixed_point::negatable<7, -120> fixed_point_type;
 
-  const fixed_point_type tol = ldexp(fixed_point_type(1), fixed_point_type::resolution + 7);
-
-  using std::ldexp;
-  using std::nextafter;
-
-  const fixed_point_type increment = ldexp(float_point_type(1), -128);
+  const fixed_point_type increment = ldexp(fixed_point_type(1), -120);
 
   // Check positive argument.
-  fixed_point_type x;
-  float_point_type y;
+  fixed_point_type x(0);
+  const fixed_point_type y = fixed_point_type(1) / 10;
 
-  x = nextafter(fixed_point_type(0), fixed_point_type(1) / 10);
-  y = +increment;
+  x = nextafter(x, y);
 
-  BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
+  BOOST_CHECK_EQUAL(x, increment);
 
   // Check negative argument.
-  x = nextafter(fixed_point_type(0), fixed_point_type(-1) / 10);
-  y = -increment;
+  x = nextafter(fixed_point_type(0), -y);
 
-  BOOST_CHECK_CLOSE_FRACTION(x, fixed_point_type(y), tol);
+  BOOST_CHECK_EQUAL(x, -increment);
 
   // Check zero argument.
   x = nextafter(fixed_point_type(0), fixed_point_type(0));
-  y = nextafter(float_point_type(0), float_point_type(0));
 
-  BOOST_CHECK_EQUAL(x, fixed_point_type(y));
   BOOST_CHECK_EQUAL(x, fixed_point_type(0));
 
   // Check identical arguments.
   x = nextafter(fixed_point_type(0.25F), fixed_point_type(0.25F));
-  y = nextafter(float_point_type(0.25F), float_point_type(0.25F));
 
-  BOOST_CHECK_EQUAL(x, fixed_point_type(y));
   BOOST_CHECK_EQUAL(x, fixed_point_type(0.25F));
 
   x = nextafter(fixed_point_type(-0.25F), fixed_point_type(-0.25F));
-  y = nextafter(float_point_type(-0.25F), float_point_type(-0.25F));
 
-  BOOST_CHECK_EQUAL(x, fixed_point_type(y));
   BOOST_CHECK_EQUAL(x, fixed_point_type(-0.25F));
+
+  // Check the prior to maximum argument.
+  x = nextafter((std::numeric_limits<fixed_point_type>::max)() - fixed_point_type(increment),
+                (std::numeric_limits<fixed_point_type>::max)());
+
+  // Check the maximum argument, returns max.
+  BOOST_CHECK_EQUAL(x, (std::numeric_limits<fixed_point_type>::max)());
 }

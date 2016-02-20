@@ -1,7 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Copyright Christopher Kormanyos 2014.
-// Copyright John Maddock 2014.
-// Copyright Paul Bristow 2014.
+//  Copyright Christopher Kormanyos 2015 - 2016.
 // Distributed under the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt
 // or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -34,17 +32,17 @@
     // for general purpose calculations of hypergeometric_0f0.
 
     NumericType term(x);
-    NumericType h0f0(1 + term);
+    NumericType h0f0(1U + term);
 
-    BOOST_CONSTEXPR_OR_CONST boost::uint32_t maximum_number_of_iterations = UINT32_C(10000);
+    BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t maximum_number_of_iterations = UINT16_C(10000);
 
     // Perform the series expansion of hypergeometric_0f0(; ; x).
-    for(boost::uint32_t n = UINT32_C(2); n < maximum_number_of_iterations; ++n)
+    for(boost::uint_fast16_t n = UINT16_C(2); n < maximum_number_of_iterations; ++n)
     {
       term *= x;
       term /= n;
 
-      const bool minimum_number_of_iterations_is_complete = (n > UINT32_C(3));
+      const bool minimum_number_of_iterations_is_complete = (n > UINT16_C(3));
 
       using std::fabs;
 
@@ -76,19 +74,19 @@
     NumericType bp(b);
 
     NumericType term(x / bp);
-    NumericType h0f1(1 + term);
+    NumericType h0f1(1U + term);
 
-    BOOST_CONSTEXPR_OR_CONST boost::uint32_t maximum_number_of_iterations = UINT32_C(10000);
+    BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t maximum_number_of_iterations = UINT16_C(10000);
 
     // Perform the series expansion of hypergeometric_0f1(; b; x).
-    for(boost::uint32_t n = UINT32_C(2); n < maximum_number_of_iterations; ++n)
+    for(boost::uint_fast16_t n = UINT16_C(2); n < maximum_number_of_iterations; ++n)
     {
       term *= x;
       term /= n;
 
       ++bp; term /= bp;
 
-      const bool minimum_number_of_iterations_is_complete = (n > UINT32_C(3));
+      const bool minimum_number_of_iterations_is_complete = (n > UINT16_C(3));
 
       using std::fabs;
 
@@ -125,12 +123,12 @@
     NumericType cp(c);
 
     NumericType term(((ap * bp) / cp) * x);
-    NumericType h2f1(1 + term);
+    NumericType h2f1(1U + term);
 
     BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t maximum_number_of_iterations = UINT16_C(10000);
 
     // Perform the series expansion of hypergeometric_2f1(a, b; c; x).
-    for(boost::uint32_t n = UINT32_C(2); n < maximum_number_of_iterations; ++n)
+    for(boost::uint_fast16_t n = UINT16_C(2); n < maximum_number_of_iterations; ++n)
     {
       term *= x;
       term /= n;
@@ -139,7 +137,7 @@
       ++cp; term /= cp;
       ++bp; term *= bp;
 
-      const bool minimum_number_of_iterations_is_complete = (n > UINT32_C(3));
+      const bool minimum_number_of_iterations_is_complete = (n > UINT16_C(3));
 
       using std::fabs;
 
@@ -170,19 +168,20 @@
     // Taylor-series-like expansions only. It is not intended
     // for general purpose calculations of (2^x).
 
-    NumericType ln_two_times_x(my_ln_two * x);
-    NumericType term          (ln_two_times_x);
-    NumericType sum           (1 + term);
+    const NumericType ln_two_times_x(my_ln_two * x);
 
-    BOOST_CONSTEXPR_OR_CONST boost::uint32_t maximum_number_of_iterations = UINT32_C(10000);
+    NumericType term(ln_two_times_x);
+    NumericType sum (1U + term);
+
+    BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t maximum_number_of_iterations = UINT16_C(10000);
 
     // Perform the series expansion of (2^x).
-    for(boost::uint32_t n = UINT32_C(2); n < maximum_number_of_iterations; ++n)
+    for(boost::uint_fast16_t n = UINT16_C(2); n < maximum_number_of_iterations; ++n)
     {
       term *= ln_two_times_x;
       term /= n;
 
-      const bool minimum_number_of_iterations_is_complete = (n > UINT32_C(3));
+      const bool minimum_number_of_iterations_is_complete = (n > UINT16_C(3));
 
       using std::fabs;
 

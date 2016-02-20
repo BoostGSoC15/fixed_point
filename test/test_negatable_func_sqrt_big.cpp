@@ -87,6 +87,6 @@ BOOST_AUTO_TEST_CASE(test_negatable_func_sqrt_big)
   // of a non-trivial calculation (in this case pi). This also
   // exercises negatable with numerous arithmetic operations.
 
-  { typedef boost::fixed_point::negatable<10, -(8191 - 10), boost::fixed_point::round::fastest>      fixed_point_type; local::test_big_sqrt_pi<fixed_point_type>(fixed_point_type::range); }
-  { typedef boost::fixed_point::negatable<10, -(8191 - 10), boost::fixed_point::round::nearest_even> fixed_point_type; local::test_big_sqrt_pi<fixed_point_type>(fixed_point_type::range); }
+  { typedef boost::fixed_point::negatable<10, -(4095 - 10), boost::fixed_point::round::fastest>      fixed_point_type; local::test_big_sqrt_pi<fixed_point_type>(fixed_point_type::range); }
+  { typedef boost::fixed_point::negatable<10, -(4095 - 10), boost::fixed_point::round::nearest_even> fixed_point_type; local::test_big_sqrt_pi<fixed_point_type>(fixed_point_type::range); }
 }

@@ -27,9 +27,6 @@
 
 #include <boost/fixed_point/fixed_point.hpp>
 
-
-
-
 //[fixed_point_type_representation_example_3
 
 template <typename T>

@@ -63,5 +63,6 @@ namespace local
 
 BOOST_AUTO_TEST_CASE(test_negatable_func_sqrt_tiny)
 {
+  { typedef boost::fixed_point::negatable<7,  -8> fixed_point_type; local::test_sqrt<fixed_point_type>(1); }
   { typedef boost::fixed_point::negatable<4, -11> fixed_point_type; local::test_sqrt<fixed_point_type>(1); }
 }

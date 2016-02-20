@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright Christopher Kormanyos 2013 - 2015.
+//  Copyright Christopher Kormanyos 2013 - 2016.
 //  Copyright Nikhar Agrawal 2015.
 //  Copyright Paul Bristow 2015.
 //  Distributed under the Boost Software License,
@@ -37,6 +37,7 @@
   {
     return ((x.data < 0) ? -x : x);
   }
+
   /*! Floor function, computes largest integer value not greater than arg.
   \sa http://en.cppreference.com/w/cpp/numeric/math/floor
   */
@@ -67,6 +68,7 @@
       return local_negatable_type(0U);
     }
   }
+
   /*! Ceiling function computes the smallest integer value not less than arg.
     \sa http://en.cppreference.com/w/cpp/numeric/math/ceil
   */
@@ -99,6 +101,7 @@
       return local_negatable_type(0U);
     }
   }
+
   /*! truncation function computes the nearest integer not greater in magnitude than arg.
   \sa  http://en.cppreference.com/w/cpp/numeric/math/trunc
   */
@@ -201,10 +204,10 @@
       return x;
     }
   }
+
   /*! Computes the fixed_point remainder of the division operation.
    \sa http://en.cppreference.com/w/cpp/numeric/math/fmod
    */
-
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> fmod(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y)
   {
@@ -232,6 +235,7 @@
 
     return fractional_part;
   }
+
   /*! Computes square root for fractional resolution < 11 bits.
   */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
@@ -253,81 +257,33 @@
       return local_negatable_type(1U);
     }
 
-    int n;
+    boost::int_fast8_t n;
 
     // Use range reduction for (x < +1/2) or (x > 1).
     if((x < ldexp(local_negatable_type(1U), -1)) || (x > 1))
     {
-      x = frexp(x, &n);
+      int nn;
+      x = frexp(x, &nn);
+      n = boost::int_fast8_t(nn);
     }
     else
     {
-      n = 0;
+      n = INT8_C(0);
     }
 
-    local_negatable_type px_numerator;
-    local_negatable_type qx_denominator;
+    // Use a polynomial approximation.
+    // sqrt(x) = approx. + 0.316913013112361600
+    //                   + 0.881555860443492657 x
+    //                   - 0.199124755623756208 x^2,
+    // in the range 1/2 <= x <= 1. These coefficients
+    // have been specifically derived for this work.
 
-    // Here we break the reduced argument range yet further in half.
-    // This results in two sub-ranges:
-    //  the *lower* half of the range with (x >= 1/2 && x < 3/4)
-    // and
-    //  the *upper* half of the range with (x >= 3/4 && x < 1).
-
-    if(x < local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0600) >> (11 + FractionalResolution))))
-    {
-      // Compute the sqrt(x) in the lower half of the range with (x >= 1/2 && x < 3/4).
-
-      // Use an order 2/1 Pade approximation at (x = 5/8) resulting in:
-      //  sqrt(x) = approx. P(x) / Q(x),
-      // where
-      //  P(x) =   0.7905694150420948330
-      //         + 1.2649110640673517328 (x - (5/8))
-      //         + 0.2529822128134703466 (x - (5/8))^2
-      // and
-      //  Q(x) =   1.0000000000000000000
-      //         + 0.8000000000000000000 (x - (5/8))
-      // in the range +1/2 <= x <= +3/4. These coefficients
-      // have been specifically derived for this work.
-
-      // Set the variable xp = x - (5/8).
-      const local_negatable_type xp = x - local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0500) >> (11 + FractionalResolution)));
-
-      px_numerator   = ((       local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0206) >> (11 + FractionalResolution)))   // 0.2529822128134703466
-                         * xp + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0A1E) >> (11 + FractionalResolution))))  // 1.2649110640673517328
-                         * xp + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0653) >> (11 + FractionalResolution)))); // 0.7905694150420948330
-
-      qx_denominator = (        local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0666) >> (11 + FractionalResolution)))   // 0.8000000000000000000
-                         * xp + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0800) >> (11 + FractionalResolution)))); // 1.0000000000000000000
-    }
-    else
-    {
-      // Compute the sqrt(x) in the upper half of the range with (x >= 3/4 && x < 1).
-
-      // Use an order 2/1 Pade approximation at (x = 7/8) resulting in:
-      //  sqrt(x) = approx. P(x) / Q(x),
-      // where
-      //  P(x) =   0.9354143466934853464
-      //         + 1.0690449676496975387 (x - (7/8))
-      //         + 0.1527207096642425055 (x - (7/8))^2
-      // and
-      //  Q(x) =   1.0000000000000000000
-      //         + 0.5714285714285714286 (x - (7/8))
-      // in the range +3/4 <= x <= +1. These coefficients
-      // have been specifically derived for this work.
-
-      // Set the variable xp = x - (7/8).
-      const local_negatable_type xp = x - local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0700) >> (11 + FractionalResolution)));
-
-      px_numerator   = ((       local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0138) >> (11 + FractionalResolution)))   // 0.2529822128134703466
-                         * xp + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x088D) >> (11 + FractionalResolution))))  // 1.2649110640673517328
-                         * xp + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x077B) >> (11 + FractionalResolution)))); // 0.7905694150420948330
-
-      qx_denominator = (        local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0492) >> (11 + FractionalResolution)))   // 0.8000000000000000000
-                         * xp + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0800) >> (11 + FractionalResolution)))); // 1.0000000000000000000
-    }
-
-    local_negatable_type result = px_numerator / qx_denominator;
+    // Perform the polynomial approximation using a coefficient
+    // expansion via the method of Horner.
+    local_negatable_type result =
+      ((    - local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0197) >> (11 + FractionalResolution)))   // 0.199124755623756208
+        * x + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x070E) >> (11 + FractionalResolution))))  // 0.881555860443492657
+        * x + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0289) >> (11 + FractionalResolution)))); // 0.316913013112361600
 
     const bool is_odd_scaling = ((boost::int_fast8_t(n) & INT8_C(1)) != INT8_C(0));
 
@@ -335,7 +291,7 @@
     // power of two. If so, either multiply with or divide by
     // the square root of 2 in order to complete the rescaling
     // of the result.
-    if(n > 0)
+    if(n > INT8_C(0))
     {
       if(is_odd_scaling)
       {
@@ -346,7 +302,7 @@
       }
 
       // Left-shift the result by 1/2 of the even factors of 2.
-      result.data <<= (n / 2);
+      result.data <<= (boost::uint_fast8_t(n) / 2U);
     }
     else if(n < 0)
     {
@@ -359,12 +315,12 @@
       }
 
       // Right-shift the result by 1/2 of the even factors of 2.
-      result.data = local_value_type(local_unsigned_small_type(result.data) >> (-n / 2));
+      result.data = local_value_type(local_unsigned_small_type(result.data) >> (boost::uint_fast8_t(-n) / 2U));
     }
 
     return result;
   }
- 
+
   /*! Computes square root for fractional resolution < 24 bits.
   */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
@@ -398,41 +354,27 @@
       n = 0;
     }
 
-    // Use an order 4 Pade approximation at (x = 3/4) resulting in:
-    //  sqrt(x) = approx. P(x) / Q(x),
-    // where
-    //  P(x) =   0.8660254037844386468
-    //         + 2.5980762113533159403 (x - 0.75)
-    //         + 2.5980762113533159403 (x - 0.75)^2
-    //         + 0.9622504486493762742 (x - 0.75)^3
-    //         + 0.0962250448649376274 (x - 0.75)^4
-    // and
-    //  Q(x) =   1.0000000000000000000
-    //         + 2.3333333333333333333 (x - 0.75)
-    //         + 1.6666666666666666667 (x - 0.75)^2
-    //         + 0.3703703703703703704 (x - 0.75)^3
-    //         + 0.0123456790123456790 (x - 0.75)^4
-    // in the range +1/2 <= x <= +1. These coefficients
+    // Use a polynomial approximation.
+    // sqrt(x) = approx. + 0.189764675205404663
+    //                   + 1.604845171653826760 x
+    //                   - 1.865642707972329001 x^2
+    //                   + 2.060890668181265139 x^3
+    //                   - 1.509236742165254034 x^4
+    //                   + 0.635575974434820733 x^5
+    //                   - 0.116197063713519560 x^6,
+    // in the range 1/2 <= x <= 1. These coefficients
     // have been specifically derived for this work.
 
-    // Set the variable xp = x - (3/4).
-    const local_negatable_type xp = x - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00C00000) >> (24 + FractionalResolution)));
-
-    const local_negatable_type px_numerator =
-      ((((       local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0018A234) >> (24 + FractionalResolution)))   // 0.0962250448649376274
-          * xp + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00F6560B) >> (24 + FractionalResolution))))  // 0.9622504486493762742
-          * xp + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x02991B85) >> (24 + FractionalResolution))))  // 2.5980762113533159403
-          * xp + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x02991B85) >> (24 + FractionalResolution))))  // 2.5980762113533159403
-          * xp + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00DDB3D7) >> (24 + FractionalResolution)))); // 0.8660254037844386468
-
-    const local_negatable_type qx_denominator =
-      ((((       local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00032916) >> (24 + FractionalResolution)))   // 0.0123456790123456790
-          * xp + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x005ED097) >> (24 + FractionalResolution))))  // 0.3703703703703703704
-          * xp + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x01AAAAAA) >> (24 + FractionalResolution))))  // 1.6666666666666666667
-          * xp + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x02555555) >> (24 + FractionalResolution))))  // 2.3333333333333333333
-          * xp + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x01000000) >> (24 + FractionalResolution)))); // 1.0000000000000000000
-
-    local_negatable_type result = px_numerator / qx_denominator;
+    // Perform the polynomial approximation using a coefficient
+    // expansion via the method of Horner.
+    local_negatable_type result =
+      ((((((    - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x001DBF17) >> (24 + FractionalResolution)))   // 0.116197063713519560
+            * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x00A2B51B) >> (24 + FractionalResolution))))  // 0.635575974434820733
+            * x - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x01825D56) >> (24 + FractionalResolution))))  // 1.509236742165254034
+            * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x020F9687) >> (24 + FractionalResolution))))  // 2.060890668181265139
+            * x - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x01DD9AC2) >> (24 + FractionalResolution))))  // 1.865642707972329001
+            * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x019AD722) >> (24 + FractionalResolution))))  // 1.604845171653826760
+            * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0030946A) >> (24 + FractionalResolution)))); // 0.189764675205404663
 
     const bool is_odd_scaling = ((boost::int_fast8_t(n) & INT8_C(1)) != INT8_C(0));
 
@@ -498,25 +440,20 @@
     int n2;
     local_negatable_type a = frexp(x, &n2);
 
-    // Get the initial estimate of the square root.
+    // Get the initial guess of the square root.
 
     // Use the reduced argument (a) in order to create an
     // estimate for the initial guess of the square root of x.
     // Here we use:
     //  sqrt(a) = approx. (a/2) + [8^(1/4) - 1]^2
     //          = approx. (a/2) + 0.4648
-    //          = approx. (a/2) + (1/2) [via naive simplification].
+    //          = approx. [(a + 1) /2] via naive simplification.
 
     // See, for example, J. F. Hart et al., Computer Approximations
     // (John Wiley and Sons, Inc., 1968), Eq. 2.4.3 on page 27.
 
-    // Compute the reduced argument (a) and divide the value
-    // of (a) once again by 2 in order to compute the first part
-    // of the initial guess.
-    a.data = local_value_type(local_unsigned_small_type(a.data) >> 1);
-
-    // Here is the addition of (1/2) to complete the initial guess.
-    a += ldexp(local_negatable_type(1U), -1);
+    // Compute the initial guess [(a + 1) /2].
+    a.data = local_value_type(local_unsigned_small_type(local_unsigned_small_type(a.data) + local_unsigned_small_type(local_unsigned_small_type(1U) << local_negatable_type::radix_split)) >> 1);
 
     // Remove the scaling from the reduced guess of the result
     // and use this as the proper initial guess of sqrt(x).
@@ -545,7 +482,7 @@
     }
 
     // Estimate the zero'th term of the iteration with [1 / (2 * result)].
-    local_negatable_type vi = local_negatable_type(1U) / (a * local_negatable_type(2U));
+    local_negatable_type vi = local_negatable_type(1U) / (a * 2U);
 
     // Compute the square root of x using coupled Newton iteration.
     // More precisely, this is the Schoenhage variation thereof.
@@ -555,14 +492,15 @@
     for(boost::uint_fast16_t i = UINT16_C(1); i <= boost::uint_fast16_t(local_negatable_type::all_bits / 2); i *= UINT16_C(2))
     {
       // Perform the next iteration of vi.
-      vi += vi * (-((a * vi) * 2U) + 1U);
+      vi += vi * (1U -((a * vi) * 2U));
 
       // Perform the next iteration of the result.
-      a += (vi * (-((a) * (a)) + x));
+      a += (vi * (x - (a * a)));
     }
 
     return a;
   }
+
   /*! Computes exponent for fractional resolution < 11 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> exp(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
@@ -811,7 +749,6 @@
   }
 
   /*! Computes natural log for fractional resolution < 24 bits. */
-
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> log(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
                                                                               typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
@@ -985,6 +922,13 @@
 
     // Consider warm-caching log(10) as a constant value.
     return log(x) / log(local_negatable_type(10));
+  }
+
+  /*! Computes log to base a. */
+  template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> loga(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> a)
+  {
+    return log(x) / log(a);
   }
 
   /*! Computes power x ^ a. */
@@ -2191,7 +2135,7 @@
     return result;
   }
 
-  /*! Computes the arc tangent of y/x using the signs of arguments to determine the correct quadrant.for any fractional resolution. 
+  /*! Computes the arc tangent of y/x using the signs of arguments to determine the correct quadrant for any fractional resolution. 
   */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> atan2(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
@@ -2296,7 +2240,7 @@
     return result;
   }
 
-  /*! Compute inverse hyperbolic cosine cosh. */
+  /*! Compute inverse hyperbolic cosine acosh. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> acosh(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
@@ -2420,7 +2364,7 @@
 
     // Shift to the right. The amount of right shift is one bit less than
     // the fractional resolution. This reserves one bit for rounding.
-    BOOST_CONSTEXPR int total_right_shift = (-FractionalResolution) - 1;
+    BOOST_CONSTEXPR int total_right_shift = (-FractionalResolution) - local_negatable_type::extra_rounding_bits;
 
     u_round = detail::right_shift_helper(u_round, total_right_shift);
 
@@ -2442,24 +2386,55 @@
                       : local_negatable_type(local_nothing(), -local_value_type(result)));
   }
 
-  /*! Returns the next representable value of from in the direction.
+  /*! Next representable value of x in the direction of y.
+    \returns Returns the next representable value of x in the direction of y.
+    \param x value whose next or prior value is required.
+    \param y direction 
+
     \sa http://en.cppreference.com/w/cpp/numeric/math/nextafter
-    \note nextafter((std::numeric_limits<>::max)(), (std::numeric_limits<>::max)()) returns (std::numeric_limits<>::max)();
+     \sa http://en.cppreference.com/w/cpp/numeric/math/nexttoward - identical to nextafter for fixed_point.
+   \sa @c fixed_next and @c fixed_prior functions.
+
+    \note 
+      @c nextafter(x, x); returns x unchanged.\n
+      \code
+        nextafter((std::numeric_limits<>::max)(), (std::numeric_limits<>::max)()) returns (std::numeric_limits<>::max)();
+        nextafter((std::numeric_limits<>::lowest)(), (std::numeric_limits<>::max)()) returns (std::numeric_limits<>::lowest)();
+      \endcode
+
+      \warning Call without a @c std:: namespace qualifier, for example:
+      \code
+        fixed_point_type_7m8 x = static_cast<fixed_point_type_7m8>(1);
+        nextafter(x, (std::numeric_limits<fixed_point_type_7m8>::max)()); // nextafter(x, max) = 1.00391
+      \endcode
   */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> nextafter(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+    typedef typename local_negatable_type::value_type                               local_value_type;
+    typedef typename local_negatable_type::nothing                                  local_nothing;
+
+    static_assert(is_fixed_point<local_negatable_type>::value,
+                  "Error: fixed_next can only be instantiated with a fixed-point negatable type.");
 
     local_negatable_type result(x);
 
+    const local_negatable_type dx = local_negatable_type(local_nothing(), local_value_type(1));
+
     if(y > x)
     {
-      ++(result.data);
+      if(x < (std::numeric_limits<local_negatable_type>::max)())
+      {
+        result += dx;
+      }
     }
     else if(y < x)
     {
-      --(result.data);
+      if(x > std::numeric_limits<local_negatable_type>::lowest())
+      {
+        result -= dx;
+      }
     }
 
     return result;
