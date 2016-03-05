@@ -22,9 +22,16 @@ namespace local
   {
     const T Z(-ZM);
 
-    // C
-    // C INITIALIZATION :
-    // C
+    // Implement a rational approximation of hypergeometric_1f1.
+    // This C++11 code uses the computational scheme shown in
+    // Y.L. Luke, "Algorithms for the Comuptation of Mathematical
+    // Functions", Academic Press, New York, 1977.
+    // In particular, see pages 182-191 and the subroutine R1F1
+    // on page 188.
+
+    // Luke: C
+    // Luke: C INITIALIZATION :
+    // Luke: C
 
     const T Z2(Z / 2U);
 
@@ -56,16 +63,16 @@ namespace local
 
     std::array<T, 3U> G;
 
-    // C
-    // C FOR I=3,...,N , THE VALUES A(I) AND B(I) ARE CALCULATED
-    // C USING THE RECURRENCE RELATIONS BELOW.
-    // C
+    // Luke: C
+    // Luke: C FOR I=3,...,N , THE VALUES A(I) AND B(I) ARE CALCULATED
+    // Luke: C USING THE RECURRENCE RELATIONS BELOW.
+    // Luke: C
 
     for(std::uint_fast32_t I = UINT32_C(0); I < UINT32_C(10000); ++I)
     {
-      // C
-      // C CALCULATION OF THE MULTIPLIERS FOR THE RECURSION
-      // C
+      // Luke: C
+      // Luke: C CALCULATION OF THE MULTIPLIERS FOR THE RECURSION
+      // Luke: C
 
       // Use simplification with computer algebra to reduce
       // the total work of each recursion cycle from:
@@ -80,9 +87,9 @@ namespace local
       G[1U] = CT2 * ((CP - N[1U]) + (((AP + N[0U]) / (CT1 + 2U)) * Z2));
       G[2U] = ((CT2 * (AP - N[2U])) * ((AP + N[2U]) * (Z2 * Z2))) / (((-2 + CT1) * CT1) * (CP + N[3U]));
 
-      // C -----------------------------------------------------------------
-      // C THE RECURRENCE RELATIONS FOR A(I) and B(I) ARE AS FOLLOWS
-      // C -----------------------------------------------------------------
+      // Luke: C -----------------------------------------------------------------
+      // Luke: C THE RECURRENCE RELATIONS FOR A(I) and B(I) ARE AS FOLLOWS
+      // Luke: C -----------------------------------------------------------------
 
       A[3U] = std::inner_product(G.crbegin(), G.crend(), A.cbegin(), T(0U));
       B[3U] = std::inner_product(G.crbegin(), G.crend(), B.cbegin(), T(0U));
@@ -149,8 +156,7 @@ int main()
             << std::endl;
 }
 
-// N[Hypergeometric1F1[2/3, 4/3, 3/4], 201]
+// hypergeometric_1f1(2/3, 4/3, 3/4), 201 digits =
 // 1.
 // 4991930515778888543079258677532180757234203823472481377362611777475646096590011211954363123411075368
 // 0846286096787492391924270574347303971306083345949356025777566612176061307448157944520069800535171068
-// (201 digits)
