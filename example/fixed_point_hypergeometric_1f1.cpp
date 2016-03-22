@@ -26,12 +26,10 @@ namespace local
     // This C++11 code uses the computational scheme shown in
     // Y.L. Luke, "Algorithms for the Comuptation of Mathematical
     // Functions", Academic Press, New York, 1977.
-    // In particular, see pages 182-191 and the subroutine R1F1
-    // on page 188.
 
-    // Luke: C
-    // Luke: C INITIALIZATION :
-    // Luke: C
+    // C
+    // C INITIALIZATION :
+    // C
 
     const T Z2(Z / 2U);
 
@@ -63,16 +61,16 @@ namespace local
 
     std::array<T, 3U> G;
 
-    // Luke: C
-    // Luke: C FOR I=3,...,N , THE VALUES A(I) AND B(I) ARE CALCULATED
-    // Luke: C USING THE RECURRENCE RELATIONS BELOW.
-    // Luke: C
+    // C
+    // C FOR I=3,...,N , THE VALUES A(I) AND B(I) ARE CALCULATED
+    // C USING THE RECURRENCE RELATIONS BELOW.
+    // C
 
     for(std::uint_fast32_t I = UINT32_C(0); I < UINT32_C(10000); ++I)
     {
-      // Luke: C
-      // Luke: C CALCULATION OF THE MULTIPLIERS FOR THE RECURSION
-      // Luke: C
+      // C
+      // C CALCULATION OF THE MULTIPLIERS FOR THE RECURSION
+      // C
 
       // Use simplification with computer algebra to reduce
       // the total work of each recursion cycle from:
@@ -87,18 +85,24 @@ namespace local
       G[1U] = CT2 * ((CP - N[1U]) + (((AP + N[0U]) / (CT1 + 2U)) * Z2));
       G[2U] = ((CT2 * (AP - N[2U])) * ((AP + N[2U]) * (Z2 * Z2))) / (((-2 + CT1) * CT1) * (CP + N[3U]));
 
-      // Luke: C -----------------------------------------------------------------
-      // Luke: C THE RECURRENCE RELATIONS FOR A(I) and B(I) ARE AS FOLLOWS
-      // Luke: C -----------------------------------------------------------------
+      // C -----------------------------------------------------------------
+      // C THE RECURRENCE RELATIONS FOR A(I) and B(I) ARE AS FOLLOWS
+      // C -----------------------------------------------------------------
 
       A[3U] = std::inner_product(G.crbegin(), G.crend(), A.cbegin(), T(0U));
       B[3U] = std::inner_product(G.crbegin(), G.crend(), B.cbegin(), T(0U));
 
       // Check if the iteration difference (delta) is within
       // tolerance and break from the recursion if it is.
-      const T delta = (A[3U] / B[3U]) - (A[2U] / B[2U]);
+      // Here we analyze the difference between this iteration
+      // and the previous iteration using:
+      // [(A3/B3) - (A2/B2)] / (A3/B3) = 1 - [(A2*B3)/(A3*B2)].
 
       using std::fabs;
+
+      const T ratio = (A[2U] * B[3U]) / (A[3U] * B[2U]);
+      const T delta = 1U - fabs(ratio);
+
       if((I > UINT32_C(4)) && (fabs(delta) < std::numeric_limits<T>::epsilon()))
       {
         break;
@@ -145,18 +149,17 @@ T hypergeometric_1f1(const T& a, const T& b, const T& z)
 
 int main()
 {
-  typedef boost::fixed_point::negatable<25, -230> numeric_type;
+  typedef boost::fixed_point::negatable<25, -230> fixed_point_type;
 
-  const numeric_type a(numeric_type(2U) / 3U);
-  const numeric_type b(numeric_type(4U) / 3U);
-  const numeric_type z(numeric_type(3U) / 4U);
+  const fixed_point_type a(fixed_point_type(2U) / 3U);
+  const fixed_point_type b(fixed_point_type(4U) / 3U);
+  const fixed_point_type z(fixed_point_type(3U) / 4U);
 
-  std::cout << std::setprecision(std::numeric_limits<numeric_type>::digits10)
+  std::cout << std::setprecision((-fixed_point_type::resolution * 301L) / 1000L)
             << hypergeometric_1f1(a, b, z)
             << std::endl;
 }
 
-// hypergeometric_1f1(2/3, 4/3, 3/4), 201 digits =
+// hypergeometric_1f1(2/3, 4/3, 3/4), 69 digits =
 // 1.
-// 4991930515778888543079258677532180757234203823472481377362611777475646096590011211954363123411075368
-// 0846286096787492391924270574347303971306083345949356025777566612176061307448157944520069800535171068
+// 49919305157788885430792586775321807572342038234724813773626117774756
