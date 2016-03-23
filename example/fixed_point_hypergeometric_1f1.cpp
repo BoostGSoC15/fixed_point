@@ -95,15 +95,15 @@ namespace local
       // Check if the iteration difference (delta) is within
       // tolerance and break from the recursion if it is.
       // Here we analyze the difference between this iteration
-      // and the previous iteration using:
+      // result and the previous iteration result using:
       // [(A3/B3) - (A2/B2)] / (A3/B3) = 1 - [(A2*B3)/(A3*B2)].
 
       using std::fabs;
 
       const T ratio = (A[2U] * B[3U]) / (A[3U] * B[2U]);
-      const T delta = 1U - fabs(ratio);
+      const T delta = fabs(1U - fabs(ratio));
 
-      if((I > UINT32_C(4)) && (fabs(delta) < std::numeric_limits<T>::epsilon()))
+      if((I > UINT32_C(4)) && (delta < std::numeric_limits<T>::epsilon()))
       {
         break;
       }
@@ -151,15 +151,16 @@ int main()
 {
   typedef boost::fixed_point::negatable<25, -230> fixed_point_type;
 
+  BOOST_CONSTEXPR std::streamsize fixed_point_resolution_digits10 = std::streamsize((long(-fixed_point_type::resolution) * 301L) / 1000L);
+
   const fixed_point_type a(fixed_point_type(2U) / 3U);
   const fixed_point_type b(fixed_point_type(4U) / 3U);
   const fixed_point_type z(fixed_point_type(3U) / 4U);
 
-  std::cout << std::setprecision((-fixed_point_type::resolution * 301L) / 1000L)
+  std::cout << std::setprecision(fixed_point_resolution_digits10)
             << hypergeometric_1f1(a, b, z)
             << std::endl;
 }
 
-// hypergeometric_1f1(2/3, 4/3, 3/4), 69 digits =
-// 1.
-// 49919305157788885430792586775321807572342038234724813773626117774756
+// hypergeometric_1f1(2/3, 4/3, 3/4) = approx.
+// 1.49919305157788885430792586775321807572342038234724813773626117774756
