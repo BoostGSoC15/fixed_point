@@ -1036,7 +1036,7 @@
 
        example:
 
-       \code 
+       \code
          typedef negatable<7, -8> fixed_point_type_7m8; // 16-bit even split.
          fixed_point_type_7m8 x = 1;
          fixed_point_type_7m8 xp = fixed_prior(x);
@@ -1305,7 +1305,10 @@
 
     /*! Compute the maximum value that the type can represent.\n
         Used to define function @c std::numeric_limits<>::max().\n
-        For example, @c negatable<0, -7> xmax((std::numeric_limits<negatable<0, -7>>::max)()); == 0.9922\n
+        For example,
+        \code
+          negatable<0, -7> xmax((std::numeric_limits<negatable<0, -7>>::max)()); == 0.9922
+        \endcode
         Bit pattern 11...111
     */
     BOOST_STATIC_CONSTEXPR negatable value_max() BOOST_NOEXCEPT
@@ -2033,7 +2036,7 @@
     Example: \code std::numeric_limits<negatable<7,-8>>::is_signed == true \endcode
 
     \note Use @c std::numeric_limits<T>::is_signed to test
-    if type @c T is a signed fixed_point type like @c negatable\n
+    if type @c T is a signed fixed_point type like @c negatable
     rather than an unsigned fixed point type like @c nonnegative.
 
     Example: \code std::numeric_limits<negatable<7,-8> >::is_signed == true \endcode

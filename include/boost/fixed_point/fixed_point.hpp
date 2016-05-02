@@ -18,16 +18,16 @@
  proposed specified fixed-point types,
  and explain macros that may be optionally defined.
 
- \detail
+ \details
    There is optional support for certain variations of fixed_point
    using preprocessor definitions. Not all of these are supported
    at the moment. The potential options include:
 
-   Is supported now  : #define BOOST_FIXED_POINT_DISABLE_IOSTREAM\n
-   Is supported now  : #define BOOST_FIXED_POINT_DISABLE_MULTIPRECISION\n
-   Not yet supported : #define BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH\n
-   Not yet supported : #define BOOST_FIXED_POINT_DISABLE_CPP11\n
-   Is now supported  : #define BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS\n
+   Is supported now  : \#define BOOST_FIXED_POINT_DISABLE_IOSTREAM\n
+   Is supported now  : \#define BOOST_FIXED_POINT_DISABLE_MULTIPRECISION\n
+   Not yet supported : \#define BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH\n
+   Not yet supported : \#define BOOST_FIXED_POINT_DISABLE_CPP11\n
+   Is now supported  : \#define BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS\n
 */
 
 #ifndef FIXED_POINT_2015_03_06_HPP_

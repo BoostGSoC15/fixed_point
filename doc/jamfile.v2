@@ -1,3 +1,5 @@
+# jamfile.v2 to create fixed_point documentation.
+
 # Copyright Paul A. Bristow 2015.
 
 # Use, modification, and distribution are subject to the
@@ -69,17 +71,25 @@ doxygen autodoc
 
     # [ glob $(here)/../include/boost/fixed_point/*.hpp ]
     # [ glob $(here)/../include/boost/fixed_point/detail/fixed_point/*.hpp ]
+  :
     # Hide implementation/detail for now.
     # but could also include this and switch Boost.Fixed-point C++ reference info
     # to include implementation/detail or not using Doxygen macro DETAIL.
     # See http://www.stack.nl/~dimitri/doxygen/manual/commands.html#cmdcond
     # and http://www.stack.nl/~dimitri/doxygen/manual/config.html#cfg_enabled_sections
     # by adding this line below with other Doxygen parameters
-    #     <doxygen:param>ENABLED_SECTIONS="DETAIL"
+    #<doxygen:param>ENABLED_SECTIONS="DETAIL"
     #  Or setting this macro value ENABLED_SECTIONS="DETAIL"
     # in /doxygen/doxyfile.txt for Standalone Doxygen documentaation.
     # This might be useful for maintainers.
-  :
+    # By default, no Doxygen comments in namespace detail are passed to the Boostbook.
+    # See modular-boost\tools\boostbook\xsl\doxygen\doxygen2boostbook.xsl
+    #  <!-- The namespace used to identify code that should not be  processed at all. -->
+    # To override this and allow use of the more flexible, (but more work)
+    # Doxygen /cond Macro .../endcond mechanism in namespace detail
+    # enable this line:
+    <xsl:param>boost.doxygen.detailns=dont-ignore-detail-namespace
+
     <doxygen:param>PROJECT_NAME="Fixed_point"
     <doxygen:param>RECURSIVE=YES
     <doxygen:param>ENABLE_PREPROCESSING=YES
@@ -101,7 +111,7 @@ doxygen autodoc
     # then doxygen will generate warnings for all undocumented members.
     <doxygen:param>WARN_IF_DOC_ERROR=YES # If WARN_IF_DOC_ERROR is set to YES,
     # Doxygen will generate warnings for potential errors in the documentation.
-    <doxygen:param>WARN_LOGFILE=AutoDoxywarnings.log # This may not be empty (usually not a good sign!), depending on options chosen.
+    <doxygen:param>WARN_LOGFILE=autodoxywarnings.log # This may not be empty (usually not a good sign!), depending on options chosen.
     # Much better to send message to a logfile than the default stderr.
     # and make sure that there are no Doxygen errors or significant warnings in the log file.
 

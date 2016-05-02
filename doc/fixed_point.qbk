@@ -1802,6 +1802,8 @@ bandwidth, storage, and electrical power, John L. Gustafson, AMD.
 
 #[@https://github.com/WG21-SG14/SG14/blob/master/Docs/Proposals/Fixed_Point_Library_Proposal.md Fixed-point library proposal John MacFarlane]
 
+#[@http://www.intel.com/content/dam/www/public/us/en/documents/white-papers/ia-32-ia-64-benchmark-code-execution-paper.pdf Intel How to benchmark IA-32 and IA-64]
+
 [/todo Need more background references?]
 
 #[@https://gcc.gnu.org/wiki/Ieee128PowerPC#Transition 128 bit Float on GCC (especially on PowerPC)]
