@@ -79,7 +79,7 @@
 [def __boost_math_constants [@http://www.boost.org/doc/libs/release/libs/math/doc/html/math_toolkit/constants.html Boost.Math constants]]
 [def __multiprecision_limits_table [@http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/tut/limits/limits32.html Numeric limits for a 32-bit platform]]
 [def __float_distance [@boost:/libs/math/doc/html/math_toolkit/next_float/float_distance.html Boost.Math float_distance]]
-[def __ulp [@http://en.wikipedia.org/wiki/Unit_in_the_last_place  Unit in the last place (ULP)]]
+[def __ULP [@http://en.wikipedia.org/wiki/Unit_in_the_last_place  Unit in the last place (ULP)]]
 [def __SSE2 [@http://en.wikipedia.org/wiki/SSE2 SSE2 instructions]]
 [def __WolframAlpha [@http://www.wolframalpha.com/ Wolfram Alpha]]
 [def __ARM_architecture  [@https://en.wikipedia.org/wiki/ARM_architecture ARM architecture]]
@@ -345,7 +345,7 @@ even more for implanted devices having inconvenient battery charges and changes.
 * Storing many floating-point values takes up more memory than would be possible using `fixed_point`.
 Memory is cheap, but using less memory can speed data transfer and reduce cache misses.
 So if an entire array of data can be stored as a `negatable`
-using a small integral type ,`byte` or `short int`, in a very fast memory cache,
+using a small integral type, `byte` or `short int`, in a very fast memory cache,
 it might be processed more quickly.
 
 * If a resolution greater than `double` (usually 64-bit) is required, `fixed_point` may well prove faster.[br]
@@ -430,9 +430,7 @@ from the Doxygen-syntax comments in the header and source files).
 
 See __howtouse for more hints on how to find what you are looking for.
 
-An overview of some features, notes,  warnings and tips follow.
-
-[endsect] [/section:synposis Synposis]
+[endsect] [/section:synopsis Synopsis]
 
 [section:examples Examples]
 
@@ -488,7 +486,7 @@ and the exponent parts using the using __cmath function __frexp,
 and alter the exponent using __ldexp.
 
 Of course, other __cmath functions such as trigonometric, exponential, logarithmic, etc.
-(`#include <cmath>`) are available. Thus the user can simply call, for example,
+(`#include <cmath>`) are available. Thus the user can (and should) simply call, for example,
 `sqrt(negatable)` without requiring any namespace decoration.
 
 [numeric_limits_output_2]
@@ -610,6 +608,29 @@ Full code (including showing some output) is at [@../../example/fixed_point_bern
 [warning This example requires VS 14.0 or GCC 5.1.0 to compile, and takes some time to compute.]
 
 [endsect] [/section:bernoulli_numbers Example of computing Bernoulli numbers]
+
+[section:hypergeometric Example of computing hypergeometric_1f1 function]
+
+This example shows computation of the
+[@https://reference.wolfram.com/language/ref/Hypergeometric1F1.html hypergeometric 1F1 function]
+using a high precision and high range fixed_point type.
+The rational approximation, similar to that of
+[@https://books.google.co.uk/books?id=huuO6mKbVoEC&pg=PA115&lpg=PA115&dq=hypergeometric+1f1+function+luke&source=bl&ots=ZrN4BMe1f5&sig=qrKJkSwa_YrdrEf6172WPgq1pJI&hl=en&sa=X&ved=0ahUKEwjBmLGNqbvMAhVKIMAKHdl9AkoQ6AEIIzAA
+Y.L. Luke, "Algorithms for the Computation of Mathematical Functions", Academic Press, New York, 1977],
+is used to computer hypergeometric_1f1(2/3, 4/3, -3/4) .
+
+[@http://www.wolframalpha.com/input/?i=Hypergeometric1f1%5B2%2F3,4%2F3,-3%2F4%5D  Wolfram Alpha Hypergeometric1f1[2/3,4/3,-3/4]]
+estimates  0.7081686536671296176070489154441892975263864254728...
+
+Using fixed_point this example take a mere 2.3 sec to approximate with a precision of 963 decimal digits.
+
+See also [@https://en.wikipedia.org/wiki/Hypergeometric_function hypergeometric function].
+
+Full code is at [@../../example/fixed_point_hypergeometric_1f1.cpp fixed_point_hypergeometric_1f1.cpp].
+
+
+[endsect] [/section:hypergeometric Example of computing hypergeometric_1f1 function]
+
 
 [endsect] [/section:examples Examples]
 
@@ -1564,12 +1585,13 @@ To find what you are looking for try:
 
 [section:map Roadmap]
 
-[h4 1.?]
+[h4 0.5]
 
-* First Release.
 [h4 Post review changes]
 
 [h4 Pre-review history]
+
+* First Release to public view for comments May 2016 [@https://github.com/BoostGSoC15/fixed_point/tree/develop].
 
 [h4 Pre-Review Comments]
 
@@ -1771,9 +1793,9 @@ __CMK_realtime, ISBN 978-3-642-34688-0,  2013,
 
 #[@http://krashan.ppa.pl/articles/stringtofloat/index.html  String To Floating Point Number Conversion] [br]
 atof(), strtod() -  how they work, and how you can write your own ones,
-Grzegorz Kraszewski
+Grzegorz Kraszewski.
 
-#[@http://krashan.ppa.pl/articles/stringtofloat/atof.html atof() float C code] by Grzegorz Kraszewski
+#[@http://krashan.ppa.pl/articles/stringtofloat/atof.html atof() float C code] by Grzegorz Kraszewski.
 
 # [@http://www.drdobbs.com/cpp/optimizing-math-intensive-applications-w/207000448
 Optimizing Math-Intensive Applications with Fixed-Point Arithmetic], Anthony Williams,  Dr Dobbs March 2008.

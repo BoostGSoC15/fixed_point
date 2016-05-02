@@ -23,7 +23,7 @@ namespace local
   {
     // Implement a rational approximation of hypergeometric_1f1.
     // This C++11 code uses a computational scheme similar to
-    // one shown in Y.L. Luke, "Algorithms for the Comuptation
+    // one shown in Y.L. Luke, "Algorithms for the Computation
     // of Mathematical Functions", Academic Press, New York, 1977.
 
     const T Z(-ZM);
@@ -222,7 +222,8 @@ int main()
             << std::endl
             << "Run time:     "
             << std::setprecision(3)
-            << elapsed
+            << elapsed << " sec, "
+            << " showing " << std::streamsize(fixed_point_resolution_digits10) << " decimal digits."
             << std::endl;
 }
 
