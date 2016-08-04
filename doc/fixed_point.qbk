@@ -101,7 +101,7 @@
 [def __quad_format [@https://en.wikipedia.org/wiki/Quadruple-precision_floating-point_format 128-bit quad format]]
 [def __n1169 [@http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1169.pdf C extensions to support embedded processors N1169]]
 [def __n3352 [@http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html C++ Binary Fixed-Point Arithmetic N3352]]
-[def __CMK_realtime [@http://dx.doi.org/DOI:10.1007/978-3-642-34688-0 Real-Time C++, C M Kormanyos]]
+[def __CMK_realtime [@http://link.springer.com/book/10.1007/978-3-662-47810-3 Real-Time C++, C M Kormanyos]]
 [def __normalization [@https://en.wikibooks.org/wiki/Floating_Point/Normalization normalization]]
 [/See https://en.wikipedia.org/wiki/Digital_object_identifier Note B on specifying links to DOI.  http://dx.doi.org/DOI seems to work best.]
 [def __NaN [@https://en.wikipedia.org/wiki/NaN NaN]]
@@ -206,8 +206,8 @@ value that has a fixed number of integral range digits before the binary point,
 and another fixed number of fractional resolution digits after the point.
 
 The integral value can use a __fundamental_types integral type from `signed char` to `long long`,
-additional types like `__int64` or `__int128`, and, if these are too small, then
-a multiprecision integer from __multiprecision, (perhaps internally using __GMP and __gmp_float).
+additional types like `int64_t` or `int128_t`, and, if these are too small, then
+a multiprecision integer from __multiprecision (perhaps internally using __GMP and __gmp_float).
 
 Proposal __n3352 specifies four different types of fixed-point representations:
 `cardinal`, `integral`, `nonnegative` and `negatable`.[br]
@@ -232,13 +232,13 @@ The __Q_format is often used to specify the number of bits used for range and re
 
 Consider, for example, a Q15.16 representation of negatable. It has one sign bit,
 15 integral range bits and 16 fractional resolution bits.
-This format fits neatly into a 32-bit two's complement signed integer,
+This format fits neatly into a 32-bit two's complement signed integer (`int32_t`),
 [/Giving a total spread of values from 1.526e-005 to 3.277e+004  in steps of 1.526e-005.]
 giving a total spread of signed values from about 0.000015 to 32770  in steps of 0.000015.[br]
 Use `boost::fixed_point::negatable<15, -16>` for a Q15.16 fixed-point type.
 
 A small Q7.8 representation has a sign bit, 7 bits of integer part before the binary point,
-and 8 bits for the fractional part that can fit into a 16-bit `short`.
+and 8 bits for the fractional part that can fit into `int16_t`.
 
 The Q7.8 represent can hold integer part values from 0 to 2[super 7] = 127,
 and fraction part from 0 to 1/2[super 8] = 1/256 = 0.00390625.
@@ -247,7 +247,7 @@ Giving a total spread of values from about 0.004 to 128 in steps of 0.004.[br]
 Use `boost::fixed_point::negatable<7, -8>` for a Q7.8 fixed-point type.
 
 A tiny byte-sized Q2.5 representation has a sign bit, 2 bits of integer part before the binary point,
-and 5 bits for the fractional part that can fit into a 8-bit `signed char`.
+and 5 bits for the fractional part that can fit into a 8-bit `int8_t`.
 
 The Q2.5 representation can hold integer part values from 0 to 2[super 2] = 4,
 and fraction part from 0 to 1/2[super 5] = 1/32 = 0.003125.
@@ -288,7 +288,7 @@ with little or no modification, a significant advantage.
 
 What the final scope of the library should be is discussed in the __rationale section.
 
-[section:why_fixed_point Why Fixed-Point (rather than Floating-point)?]
+[section:why_fixed_point Why Fixed-Point (Rather Than Floating-point)?]
 
 For most computing tasks, floating-point works extremely well.
 
@@ -315,10 +315,9 @@ when tested for values near the origin, but fails for values further out.
 
 * Fixed-point calculations can also be useful in
 cost-sensitive real-time embedded systems.
-Many microcontrollers, do not have an floating-point unit (FPU)
-or any hardware instructions
-for floating-point calculations. Typical examples
-are 8 and 16-bit __microcontroller, especially those suited
+Many microcontrollers, do not have a floating-point unit (FPU)
+or any instructions for floating-point calculations.
+Typical examples are 8 and 16-bit __microcontroller, especially those suited
 for high-volume, price-optimized applications.
 In these kinds of applications, fixed-point calculations can be
 more efficient than software-emulated floating-point calculations
@@ -366,7 +365,7 @@ in the realm of near-integral math.
 
 * Fixed-point can be sorted in linear time [*['O]]N. [/Using bigo Unicode D476 is OK for html but not PDF]
 
-[endsect] [/section:why_fixed_point Why Fixed-Point (rather than floating-point?]
+[endsect] [/section:why_fixed_point Why Fixed-Point (Rather Than floating-point?]
 
 [section:why_this_fixed_point  Why use Boost.Fixed-point?]
 
@@ -712,7 +711,7 @@ This is because this type has [*zero] bits used for the range and so the maximum
 Storing the value 1 therefore causes overflow and, in line with C/C++ norms,
 the value stored [*wraps around to -1, the lowest value], `std::numeric_limits<>::lowest()` == -1.0000.
 
-This behaviour is analogous to `int16_t`
+This behavior is analogous to that of `int16_t`
 where assigning a value that exceeds `(std::numeric_limits<short int>::max)()` (32767)
 silently causes overflow and goes negative to `std::numeric_limits<short int>::lowest()` (-32768).
 
@@ -1044,10 +1043,10 @@ is fully supported by the library.
 
 The minimal set of needs:
 
-* mixed-precision ctors.
-* mixed precision copy ctor.
-* mixed-precision global operators add, sub, mul, and div.
-* mixed-precision comparison operators.
+* Mixed-precision ctors.
+* Mixed precision copy ctor.
+* Mixed-precision global operators add, sub, mul, and div.
+* Mixed-precision comparison operators.
 
 Mixed-precision construction has been discussed in the previous section.
 
@@ -1060,16 +1059,18 @@ that need to be considered:
 
 In order to support mixed-precision arithmetic, certain design choices have been made.
 
-for instance, the result of ['(a + b)]
-returns a type having the wider resolution of the two operands
-and the range of the operand having the wider resolution.
+Consider, for instance, the result of a `negatable` binary addition ['(a + b)],
+where the operands have differing range and resolution.
+This addition returns a `negatable` type having the wider resolution of the two operands
+and a range equal to that of the operand having the wider resolution.
 
 This might be controversial,
 as some might argue that the result of ['(a + b)] should
-return the type of ['a] or the type of ['b] or a
-type having the wider of the ranges and the wider of the resolutions.
+return the type of ['a], or the type of ['b], or a
+type having the wider of the operand ranges and the wider
+of the operand resolutions.
 Mixed-precision arithmetic could potentially be implemented
-in a number of different ways. The method selected here
+in each of these different ways. The method selected here
 is simply a design choice.
 
 Mixed-precision subtraction, multiplication and division use a similar strategy.
@@ -1089,7 +1090,7 @@ and
 
 This is yet another design choice.
 
-[endsect] [/section:mixed Mixed Precision Arithmetic]
+[endsect] [/section:mixed Mixed-Precision Arithmetic]
 
 [section:constants Constants]
 [import ../example/fixed_point_constants.cpp]
@@ -1484,7 +1485,7 @@ but this would take unfeasible test times for more than about 32-bit,
 so roughly random values covering the entire range of possible binary patterns
 are used for test values instead.
 
-[note History - Random testing was used to track bugs in Microsoft Visual Studio stream
+[note History - Random testing was used to track bugs in a popular compiler's stream
 input from decimal digit strings.
 A fault was originally discovered by a user of __serialization when he found (after much debugging)
 a single value of  de-serialized data that was 1-bit different from that originally written.
