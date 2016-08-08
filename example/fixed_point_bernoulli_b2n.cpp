@@ -68,7 +68,7 @@ int main()
   std::cout.setf(std::ios::fixed);
 
   // Print the fixed-point results to the output stream.
-std::cout << std::endl << "Fixed-point results of bernoulli_b2n:" << std::endl << std::endl;
+  std::cout << std::endl << "Fixed-point results of bernoulli_b2n:" << std::endl << std::endl;
   std::copy(b2n_fixed.cbegin(),
             b2n_fixed.cend(),
             std::ostream_iterator<fixed_point_type>(std::cout, "\n"));

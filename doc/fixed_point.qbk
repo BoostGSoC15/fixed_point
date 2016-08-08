@@ -560,22 +560,34 @@ This example is also discussed in __CMK_realtime in Section 12.7 and Chapter 13]
 
 [section:mandelbrot Example of computing images of a Mandelbrot set at low and high-resolution]
 
-This example shows how the famous
+This section presents examples of calculating the famous
 [@https://en.wikipedia.org/wiki/Mandelbrot_set Mandelbrot set]
+at low and high resolution.
 
-[$../mandelbrot.jpg  [width 200px] [height 200px]]
-generated at quite low-resolution using a 32-bit integer type.
+[$./mandelbrot.jpg  [width 160px] [height 128px]]
+Shows represents a Mandelbrot set generated at quite low-resolution
+of 160x128 pixels using a 32-bit fixed-point type.
 
-Some more images are at:
+Additional images showing different areas of the Mandelbrot set
+having millions of pixels are at:
 [@../../example/mandelbrot_01_aqua_full.jpg aqua full],
 [@../../example/mandelbrot_02_yellow_top.jpg yellow top],
 [@../../example/mandelbrot_03_fuschia_swirl.jpg swirl],
 [@../../example/mandelbrot_04_black_white_seahorses.jpg  black and white seahorses].
 
-Images can be generated at higher resolution using `boost::fixed_point::negatable<16, -111>`
-(fits in 128-bit integer type. Even higher resolution is only limited by ones computer memory and patience.
+These imges have been be generated at high resolution
+using `boost::fixed_point::negatable<16, -111>`
+(fits in a 128-bit integer type).
+Even higher resolution is only limited by ones computer memory and patience
+for the long calculation time.
 
 Full code is at [@../../example/fixed_point_mandelbrot.cpp fixed_point_mandelbrot.cpp].
+The program uses Boost.Gil for graphical representation of jpeg files
+and needs to be linked with the jpeg-6b library.
+The code uses neither multithreading nor a GPU.
+Calculating the Mandelbrot iterations in the separate rows of the image,
+however, could be parallelized in a straightforward fashion,
+at the cost of using more memory.
 
 [endsect] [/section:mandelbrot Example of evaluating a Mandelbrot function at low and high-precision]
 
@@ -600,8 +612,9 @@ with an asymetrically large-integral-range (and a resolution of 280).
 
 [bernoulli_1]
 
-Outputting the numbers shows that the computed using fixed-point
-and using floating-point are identical.
+Outputting the numbers shows that the computations using fixed-point
+and using floating-point are identical. One decimal guard digit has
+been used in this example.
 
 [bernoulli_output_1]
 
