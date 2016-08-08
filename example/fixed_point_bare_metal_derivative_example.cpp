@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright Christopher Kormanyos 2015.
-//  Copyright Paul A. Bristow 2015
+//  Copyright Christopher Kormanyos 2015 - 2016.
+//  Copyright Paul A. Bristow 2015 - 2016.
 //  Distributed under the Boost Software License,
 //  Version 1.0. (See accompanying file LICENSE_1_0.txt
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -11,15 +11,28 @@
 // Caution: this file contains Quickbook markup as well as code
 // and comments: don't change any of the special comment markups!
 
-// Configure Boost.Fixed_point for a bare-metal system.
-
-// C.M. Kormanyos, Real-Time C++: Efficient Object-Oriented and
+// For additional details, see C.M. Kormanyos,
+// Real-Time C++: Efficient Object-Oriented and
 // Template Microcontroller Programming (Springer, Heidelberg, 2013).
 // in Section 12.7 and Chapter 13.
 // See http://link.springer.com/chapter/10.1007/978-3-642-34688-0_13
 
-#define BOOST_FIXED_POINT_DISABLE_MULTIPRECISION // Do not use Boost.Multiprecision.
-#define BOOST_FIXED_POINT_DISABLE_IOSTREAM       // Do not use I/O streaming.
+#define USE_BARE_METAL
+
+#include <cstdint>
+
+#if defined(USE_BARE_METAL)
+#else
+  #include <iostream>
+  #include <iomanip>
+#endif
+
+// Configure Boost.Fixed_point for a bare-metal system.
+
+#if defined(USE_BARE_METAL)
+  #define BOOST_FIXED_POINT_DISABLE_MULTIPRECISION // Do not use Boost.Multiprecision.
+  #define BOOST_FIXED_POINT_DISABLE_IOSTREAM       // Do not use I/O streaming.
+#endif
 
 #include <boost/fixed_point/fixed_point.hpp>
 
@@ -68,12 +81,14 @@ namespace mcal
 {
   namespace wdg
   {
-    void trigger()
-    {
-      // Simulate a fake watchdog trigger mechanism doing nothing here.
-    }
+    void trigger();
   }
 } // namespace mcal::wdg
+
+void mcal::wdg::trigger()
+{
+  // Simulate a fake watchdog trigger mechanism doing nothing here.
+}
 
 // Declare a global Boolean test variable.
 bool global_result_is_ok;
@@ -114,19 +129,20 @@ extern "C" int main()
   global_result_is_ok = ((d > (fixed_point_type(45) / 10)) && (d < (fixed_point_type(47) / 10)));
 //] [/fixed_point_verify]
 
-  // We can not print the fixed-point number to the output stream
-  // because I/O-streaming is disabled for fixed-point in this
-  // Boost configuration.
-
-  // But if we could print to the output stream, it might look
-  // similar to the lines below. When attempting to print to
-  // the output stream, however, we would need to add <iostream>
-  // and deactivate #define BOOST_FIXED_POINT_DISABLE_IOSTREAM.
-
-  //std::cout << std::setprecision(std::numeric_limits<fixed_point_type>::digits10)
-  //          << std::fixed
-  //          << d
-  //          << std::endl;
+  #if defined(USE_BARE_METAL)
+    // We can not print the fixed-point number to the output stream
+    // because I/O-streaming is disabled for fixed-point in this
+    // Boost configuration.
+  #else
+    // But if we could print to the output stream, it might look
+    // similar to the lines below. When attempting to print to
+    // the output stream, however, we would need to add <iostream>
+    // and deactivate #define BOOST_FIXED_POINT_DISABLE_IOSTREAM.
+    std::cout << std::setprecision(std::numeric_limits<fixed_point_type>::digits10)
+              << std::fixed
+              << d
+              << std::endl;
+  #endif
 
   // Is the result of taking the derivative of the quadratic function OK?
   if(global_result_is_ok)
@@ -136,9 +152,11 @@ extern "C" int main()
     // success of the test case.
   }
 
-  // In this bare-metal OS-less system, do not return from main().
-  for(;;)
-  {
-    mcal::wdg::trigger();
-  }
+  #if defined(USE_BARE_METAL)
+    // In this bare-metal OS-less system, do not return from main().
+    for(;;)
+    {
+      mcal::wdg::trigger();
+    }
+  #endif
 }

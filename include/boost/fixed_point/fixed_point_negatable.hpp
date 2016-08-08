@@ -698,7 +698,7 @@
       return *this;
     }
 
-    /*! Read and write access to the internal data representation.\n
+    /*! Provide read-only and read/write access to the internal data representation.\n
     */
     const value_type&  representation() const { return data; }
     const value_type& crepresentation() const { return data; }
