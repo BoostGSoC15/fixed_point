@@ -552,8 +552,7 @@ before this include
 
 Full code is at [@../../example/fixed_point_bare_metal_derivative_example.cpp  fixed_point_bare_metal_derivative_example.cpp].
 
-This example is also discussed in __CMK_realtime
-in Section 12.7 and [@http://link.springer.com/chapter/10.1007/978-3-642-34688-0_13 Chapter 13].
+This example is also discussed in __CMK_realtime in Section 12.7 and Chapter 13].
 
 [endsect] [/section:bare_derivative Example of a bare-metal fixed_point type evaluating  derivative.]
 
@@ -1278,6 +1277,19 @@ in the smaller two precision ranges. In the larger precision range,
 various calculation methods are used,
 in particular, Taylor series expansion and Newton-Raphson iteration.
 
+Note that argument reduction necessarily results in loss of precision
+because the reduction in the range bits can not compensated
+by increasing the resolution in a fixed-point type, as the
+range and resolution are fixed compile-time parameters
+(tamplate arguments).
+Consider, for example, the square root function.
+In the implementation of square root, the argument is first reduced to
+to a value between 1/2 ... 1, and the square root is subsequently calculated.
+When calculating `sqrt(101)` in `negatable<7, -24>`,
+for example, the argument reduction results in a loss
+of approximately 6-7 bits of precision.
+
+
 [endsect] [/section:cmath C math functions]
 
 [section:boostmath Using the Fixed-point Library with Boost.Math]
@@ -1361,26 +1373,30 @@ to the left.
 Benchmarks using the fixed-point negatable class have
 been performed using a variety of mathematical techniques
 Two main microcontrollers have been used for benchmarking:
-a 32-bit microcontroller clocked at 24 MHz and an
+a 32-bit microcontroller clocked at 24 MHz and a
 8-bit microcontroller clocked at 16MHz. Both of these
 microcontrollers lack a dedicated hardware FPU.
 Timing results have been obtained with a digital oscilloscope
 in combination with a standard I/O pin toggle mechanism,
 as described in Section 9.6 of __CMK_realtime.
 
-The following table shows run-times for various mathematical calculations
-for `negatable<7, -24>` and built-in single-precision floating-point.
-This benchmark has been performed with a 32-bit microcontroller without an FPU
-clocked at 24 MHz. GCC 4.8.3 built with newlib has been used.
+The following table shows run-time comparisons of `negatable<7, -24>`
+with built-in single-precision floating-point for various mathematical calculations.
+This benchmark has been performed with a 32-bit microcontroller (without FPU)
+clocked at 24 MHz. GCC 5.2.0 built with newlib for the target `arm-none-eabi`
+has been used.
 
 [table:32bit_speed Comparing speed of fixed-point and floating-point with a 8-bit microcontroller
 [[function] [run-time `negatable<7, -24>` ([mu]s)] [run-time 32-bit `float` ([mu]s)]]
-[[sqrt( 6/10) ][               6           ][            17]]
-[[sin ( 1/ 2) ][               6           ][            27]]
-[[exp ( 7/10) ][              12           ][            55]]
-[[log (13/10) ][              10           ][            55]]
-[[atan( 1/ 2) ][               5           ][            51]]
-[[d/dx[q(x)]  ][              26           ][            70]]
+[[(1/3) + (9/7) ][             0.7           ][           2.9]]
+[[(1/3) * (9/7) ][             2.0           ][           2.4]]
+[[(1/3) / (9/7) ][               6           ][             7]]
+[[sqrt( 6/10)   ][               6           ][            49]]
+[[sin ( 1/ 2)   ][               6           ][            43]]
+[[exp ( 7/10)   ][              12           ][           110]]
+[[log (13/10)   ][              10           ][           110]]
+[[atan( 1/ 2)   ][               4           ][            64]]
+[[d/dx[q(x)]    ][              27           ][            70]]
 ] [/table]
 
 In the final table entry, ['d/dx] represents the first derivative
@@ -1403,74 +1419,82 @@ and built-in 32-bit single-precision floating-point.
 
 [table:32bit_speed2 Comparing speed of fixed-point and floating-point with a 32-bit microcontroller
 [[Function] [run-time `negatable<4, -11>` ([mu]s)] [run-time 32-bit `float` ([mu]s)]]
-[[sqrt( 6/10) ][               5           ][            17]]
-[[sin ( 1/ 2) ][               3           ][            27]]
+[[sqrt( 6/10) ][             2.4           ][            49]]
+[[sin ( 1/ 2) ][             3.2           ][            43]]
 ] [/table]
 
 In this comparison, we see a significant run-time advantage for
-the fixed-point type, but at the expense of lower precision
-and reduced range as well.
+the `negatable<4, -11>` fixed-point type, but at the expense
+of lower precision. Again, the 32-bit microcontroller (without FPU)
+clocked at 24 MHz has been used with GCC 5.2.0 built with newlib
+for the target `arm-none-eabi`.
+
+
+[/h4 Results from an 8-bit microcontroller]
 
 When using a small 8-bit microcontroller, a smaller fixed-point type
 such as one fitting into a 16-bit integer can result in high performance.
 The benchmark results in the table below have been obtained with
-`negatable<4, -11>` running on an 8-bit microcontroller
-clocked at 16 MHz.
+`negatable<4, -11>` running on an 8-bit microcontroller clocked at 16 MHz.
+This benchmark has been performed with GCC 5.3.0 for the target `avr-unknown-elf`.
 
 [table:8bit_speed Comparing speed of fixed-point and floating-point with an 8-bit microcontroller
 [[function] [run-time `negatable<4, -11>` ([mu]s)] [run-time 32-bit `float` ([mu]s)]]
-[[sqrt( 6/10) ][              18           ][            31]]
-[[sin ( 1/ 2) ][              30           ][           100]]
-[[exp ( 7/10) ][              81           ][           180]]
-[[log (13/10) ][              53           ][           140]]
-[[atan( 1/ 2) ][              41           ][           150]]
-[[d/dx[q(x)]  ][             170           ][           290]]
+[[(1/3) + (9/7) ][               1           ][             8]]
+[[(1/3) * (9/7) ][               9           ][            10]]
+[[(1/3) / (9/7) ][              44           ][            31]]
+[[sqrt( 6/10)   ][              18           ][            31]]
+[[sin ( 1/ 2)   ][              36           ][           100]]
+[[exp ( 7/10)   ][              81           ][           180]]
+[[log (13/10)   ][              53           ][           140]]
+[[atan( 1/ 2)   ][              41           ][           150]]
+[[d/dx[q(x)]    ][             170           ][           290]]
 ] [/table]
 
 Another perspective on resource consumption can be obtained
 by measuring the size of the code used in a benchmark.
 
-Consider the `sqrt(1/6)` calculation performed on the 32-bit micro
+Consider the `sqrt(1/6)` calculation performed on the 32-bit microcontroller
 comparing `negatable<7, -24>` with built-in 32-bit single-precision floating-point.
 The following code sizes were obtained for this particular benchmark.
 
 [table:32bit_size Comparing code size with a 32-bit Microcontroller
 [[ Function] [`negatable<7, -24>` (byte)] [32-bit `float` (byte)]]
-[[`sqrt(6/10)`] [ 3,984 - 1,296 = 2,688 ] [ 5,328 - 1,296 = 4,032]]
-] [/table:32bit_speed 32-bit Microcontroller]
+[[`sqrt(6/10)`] [ 1,900 - 1,200 = 700 ] [ 4,400 - 1,200 = 3,200]]
+] [/table:32bit_size 32-bit Microcontroller]
 
 Here the final code consumption is shown as the result of subtraction.
 The subtracted amount arises from the code required to implement
 a minimalistic cooperative-multitasking scheduler and skinny
 hardware abstraction layer, as described in Chaps. 8, 9 and 11 in __CMK_realtime.
+In this benchmark, the code contributions from the (pre-main) startup and
+the interrupt vector table have been ignored.
 
 The code can be squeezed even further if a less wide fixed-point
 type is used. The result below shows the code size for the `sqrt(1/6)`
-calculation performed with `negatable<4, -11>` on the 32-bit micro.
+calculation performed with `negatable<4, -11>` on the 32-bit microcontroller.
 The comparison is with with built-in 32-bit single-precision floating-point.
 
 [table:32bit_size2 Comparing code size with a 32-bit Microcontroller
 [[ Function] [`negatable<4, -11>` (byte)] [32-bit `float` (byte)]]
-[[`sqrt(6/10)`] [ 2,128 - 1,296 = 832 ] [ 5,328 - 1,296 = 4,032]]
-] [/table:32bit_speed 32-bit Microcontroller]
-
-In the size benchmarks, GCC 4.8.3 has been used with optimization
-setting -O2
-(see [@https://gcc.gnu.org/onlinedocs/gcc-4.3.1/gcc/Optimize-Options.html#Optimize-Options]).
-Inline functions have been enabled with the allowed
-inline function-depth set to 32 lines using two
-compiler options `-finline-functions` and `-finline-limit=32`.
+[[`sqrt(6/10)`] [ 1,700 - 1,300 = 400 ] [ 4,400 - 1,200 = 3,200]]
+] [/table:32bit_size2 32-bit Microcontroller]
 
 It can be observed that the fixed-point calculations in these benchmarks
-require less code than the floating-point calculation. For a large fixed-point
-project, however, the resulting code size can vary significantly
-depending on the compiler's inlining characteristics and optimization
-settings. This is because the fixed-point library is template code.
+require less code than the corresponding floating-point calculations.
+For a large fixed-point project, however, the resulting code size
+can vary significantly depending on the compiler's inlining
+characteristics and optimization abilities. This is because
+the fixed-point library is template code.
 It is, therefore, a good idea to periodically check the code size
 of a fixed-point project and adjust the compiler parameters
 according to the needs of the project.
 
-[/h4 Results from an 8-bit microcontroller]
+In all of the benchmarks (for both speed measurements as well as
+size measurements), GCC has been used with optimization setting -O2
+(see [@https://gcc.gnu.org/onlinedocs/gcc-4.3.1/gcc/Optimize-Options.html#Optimize-Options]).
+Inline functions have been enabled with inline function-depth set to 32 lines
+using the two compiler options `-finline-functions` and `-finline-limit=32`.
 
 [endsect] [/section:microcontrollers Using Fixed-point with Microcontrollers]
 
@@ -1488,8 +1512,8 @@ for back-ends of the fixed-point classes.
 (Implemented).
 
 * BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH
-is defined to avoid using the unsigned_large_type in multiplication
-and division operations.
+is defined to avoid using the `unsigned_large_type` in the
+implementations of multiplication and division operations.
 This option is intended for systems with limited integer widths
 such as bare-metal microcontrollers.[br]
 When used in combination with BOOST_FIXED_POINT_DISABLE_MULTIPRECISION,
