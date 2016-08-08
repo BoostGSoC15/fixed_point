@@ -222,9 +222,11 @@ The integer part is located as more significant than the fractional part.
 This means that if there is a __carry from an addition to the fractional part,
 it simply carrys into the integer part, which means that fast integer instructions can be used.
 (There is no __normalization as required by floating-point, so all operations take a constant fixed time).
+This also means that fixed-point numbers can lose digits in subtraction
+and division operations.
 
-So fixed-point trades range and precision for consistent and (potentially) improved efficiency
-using integer-based computation.
+So fixed-point trades range and precision for consistent
+and (potentially) improved efficiency using integer-based computation.
 
 [h5 Fixed_point Q format]
 
@@ -324,7 +326,7 @@ more efficient than software-emulated floating-point calculations
 and therefore more well-suited for small 8 or 16-bit microcontrollers.
 See __efficiency for some examples.
 
-* High-performance microcontrollers often have an floating-point unit (FPU).
+* High-performance microcontrollers often have a floating-point unit (FPU).
 Deactivating the FPU and preferentially using fixed-point
 instead of floating-point can, nonetheless, be beneficial
 for certain reasons. Some project guidelines forbid the use of
@@ -380,7 +382,7 @@ A number of fixed-point libraries have been written; why would one choose this l
 * Rounding and overflow may be controlled using C++ templates.
 
 * The smallest underlying power-of-2 type
-(`int8_t`, `int16_t`, `int32_t`, `int64_t` ...)
+(`int8_t`, `int16_t`, `int32_t`, `int64_t`, ...)
 will be chosen automatically for the internal representation.
 
 * Extends to use underlying __fundamental_types types automatically.
