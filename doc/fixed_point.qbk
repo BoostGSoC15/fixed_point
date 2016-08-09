@@ -635,8 +635,8 @@ using a high precision (and high resolution) fixed_point type.
 The rational approximation, similar to that of
 [@https://books.google.co.uk/books?id=huuO6mKbVoEC&pg=PA115&lpg=PA115&dq=hypergeometric+1f1+function+luke&source=bl&ots=ZrN4BMe1f5&sig=qrKJkSwa_YrdrEf6172WPgq1pJI&hl=en&sa=X&ved=0ahUKEwjBmLGNqbvMAhVKIMAKHdl9AkoQ6AEIIzAA
 Y.L. Luke, "Algorithms for the Computation of Mathematical Functions", Academic Press, New York, 1977],
-is used to computer hypergeometric_1f1(2/3, 4/3, -3/4) .
-A recurrence relation with 4-term is computed for 340 iterations
+is used to compute hypergeometric_1f1(2/3, 4/3, -3/4).
+A 4-term recurrence relation is computed with 340 iterations
 at full precision of approximately 963 decimal digits.
 The result also has the same approximate precision of 963 decimal digits.
 
@@ -645,12 +645,18 @@ estimates  0.7081686536671296176070489154441892975263864254728...
 
 See also [@https://en.wikipedia.org/wiki/Hypergeometric_function hypergeometric function].
 
-Using fixed_point, this example takes approximately 0.16 sec.
+Using fixed_point, this example takes approximately 0.16 sec
+on a modern computer and compiler system.
 For comparison, the same calculation performed with Boost.Multiprecision's
-binary floating-point backend only requires approximately 0.12 sec.
+binary floating-point backend only requires approximately 0.12 sec
+with the same computer and compiler system.
 In this particular case, there is no significant performance
 improvement for fixed-point. In fact, there is a slight slowdown
 for fixed-point.
+
+Even though a performance improvement was not obtained in this example,
+the calculation does exercise the Boost.Fixed-point Library with
+complex algorithms at high precision.
 
 The instantiated fixed-point class in this example is:
 `boost::fixed_point::negatable<122, -3200>>`
