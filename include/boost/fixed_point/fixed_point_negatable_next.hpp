@@ -116,7 +116,7 @@
     local_negatable_type result(x);
 
     // distance may be negative.
-    result.data += distance;
+    result.representation() += distance;
 
     // TBD: What about overflow and underflow?
     return result;
@@ -158,7 +158,7 @@
     // the total range of the fixed-point type??
 
     // Note: distance may be negative.
-    const local_value_type distance = y.data - x.data;
+    const local_value_type distance = y.crepresentation() - x.crepresentation();
 
     return distance;
   } // fixed_distance

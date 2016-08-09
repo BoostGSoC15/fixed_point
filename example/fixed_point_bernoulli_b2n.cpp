@@ -156,5 +156,3 @@ Floating-point results of bernoulli_b2n:
 //] [/bernoulli_output_3]
 
 */
-
-
