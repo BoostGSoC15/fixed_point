@@ -685,7 +685,7 @@
 
     if(x < 1)
     {
-      result = ((x.crepresentation() > 0) ? -log(1 / x) : -local_negatable_type::value_max());
+      result = ((x.crepresentation() > 0) ? -log(1 / x) : -(std::numeric_limits<local_negatable_type>::max)());
     }
     else if(x > 1)
     {
@@ -762,7 +762,7 @@
 
     if(x < 1)
     {
-      result = ((x.crepresentation() > 0) ? -log(1 / x) : -local_negatable_type::value_max());
+      result = ((x.crepresentation() > 0) ? -log(1 / x) : -(std::numeric_limits<local_negatable_type>::max)());
     }
     else if(x > 1)
     {
@@ -844,7 +844,7 @@
 
     if(x < 1)
     {
-      result = ((x.crepresentation() > 0) ? -log(1 / x) : -local_negatable_type::value_max());
+      result = ((x.crepresentation() > 0) ? -log(1 / x) : -(std::numeric_limits<local_negatable_type>::max)());
     }
     else if(x > 1)
     {
@@ -1460,7 +1460,7 @@
     }
     else if(x == negatable_constants<local_negatable_type>::pi_half())
     {
-      return local_negatable_type::value_max();
+      return (std::numeric_limits<local_negatable_type>::max)();
     }
 
     // Reduce the argument to the range 0 <= x <= +pi/2.
@@ -1539,7 +1539,7 @@
     }
     else if(x == negatable_constants<local_negatable_type>::pi_half())
     {
-      return local_negatable_type::value_max();
+      return (std::numeric_limits<local_negatable_type>::max)();
     }
 
     // Reduce the argument to the range 0 <= x <= +pi/2.
@@ -1620,7 +1620,7 @@
     }
     else if(x == negatable_constants<local_negatable_type>::pi_half())
     {
-      return local_negatable_type::value_max();
+      return (std::numeric_limits<local_negatable_type>::max)();
     }
 
     // Use a relatively lazy calculation for tan(x) here.
@@ -2299,7 +2299,7 @@
     else if(x >= 1)
     {
       // Handle arguments greater than or equal to 1.
-      result = local_negatable_type::value_max();
+      result = (std::numeric_limits<local_negatable_type>::max)();
     }
     else
     {

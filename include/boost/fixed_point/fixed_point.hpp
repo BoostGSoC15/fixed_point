@@ -70,7 +70,7 @@
     #define BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH
 
     /*! \def BOOST_FIXED_POINT_DISABLE_CPP11
-    \brief This option enables support for an optional back-port to C++03 and eliminates
+    \brief This option enables support for a back-port to C++03.
     This option eliminates the use of all native C++11 language elements. This might send the
     wrong message about language technology, but could
     increase the range of potential target compilers, especially for embedded systems.
