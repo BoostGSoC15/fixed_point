@@ -29,8 +29,12 @@ int main()
 
   const fixed_point_type jv = boost::math::cyl_bessel_j(v, x);
 
-  // 0.457863092422485
-  std::cout << std::setprecision(std::numeric_limits<fixed_point_type>::digits10)
+  const int decimal_resolution = ((  std::numeric_limits<long double>::digits
+                                   - std::numeric_limits<int>::digits) * 301) / 1000;
+
+  // Calculated value: 0.457863
+  // Expected   value: 0.457857, see Wolfram Alpha with N[BesselJ[3/7, 1/4], 6]
+  std::cout << std::setprecision(decimal_resolution)
             << std::fixed
             << jv
             << std::endl;
