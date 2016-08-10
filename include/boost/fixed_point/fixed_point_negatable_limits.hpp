@@ -40,16 +40,16 @@
   public:
     BOOST_STATIC_CONSTEXPR bool                    is_specialized    = true;
     BOOST_STATIC_CONSTEXPR int                     digits            = local_negatable_type::all_bits - 1;
-    BOOST_STATIC_CONSTEXPR int                     digits10          = static_cast<int>((static_cast<boost::uintmax_t>(digits - 1) * UINTMAX_C(301)) / UINTMAX_C(1000));
-    BOOST_STATIC_CONSTEXPR int                     max_digits10      = static_cast<int>((static_cast<boost::uintmax_t>(digits - 0) * UINTMAX_C(301)) / UINTMAX_C(1000)) + 2;
+    BOOST_STATIC_CONSTEXPR int                     digits10          = static_cast<int>((static_cast<std::uintmax_t>(digits - 1) * UINTMAX_C(301)) / UINTMAX_C(1000));
+    BOOST_STATIC_CONSTEXPR int                     max_digits10      = static_cast<int>((static_cast<std::uintmax_t>(digits - 0) * UINTMAX_C(301)) / UINTMAX_C(1000)) + 2;
     BOOST_STATIC_CONSTEXPR bool                    is_signed         = true;
     BOOST_STATIC_CONSTEXPR bool                    is_integer        = false;
     BOOST_STATIC_CONSTEXPR bool                    is_exact          = false;
     BOOST_STATIC_CONSTEXPR int                     radix             = 2;
     BOOST_STATIC_CONSTEXPR int                     min_exponent      = -local_negatable_type::radix_split;
-    BOOST_STATIC_CONSTEXPR int                     min_exponent10    = -static_cast<int>((static_cast<boost::uintmax_t>(-min_exponent) * UINTMAX_C(301)) / UINTMAX_C(1000));
+    BOOST_STATIC_CONSTEXPR int                     min_exponent10    = -static_cast<int>((static_cast<std::uintmax_t>(-min_exponent) * UINTMAX_C(301)) / UINTMAX_C(1000));
     BOOST_STATIC_CONSTEXPR int                     max_exponent      = digits - local_negatable_type::radix_split;
-    BOOST_STATIC_CONSTEXPR int                     max_exponent10    = +static_cast<int>((static_cast<boost::uintmax_t>(+max_exponent) * UINTMAX_C(301)) / UINTMAX_C(1000));
+    BOOST_STATIC_CONSTEXPR int                     max_exponent10    = +static_cast<int>((static_cast<std::uintmax_t>(+max_exponent) * UINTMAX_C(301)) / UINTMAX_C(1000));
     BOOST_STATIC_CONSTEXPR bool                    has_infinity      = false;
     BOOST_STATIC_CONSTEXPR bool                    has_quiet_NaN     = false;
     BOOST_STATIC_CONSTEXPR bool                    has_signaling_NaN = false;
@@ -110,16 +110,16 @@
   public:
     BOOST_STATIC_CONSTEXPR bool                    is_specialized    = true;
     BOOST_STATIC_CONSTEXPR int                     digits            = local_negatable_type::all_bits - 1;
-    BOOST_STATIC_CONSTEXPR int                     digits10          = static_cast<int>((static_cast<boost::uintmax_t>(digits - 1) * UINTMAX_C(301)) / UINTMAX_C(1000));
-    BOOST_STATIC_CONSTEXPR int                     max_digits10      = static_cast<int>((static_cast<boost::uintmax_t>(digits - 0) * UINTMAX_C(301)) / UINTMAX_C(1000)) + 2;
+    BOOST_STATIC_CONSTEXPR int                     digits10          = static_cast<int>((static_cast<std::uintmax_t>(digits - 1) * UINTMAX_C(301)) / UINTMAX_C(1000));
+    BOOST_STATIC_CONSTEXPR int                     max_digits10      = static_cast<int>((static_cast<std::uintmax_t>(digits - 0) * UINTMAX_C(301)) / UINTMAX_C(1000)) + 2;
     BOOST_STATIC_CONSTEXPR bool                    is_signed         = true;
     BOOST_STATIC_CONSTEXPR bool                    is_integer        = false;
     BOOST_STATIC_CONSTEXPR bool                    is_exact          = false;
     BOOST_STATIC_CONSTEXPR int                     radix             = 2;
     BOOST_STATIC_CONSTEXPR int                     min_exponent      = -local_negatable_type::radix_split;
-    BOOST_STATIC_CONSTEXPR int                     min_exponent10    = -static_cast<int>((static_cast<boost::uintmax_t>(-min_exponent) * UINTMAX_C(301)) / UINTMAX_C(1000));
+    BOOST_STATIC_CONSTEXPR int                     min_exponent10    = -static_cast<int>((static_cast<std::uintmax_t>(-min_exponent) * UINTMAX_C(301)) / UINTMAX_C(1000));
     BOOST_STATIC_CONSTEXPR int                     max_exponent      = digits - local_negatable_type::radix_split;
-    BOOST_STATIC_CONSTEXPR int                     max_exponent10    = +static_cast<int>((static_cast<boost::uintmax_t>(+max_exponent) * UINTMAX_C(301)) / UINTMAX_C(1000));
+    BOOST_STATIC_CONSTEXPR int                     max_exponent10    = +static_cast<int>((static_cast<std::uintmax_t>(+max_exponent) * UINTMAX_C(301)) / UINTMAX_C(1000));
     BOOST_STATIC_CONSTEXPR bool                    has_infinity      = false;
     BOOST_STATIC_CONSTEXPR bool                    has_quiet_NaN     = false;
     BOOST_STATIC_CONSTEXPR bool                    has_signaling_NaN = false;

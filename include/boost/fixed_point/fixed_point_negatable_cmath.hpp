@@ -139,13 +139,13 @@
       // Extract the unsigned representation of the data field.
       local_unsigned_small_type result((!is_neg) ? local_unsigned_small_type(x.crepresentation()) : local_unsigned_small_type(-x.representation()));
 
-      boost::uint_fast16_t msb;
+      std::uint_fast16_t msb;
 
       {
         // Use a binary-halving mechanism to obtain the most significant bit.
         // This will subsequently be used for determination of the binary exponent.
-        BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t unsigned_small_digits =
-          static_cast<boost::uint_fast16_t>(std::numeric_limits<local_unsigned_small_type>::digits);
+        BOOST_CONSTEXPR_OR_CONST std::uint_fast16_t unsigned_small_digits =
+          static_cast<std::uint_fast16_t>(std::numeric_limits<local_unsigned_small_type>::digits);
 
         local_unsigned_small_type unsigned_small_mask((std::numeric_limits<local_unsigned_small_type>::max)());
 
@@ -257,14 +257,14 @@
       return local_negatable_type(1U);
     }
 
-    boost::int_fast8_t n;
+    std::int_fast8_t n;
 
     // Use range reduction for (x < +1/2) or (x > 1).
     if((x < ldexp(local_negatable_type(1U), -1)) || (x > 1))
     {
       int nn;
       x = frexp(x, &nn);
-      n = boost::int_fast8_t(nn);
+      n = std::int_fast8_t(nn);
     }
     else
     {
@@ -285,7 +285,7 @@
         * x + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x070E) >> (11 + FractionalResolution))))  // 0.881555860443492657
         * x + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0289) >> (11 + FractionalResolution)))); // 0.316913013112361600
 
-    const bool is_odd_scaling = ((boost::int_fast8_t(n) & INT8_C(1)) != INT8_C(0));
+    const bool is_odd_scaling = ((std::int_fast8_t(n) & INT8_C(1)) != INT8_C(0));
 
     // Rescale the result. In certain cases there is one extra
     // power of two. If so, either multiply with or divide by
@@ -302,7 +302,7 @@
       }
 
       // Left-shift the result by 1/2 of the even factors of 2.
-      result.representation() <<= (boost::uint_fast8_t(n) / 2U);
+      result.representation() <<= (std::uint_fast8_t(n) / 2U);
     }
     else if(n < 0)
     {
@@ -315,7 +315,7 @@
       }
 
       // Right-shift the result by 1/2 of the even factors of 2.
-      result.representation() = local_value_type(local_unsigned_small_type(result.representation()) >> (boost::uint_fast8_t(-n) / 2U));
+      result.representation() = local_value_type(local_unsigned_small_type(result.representation()) >> (std::uint_fast8_t(-n) / 2U));
     }
 
     return result;
@@ -376,7 +376,7 @@
             * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x019AD722) >> (24 + FractionalResolution))))  // 1.604845171653826760
             * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0030946A) >> (24 + FractionalResolution)))); // 0.189764675205404663
 
-    const bool is_odd_scaling = ((boost::int_fast8_t(n) & INT8_C(1)) != INT8_C(0));
+    const bool is_odd_scaling = ((std::int_fast8_t(n) & INT8_C(1)) != INT8_C(0));
 
     // Rescale the result. For n odd, there is one extra
     // factor of two in the scaling. If so, either multiply with
@@ -489,7 +489,7 @@
     // We begin with an estimate of 1 binary digit of precision and
     // double the number of binary digits of precision with each iteration.
 
-    for(boost::uint_fast16_t i = UINT16_C(1); i <= boost::uint_fast16_t(local_negatable_type::all_bits / 2); i *= UINT16_C(2))
+    for(std::uint_fast16_t i = UINT16_C(1); i <= std::uint_fast16_t(local_negatable_type::all_bits / 2); i *= UINT16_C(2))
     {
       // Perform the next iteration of vi.
       vi += vi * (1U -((a * vi) * 2U));
@@ -685,7 +685,7 @@
 
     if(x < 1)
     {
-      result = ((x.crepresentation() > 0) ? -log(1 / x) : -local_negatable_type::value_max());
+      result = ((x.crepresentation() > 0) ? -log(1 / x) : -(std::numeric_limits<local_negatable_type>::max)());
     }
     else if(x > 1)
     {
@@ -696,14 +696,14 @@
         // Use a binary-halving mechanism to obtain the most significant bit.
         // This will subsequently be used for argument reduction below.
 
-        BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t unsigned_small_digits =
-          static_cast<boost::uint_fast16_t>(std::numeric_limits<local_unsigned_small_type>::digits);
+        BOOST_CONSTEXPR_OR_CONST std::uint_fast16_t unsigned_small_digits =
+          static_cast<std::uint_fast16_t>(std::numeric_limits<local_unsigned_small_type>::digits);
 
         local_unsigned_small_type unsigned_small_mask((std::numeric_limits<local_unsigned_small_type>::max)());
 
         local_unsigned_small_type tmp = static_cast<local_unsigned_small_type>(x.crepresentation());
 
-        const boost::uint_fast16_t msb = detail::msb_helper(tmp, unsigned_small_mask, unsigned_small_digits);
+        const std::uint_fast16_t msb = detail::msb_helper(tmp, unsigned_small_mask, unsigned_small_digits);
 
         // Evaluate the necessary amount of right-shift.
         n = int(msb) - local_negatable_type::radix_split;
@@ -762,7 +762,7 @@
 
     if(x < 1)
     {
-      result = ((x.crepresentation() > 0) ? -log(1 / x) : -local_negatable_type::value_max());
+      result = ((x.crepresentation() > 0) ? -log(1 / x) : -(std::numeric_limits<local_negatable_type>::max)());
     }
     else if(x > 1)
     {
@@ -773,14 +773,14 @@
         // Use a binary-halving mechanism to obtain the most significant bit.
         // This will subsequently be used for argument reduction below.
 
-        BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t unsigned_small_digits =
-          static_cast<boost::uint_fast16_t>(std::numeric_limits<local_unsigned_small_type>::digits);
+        BOOST_CONSTEXPR_OR_CONST std::uint_fast16_t unsigned_small_digits =
+          static_cast<std::uint_fast16_t>(std::numeric_limits<local_unsigned_small_type>::digits);
 
         local_unsigned_small_type unsigned_small_mask((std::numeric_limits<local_unsigned_small_type>::max)());
 
         local_unsigned_small_type tmp = static_cast<local_unsigned_small_type>(x.crepresentation());
 
-        const boost::uint_fast16_t msb = detail::msb_helper(tmp, unsigned_small_mask, unsigned_small_digits);
+        const std::uint_fast16_t msb = detail::msb_helper(tmp, unsigned_small_mask, unsigned_small_digits);
 
         // Evaluate the necessary amount of right-shift.
         n = int(msb) - local_negatable_type::radix_split;
@@ -844,7 +844,7 @@
 
     if(x < 1)
     {
-      result = ((x.crepresentation() > 0) ? -log(1 / x) : -local_negatable_type::value_max());
+      result = ((x.crepresentation() > 0) ? -log(1 / x) : -(std::numeric_limits<local_negatable_type>::max)());
     }
     else if(x > 1)
     {
@@ -855,14 +855,14 @@
         // Use a binary-halving mechanism to obtain the most significant bit.
         // This will subsequently be used for argument reduction below.
 
-        BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t unsigned_small_digits =
-          static_cast<boost::uint_fast16_t>(std::numeric_limits<local_unsigned_small_type>::digits);
+        BOOST_CONSTEXPR_OR_CONST std::uint_fast16_t unsigned_small_digits =
+          static_cast<std::uint_fast16_t>(std::numeric_limits<local_unsigned_small_type>::digits);
 
         local_unsigned_small_type unsigned_small_mask((std::numeric_limits<local_unsigned_small_type>::max)());
 
         local_unsigned_small_type tmp = static_cast<local_unsigned_small_type>(x.crepresentation());
 
-        const boost::uint_fast16_t msb = detail::msb_helper(tmp, unsigned_small_mask, unsigned_small_digits);
+        const std::uint_fast16_t msb = detail::msb_helper(tmp, unsigned_small_mask, unsigned_small_digits);
 
         // Evaluate the necessary amount of right-shift.
         n = int(msb) - local_negatable_type::radix_split;
@@ -885,7 +885,7 @@
       }
 
       // Use Newton-Raphson iteration to compute the log(x).
-      for(boost::uint_fast16_t i = UINT16_C(1); i <= boost::uint_fast16_t(local_negatable_type::all_bits / 2); i *= UINT16_C(2))
+      for(std::uint_fast16_t i = UINT16_C(1); i <= std::uint_fast16_t(local_negatable_type::all_bits / 2); i *= UINT16_C(2))
       {
         const local_negatable_type exp_minus_log = detail::hypergeometric_0f0(-log_val);
 
@@ -1150,9 +1150,9 @@
         bool term_is_negative          = true;
         local_negatable_type sum       = term;
 
-        BOOST_CONSTEXPR_OR_CONST boost::uint32_t maximum_number_of_iterations = UINT32_C(10000);
+        BOOST_CONSTEXPR_OR_CONST std::uint32_t maximum_number_of_iterations = UINT32_C(10000);
 
-        for(boost::uint32_t k = UINT32_C(1); k < maximum_number_of_iterations; k += UINT32_C(2))
+        for(std::uint32_t k = UINT32_C(1); k < maximum_number_of_iterations; k += UINT32_C(2))
         {
           term *= x_squared;
 
@@ -1402,9 +1402,9 @@
         bool term_is_negative          = false;
         local_negatable_type sum       = 1 - term;
 
-        BOOST_CONSTEXPR_OR_CONST boost::uint32_t maximum_number_of_iterations = UINT32_C(10000);
+        BOOST_CONSTEXPR_OR_CONST std::uint32_t maximum_number_of_iterations = UINT32_C(10000);
 
-        for(boost::uint32_t k = UINT32_C(2); k < maximum_number_of_iterations; k += UINT32_C(2))
+        for(std::uint32_t k = UINT32_C(2); k < maximum_number_of_iterations; k += UINT32_C(2))
         {
           term *= x_squared;
 
@@ -1460,7 +1460,7 @@
     }
     else if(x == negatable_constants<local_negatable_type>::pi_half())
     {
-      return local_negatable_type::value_max();
+      return (std::numeric_limits<local_negatable_type>::max)();
     }
 
     // Reduce the argument to the range 0 <= x <= +pi/2.
@@ -1539,7 +1539,7 @@
     }
     else if(x == negatable_constants<local_negatable_type>::pi_half())
     {
-      return local_negatable_type::value_max();
+      return (std::numeric_limits<local_negatable_type>::max)();
     }
 
     // Reduce the argument to the range 0 <= x <= +pi/2.
@@ -1620,7 +1620,7 @@
     }
     else if(x == negatable_constants<local_negatable_type>::pi_half())
     {
-      return local_negatable_type::value_max();
+      return (std::numeric_limits<local_negatable_type>::max)();
     }
 
     // Use a relatively lazy calculation for tan(x) here.
@@ -2123,7 +2123,7 @@
 
       // Do the Newton-Raphson iteration. Start with four binary digits
       // of precision obtained from the initial guess above.
-      for(boost::uint_fast16_t i = UINT16_C(4); i <= boost::uint_fast16_t(local_negatable_type::all_bits / 2); i *= UINT16_C(2))
+      for(std::uint_fast16_t i = UINT16_C(4); i <= std::uint_fast16_t(local_negatable_type::all_bits / 2); i *= UINT16_C(2))
       {
         const local_negatable_type c = cos(result);
         const local_negatable_type s = sin(result);
@@ -2299,7 +2299,7 @@
     else if(x >= 1)
     {
       // Handle arguments greater than or equal to 1.
-      result = local_negatable_type::value_max();
+      result = (std::numeric_limits<local_negatable_type>::max)();
     }
     else
     {
@@ -2368,7 +2368,7 @@
 
     u_round = detail::right_shift_helper(u_round, total_right_shift);
 
-    const boost::int_fast8_t rounding_result = local_negatable_type::binary_round(u_round);
+    const std::int_fast8_t rounding_result = local_negatable_type::binary_round(u_round);
 
     // Round the result.
     local_unsigned_small_type result = local_unsigned_small_type(local_value_type(u_round) + rounding_result);

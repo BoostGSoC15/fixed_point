@@ -15,6 +15,8 @@
   #include <cmath>
   #include <limits>
 
+  #include <boost/config.hpp>
+
   namespace boost { namespace fixed_point { namespace detail {
 
   template<typename NumericType>
@@ -33,7 +35,7 @@
     // We begin with an estimate of 1 binary digit of precision and
     // double the number of binary digits of precision with each iteration.
 
-    for(boost::uint_fast16_t i = UINT16_C(1); i <= boost::uint_fast16_t(std::numeric_limits<NumericType>::digits); i *= UINT16_C(2))
+    for(std::uint_fast16_t i = UINT16_C(1); i <= std::uint_fast16_t(std::numeric_limits<NumericType>::digits); i *= UINT16_C(2))
     {
       // Perform the next iteration of vi.
       vi += vi * (-((a * vi) * 2U) + NumericType(1U));
@@ -70,7 +72,7 @@
 
     const NumericType tolerance = ldexp(NumericType(1U), -int((long(std::numeric_limits<NumericType>::digits) * 3L) / 4L));
 
-    for(boost::uint_least8_t k = UINT8_C(1); k < UINT8_C(32); ++k)
+    for(std::uint_least8_t k = UINT8_C(1); k < UINT8_C(32); ++k)
     {
       // Perform the iteration steps of the Gauss AGM.
 
@@ -118,7 +120,7 @@
 
     const NumericType tolerance = ldexp(NumericType(1U), -int((long(std::numeric_limits<NumericType>::digits) * 3L) / 4L));
 
-    for(boost::uint_least8_t k = UINT8_C(0); k < UINT8_C(32); ++k)
+    for(std::uint_least8_t k = UINT8_C(0); k < UINT8_C(32); ++k)
     {
       const NumericType a(ak);
       ak += bk;
@@ -149,10 +151,10 @@
     NumericType term(1U);
     NumericType sum (2U);
 
-    BOOST_CONSTEXPR_OR_CONST boost::uint32_t maximum_number_of_iterations = UINT32_C(10000);
+    BOOST_CONSTEXPR_OR_CONST std::uint32_t maximum_number_of_iterations = UINT32_C(10000);
 
     // Perform the Taylor series expansion of Euler's constant, e = exp(1).
-    for(boost::uint32_t n = UINT32_C(2); n < maximum_number_of_iterations; ++n)
+    for(std::uint32_t n = UINT32_C(2); n < maximum_number_of_iterations; ++n)
     {
       term /= n;
 
