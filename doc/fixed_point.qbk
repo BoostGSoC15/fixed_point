@@ -308,7 +308,7 @@ For example, a car fuel tank reading might only need 0 to 100%
 with a precision for which 127 steps from a single 8-bit byte is ample.
 
 * A 16-bit proposed __fundamental
-[@www.open-std.org/jtc1/sc22/wg14/www/docs/n2016.pdf floating-point type for `short float`]
+[@http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0192r0.pdf floating-point type for `short float`]
 is good for saving space but is still a floating-point type,
 and usually involves muchconversion to and from `float` or `double`
 for most computation.
@@ -2026,7 +2026,7 @@ bandwidth, storage, and electrical power, John L. Gustafson, AMD.
 
 #[@http://www.intel.com/content/dam/www/public/us/en/documents/white-papers/ia-32-ia-64-benchmark-code-execution-paper.pdf Intel How to benchmark IA-32 and IA-64]
 
-#[@www.open-std.org/jtc1/sc22/wg14/www/docs/n2016.pdf Adding Fundamental Type for Short Float]
+#[@http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0192r0.pdf Adding Fundamental Type for Short Float]
 
 [/todo Need more background references?]
 
