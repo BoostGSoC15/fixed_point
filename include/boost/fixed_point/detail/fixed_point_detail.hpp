@@ -14,6 +14,7 @@
 
   #include <cstdint>
 
+  #include <boost/config.hpp>
   #include <boost/fixed_point/detail/fixed_point_detail_cstdfloat.hpp>
 
   #if (   !defined(BOOST_FIXED_POINT_FLOAT32_C)  \

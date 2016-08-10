@@ -50,11 +50,11 @@
   template<typename NumericType>
   NumericType calculate_pi()
   {
-    // Use a quadratically converging Gauss-AGM method to compute pi.
-
     using std::fabs;
     using std::ldexp;
     using std::sqrt;
+
+    // Use a quadratically converging Gauss-AGM method to compute pi.
 
     NumericType val_pi;
 
@@ -104,10 +104,11 @@
   template<typename NumericType>
   NumericType calculate_ln_two()
   {
-    // Use a quadratically converging Gauss-AGM method for computing log(2).
-
+    using std::fabs;
     using std::ldexp;
     using std::sqrt;
+
+    // Use a quadratically converging Gauss-AGM method for computing log(2).
 
     // Choose m > (N * 1.661), where N is the number of decimal digits requested.
     BOOST_CONSTEXPR_OR_CONST int m((long(std::numeric_limits<NumericType>::digits10) * 17L) / 10L);
@@ -123,9 +124,11 @@
     for(std::uint_least8_t k = UINT8_C(0); k < UINT8_C(32); ++k)
     {
       const NumericType a(ak);
+
       ak += bk;
       ak /= 2U;
-      bk  = sqrt(bk * a);
+
+      bk = sqrt(bk * a);
 
       const bool minimum_number_of_iterations_is_complete = (k > UINT8_C(4));
 
@@ -148,6 +151,8 @@
   template<typename NumericType>
   NumericType calculate_e()
   {
+    using std::fabs;
+
     NumericType term(1U);
     NumericType sum (2U);
 
@@ -159,8 +164,6 @@
       term /= n;
 
       const bool minimum_number_of_iterations_is_complete = (n > UINT32_C(4));
-
-      using std::fabs;
 
       if(   (minimum_number_of_iterations_is_complete)
          && (fabs(term) <= std::numeric_limits<NumericType>::epsilon()))

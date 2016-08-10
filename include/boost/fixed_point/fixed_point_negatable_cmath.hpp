@@ -519,7 +519,7 @@
     // Handle unity argument.
     if(x == local_negatable_type(1U))
     {
-      return local_negatable_type::value_e();
+      return negatable_constants<local_negatable_type>::e();
     }
 
     // Handle reflection for negative arguments.
@@ -582,7 +582,7 @@
     // Handle unity argument.
     if(x == local_negatable_type(1U))
     {
-      return local_negatable_type::value_e();
+      return negatable_constants<local_negatable_type>::e();
     }
 
     // Handle reflection for negative arguments.

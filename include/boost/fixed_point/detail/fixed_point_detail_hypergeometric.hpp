@@ -84,7 +84,9 @@
       term *= x;
       term /= n;
 
-      ++bp; term /= bp;
+      ++bp;
+
+      term /= bp;
 
       const bool minimum_number_of_iterations_is_complete = (n > UINT16_C(3));
 
@@ -133,9 +135,14 @@
       term *= x;
       term /= n;
 
-      ++ap; term *= ap;
-      ++cp; term /= cp;
-      ++bp; term *= bp;
+      ++ap;
+      term *= ap;
+
+      ++cp;
+      term /= cp;
+
+      ++bp;
+      term *= bp;
 
       const bool minimum_number_of_iterations_is_complete = (n > UINT16_C(3));
 

@@ -364,6 +364,7 @@
 
     typedef typename detail::integer_type_helper<std::uint32_t(negatable::all_bits * 1)>::exact_unsigned_type unsigned_small_type;
     typedef typename detail::integer_type_helper<std::uint32_t(negatable::all_bits * 2)>::exact_unsigned_type unsigned_large_type;
+    typedef typename detail::integer_type_helper<std::uint32_t(negatable::all_bits * 2)>::exact_signed_type   signed_large_type;
 
   public:
     // The public class constructors follow below.
@@ -386,8 +387,7 @@
                               typename std::enable_if<   (std::is_integral<SignedIntegralType>::value == true)
                                                       && (std::is_signed  <SignedIntegralType>::value == true)
                                                       && (std::numeric_limits<SignedIntegralType>::digits <= IntegralRange)>::type const* = nullptr)
-      : data((n >= 0) ? +value_type((unsigned_small_type(+n) << radix_split))
-                      : -value_type((unsigned_small_type(-n) << radix_split))) { }
+      : data(make_from_signed_integral_type(n)) { }
 
     // This is explicit because the conversion from SignedIntegralType to fixed-point is lossy.
     template<typename SignedIntegralType>
@@ -395,8 +395,7 @@
                                        typename std::enable_if<   (std::is_integral<SignedIntegralType>::value == true)
                                                                && (std::is_signed  <SignedIntegralType>::value == true)
                                                                && (std::numeric_limits<SignedIntegralType>::digits > IntegralRange)>::type const* = nullptr)
-      : data((n >= 0) ? +value_type((unsigned_small_type(+n) << radix_split))
-                      : -value_type((unsigned_small_type(-n) << radix_split))) { }
+      : data(make_from_signed_integral_type(n)) { }
 
     /*! Constructors from built-in unsigned integral types.
      \note This is non-explicit because the conversion from UnsignedIntegralType to fixed-point is non-lossy.
@@ -406,7 +405,7 @@
                               typename std::enable_if<   (std::is_integral<UnsignedIntegralType>::value == true)
                                                       && (std::is_signed  <UnsignedIntegralType>::value == false)
                                                       && (std::numeric_limits<UnsignedIntegralType>::digits <= IntegralRange)>::type const* = nullptr)
-      : data(value_type(unsigned_small_type(unsigned_small_type(u) << radix_split))) { }
+      : data(make_from_unsigned_integral_type(u)) { }
 
     // This is explicit because the conversion from UnsignedIntegralType to fixed-point is lossy.
     template<typename UnsignedIntegralType>
@@ -414,7 +413,7 @@
                                        typename std::enable_if<   (std::is_integral<UnsignedIntegralType>::value == true)
                                                                && (std::is_signed  <UnsignedIntegralType>::value == false)
                                                                && (std::numeric_limits<UnsignedIntegralType>::digits > IntegralRange)>::type const* = nullptr)
-      : data(value_type(unsigned_small_type(unsigned_small_type(u) << radix_split))) { }
+      : data(make_from_unsigned_integral_type(u)) { }
 
     /*! Constructors enabled when @c value_type and @c unsigned_small_type are non-built-in types.\n
         These constructors are all explicit.
@@ -518,11 +517,12 @@
 
     // Here is the mixed-math class constructor for case 2).
     // There is more range and less resolution in the other type.
+    // This is explicit because the conversion from other-fixed-point to fixed-point is lossy.
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution>
-    negatable(const negatable<OtherIntegralRange, OtherFractionalResolution, RoundMode, OverflowMode>& other,
-              typename std::enable_if<   ( OtherIntegralRange        >  IntegralRange)
-                                      && (-OtherFractionalResolution < -FractionalResolution)>::type* = nullptr)
+    explicit negatable(const negatable<OtherIntegralRange, OtherFractionalResolution, RoundMode, OverflowMode>& other,
+                       typename std::enable_if<   ( OtherIntegralRange        >  IntegralRange)
+                                               && (-OtherFractionalResolution < -FractionalResolution)>::type* = nullptr)
       : data()
     {
       typedef negatable<OtherIntegralRange, OtherFractionalResolution, RoundMode, OverflowMode> other_negatable_type;
@@ -581,15 +581,16 @@
 
     // Here is the mixed-math class constructor for case 4).
     // There is more range and more resolution in the other type.
+    // This is explicit because the conversion from other-fixed-point to fixed-point is lossy.
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution>
-    negatable(const negatable<OtherIntegralRange, OtherFractionalResolution, RoundMode, OverflowMode>& other,
-              typename std::enable_if<   (   ( OtherIntegralRange        >   IntegralRange)
-                                          && (-OtherFractionalResolution >  -FractionalResolution))
-                                      || (   ( OtherIntegralRange        >=  IntegralRange)
-                                          && (-OtherFractionalResolution >  -FractionalResolution))
-                                      || (   ( OtherIntegralRange        >   IntegralRange)
-                                          && (-OtherFractionalResolution >= -FractionalResolution))>::type* = nullptr)
+    explicit negatable(const negatable<OtherIntegralRange, OtherFractionalResolution, RoundMode, OverflowMode>& other,
+                       typename std::enable_if<   (   ( OtherIntegralRange        >   IntegralRange)
+                                                   && (-OtherFractionalResolution >  -FractionalResolution))
+                                               || (   ( OtherIntegralRange        >=  IntegralRange)
+                                                   && (-OtherFractionalResolution >  -FractionalResolution))
+                                               || (   ( OtherIntegralRange        >   IntegralRange)
+                                                   && (-OtherFractionalResolution >= -FractionalResolution))>::type* = nullptr)
       : data()
     {
       typedef negatable<OtherIntegralRange, OtherFractionalResolution, RoundMode, OverflowMode> other_negatable_type;
@@ -654,7 +655,8 @@
     having @b different range and/or resolution parameters than @c *this.
     */
     template<const int OtherIntegralRange,
-             const int OtherFractionalResolution>
+             const int OtherFractionalResolution,
+             typename std::enable_if<IntegralRange >= OtherIntegralRange>::type const* = nullptr>
     negatable& operator=(const negatable<OtherIntegralRange, OtherFractionalResolution, RoundMode, OverflowMode>& other)
     {
       // Use a relatively lazy method that creates an intermediate temporary object.
@@ -674,8 +676,7 @@
                                      && (std::numeric_limits<SignedIntegralType>::digits <= IntegralRange)>::type const* = nullptr>
     negatable& operator=(const SignedIntegralType& n)
     {
-      data = ((n >= 0) ? +value_type((unsigned_small_type(+n) << radix_split))
-                       : -value_type((unsigned_small_type(-n) << radix_split)));
+      data = make_from_signed_integral_type(n);
 
       return *this;
     }
@@ -686,7 +687,7 @@
                                      && (std::numeric_limits<UnsignedIntegralType>::digits <= IntegralRange)>::type const* = nullptr>
     negatable& operator=(const UnsignedIntegralType& u)
     {
-      data = value_type(unsigned_small_type(unsigned_small_type(u) << radix_split));
+      data = make_from_unsigned_integral_type(u);
 
       return *this;
     }
@@ -1111,6 +1112,21 @@
 
   private:
     value_type data;
+
+    template<typename UnsignedIntegralType>
+    static value_type make_from_unsigned_integral_type(const UnsignedIntegralType& u)
+    {
+      // Here, we make a negatable value_type from an unsigned integral source value.
+      return value_type(unsigned_small_type(unsigned_small_type(u) << radix_split));
+    }
+
+    template<typename SignedIntegralType>
+    static value_type make_from_signed_integral_type(const SignedIntegralType& n)
+    {
+      // Here, we make a negatable value_type from a signed integral source value.
+      return ((n >= 0) ? value_type(unsigned_small_type(+n) << radix_split)
+                       : value_type(-signed_large_type(unsigned_large_type(-signed_large_type(n)) << radix_split)));
+    }
 
     template<typename FloatingPointType>
     static value_type make_from_floating_point_type(const FloatingPointType& f)
