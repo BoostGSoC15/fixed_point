@@ -1322,7 +1322,7 @@
     */
     BOOST_STATIC_CONSTEXPR negatable value_max() BOOST_NOEXCEPT
     {
-      return negatable(nothing(), static_cast<value_type>((std::numeric_limits<unsigned_small_type>::max)() >> (std::numeric_limits<unsigned_small_type>::digits - (IntegralRange - FractionalResolution))));
+      return negatable(nothing(), value_type(value_type(-radix_split) + value_type((std::numeric_limits<unsigned_small_type>::max)() >> (std::numeric_limits<unsigned_small_type>::digits - (IntegralRange - FractionalResolution)))));
     }
 
     /*! Compute the minimum value that the type can represent.\n
