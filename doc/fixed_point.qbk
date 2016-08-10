@@ -623,7 +623,7 @@ been used in this example.
 [/but seems a bit obvious?]
 
 Full code (including showing some output) is at [@../../example/fixed_point_bernoulli_b2n.cpp fixed_point_bernoulli_b2n.cpp ].
-[warning This example requires VS 14.0 or GCC 5.1.0 to compile.]
+[warning This example requires VC 14.0, or GCC 5.x, or similar C++11 adherence to compile.]
 
 [endsect] [/section:bernoulli_numbers Example of computing Bernoulli numbers]
 
@@ -765,9 +765,14 @@ the compiler can warn
    short int j  (32768); //  warning C4309: 'initializing': truncation of constant value
    short int k = 32768;  //  warning C4309: 'initializing': truncation of constant value
 
-but for Boost `fixed_point`, there is [*no compiler warning].
+But for Boost `fixed_point`, there is [*no compiler warning].
 As a result, narrowing construction has been made explicit
-and implicit narrowing conversion issues a compiler error.
+and attempting an implicit narrowing conversion results in a compiler error.
+
+Here, narrowing conversion is interpreted to mean trying
+to convert an integral type to a `fixed_point` type
+where the `fixed_point` type has fewer digits of range
+than the number of digits in the integral type.
 
 [warning
 The same pitfall applies for [*all] negatable types when the value provided
@@ -776,6 +781,21 @@ exceeds the size of the integral type used to store the [^fixed_point] data.]
 [note This behaviour might change if `overflow` was other than
 `boost::fixed_point::overflow::undefined`, for example, saturation at the maximum value.[br]
 At present, only `overflow::undefined` is implemented.]
+
+Another type of narrowing conversion occurs when trying
+to convert a fixed-point type with wider range to another
+fixed-point type with less range.
+
+For example, the conversion below is explicit.
+
+  typedef boost::fixed_point::negatable<4, -11> fixed_point_type_a;
+  typedef boost::fixed_point::negatable<6,  -9> fixed_point_type_b;
+
+  fixed_point_type_a a(1);
+  fixed_point_type_b b(2);
+
+  fixed_point_type_a c_ok     (b); // OK, eplicit conversion.
+  fixed_point_type_a c_wrong = b;  // Not OK, attempted implicit narrowing conversion.
 
 [endsect] [/section:construction Constructors and Destructors]
 
@@ -974,7 +994,8 @@ is that conversion of a decimal digit string
 to a floating-point type is [*not guaranteed] to be the nearest __representable value,
 but may be, in effect, be one bit 'wrong'.
 
-[warning This means that any fixed_point values after serialization and de-serialization may not be identical,
+[warning This means that any fixed_point values after
+serialization and de-serialization may not be identical,
 and that any integrity check based on
 [@https://en.wikipedia.org/wiki/Checksum checksum or hash]
 may fail.]
@@ -1367,6 +1388,32 @@ Due to limitations in numeric limits of the fixed-point type, however,
 care must be taken when selecting the fixed-point range and resolution
 for a given calculation.
 
+In particular, ensure that the fixed-point type has as many
+digits in its range as the number of digits in built-in int
+(which is often 31 or 63). This is necessary because
+narrowing conversions of fixed-point are explicit and
+Boost.Math internally uses a lot of implicit conversion to int.
+
+The following type definition, for example, could be a good choice
+for interoperability with Boost.Math.
+
+  // Ensure that the built-in types have sufficient digits.
+  static_assert(std::numeric_limits<long double>::digits > std::numeric_limits<int>::digits + 7,
+                "Error: Not enough digits are available in long double for this example");
+
+  // Use as many range digits as are available in built-in int.
+  typedef boost::fixed_point::negatable<
+    std::numeric_limits<int>::digits,        // As many range digits as digits in int.
+    -(  std::numeric_limits<long double>::digits  // The remaining resolution digits from long double.
+      - std::numeric_limits<int>::digits)>
+  fixed_point_type;
+
+
+For instance, it is easy to compute the value of a cylindrical Bessel
+function with Boost.Math. The example here
+[@../../example/fixed_point_cyl_bessel_j.cpp fixed_point_cyl_bessel_j.cpp],
+computes `cyl_bessel_j(3/7, 1/4)`.
+
 [endsect] [/section:boostmath Using the Fixed-point Library with Boost.Math]
 
 [section:microcontrollers Using Fixed-point with Microcontrollers]
@@ -1678,9 +1725,9 @@ were also found in all compilers, most are now achieve correct conversion for al
 Many C++11 features are used in the Boost.Fixed-point Library and
 the compiler must have a high level of C++11 awareness
 to successfully translate the source code.
-Visual Studio 2015 (VC14) works well,
-but many applications will also work with Visual Studio 2013 (VC12).
-Recent GCC versions such as 5.x and Clang compilers also work well.
+Visual Studio 2015 (VC 14.0) or later works well,
+but many applications will also work with Visual Studio 2013 (VC 12.0).
+GCC compilers versions such as 5.x or later or Clang with similar C++11 adherence also work well.
 #['When should I consider using a fixed-point type?] [br]
 Fixed-point allows you to provide a lower or higher range and/or a lower or higher precision.
 #['Will a fixed-point type use less memory?] [br]
