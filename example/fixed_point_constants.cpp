@@ -80,13 +80,3 @@ int main()
 //] [/fixed_point_precise_constant]
 
 } // int main()
-
-/*
-
-Note that large digit counts rely on the arc-cosine function for
-calculating pi. At the moment, this function is supported in
-the negatable realm, but for one and only one argument 0,
-returning pi/2 which, in turn uses the class-local representation
-of pi based on a quadratically convergent Gauss-AGM method.
-
-*/
