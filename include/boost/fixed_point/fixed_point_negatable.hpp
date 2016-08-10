@@ -221,7 +221,7 @@
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> nearbyint (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> nextafter (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y);
 
-  // Additional forward declarations of functions that need friend access to value_type data.
+  // Forward declarations of additional math functions.
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>          negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>             fixed_prior   (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>          negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>             fixed_next    (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> typename negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::value_type fixed_distance(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y);
