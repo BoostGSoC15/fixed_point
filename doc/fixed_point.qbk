@@ -1686,8 +1686,12 @@ in excess of a few hundred binary digits.
 
 [section:testing Testing]
 
-Testing is focussed on typical use cases and __boundary, __edge and __corner cases.
-An strong effort has also been made to test all arithmetic functions,
+Testing is focussed on typical use cases, stress cases,
+and __boundary, __edge and __corner cases.
+Test coverage has not been used during testing,
+but may optionally be included in future validation.
+
+A strong effort has been made to test all arithmetic functions,
 mixed-precision operations, transcendental functions and IO streaming.
 
 A variety of other non-trivial calculations has also been included in the test suite.
@@ -1702,8 +1706,6 @@ to very few digits of precision and also to thousands of digits
 of precision in order to stress the limits of the library.
 Some tests have also been run on 8-bit and 32-bit deeply embedded
 bare-metal microcontrollers, strengthening verification of the library's portability.
-Test coverage has not been used during testing,
-but may optionally be included in future validation.
 
 Extensive round-trip testing has been performed over a wide range of precision.
 This involves constructing a fixed_point type from decimal digits strings like '0.001, 0.002 ...'
