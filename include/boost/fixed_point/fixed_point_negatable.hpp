@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright Christopher Kormanyos 2013 - 2016.
 //  Copyright Nikhar Agrawal 2015.
-//  Copyright Paul Bristow 2015.
+//  Copyright Paul Bristow 2015 - 2016.
 //  Distributed under the Boost Software License,
 //  Version 1.0. (See accompanying file LICENSE_1_0.txt
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -29,9 +29,11 @@
 
   #if defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
 
-    // When I/O streaming is disabled:
-    //   * We must eliminate all I/O streaming and lexical conversions.
-    //   * We must eliminate use of Boost.Multiprecision.
+    // When I/O streaming is disabled,
+    // include header files with certain exclusions.
+    //   * Eliminate all headers from I/O streaming and lexical conversions.
+    //   * Eliminate headers of Boost.Multiprecision.
+    //   * Also ensure at compile-time that multiprecision remains disabled.
 
     #if !defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
       #error Error: BOOST_FIXED_POINT_DISABLE_IOSTREAM can not be set without also setting BOOST_FIXED_POINT_DISABLE_MULTIPRECISION.
@@ -44,8 +46,10 @@
 
   #elif defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION) && !defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
 
-    // When multiprecision is disabled but I/O streaming is enabled:
-    //   * We must eliminate Boost.Multiprecision.
+    // When multiprecision is disabled but I/O streaming is enabled,
+    // include header files with certain exclusions.
+    //   * Eliminate headers from Boost.Multiprecision.
+    //   * Also ensure at compile-time that GMP backends can not be activated.
 
     #if defined(BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS)
       #error Error: BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS can not be defined when multiprecision is disabled via BOOST_FIXED_POINT_DISABLE_MULTIPRECISION.
@@ -60,12 +64,14 @@
     #include <sstream>
     #include <string>
     #include <type_traits>
+    #include <boost/config.hpp>
     #include <boost/lexical_cast.hpp>
 
   #else
 
-    // When multiprecision and I/O streaming are enabled:
-    //   * We eliminate nothing and include all overhead from both
+    // When multiprecision and I/O streaming are enabled,
+    // include header files without any exclusions.
+    //   * Eliminate no headers and include all overhead from both
     //     Boost.Multiprecision as well as I/O streaming and
     //     lexical conversions.
 
@@ -78,14 +84,15 @@
     #include <sstream>
     #include <string>
     #include <type_traits>
+    #include <boost/config.hpp>
     #include <boost/lexical_cast.hpp>
     #include <boost/math/constants/constants.hpp>
 
     #if defined(BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS)
       #include <boost/multiprecision/gmp.hpp>
     #else
-    #include <boost/multiprecision/cpp_bin_float.hpp>
-    #include <boost/multiprecision/cpp_int.hpp>
+      #include <boost/multiprecision/cpp_bin_float.hpp>
+      #include <boost/multiprecision/cpp_int.hpp>
     #endif
 
   #endif
@@ -95,9 +102,11 @@
   #include <boost/fixed_point/fixed_point_overflow.hpp>
   #include <boost/fixed_point/fixed_point_round.hpp>
 
-  // At the end of this file, we include headers for <cmath>
-  // functions for the negatable type and also for specializations
-  // of std::numeric_limits<negatable>.
+  // At the end of this file, we include headers for:
+  //   * Template specializations of std::numeric_limits<negatable>.
+  //   * Implementations hypergeometric (helper) functions for the negatable type.
+  //   * Implementations of <cmath> functions for the negatable type.
+  //   * Implementations of additional (non-standard) math functions for the negatable type.
 
   static_assert(std::numeric_limits<std::uint8_t >::digits ==  8, "Configuration error: The size of std::uint8_t  must be 8  bits!");
   static_assert(std::numeric_limits<std::uint16_t>::digits == 16, "Configuration error: The size of std::uint16_t must be 16 bits!");
@@ -276,16 +285,18 @@
     // The negatable class can not have a negative integral range.
     static_assert(IntegralRange >= 0, "Error: The integral range of negatable must be 0 or more.");
 
+    // At the moment, the negatable class only supports two popular round modes.
     static_assert(   std::is_same<RoundMode, round::fastest>::value
                   || std::is_same<RoundMode, round::nearest_even>::value,
                   "Error: Only fastest and nearest_even round modes are supported at the moment.");
 
-    static_assert(   std::is_same<OverflowMode, overflow::undefined>::value,
+    // At the moment, the negatable class only supports one popular overflow mode.
+    static_assert(std::is_same<OverflowMode, overflow::undefined>::value,
                   "Error: Only undefined overflow mode is supported at the moment.");
 
     #if defined(BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS)
       static_assert(std::is_same<RoundMode, round::fastest>::value,
-                    "Error: GMP backends can only be used for fastest round mode at the moment.");
+                    "Error: GMP backends can only be used with fastest round mode at the moment.");
     #endif
 
     // Make the integral range, the fractional resolution, and the total number
@@ -366,8 +377,7 @@
     typedef typename detail::integer_type_helper<std::uint32_t(negatable::all_bits * 2)>::exact_unsigned_type unsigned_large_type;
     typedef typename detail::integer_type_helper<std::uint32_t(negatable::all_bits * 2)>::exact_signed_type   signed_large_type;
 
-  public:
-    // The public class constructors follow below.
+    // The class constructors follow below.
 
     /*! Default constructor.\n By design choice, this clears the data member.\n
         So after defining @c negatable<15,-16> @c x; then @c x==0;\n\n
@@ -620,6 +630,7 @@
       data = ((!is_neg) ? value_type(u_round) : -value_type(u_round));
     }
 
+    // The nothing struture is used in the constructor immediately below.
     struct nothing final { };
 
     /*! \tparam IntegralType Integer type on which the fixed-point type is based, typically the native unsigned integer type @c unsigned @c int,
@@ -627,8 +638,8 @@
     \sa http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/tut/ints/cpp_int.html
     */
     template<typename IntegralType>
-    BOOST_CONSTEXPR negatable(const nothing&,
-                              const IntegralType& n) : data(static_cast<value_type>(n)) { }
+    BOOST_CONSTEXPR negatable(const nothing&, const IntegralType& n)
+      : data(static_cast<value_type>(n)) { }
 
     /*! Assigment operators.\n
     */
@@ -669,7 +680,8 @@
       return *this;
     }
 
-    //! Assignment operators for built-in integral types.
+    /*! Assignment operators for built-in signed integral types.
+    */
     template<typename SignedIntegralType,
              typename std::enable_if<   (std::is_integral<SignedIntegralType>::value == true)
                                      && (std::is_signed  <SignedIntegralType>::value == true)
@@ -681,6 +693,8 @@
       return *this;
     }
 
+    /*! Assignment operators for built-in unsigned integral types.
+    */
     template<typename UnsignedIntegralType,
              typename std::enable_if<   (std::is_integral<UnsignedIntegralType>::value == true)
                                      && (std::is_signed  <UnsignedIntegralType>::value == false)
@@ -692,6 +706,8 @@
       return *this;
     }
 
+    /*! Assignment operators for built-in floating-point types.
+    */
     template<typename FloatingPointType,
              typename std::enable_if<std::is_floating_point<FloatingPointType>::value>::type const* = nullptr>
     negatable& operator=(const FloatingPointType& f)
@@ -701,7 +717,7 @@
       return *this;
     }
 
-    /*! Provide read-only and read/write access to the internal data representation.\n
+    /*! Provide both read-only as well as read/write access to the internal data representation.
     */
     const value_type&  representation() const { return data; }
     const value_type& crepresentation() const { return data; }
@@ -1316,13 +1332,13 @@
         Used to define function @c std::numeric_limits<>::max().\n
         For example,
         \code
-          negatable<0, -7> xmax((std::numeric_limits<negatable<0, -7>>::max)()); == 0.9922
+          negatable<0, -7> (std::numeric_limits<negatable<0, -7>>::max)() == 0.9922
         \endcode
         Bit pattern 11...111
     */
     BOOST_STATIC_CONSTEXPR negatable value_max() BOOST_NOEXCEPT
     {
-      return negatable(nothing(), value_type(value_type(-radix_split) + value_type((std::numeric_limits<unsigned_small_type>::max)() >> (std::numeric_limits<unsigned_small_type>::digits - (IntegralRange - FractionalResolution)))));
+      return negatable(nothing(), value_type(unsigned_small_type(unsigned_small_type(1U) << (IntegralRange - FractionalResolution)) - 1U));
     }
 
     /*! Compute the minimum value that the type can represent.\n
@@ -1340,7 +1356,7 @@
     */
     BOOST_STATIC_CONSTEXPR negatable value_lowest() BOOST_NOEXCEPT
     {
-      return -value_max() - negatable(nothing(), value_type(1));
+      return negatable(nothing(), value_type(-value_max().data - 1));
     }
 
     /*! Compute machine epsilon

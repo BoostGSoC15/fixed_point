@@ -12,7 +12,7 @@
 
 /*!
   \file
-  \brief Implement most fixed-point negatable \<cmath\> functions.
+  \brief Implement most \<cmath\> functions for fixed-point negatable.
 */
 
 #ifndef FIXED_POINT_NEGATABLE_CMATH_2015_08_21_HPP_

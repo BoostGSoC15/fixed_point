@@ -29,6 +29,7 @@ int main()
 
   const fixed_point_type jv = boost::math::cyl_bessel_j(v, x);
 
+  // Calculate the approximate decimal precision of the resolution.
   const int decimal_resolution = ((  std::numeric_limits<long double>::digits
                                    - std::numeric_limits<int>::digits) * 301) / 1000;
 

@@ -498,7 +498,7 @@ Of course, other __cmath functions such as trigonometric, exponential, logarithm
 (`#include <cmath>`) are available. When using the fixed-point versions of
 `<cmath>` functions, the user can simply call, for example,
 `sqrt(negatable)` without any namespace decoration.
-See also the notes on __ADL in Section xyz below.
+See also the notes on __ADL in [link fixed.design.cmath section on C Math] below.
 
 [numeric_limits_output_2]
 
@@ -665,6 +665,7 @@ the calculation does exercise the Boost.Fixed-point Library with
 complex algorithms at high precision.
 
 The instantiated fixed-point class in this example is:
+`boost::fixed_point::negatable<122, -3200>>`
 and the instantiated multiprecision class is:
 `boost::multiprecision::number<class boost::multiprecision::backends::cpp_bin_float<963>>`.
 
@@ -769,7 +770,7 @@ Unlike the built-in integers, when used in a simple assignment or construction,
 the compiler can warn
 
    short int j  (32768); //  warning C4309: 'initializing': truncation of constant value
-   short int k = 32768; //  warning C4309: 'initializing': truncation of constant value
+   short int k = 32768;  //  warning C4309: 'initializing': truncation of constant value
 
 But for Boost `fixed_point`, there is [*no compiler warning].
 As a result, narrowing construction has been made explicit
@@ -1084,6 +1085,7 @@ and that the format is also already known.)
 [endsect] [/section:iostream Stream IO]
 
 [section:conversions Constructing and Interconverting Between Number Types]
+All of the fixed-point types in the Boost.Fixed_point Library have certain conversion rules in common.
 
 Construction and assignment of a fixed-point type from another fixed-point type
 having the same range and resolution simply uses copy semantics.
@@ -1140,6 +1142,7 @@ binary addition operation.
   auto c = a + b;
 
   // 0.6663
+  std::cout << std::setprecision(std::numeric_limits<fixed_point_type_b>::digits10)
             << c
             << std::endl;
 
@@ -1207,6 +1210,8 @@ use a 64-bit integer as its underlying representation.
 
 Then a tiny (and so rather imprecise) fixed-point type
 that will fit into a single byte.
+
+[fixed_point_imprecise_constant]
 
 The result would almost meet the requirements of the
 [@https://en.wikipedia.org/wiki/Indiana_Pi_Bill Indiana pi bill]!
@@ -1389,6 +1394,7 @@ of approximately 6-7 bits of precision.
 
 The Boost.Fixed-point Library can be used with Boost.Math,
 and some Boost.Math functions work well when used with the __negatable class.
+Due to limitations in numeric limits of the fixed-point type, however,
 care must be taken when selecting the fixed-point range and resolution
 for a given calculation.
 
@@ -1537,6 +1543,7 @@ and built-in 32-bit single-precision floating-point.
 
 [table:32bit_speed2 Comparing speed of fixed-point and floating-point with a 32-bit microcontroller
 [[Function] [run-time `negatable<4, -11>` ([mu]s)] [run-time 32-bit `float` ([mu]s)]]
+[[sqrt( 6/10) ][             2.0           ][            49]]
 [[sin ( 1/ 2) ][             2.8           ][            43]]
 ] [/table]
 
@@ -1695,6 +1702,7 @@ to very few digits of precision and also to thousands of digits
 of precision in order to stress the limits of the library.
 Some tests have also been run on 8-bit and 32-bit deeply embedded
 bare-metal microcontrollers, strengthening verification of the library's portability.
+Test coverage has not been used during testing,
 but may optionally be included in future validation.
 
 Extensive round-trip testing has been performed over a wide range of precision.
