@@ -698,6 +698,9 @@ Otherwise, because one bit is required for sign
 (and the same bit also used to provide sapce for rounding),
 fixed_point will use the next largest type, at worse a __multiprecision type.
 This will have a dramatic effect on code size and run-time.
+Otherwise, because one bit is required for sign and rounding,
+fixed_point will use the next largest type, at worse a __multiprecision type,
+with dramatic effect on code size and run-time.
 For example, `negatable<0,63>` and `nonnegative<0,63>`
 are the largest types possible based on `int64_t` without using __multiprecision.
 
@@ -770,8 +773,8 @@ has no suitable conversion from int to `fixed_point`.
 Unlike the built-in integers, when used in a simple assignment or construction,
 the compiler can warn
 
-   short int j  (32768); //  warning C4309: 'initializing': truncation of constant value
-   short int k = 32768;  //  warning C4309: 'initializing': truncation of constant value
+  short int j  (32768); //  warning C4309: 'initializing': truncation of constant value
+  short int k = 32768;  //  warning C4309: 'initializing': truncation of constant value
 
 But for Boost `fixed_point`, there is [*no compiler warning].
 As a result, narrowing construction has been made explicit
@@ -1394,7 +1397,6 @@ of approximately 6-7 bits of precision.
 
 The Boost.Fixed-point Library can be used with Boost.Math,
 and some Boost.Math functions work well when used with the __negatable class.
-Due to limitations in numeric limits of the fixed-point type, however,
 care must be taken when selecting the fixed-point range and resolution
 for a given calculation.
 
@@ -1686,7 +1688,8 @@ in excess of a few hundred binary digits.
 
 [section:testing Testing]
 
-Testing is focussed on typical use cases, stress cases, and __boundary, __edge and __corner cases.
+Testing is focussed on typical use cases, stress cases, and __boundary,
+__edge and __corner cases.
 Test coverage has not been used during testing,
 but may optionally be included in future validation.
 
@@ -2112,8 +2115,3 @@ bandwidth, storage, and electrical power, John L. Gustafson, AMD.
 [#macro_index]
 [named_index macro_name Macro Index]
 [endsect] [/section:indexes Indexes]
-
-
-
-
-
