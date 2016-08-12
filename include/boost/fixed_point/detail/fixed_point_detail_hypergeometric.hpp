@@ -14,8 +14,8 @@
   #define FIXED_POINT_DETAIL_HYPERGEOMETRIC_2015_08_21_HPP_
 
   #include <cmath>
+  #include <cstdint>
   #include <limits>
-  #include <boost/cstdint.hpp>
 
   namespace boost { namespace fixed_point { namespace detail {
 
@@ -34,10 +34,10 @@
     NumericType term(x);
     NumericType h0f0(1U + term);
 
-    BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t maximum_number_of_iterations = UINT16_C(10000);
+    BOOST_CONSTEXPR_OR_CONST std::uint_fast16_t maximum_number_of_iterations = UINT16_C(10000);
 
     // Perform the series expansion of hypergeometric_0f0(; ; x).
-    for(boost::uint_fast16_t n = UINT16_C(2); n < maximum_number_of_iterations; ++n)
+    for(std::uint_fast16_t n = UINT16_C(2); n < maximum_number_of_iterations; ++n)
     {
       term *= x;
       term /= n;
@@ -76,15 +76,17 @@
     NumericType term(x / bp);
     NumericType h0f1(1U + term);
 
-    BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t maximum_number_of_iterations = UINT16_C(10000);
+    BOOST_CONSTEXPR_OR_CONST std::uint_fast16_t maximum_number_of_iterations = UINT16_C(10000);
 
     // Perform the series expansion of hypergeometric_0f1(; b; x).
-    for(boost::uint_fast16_t n = UINT16_C(2); n < maximum_number_of_iterations; ++n)
+    for(std::uint_fast16_t n = UINT16_C(2); n < maximum_number_of_iterations; ++n)
     {
       term *= x;
       term /= n;
 
-      ++bp; term /= bp;
+      ++bp;
+
+      term /= bp;
 
       const bool minimum_number_of_iterations_is_complete = (n > UINT16_C(3));
 
@@ -125,17 +127,22 @@
     NumericType term(((ap * bp) / cp) * x);
     NumericType h2f1(1U + term);
 
-    BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t maximum_number_of_iterations = UINT16_C(10000);
+    BOOST_CONSTEXPR_OR_CONST std::uint_fast16_t maximum_number_of_iterations = UINT16_C(10000);
 
     // Perform the series expansion of hypergeometric_2f1(a, b; c; x).
-    for(boost::uint_fast16_t n = UINT16_C(2); n < maximum_number_of_iterations; ++n)
+    for(std::uint_fast16_t n = UINT16_C(2); n < maximum_number_of_iterations; ++n)
     {
       term *= x;
       term /= n;
 
-      ++ap; term *= ap;
-      ++cp; term /= cp;
-      ++bp; term *= bp;
+      ++ap;
+      term *= ap;
+
+      ++cp;
+      term /= cp;
+
+      ++bp;
+      term *= bp;
 
       const bool minimum_number_of_iterations_is_complete = (n > UINT16_C(3));
 
@@ -173,10 +180,10 @@
     NumericType term(ln_two_times_x);
     NumericType sum (1U + term);
 
-    BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t maximum_number_of_iterations = UINT16_C(10000);
+    BOOST_CONSTEXPR_OR_CONST std::uint_fast16_t maximum_number_of_iterations = UINT16_C(10000);
 
     // Perform the series expansion of (2^x).
-    for(boost::uint_fast16_t n = UINT16_C(2); n < maximum_number_of_iterations; ++n)
+    for(std::uint_fast16_t n = UINT16_C(2); n < maximum_number_of_iterations; ++n)
     {
       term *= ln_two_times_x;
       term /= n;

@@ -73,10 +73,10 @@ int main()
   // Here we compute tgamma(5/2) and subsequently perform
   // two iterations of downward recursion via division with
   // [(3/2) * (1/2)] = (3/4). The result is tgamma(1/2),
-  // which has a known closed-form value equal to sqrt(pi).
+  // which has a known closed-form value = sqrt(pi).
 
-  const fixed_point_type x = fixed_point_type(5) / 2;
-  const fixed_point_type g = (local::tgamma(x) * 4) / 3;
+  const fixed_point_type x = fixed_point_type(5U) / 2U;
+  const fixed_point_type g = (local::tgamma(x) * 4U) / 3U;
 
   std::cout << std::setprecision(6)
             << std::fixed
@@ -85,7 +85,7 @@ int main()
 
   using std::sqrt;
 
-  // Compare with the control value of sqrt(pi)
+  // Compare with the control value, sqrt(pi),
   // computed with a built-in floating-point type.
   std::cout << std::setprecision(6)
             << std::fixed

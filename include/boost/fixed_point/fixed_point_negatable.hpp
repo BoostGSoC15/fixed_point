@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright Christopher Kormanyos 2013 - 2016.
 //  Copyright Nikhar Agrawal 2015.
-//  Copyright Paul Bristow 2015.
+//  Copyright Paul Bristow 2015 - 2016.
 //  Distributed under the Boost Software License,
 //  Version 1.0. (See accompanying file LICENSE_1_0.txt
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -29,9 +29,11 @@
 
   #if defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
 
-    // When I/O streaming is disabled:
-    //   * We must eliminate all I/O streaming and lexical conversions.
-    //   * We must eliminate use of Boost.Multiprecision.
+    // When I/O streaming is disabled,
+    // include header files with certain exclusions.
+    //   * Eliminate all headers from I/O streaming and lexical conversions.
+    //   * Eliminate headers of Boost.Multiprecision.
+    //   * Also ensure at compile-time that multiprecision remains disabled.
 
     #if !defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
       #error Error: BOOST_FIXED_POINT_DISABLE_IOSTREAM can not be set without also setting BOOST_FIXED_POINT_DISABLE_MULTIPRECISION.
@@ -44,8 +46,10 @@
 
   #elif defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION) && !defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
 
-    // When multiprecision is disabled but I/O streaming is enabled:
-    //   * We must eliminate Boost.Multiprecision.
+    // When multiprecision is disabled but I/O streaming is enabled,
+    // include header files with certain exclusions.
+    //   * Eliminate headers from Boost.Multiprecision.
+    //   * Also ensure at compile-time that GMP backends can not be activated.
 
     #if defined(BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS)
       #error Error: BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS can not be defined when multiprecision is disabled via BOOST_FIXED_POINT_DISABLE_MULTIPRECISION.
@@ -60,12 +64,14 @@
     #include <sstream>
     #include <string>
     #include <type_traits>
+    #include <boost/config.hpp>
     #include <boost/lexical_cast.hpp>
 
   #else
 
-    // When multiprecision and I/O streaming are enabled:
-    //   * We eliminate nothing and include all overhead from both
+    // When multiprecision and I/O streaming are enabled,
+    // include header files without any exclusions.
+    //   * Eliminate no headers and include all overhead from both
     //     Boost.Multiprecision as well as I/O streaming and
     //     lexical conversions.
 
@@ -78,14 +84,15 @@
     #include <sstream>
     #include <string>
     #include <type_traits>
+    #include <boost/config.hpp>
     #include <boost/lexical_cast.hpp>
     #include <boost/math/constants/constants.hpp>
 
     #if defined(BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS)
       #include <boost/multiprecision/gmp.hpp>
     #else
-    #include <boost/multiprecision/cpp_bin_float.hpp>
-    #include <boost/multiprecision/cpp_int.hpp>
+      #include <boost/multiprecision/cpp_bin_float.hpp>
+      #include <boost/multiprecision/cpp_int.hpp>
     #endif
 
   #endif
@@ -95,14 +102,16 @@
   #include <boost/fixed_point/fixed_point_overflow.hpp>
   #include <boost/fixed_point/fixed_point_round.hpp>
 
-  // At the end of this file, we include headers for <cmath>
-  // functions for the negatable type and also for specializations
-  // of std::numeric_limits<negatable>.
+  // At the end of this file, we include headers for:
+  //   * Template specializations of std::numeric_limits<negatable>.
+  //   * Implementations hypergeometric (helper) functions for the negatable type.
+  //   * Implementations of <cmath> functions for the negatable type.
+  //   * Implementations of additional (non-standard) math functions for the negatable type.
 
-  static_assert(std::numeric_limits<boost::uint8_t >::digits ==  8, "Configuration error: The size of boost::uint8_t  must be 8  bits!");
-  static_assert(std::numeric_limits<boost::uint16_t>::digits == 16, "Configuration error: The size of boost::uint16_t must be 16 bits!");
-  static_assert(std::numeric_limits<boost::uint32_t>::digits == 32, "Configuration error: The size of boost::uint32_t must be 32 bits!");
-  static_assert(std::numeric_limits<boost::uint64_t>::digits == 64, "Configuration error: The size of boost::uint64_t must be 64 bits!");
+  static_assert(std::numeric_limits<std::uint8_t >::digits ==  8, "Configuration error: The size of std::uint8_t  must be 8  bits!");
+  static_assert(std::numeric_limits<std::uint16_t>::digits == 16, "Configuration error: The size of std::uint16_t must be 16 bits!");
+  static_assert(std::numeric_limits<std::uint32_t>::digits == 32, "Configuration error: The size of std::uint32_t must be 32 bits!");
+  static_assert(std::numeric_limits<std::uint64_t>::digits == 64, "Configuration error: The size of std::uint64_t must be 64 bits!");
 
   namespace boost { namespace fixed_point {
 
@@ -221,7 +230,7 @@
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> nearbyint (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> nextafter (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y);
 
-  // Additional forward declarations of functions that need friend access to value_type data.
+  // Forward declarations of additional math functions.
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>          negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>             fixed_prior   (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>          negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>             fixed_next    (negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x);
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode> typename negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>::value_type fixed_distance(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y);
@@ -276,16 +285,18 @@
     // The negatable class can not have a negative integral range.
     static_assert(IntegralRange >= 0, "Error: The integral range of negatable must be 0 or more.");
 
+    // At the moment, the negatable class only supports two popular round modes.
     static_assert(   std::is_same<RoundMode, round::fastest>::value
                   || std::is_same<RoundMode, round::nearest_even>::value,
                   "Error: Only fastest and nearest_even round modes are supported at the moment.");
 
-    static_assert(   std::is_same<OverflowMode, overflow::undefined>::value,
+    // At the moment, the negatable class only supports one popular overflow mode.
+    static_assert(std::is_same<OverflowMode, overflow::undefined>::value,
                   "Error: Only undefined overflow mode is supported at the moment.");
 
     #if defined(BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS)
       static_assert(std::is_same<RoundMode, round::fastest>::value,
-                    "Error: GMP backends can only be used for fastest round mode at the moment.");
+                    "Error: GMP backends can only be used with fastest round mode at the moment.");
     #endif
 
     // Make the integral range, the fractional resolution, and the total number
@@ -339,7 +350,7 @@
       a built-in type such as @c int8_t, @c int16_t, @c int32_t, @c int64_t, etc.\n
       For larger digit counts, this will be a multiprecision signed integer type.
     */
-    typedef typename detail::integer_type_helper<boost::uint32_t(all_bits)>::exact_signed_type value_type;
+    typedef typename detail::integer_type_helper<std::uint32_t(all_bits)>::exact_signed_type value_type;
 
     /*!
       The floating-point type that is guaranteed to be wide
@@ -360,14 +371,13 @@
        float_type is class boost::multiprecision::number<class boost::multiprecision::backends::cpp_bin_float<63,2,void,int,0,0>,0>
       \endcode
     */
-    typedef typename detail::float_type_helper<boost::uint32_t(all_bits - 1)>::exact_float_type float_type;
+    typedef typename detail::float_type_helper<std::uint32_t(all_bits - 1)>::exact_float_type float_type;
 
-  private:
-    typedef typename detail::integer_type_helper<boost::uint32_t(negatable::all_bits * 1)>::exact_unsigned_type unsigned_small_type;
-    typedef typename detail::integer_type_helper<boost::uint32_t(negatable::all_bits * 2)>::exact_unsigned_type unsigned_large_type;
+    typedef typename detail::integer_type_helper<std::uint32_t(negatable::all_bits * 1)>::exact_unsigned_type unsigned_small_type;
+    typedef typename detail::integer_type_helper<std::uint32_t(negatable::all_bits * 2)>::exact_unsigned_type unsigned_large_type;
+    typedef typename detail::integer_type_helper<std::uint32_t(negatable::all_bits * 2)>::exact_signed_type   signed_large_type;
 
-  public:
-    // The public class constructors follow below.
+    // The class constructors follow below.
 
     /*! Default constructor.\n By design choice, this clears the data member.\n
         So after defining @c negatable<15,-16> @c x; then @c x==0;\n\n
@@ -432,21 +442,21 @@
                                                && (std::is_arithmetic<UnsignedIntegralType>::value == false)>::type const* = nullptr)
       : data(value_type(u)) { }
 
-      #endif
+    #endif
 
     /*! Constructors from built-in floating-point types: @c float, @c double or @c long @c double.\n
         Example: negatable<15,-16> x(2.3L);\n
         (Overflow and underflow are, of course, possible).
     */
     template<typename FloatingPointType>
-    negatable(const FloatingPointType& f,
-              typename std::enable_if<std::is_floating_point<FloatingPointType>::value>::type const* = nullptr)
+    BOOST_CONSTEXPR negatable(const FloatingPointType& f,
+                              typename std::enable_if<std::is_floating_point<FloatingPointType>::value>::type const* = nullptr)
       : data(make_from_floating_point_type(f)) { }
 
     template<typename FloatingPointType>
-    negatable(const FloatingPointType& f,
-              typename std::enable_if<   (std::is_same<FloatingPointType, float_type>::value == true)
-                                      && (std::is_arithmetic<FloatingPointType>::value == false)>::type const* = nullptr)
+    BOOST_CONSTEXPR negatable(const FloatingPointType& f,
+                              typename std::enable_if<   (std::is_same<FloatingPointType, float_type>::value == true)
+                                                      && (std::is_arithmetic<FloatingPointType>::value == false)>::type const* = nullptr)
       : data(make_from_floating_point_type(f)) { }
 
     /*! Copy constructor.
@@ -517,11 +527,12 @@
 
     // Here is the mixed-math class constructor for case 2).
     // There is more range and less resolution in the other type.
+    // This is explicit because the conversion from other-fixed-point to fixed-point is lossy.
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution>
-    negatable(const negatable<OtherIntegralRange, OtherFractionalResolution, RoundMode, OverflowMode>& other,
-              typename std::enable_if<   ( OtherIntegralRange        >  IntegralRange)
-                                      && (-OtherFractionalResolution < -FractionalResolution)>::type* = nullptr)
+    explicit negatable(const negatable<OtherIntegralRange, OtherFractionalResolution, RoundMode, OverflowMode>& other,
+                       typename std::enable_if<   ( OtherIntegralRange        >  IntegralRange)
+                                               && (-OtherFractionalResolution < -FractionalResolution)>::type* = nullptr)
       : data()
     {
       typedef negatable<OtherIntegralRange, OtherFractionalResolution, RoundMode, OverflowMode> other_negatable_type;
@@ -567,7 +578,7 @@
       unsigned_small_type u_round = static_cast<unsigned_small_type>(u_superior);
 
       // Round the result of the construction.
-      const boost::int_fast8_t rounding_result = binary_round(u_round);
+      const std::int_fast8_t rounding_result = binary_round(u_round);
 
       // Add or subtract the result of the rounding (-1, 0, or +1).
       // With round modes fastest and nearest even, there is no need
@@ -580,15 +591,16 @@
 
     // Here is the mixed-math class constructor for case 4).
     // There is more range and more resolution in the other type.
+    // This is explicit because the conversion from other-fixed-point to fixed-point is lossy.
     template<const int OtherIntegralRange,
              const int OtherFractionalResolution>
-    negatable(const negatable<OtherIntegralRange, OtherFractionalResolution, RoundMode, OverflowMode>& other,
-              typename std::enable_if<   (   ( OtherIntegralRange        >   IntegralRange)
-                                          && (-OtherFractionalResolution >  -FractionalResolution))
-                                      || (   ( OtherIntegralRange        >=  IntegralRange)
-                                          && (-OtherFractionalResolution >  -FractionalResolution))
-                                      || (   ( OtherIntegralRange        >   IntegralRange)
-                                          && (-OtherFractionalResolution >= -FractionalResolution))>::type* = nullptr)
+    explicit negatable(const negatable<OtherIntegralRange, OtherFractionalResolution, RoundMode, OverflowMode>& other,
+                       typename std::enable_if<   (   ( OtherIntegralRange        >   IntegralRange)
+                                                   && (-OtherFractionalResolution >  -FractionalResolution))
+                                               || (   ( OtherIntegralRange        >=  IntegralRange)
+                                                   && (-OtherFractionalResolution >  -FractionalResolution))
+                                               || (   ( OtherIntegralRange        >   IntegralRange)
+                                                   && (-OtherFractionalResolution >= -FractionalResolution))>::type* = nullptr)
       : data()
     {
       typedef negatable<OtherIntegralRange, OtherFractionalResolution, RoundMode, OverflowMode> other_negatable_type;
@@ -607,7 +619,7 @@
       unsigned_small_type u_round = static_cast<unsigned_small_type>(u_superior);
 
       // Round the result of the construction.
-      const boost::int_fast8_t rounding_result = binary_round(u_round);
+      const std::int_fast8_t rounding_result = binary_round(u_round);
 
       // Add or subtract the result of the rounding (-1, 0, or +1).
       // With round modes fastest and nearest even, there is no need
@@ -618,6 +630,7 @@
       data = ((!is_neg) ? value_type(u_round) : -value_type(u_round));
     }
 
+    // The nothing struture is used in the constructor immediately below.
     struct nothing final { };
 
     /*! \tparam IntegralType Integer type on which the fixed-point type is based, typically the native unsigned integer type @c unsigned @c int,
@@ -625,8 +638,8 @@
     \sa http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/tut/ints/cpp_int.html
     */
     template<typename IntegralType>
-    BOOST_CONSTEXPR negatable(const nothing&,
-                              const IntegralType& n) : data(static_cast<value_type>(n)) { }
+    BOOST_CONSTEXPR negatable(const nothing&, const IntegralType& n)
+      : data(static_cast<value_type>(n)) { }
 
     /*! Assigment operators.\n
     */
@@ -653,7 +666,8 @@
     having @b different range and/or resolution parameters than @c *this.
     */
     template<const int OtherIntegralRange,
-             const int OtherFractionalResolution>
+             const int OtherFractionalResolution,
+             typename std::enable_if<IntegralRange >= OtherIntegralRange>::type const* = nullptr>
     negatable& operator=(const negatable<OtherIntegralRange, OtherFractionalResolution, RoundMode, OverflowMode>& other)
     {
       // Use a relatively lazy method that creates an intermediate temporary object.
@@ -666,7 +680,8 @@
       return *this;
     }
 
-    //! Assignment operators for built-in integral types.
+    /*! Assignment operators for built-in signed integral types.
+    */
     template<typename SignedIntegralType,
              typename std::enable_if<   (std::is_integral<SignedIntegralType>::value == true)
                                      && (std::is_signed  <SignedIntegralType>::value == true)
@@ -678,6 +693,8 @@
       return *this;
     }
 
+    /*! Assignment operators for built-in unsigned integral types.
+    */
     template<typename UnsignedIntegralType,
              typename std::enable_if<   (std::is_integral<UnsignedIntegralType>::value == true)
                                      && (std::is_signed  <UnsignedIntegralType>::value == false)
@@ -689,6 +706,8 @@
       return *this;
     }
 
+    /*! Assignment operators for built-in floating-point types.
+    */
     template<typename FloatingPointType,
              typename std::enable_if<std::is_floating_point<FloatingPointType>::value>::type const* = nullptr>
     negatable& operator=(const FloatingPointType& f)
@@ -698,7 +717,7 @@
       return *this;
     }
 
-    /*! Provide read-only and read/write access to the internal data representation.\n
+    /*! Provide both read-only as well as read/write access to the internal data representation.
     */
     const value_type&  representation() const { return data; }
     const value_type& crepresentation() const { return data; }
@@ -780,7 +799,7 @@
       unsigned_small_type u_round = static_cast<unsigned_small_type>(result >> total_right_shift);
 
       // Round the result of the multiplication.
-      const boost::int_fast8_t rounding_result = binary_round(u_round);
+      const std::int_fast8_t rounding_result = binary_round(u_round);
 
       // With round modes fastest and nearest even, there is no need
       // for special code for handling underflow. But be aware of
@@ -836,7 +855,7 @@
         unsigned_small_type u_round = unsigned_small_type(result);
 
         // Round the result of the division.
-        const boost::int_fast8_t rounding_result = binary_round(u_round);
+        const std::int_fast8_t rounding_result = binary_round(u_round);
 
         // With round modes fastest and nearest even, there is no need
         // for special code for handling underflow. But be aware of
@@ -889,7 +908,7 @@
       result *= u;
 
       // Round the result of the division.
-      const boost::int_fast8_t rounding_result = binary_round(result);
+      const std::int_fast8_t rounding_result = binary_round(result);
 
       // With round modes fastest and nearest even, there is no need
       // for special code for handling underflow. But be aware of
@@ -922,7 +941,7 @@
       result *= ((!v_is_neg) ? unsigned_small_type(n) : unsigned_small_type(-n));
 
       // Round the result of the division.
-      const boost::int_fast8_t rounding_result = binary_round(result);
+      const std::int_fast8_t rounding_result = binary_round(result);
 
       // With round modes fastest and nearest even, there is no need
       // for special code for handling underflow. But be aware of
@@ -959,7 +978,7 @@
       result = (result << extra_rounding_bits) / u;
 
       // Round the result of the division.
-      const boost::int_fast8_t rounding_result = binary_round(result);
+      const std::int_fast8_t rounding_result = binary_round(result);
 
       // With round modes fastest and nearest even, there is no need
       // for special code for handling underflow. But be aware of
@@ -992,7 +1011,7 @@
       result /= ((!v_is_neg) ? unsigned_small_type(n) : unsigned_small_type(-n));
 
       // Round the result of the division.
-      const boost::int_fast8_t rounding_result = binary_round(result);
+      const std::int_fast8_t rounding_result = binary_round(result);
 
       // With round modes fastest and nearest even, there is no need
       // for special code for handling underflow. But be aware of
@@ -1121,8 +1140,8 @@
     static value_type make_from_signed_integral_type(const SignedIntegralType& n)
     {
       // Here, we make a negatable value_type from a signed integral source value.
-      return ((n >= 0) ? +value_type((unsigned_small_type(+n) << radix_split))
-                       : -value_type((unsigned_small_type(-n) << radix_split)));
+      return ((n >= 0) ? value_type(unsigned_small_type(+n) << radix_split)
+                       : value_type(-signed_large_type(unsigned_large_type(-signed_large_type(n)) << radix_split)));
     }
 
     template<typename FloatingPointType>
@@ -1141,9 +1160,9 @@
       // no additional information is available for rounding,
       // and no extra binary digit is reserved for rounding.
 
-      BOOST_CONSTEXPR_OR_CONST boost::uint32_t floating_point_digits            = boost::uint32_t(std::numeric_limits<FloatingPointType>::digits);
-      BOOST_CONSTEXPR_OR_CONST boost::uint32_t floating_point_digits_plus_round = boost::uint32_t(floating_point_digits + extra_rounding_bits);
-      BOOST_CONSTEXPR_OR_CONST boost::uint32_t unsigned_small_digits            = boost::uint32_t(std::numeric_limits<unsigned_small_type>::digits);
+      BOOST_CONSTEXPR_OR_CONST std::uint32_t floating_point_digits            = std::uint32_t(std::numeric_limits<FloatingPointType>::digits);
+      BOOST_CONSTEXPR_OR_CONST std::uint32_t floating_point_digits_plus_round = std::uint32_t(floating_point_digits + extra_rounding_bits);
+      BOOST_CONSTEXPR_OR_CONST std::uint32_t unsigned_small_digits            = std::uint32_t(std::numeric_limits<unsigned_small_type>::digits);
 
       BOOST_CONSTEXPR_OR_CONST bool rounding_is_to_be_carried_out = (floating_point_digits_plus_round != unsigned_small_digits);
 
@@ -1153,10 +1172,10 @@
       // * If rounding is *not* to be done, this is the larger of digits(FloatingPointType)
       //   and digits(unsigned_small_type).
 
-      BOOST_CONSTEXPR_OR_CONST boost::uint32_t floating_point_conversion_digits =
+      BOOST_CONSTEXPR_OR_CONST std::uint32_t floating_point_conversion_digits =
         (rounding_is_to_be_carried_out ? floating_point_digits_plus_round : floating_point_digits);
 
-      BOOST_CONSTEXPR_OR_CONST boost::uint32_t unsigned_conversion_digits =
+      BOOST_CONSTEXPR_OR_CONST std::uint32_t unsigned_conversion_digits =
         ((floating_point_conversion_digits > unsigned_small_digits) ? floating_point_conversion_digits
                                                                     : unsigned_small_digits);
 
@@ -1186,14 +1205,14 @@
       detail::conversion_helper<local_unsigned_conversion_type,
                                 FloatingPointType>::convert_floating_point_to_unsigned_integer(fp_shifted, u);
 
-      const int total_left_shift = int((radix_split + exp2) - floating_point_digits);
+      const int total_left_shift = int(radix_split + exp2) - int(floating_point_digits);
 
       const local_unsigned_conversion_type u_round_local(detail::left_shift_helper(u, total_left_shift));
 
       unsigned_small_type u_round = static_cast<unsigned_small_type>(u_round_local);
 
       // Round the result of the construction from FloatingPointType if needed.
-      const boost::int_fast8_t rounding_result =
+      const std::int_fast8_t rounding_result =
         (rounding_is_to_be_carried_out ? binary_round(u_round) : INT8_C(0));
 
       // Add or subtract the result of the rounding (-1, 0, or +1).
@@ -1237,15 +1256,15 @@
                                                      ? digits_unsigned_small_type
                                                      : digits_floating_point_type);
 
-        boost::int_fast16_t digit_index;
+        std::int_fast16_t digit_index;
 
         for(digit_index = INT16_C(0); ((digit_index < max_digits) && (u != 0)); ++digit_index)
         {
-          const boost::uint_fast8_t bit_test_value = static_cast<boost::uint_fast8_t>(u);
+          const std::uint_fast8_t bit_test_value = static_cast<std::uint_fast8_t>(u);
 
           u = (u >> 1);
 
-          if(boost::uint_fast8_t(bit_test_value & UINT8_C(1)) != UINT8_C(0))
+          if(std::uint_fast8_t(bit_test_value & UINT8_C(1)) != UINT8_C(0))
           {
             f += ldexp(FloatingPointType(1), digit_index);
           }
@@ -1255,10 +1274,10 @@
         // has more digits than the target FloatingPointType
         // of the result.
 
-        if(digit_index < boost::int_fast16_t(std::numeric_limits<unsigned_small_type>::digits))
+        if(digit_index < std::int_fast16_t(std::numeric_limits<unsigned_small_type>::digits))
         {
           // Check if the result of the conversion needs to be rounded.
-          const boost::int_fast8_t rounding_result = binary_round(u);
+          const std::int_fast8_t rounding_result = binary_round(u);
 
           // Add or subtract the result of the rounding (-1, 0, or +1).
           // With round modes fastest and nearest even, there is no need
@@ -1274,7 +1293,7 @@
     }
 
     template<typename LocalRoundMode = RoundMode>
-    BOOST_STATIC_CONSTEXPR boost::int_fast8_t
+    BOOST_STATIC_CONSTEXPR std::int_fast8_t
       binary_round(unsigned_small_type&,
                    typename std::enable_if<std::is_same<LocalRoundMode, round::fastest>::value>::type* = nullptr) BOOST_NOEXCEPT
     {
@@ -1297,12 +1316,12 @@
        the final result will be.
     */
     template<typename LocalRoundMode = RoundMode>
-    static boost::int_fast8_t
+    static std::int_fast8_t
       binary_round(unsigned_small_type& u_round,
                    typename std::enable_if<std::is_same<LocalRoundMode, round::nearest_even>::value>::type* = nullptr)
     {
-      const bool round_up =   ((boost::uint_fast8_t(u_round & UINT8_C(1)) == UINT8_C(1))
-                            && (boost::uint_fast8_t(u_round & UINT8_C(2)) == UINT8_C(2)));
+      const bool round_up =   ((std::uint_fast8_t(u_round & UINT8_C(1)) == UINT8_C(1))
+                            && (std::uint_fast8_t(u_round & UINT8_C(2)) == UINT8_C(2)));
 
       u_round = (u_round >> extra_rounding_bits);
 
@@ -1313,13 +1332,13 @@
         Used to define function @c std::numeric_limits<>::max().\n
         For example,
         \code
-          negatable<0, -7> xmax((std::numeric_limits<negatable<0, -7>>::max)()); == 0.9922
+          negatable<0, -7> (std::numeric_limits<negatable<0, -7>>::max)() == 0.9922
         \endcode
         Bit pattern 11...111
     */
     BOOST_STATIC_CONSTEXPR negatable value_max() BOOST_NOEXCEPT
     {
-      return negatable(nothing(), static_cast<value_type>((std::numeric_limits<unsigned_small_type>::max)() >> (std::numeric_limits<unsigned_small_type>::digits - (IntegralRange - FractionalResolution))));
+      return negatable(nothing(), value_type(unsigned_small_type(unsigned_small_type(1U) << (IntegralRange - FractionalResolution)) - 1U));
     }
 
     /*! Compute the minimum value that the type can represent.\n
@@ -1337,7 +1356,7 @@
     */
     BOOST_STATIC_CONSTEXPR negatable value_lowest() BOOST_NOEXCEPT
     {
-      return -value_max() - negatable(nothing(), value_type(1));
+      return negatable(nothing(), value_type(-value_max().data - 1));
     }
 
     /*! Compute machine epsilon
@@ -1363,35 +1382,35 @@
       */
       static negatable value_root_two()
       {
-        return root_two_helper<boost::uint32_t(-resolution)>::calculate_root_two();
+        return root_two_helper<std::uint32_t(-resolution)>::calculate_root_two();
       }
 
       /*! Return the representation of the mathematical constant pi.\n
       */
       static negatable value_pi()
       {
-        return pi_helper<boost::uint32_t(-resolution)>::calculate_pi();
+        return pi_helper<std::uint32_t(-resolution)>::calculate_pi();
       }
 
       /*! Return the representation of the mathematical constant pi/2.\n
       */
       static negatable value_pi_half()
       {
-        return pi_half_helper<boost::uint32_t(-resolution)>::calculate_pi_half();
+        return pi_half_helper<std::uint32_t(-resolution)>::calculate_pi_half();
       }
 
       /*! Return the representation of the mathematical constant log(2).\n
       */
       static negatable value_ln_two()
       {
-        return ln_two_helper<boost::uint32_t(-resolution)>::calculate_ln_two();
+        return ln_two_helper<std::uint32_t(-resolution)>::calculate_ln_two();
       }
 
       /*! Return the representation of the mathematical constant e.\n
       */
       static negatable value_e()
       {
-        return e_helper<boost::uint32_t(-resolution)>::calculate_e();
+        return e_helper<std::uint32_t(-resolution)>::calculate_e();
       }
 
     #else
@@ -1402,7 +1421,7 @@
       {
         initialization_helper.force_premain_init_of_static_constants();
 
-        static const negatable the_value_root_two = root_two_helper<boost::uint32_t(-resolution)>::calculate_root_two();
+        static const negatable the_value_root_two = root_two_helper<std::uint32_t(-resolution)>::calculate_root_two();
 
         return the_value_root_two;
       }
@@ -1413,7 +1432,7 @@
       {
         initialization_helper.force_premain_init_of_static_constants();
 
-        static const negatable the_value_pi = pi_helper<boost::uint32_t(-resolution)>::calculate_pi();
+        static const negatable the_value_pi = pi_helper<std::uint32_t(-resolution)>::calculate_pi();
 
         return the_value_pi;
       }
@@ -1435,7 +1454,7 @@
       {
         initialization_helper.force_premain_init_of_static_constants();
 
-        static const negatable the_value_ln_two = ln_two_helper<boost::uint32_t(-resolution)>::calculate_ln_two();
+        static const negatable the_value_ln_two = ln_two_helper<std::uint32_t(-resolution)>::calculate_ln_two();
 
         return the_value_ln_two;
       }
@@ -1446,14 +1465,14 @@
       {
         initialization_helper.force_premain_init_of_static_constants();
 
-        static const negatable the_value_e = e_helper<boost::uint32_t(-resolution)>::calculate_e();
+        static const negatable the_value_e = e_helper<std::uint32_t(-resolution)>::calculate_e();
 
         return the_value_e;
       }
 
     #endif
 
-    template<const boost::uint32_t BitCount,
+    template<const std::uint32_t BitCount,
              typename EnableType = void>
     struct root_two_helper
     {
@@ -1463,7 +1482,7 @@
       }
     };
 
-    template<const boost::uint32_t BitCount>
+    template<const std::uint32_t BitCount>
     struct root_two_helper<BitCount,
                            typename std::enable_if<(BitCount < 63U)>::type>
     {
@@ -1473,7 +1492,7 @@
       }
     };
 
-    template<const boost::uint32_t BitCount,
+    template<const std::uint32_t BitCount,
              typename EnableType = void>
     struct pi_helper
     {
@@ -1483,7 +1502,7 @@
       }
     };
 
-    template<const boost::uint32_t BitCount>
+    template<const std::uint32_t BitCount>
     struct pi_helper<BitCount,
                      typename std::enable_if<(BitCount < 62U)>::type>
     {
@@ -1493,7 +1512,7 @@
       }
     };
 
-    template<const boost::uint32_t BitCount,
+    template<const std::uint32_t BitCount,
              typename EnableType = void>
     struct pi_half_helper
     {
@@ -1503,7 +1522,7 @@
       }
     };
 
-    template<const boost::uint32_t BitCount>
+    template<const std::uint32_t BitCount>
     struct pi_half_helper<BitCount,
                           typename std::enable_if<(BitCount < 62U)>::type>
     {
@@ -1513,7 +1532,7 @@
       }
     };
 
-    template<const boost::uint32_t BitCount,
+    template<const std::uint32_t BitCount,
              typename EnableType = void>
     struct ln_two_helper
     {
@@ -1523,7 +1542,7 @@
       }
     };
 
-    template<const boost::uint32_t BitCount>
+    template<const std::uint32_t BitCount>
     struct ln_two_helper<BitCount,
                          typename std::enable_if<(BitCount < UINT32_C(64))>::type>
     {
@@ -1533,7 +1552,7 @@
       }
     };
 
-    template<const boost::uint32_t BitCount,
+    template<const std::uint32_t BitCount,
              typename EnableType = void>
     struct e_helper
     {
@@ -1543,7 +1562,7 @@
       }
     };
 
-    template<const boost::uint32_t BitCount>
+    template<const std::uint32_t BitCount>
     struct e_helper<BitCount,
                     typename std::enable_if<(BitCount < 62U)>::type>
     {
@@ -1700,66 +1719,66 @@
 
     #endif // !BOOST_FIXED_POINT_DISABLE_IOSTREAM
 
-    // Forward friend declarations of <cmath> functions.
+    // Forward declarations of <cmath> functions.
 
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> abs  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> fabs (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> floor(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> ceil (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> trunc(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> frexp(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, int* exp2);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> ldexp(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, int  exp2);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> fmod (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> y);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> sqrt (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 11 >= (-FractionalResolution2)>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> sqrt (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if<(24 >= (-FractionalResolution2)) && (11 < (-FractionalResolution2))>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> sqrt (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 24 <  (-FractionalResolution2)>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> exp  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 11 >= (-FractionalResolution2)>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> exp  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if<(24 >= (-FractionalResolution2)) && (11 < (-FractionalResolution2))>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> exp  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 24 <  (-FractionalResolution2)>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> log  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 11 >= (-FractionalResolution2)>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> log  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if<(24 >= (-FractionalResolution2)) && (11 < (-FractionalResolution2))>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> log  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 24 <  (-FractionalResolution2)>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> log2 (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> log10(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> pow  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> a);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> pow  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, int n);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> sin  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 11 >= (-FractionalResolution2)>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> sin  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if<(24 >= (-FractionalResolution2)) && (11 < (-FractionalResolution2))>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> sin  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 24 <  (-FractionalResolution2)>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> cos  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 11 >= (-FractionalResolution2)>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> cos  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if<(24 >= (-FractionalResolution2)) && (11 < (-FractionalResolution2))>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> cos  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 24 <  (-FractionalResolution2)>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> tan  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 11 >= (-FractionalResolution2)>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> tan  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if<(24 >= (-FractionalResolution2)) && (11 < (-FractionalResolution2))>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> tan  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 24 <  (-FractionalResolution2)>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> asin (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 11 >= (-FractionalResolution2)>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> asin (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if<(24 >= (-FractionalResolution2)) && (11 < (-FractionalResolution2))>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> asin (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 24 <  (-FractionalResolution2)>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> acos (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 11 >= (-FractionalResolution2)>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> acos (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if<(24 >= (-FractionalResolution2)) && (11 < (-FractionalResolution2))>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> acos (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 24 <  (-FractionalResolution2)>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> atan (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 11 >= (-FractionalResolution2)>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> atan (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if<(24 >= (-FractionalResolution2)) && (11 < (-FractionalResolution2))>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> atan (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 24 <  (-FractionalResolution2)>::type const*);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> atan2(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> y, negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> sinh (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> cosh (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> tanh (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> asinh(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> acosh(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> atanh(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> hypot(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> y);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> abs  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> fabs (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> floor(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> ceil (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> trunc(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> frexp(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, int* exp2);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> ldexp(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, int  exp2);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> fmod (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> y);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> sqrt (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 11 >= (-FractionalResolution2)>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> sqrt (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if<(24 >= (-FractionalResolution2)) && (11 < (-FractionalResolution2))>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> sqrt (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 24 <  (-FractionalResolution2)>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> exp  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 11 >= (-FractionalResolution2)>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> exp  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if<(24 >= (-FractionalResolution2)) && (11 < (-FractionalResolution2))>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> exp  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 24 <  (-FractionalResolution2)>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> log  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 11 >= (-FractionalResolution2)>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> log  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if<(24 >= (-FractionalResolution2)) && (11 < (-FractionalResolution2))>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> log  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 24 <  (-FractionalResolution2)>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> log2 (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> log10(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> pow  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> a);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> pow  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, int n);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> sin  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 11 >= (-FractionalResolution2)>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> sin  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if<(24 >= (-FractionalResolution2)) && (11 < (-FractionalResolution2))>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> sin  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 24 <  (-FractionalResolution2)>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> cos  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 11 >= (-FractionalResolution2)>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> cos  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if<(24 >= (-FractionalResolution2)) && (11 < (-FractionalResolution2))>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> cos  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 24 <  (-FractionalResolution2)>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> tan  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 11 >= (-FractionalResolution2)>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> tan  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if<(24 >= (-FractionalResolution2)) && (11 < (-FractionalResolution2))>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> tan  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 24 <  (-FractionalResolution2)>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> asin (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 11 >= (-FractionalResolution2)>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> asin (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if<(24 >= (-FractionalResolution2)) && (11 < (-FractionalResolution2))>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> asin (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 24 <  (-FractionalResolution2)>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> acos (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 11 >= (-FractionalResolution2)>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> acos (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if<(24 >= (-FractionalResolution2)) && (11 < (-FractionalResolution2))>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> acos (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 24 <  (-FractionalResolution2)>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> atan (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 11 >= (-FractionalResolution2)>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> atan (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if<(24 >= (-FractionalResolution2)) && (11 < (-FractionalResolution2))>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> atan (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename std::enable_if< 24 <  (-FractionalResolution2)>::type const*);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> atan2(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> y, negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> sinh (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> cosh (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> tanh (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> asinh(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> acosh(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> atanh(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> hypot(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> y);
 
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> copysign  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> y);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> nearbyint (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> nextafter (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> y);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> copysign  (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> y);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> nearbyint (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> nextafter (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> y);
 
-    // Additional functions that need to be friend to allow access to private value_type data.
+    // Forward declarations of additional math functions.
 
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend          negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2>             fixed_prior   (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend          negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2>             fixed_next    (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend typename negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2>::value_type fixed_distance(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> y);
-    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> friend          negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2>             fixed_advance (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2>::value_type distance);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2>          negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2>             fixed_prior   (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2>          negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2>             fixed_next    (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2> typename negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2>::value_type fixed_distance(negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> y);
+    template<const int IntegralRange2, const int FractionalResolution2, typename RoundMode2, typename OverflowMode2>          negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2>             fixed_advance (negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2> x, typename negatable<IntegralRange2, FractionalResolution2, RoundMode2, OverflowMode2>::value_type distance);
   }; // class negatable
 
   #if !defined(BOOST_NO_INCLASS_MEMBER_INITIALIZATION)

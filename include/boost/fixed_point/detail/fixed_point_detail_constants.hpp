@@ -15,6 +15,8 @@
   #include <cmath>
   #include <limits>
 
+  #include <boost/config.hpp>
+
   namespace boost { namespace fixed_point { namespace detail {
 
   template<typename NumericType>
@@ -33,7 +35,7 @@
     // We begin with an estimate of 1 binary digit of precision and
     // double the number of binary digits of precision with each iteration.
 
-    for(boost::uint_fast16_t i = UINT16_C(1); i <= boost::uint_fast16_t(std::numeric_limits<NumericType>::digits); i *= UINT16_C(2))
+    for(std::uint_fast16_t i = UINT16_C(1); i <= std::uint_fast16_t(std::numeric_limits<NumericType>::digits); i *= UINT16_C(2))
     {
       // Perform the next iteration of vi.
       vi += vi * (-((a * vi) * 2U) + NumericType(1U));
@@ -48,11 +50,11 @@
   template<typename NumericType>
   NumericType calculate_pi()
   {
-    // Use a quadratically converging Gauss-AGM method to compute pi.
-
     using std::fabs;
     using std::ldexp;
     using std::sqrt;
+
+    // Use a quadratically converging Gauss-AGM method to compute pi.
 
     NumericType val_pi;
 
@@ -70,7 +72,7 @@
 
     const NumericType tolerance = ldexp(NumericType(1U), -int((long(std::numeric_limits<NumericType>::digits) * 3L) / 4L));
 
-    for(boost::uint_least8_t k = UINT8_C(1); k < UINT8_C(32); ++k)
+    for(std::uint_least8_t k = UINT8_C(1); k < UINT8_C(32); ++k)
     {
       // Perform the iteration steps of the Gauss AGM.
 
@@ -102,10 +104,11 @@
   template<typename NumericType>
   NumericType calculate_ln_two()
   {
-    // Use a quadratically converging Gauss-AGM method for computing log(2).
-
+    using std::fabs;
     using std::ldexp;
     using std::sqrt;
+
+    // Use a quadratically converging Gauss-AGM method for computing log(2).
 
     // Choose m > (N * 1.661), where N is the number of decimal digits requested.
     BOOST_CONSTEXPR_OR_CONST int m((long(std::numeric_limits<NumericType>::digits10) * 17L) / 10L);
@@ -118,12 +121,14 @@
 
     const NumericType tolerance = ldexp(NumericType(1U), -int((long(std::numeric_limits<NumericType>::digits) * 3L) / 4L));
 
-    for(boost::uint_least8_t k = UINT8_C(0); k < UINT8_C(32); ++k)
+    for(std::uint_least8_t k = UINT8_C(0); k < UINT8_C(32); ++k)
     {
       const NumericType a(ak);
+
       ak += bk;
       ak /= 2U;
-      bk  = sqrt(bk * a);
+
+      bk = sqrt(bk * a);
 
       const bool minimum_number_of_iterations_is_complete = (k > UINT8_C(4));
 
@@ -146,19 +151,19 @@
   template<typename NumericType>
   NumericType calculate_e()
   {
+    using std::fabs;
+
     NumericType term(1U);
     NumericType sum (2U);
 
-    BOOST_CONSTEXPR_OR_CONST boost::uint32_t maximum_number_of_iterations = UINT32_C(10000);
+    BOOST_CONSTEXPR_OR_CONST std::uint32_t maximum_number_of_iterations = UINT32_C(10000);
 
     // Perform the Taylor series expansion of Euler's constant, e = exp(1).
-    for(boost::uint32_t n = UINT32_C(2); n < maximum_number_of_iterations; ++n)
+    for(std::uint32_t n = UINT32_C(2); n < maximum_number_of_iterations; ++n)
     {
       term /= n;
 
       const bool minimum_number_of_iterations_is_complete = (n > UINT32_C(4));
-
-      using std::fabs;
 
       if(   (minimum_number_of_iterations_is_complete)
          && (fabs(term) <= std::numeric_limits<NumericType>::epsilon()))
