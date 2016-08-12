@@ -1397,6 +1397,7 @@ of approximately 6-7 bits of precision.
 
 The Boost.Fixed-point Library can be used with Boost.Math,
 and some Boost.Math functions work well when used with the __negatable class.
+Due to limitations in numeric limits of the fixed-point type, however,
 care must be taken when selecting the fixed-point range and resolution
 for a given calculation.
 
@@ -1415,8 +1416,8 @@ for interoperability with Boost.Math.
 
   // Use as many range digits as are available in built-in int.
   typedef boost::fixed_point::negatable<
-    std::numeric_limits<int>::digits,        // As many range digits as digits in int.
-    -(  std::numeric_limits<long double>::digits  // The remaining resolution digits from long double.
+    std::numeric_limits<int>::digits,             // Range uses as many range digits as digits in int.
+    -(  std::numeric_limits<long double>::digits  // Resolution uses the remaining digits in long double.
       - std::numeric_limits<int>::digits)>
   fixed_point_type;
 
