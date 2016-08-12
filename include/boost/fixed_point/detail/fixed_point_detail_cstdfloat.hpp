@@ -17,6 +17,7 @@
   #define FIXED_POINT_DETAIL_CSTDFLOAT_2015_08_14_HPP_
 
   #include <limits>
+
   #include <boost/fixed_point/detail/fixed_point_detail_stdfloat.hpp>
 
   // Here, we define floating-point typedefs having specified widths

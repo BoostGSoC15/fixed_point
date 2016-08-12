@@ -64,6 +64,7 @@
     #include <sstream>
     #include <string>
     #include <type_traits>
+
     #include <boost/config.hpp>
     #include <boost/lexical_cast.hpp>
 
@@ -84,6 +85,7 @@
     #include <sstream>
     #include <string>
     #include <type_traits>
+
     #include <boost/config.hpp>
     #include <boost/lexical_cast.hpp>
     #include <boost/math/constants/constants.hpp>

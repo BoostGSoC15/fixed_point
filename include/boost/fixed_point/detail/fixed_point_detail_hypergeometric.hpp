@@ -17,6 +17,8 @@
   #include <cstdint>
   #include <limits>
 
+  #include <boost/config.hpp>
+
   namespace boost { namespace fixed_point { namespace detail {
 
   template<typename NumericType>
