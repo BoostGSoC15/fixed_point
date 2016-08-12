@@ -1921,7 +1921,7 @@
                       OverflowMode>
     widest_resolution_negatable_type;
 
-    return widest_resolution_negatable_type(a) += b;
+    return widest_resolution_negatable_type(a) += widest_resolution_negatable_type(b);
   }
 
   template <const int IntegralRange1, const int FractionalResolution1,
@@ -1941,7 +1941,7 @@
                       OverflowMode>
     widest_resolution_negatable_type;
 
-    return widest_resolution_negatable_type(a) -= b;
+    return widest_resolution_negatable_type(a) -= widest_resolution_negatable_type(b);
   }
 
   template <const int IntegralRange1, const int FractionalResolution1,
@@ -1961,7 +1961,7 @@
                       OverflowMode>
     widest_resolution_negatable_type;
 
-    return widest_resolution_negatable_type(a) *= b;
+    return widest_resolution_negatable_type(a) *= widest_resolution_negatable_type(b);
   }
 
   template <const int IntegralRange1, const int FractionalResolution1,
@@ -1981,7 +1981,7 @@
                       OverflowMode>
     widest_resolution_negatable_type;
 
-    return widest_resolution_negatable_type(a) /= b;
+    return widest_resolution_negatable_type(a) /= widest_resolution_negatable_type(b);
   }
 
   //! \endcond // DETAIL

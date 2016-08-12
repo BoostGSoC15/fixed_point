@@ -25,89 +25,89 @@
 BOOST_AUTO_TEST_CASE(test_negatable_basic_mixed_math)
 {
   {
-    boost::fixed_point::negatable<10,  -8> a(4.25);
-    boost::fixed_point::negatable<20, -10> b(2.5);
+    boost::fixed_point::negatable<12,  -8> a(4.25);
+    boost::fixed_point::negatable<10, -10> b(2.5);
 
     auto c = a + b;
 
-    boost::fixed_point::negatable<20, -10> result(6.75);
+    boost::fixed_point::negatable<10, -10> result(6.75);
 
     BOOST_CHECK_EQUAL(c, result);
   }
 
   {
-    boost::fixed_point::negatable<100,  -8> a(4.25);
-    boost::fixed_point::negatable< 20, -10> b(2.5);
+    boost::fixed_point::negatable<10, -10> a(4.25);
+    boost::fixed_point::negatable<12,  -8> b(2.5);
 
     auto c = a + b;
 
-    boost::fixed_point::negatable<20, -10> result(6.75);
+    boost::fixed_point::negatable<10, -10> result(6.75);
 
     BOOST_CHECK_EQUAL(c, result);
   }
 
   {
-    boost::fixed_point::negatable<10,  -8> a(4.25);
-    boost::fixed_point::negatable<20, -10> b(2.5);
+    boost::fixed_point::negatable<12,  -8> a(4.25);
+    boost::fixed_point::negatable<10, -10> b(2.5);
 
     auto c = a - b;
 
-    boost::fixed_point::negatable<20, -10> result(1.75);
+    boost::fixed_point::negatable<10, -10> result(1.75);
 
     BOOST_CHECK_EQUAL(c, result);
   }
 
   {
-    boost::fixed_point::negatable<100,  -8> a(4.25);
-    boost::fixed_point::negatable< 20, -10> b(2.5);
+    boost::fixed_point::negatable<10, -10> a(4.25);
+    boost::fixed_point::negatable<12,  -8> b(2.5);
 
     auto c = a - b;
 
-    boost::fixed_point::negatable<20, -10> result(1.75);
+    boost::fixed_point::negatable<10, -10> result(1.75);
 
     BOOST_CHECK_EQUAL(c, result);
   }
 
   {
-    boost::fixed_point::negatable<10,  -8> a(4.25);
-    boost::fixed_point::negatable<20, -10> b(2.5);
+    boost::fixed_point::negatable<12,  -8> a(4.25);
+    boost::fixed_point::negatable<10, -10> b(2.5);
 
     auto c = a * b;
 
-    boost::fixed_point::negatable<20, -10> result(10.625);
+    boost::fixed_point::negatable<10, -10> result(10.625);
 
     BOOST_CHECK_EQUAL(c, result);
   }
 
   {
-    boost::fixed_point::negatable<100,  -8> a(4.25);
-    boost::fixed_point::negatable< 20, -10> b(2.5);
+    boost::fixed_point::negatable<10, -10> a(4.25);
+    boost::fixed_point::negatable<12,  -8> b(2.5);
 
     auto c = a * b;
 
-    boost::fixed_point::negatable<20, -10> result(10.625);
+    boost::fixed_point::negatable<10, -10> result(10.625);
 
     BOOST_CHECK_EQUAL(c, result);
   }
 
   {
-    boost::fixed_point::negatable<10,  -8> a(4.5);
-    boost::fixed_point::negatable<20, -10> b(2.25);
+    boost::fixed_point::negatable<12,  -8> a(4.5);
+    boost::fixed_point::negatable<10, -10> b(2.25);
 
     auto c = a / b;
 
-    boost::fixed_point::negatable<20, -10> result(2);
+    boost::fixed_point::negatable<10, -10> result(2);
 
     BOOST_CHECK_EQUAL(c, result);
   }
 
   {
-    boost::fixed_point::negatable<100,  -8> a(4.5);
-    boost::fixed_point::negatable< 20, -10> b(2.25);
+    boost::fixed_point::negatable<10, -10> a(4.5);
+    boost::fixed_point::negatable<12,  -8> b(2.25);
 
     auto c = a / b;
 
-    boost::fixed_point::negatable<20, -10> result(2);
+    boost::fixed_point::negatable<10, -10> result(2);
 
     BOOST_CHECK_EQUAL(c, result);
   }
