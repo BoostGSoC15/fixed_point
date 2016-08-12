@@ -37,7 +37,7 @@
 !scan-path "../include/boost/fixed_point" fixed_point_round.hpp"
 
 # Might be useful to Doxygen document everything for maintenance?
-#!scan "../include/boost/fixed_point/detail/" ".*\.hpp" true
+#!scan-path "../include/boost/fixed_point/detail/" ".*\.hpp" true
 
 # Index all examples.
 !scan-path "../example" ".*\.cpp" true

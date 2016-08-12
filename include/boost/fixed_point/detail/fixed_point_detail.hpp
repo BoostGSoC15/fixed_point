@@ -12,7 +12,9 @@
 #ifndef FIXED_POINT_DETAIL_2015_05_23_HPP_
   #define FIXED_POINT_DETAIL_2015_05_23_HPP_
 
-  #include <boost/cstdint.hpp>
+  #include <cstdint>
+
+  #include <boost/config.hpp>
   #include <boost/fixed_point/detail/fixed_point_detail_cstdfloat.hpp>
 
   #if (   !defined(BOOST_FIXED_POINT_FLOAT32_C)  \
@@ -63,37 +65,37 @@
 
   #if !defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
 
-    template<const boost::uint32_t BitCount,
+    template<const std::uint32_t BitCount,
              typename EnableType = void>
     struct integer_type_helper
     {
     private:
-      static BOOST_CONSTEXPR_OR_CONST boost::uint32_t bit_count_nearest_power_of_two =
-        (BitCount <= boost::uint32_t(UINT32_C(1) <<  7)) ? boost::uint32_t(UINT32_C(1) <<  7) :
-        (BitCount <= boost::uint32_t(UINT32_C(1) <<  8)) ? boost::uint32_t(UINT32_C(1) <<  8) :
-        (BitCount <= boost::uint32_t(UINT32_C(1) <<  9)) ? boost::uint32_t(UINT32_C(1) <<  9) :
-        (BitCount <= boost::uint32_t(UINT32_C(1) << 10)) ? boost::uint32_t(UINT32_C(1) << 10) :
-        (BitCount <= boost::uint32_t(UINT32_C(1) << 11)) ? boost::uint32_t(UINT32_C(1) << 11) :
-        (BitCount <= boost::uint32_t(UINT32_C(1) << 12)) ? boost::uint32_t(UINT32_C(1) << 12) :
-        (BitCount <= boost::uint32_t(UINT32_C(1) << 13)) ? boost::uint32_t(UINT32_C(1) << 13) :
-        (BitCount <= boost::uint32_t(UINT32_C(1) << 14)) ? boost::uint32_t(UINT32_C(1) << 14) :
-        (BitCount <= boost::uint32_t(UINT32_C(1) << 15)) ? boost::uint32_t(UINT32_C(1) << 15) :
-        (BitCount <= boost::uint32_t(UINT32_C(1) << 16)) ? boost::uint32_t(UINT32_C(1) << 16) :
-        (BitCount <= boost::uint32_t(UINT32_C(1) << 17)) ? boost::uint32_t(UINT32_C(1) << 17) :
-        (BitCount <= boost::uint32_t(UINT32_C(1) << 18)) ? boost::uint32_t(UINT32_C(1) << 18) :
-        (BitCount <= boost::uint32_t(UINT32_C(1) << 19)) ? boost::uint32_t(UINT32_C(1) << 19) :
-        (BitCount <= boost::uint32_t(UINT32_C(1) << 20)) ? boost::uint32_t(UINT32_C(1) << 20) :
-        (BitCount <= boost::uint32_t(UINT32_C(1) << 21)) ? boost::uint32_t(UINT32_C(1) << 21) :
-        (BitCount <= boost::uint32_t(UINT32_C(1) << 22)) ? boost::uint32_t(UINT32_C(1) << 22) :
-        (BitCount <= boost::uint32_t(UINT32_C(1) << 23)) ? boost::uint32_t(UINT32_C(1) << 23) :
-        (BitCount <= boost::uint32_t(UINT32_C(1) << 24)) ? boost::uint32_t(UINT32_C(1) << 24) :
-        (BitCount <= boost::uint32_t(UINT32_C(1) << 25)) ? boost::uint32_t(UINT32_C(1) << 25) :
-        (BitCount <= boost::uint32_t(UINT32_C(1) << 26)) ? boost::uint32_t(UINT32_C(1) << 26) :
-        (BitCount <= boost::uint32_t(UINT32_C(1) << 27)) ? boost::uint32_t(UINT32_C(1) << 27) :
-        (BitCount <= boost::uint32_t(UINT32_C(1) << 28)) ? boost::uint32_t(UINT32_C(1) << 28) :
-        (BitCount <= boost::uint32_t(UINT32_C(1) << 29)) ? boost::uint32_t(UINT32_C(1) << 29) :
-        (BitCount <= boost::uint32_t(UINT32_C(1) << 30)) ? boost::uint32_t(UINT32_C(1) << 30) :
-                    (boost::uint32_t(UINT32_C(1) << 31));
+      static BOOST_CONSTEXPR_OR_CONST std::uint32_t bit_count_nearest_power_of_two =
+        (BitCount <= std::uint32_t(UINT32_C(1) <<  7)) ? std::uint32_t(UINT32_C(1) <<  7) :
+        (BitCount <= std::uint32_t(UINT32_C(1) <<  8)) ? std::uint32_t(UINT32_C(1) <<  8) :
+        (BitCount <= std::uint32_t(UINT32_C(1) <<  9)) ? std::uint32_t(UINT32_C(1) <<  9) :
+        (BitCount <= std::uint32_t(UINT32_C(1) << 10)) ? std::uint32_t(UINT32_C(1) << 10) :
+        (BitCount <= std::uint32_t(UINT32_C(1) << 11)) ? std::uint32_t(UINT32_C(1) << 11) :
+        (BitCount <= std::uint32_t(UINT32_C(1) << 12)) ? std::uint32_t(UINT32_C(1) << 12) :
+        (BitCount <= std::uint32_t(UINT32_C(1) << 13)) ? std::uint32_t(UINT32_C(1) << 13) :
+        (BitCount <= std::uint32_t(UINT32_C(1) << 14)) ? std::uint32_t(UINT32_C(1) << 14) :
+        (BitCount <= std::uint32_t(UINT32_C(1) << 15)) ? std::uint32_t(UINT32_C(1) << 15) :
+        (BitCount <= std::uint32_t(UINT32_C(1) << 16)) ? std::uint32_t(UINT32_C(1) << 16) :
+        (BitCount <= std::uint32_t(UINT32_C(1) << 17)) ? std::uint32_t(UINT32_C(1) << 17) :
+        (BitCount <= std::uint32_t(UINT32_C(1) << 18)) ? std::uint32_t(UINT32_C(1) << 18) :
+        (BitCount <= std::uint32_t(UINT32_C(1) << 19)) ? std::uint32_t(UINT32_C(1) << 19) :
+        (BitCount <= std::uint32_t(UINT32_C(1) << 20)) ? std::uint32_t(UINT32_C(1) << 20) :
+        (BitCount <= std::uint32_t(UINT32_C(1) << 21)) ? std::uint32_t(UINT32_C(1) << 21) :
+        (BitCount <= std::uint32_t(UINT32_C(1) << 22)) ? std::uint32_t(UINT32_C(1) << 22) :
+        (BitCount <= std::uint32_t(UINT32_C(1) << 23)) ? std::uint32_t(UINT32_C(1) << 23) :
+        (BitCount <= std::uint32_t(UINT32_C(1) << 24)) ? std::uint32_t(UINT32_C(1) << 24) :
+        (BitCount <= std::uint32_t(UINT32_C(1) << 25)) ? std::uint32_t(UINT32_C(1) << 25) :
+        (BitCount <= std::uint32_t(UINT32_C(1) << 26)) ? std::uint32_t(UINT32_C(1) << 26) :
+        (BitCount <= std::uint32_t(UINT32_C(1) << 27)) ? std::uint32_t(UINT32_C(1) << 27) :
+        (BitCount <= std::uint32_t(UINT32_C(1) << 28)) ? std::uint32_t(UINT32_C(1) << 28) :
+        (BitCount <= std::uint32_t(UINT32_C(1) << 29)) ? std::uint32_t(UINT32_C(1) << 29) :
+        (BitCount <= std::uint32_t(UINT32_C(1) << 30)) ? std::uint32_t(UINT32_C(1) << 30) :
+                    (std::uint32_t(UINT32_C(1) << 31));
 
       #if defined(BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS)
 
@@ -130,7 +132,7 @@
 
   #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
 
-    template<const boost::uint32_t BitCount,
+    template<const std::uint32_t BitCount,
              typename EnableType = void>
     struct integer_type_helper
     {
@@ -140,44 +142,44 @@
 
   #endif // BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
 
-  template<const boost::uint32_t BitCount>
+  template<const std::uint32_t BitCount>
   struct integer_type_helper<BitCount,
                              typename std::enable_if<(BitCount <= UINT32_C(8))>::type>
   {
-    typedef boost::int8_t  exact_signed_type;
-    typedef boost::uint8_t exact_unsigned_type;
+    typedef std::int8_t  exact_signed_type;
+    typedef std::uint8_t exact_unsigned_type;
   };
 
-  template<const boost::uint32_t BitCount>
+  template<const std::uint32_t BitCount>
   struct integer_type_helper<BitCount,
                              typename std::enable_if<   (BitCount >  UINT32_C( 8))
                                                      && (BitCount <= UINT32_C(16))>::type>
   {
-    typedef boost::int16_t  exact_signed_type;
-    typedef boost::uint16_t exact_unsigned_type;
+    typedef std::int16_t  exact_signed_type;
+    typedef std::uint16_t exact_unsigned_type;
   };
 
-  template<const boost::uint32_t BitCount>
+  template<const std::uint32_t BitCount>
   struct integer_type_helper<BitCount,
                              typename std::enable_if<   (BitCount >  UINT32_C(16))
                                                      && (BitCount <= UINT32_C(32))>::type>
   {
-    typedef boost::int32_t  exact_signed_type;
-    typedef boost::uint32_t exact_unsigned_type;
+    typedef std::int32_t  exact_signed_type;
+    typedef std::uint32_t exact_unsigned_type;
   };
 
-  template<const boost::uint32_t BitCount>
+  template<const std::uint32_t BitCount>
   struct integer_type_helper<BitCount,
                              typename std::enable_if<   (BitCount >  UINT32_C(32))
                                                      && (BitCount <= UINT32_C(64))>::type>
   {
-    typedef boost::int64_t  exact_signed_type;
-    typedef boost::uint64_t exact_unsigned_type;
+    typedef std::int64_t  exact_signed_type;
+    typedef std::uint64_t exact_unsigned_type;
   };
 
   #if !defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
 
-    template<const boost::uint32_t BitCount,
+    template<const std::uint32_t BitCount,
              typename EnableType = void>
     struct float_type_helper
     {
@@ -204,7 +206,7 @@
 
   #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
 
-    template<const boost::uint32_t BitCount,
+    template<const std::uint32_t BitCount,
              typename EnableType = void>
     struct float_type_helper
     {
@@ -215,7 +217,7 @@
 
   #if defined(BOOST_FIXED_POINT_FLOAT32_C)
 
-    template<const boost::uint32_t BitCount>
+    template<const std::uint32_t BitCount>
     struct float_type_helper<BitCount,
                              typename std::enable_if<(BitCount <= UINT32_C(24))>::type>
     {
@@ -231,7 +233,7 @@
     // * !float32_t : float64_t covers bits  0...53
     // *  float32_t : float64_t covers bits 24...53
 
-    template<const boost::uint32_t BitCount>
+    template<const std::uint32_t BitCount>
     struct float_type_helper<BitCount,
     #if defined(BOOST_FIXED_POINT_FLOAT32_C)
                              typename std::enable_if<   (BitCount >  UINT32_C(24))
@@ -255,7 +257,7 @@
     // *  float32_t &&  float64_t : float80_t covers bits 53...64
     // * !float32_t &&  float64_t : float80_t covers bits 53...64
 
-    template<const boost::uint32_t BitCount>
+    template<const std::uint32_t BitCount>
     struct float_type_helper<BitCount,
     #if   (!defined(BOOST_FIXED_POINT_FLOAT32_C) && !defined(BOOST_FIXED_POINT_FLOAT64_C))
                              typename std::enable_if<   (BitCount <= UINT32_C(64))>::type>
@@ -286,7 +288,7 @@
     // * !float32_t &&  float64_t &&  float80_t : float128_t covers bits 64...113
     // *  float32_t &&  float64_t &&  float80_t : float128_t covers bits 64...113
 
-    template<const boost::uint32_t BitCount>
+    template<const std::uint32_t BitCount>
     struct float_type_helper<BitCount,
     #if   (!defined(BOOST_FIXED_POINT_FLOAT32_C) && !defined(BOOST_FIXED_POINT_FLOAT64_C) && !defined(BOOST_FIXED_POINT_FLOAT80_C))
                              typename std::enable_if<   (BitCount <= UINT32_C(113))>::type>
@@ -350,7 +352,7 @@
       // from Boost 1.58. Hence we need this work-around.
 
       template<typename FloatingPointType>
-      struct conversion_helper<boost::uint64_t,
+      struct conversion_helper<std::uint64_t,
                                FloatingPointType,
                                typename std::enable_if<std::is_floating_point<FloatingPointType>::value == false>::type>
       {
@@ -359,7 +361,7 @@
 
       public:
         static void convert_floating_point_to_unsigned_integer(const floating_point_type& floating_point_source,
-                                                               boost::uint64_t& unsigned_destination)
+                                                               std::uint64_t& unsigned_destination)
         {
           std::stringstream ss;
 
@@ -374,7 +376,7 @@
             str = str.substr(std::string::size_type(0U), position_of_dot);
           }
 
-          unsigned_destination = boost::lexical_cast<boost::uint64_t>(str);
+          unsigned_destination = boost::lexical_cast<std::uint64_t>(str);
         }
       };
 
@@ -399,9 +401,9 @@
   #endif // BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
 
   template<typename UnsignedIntegralType>
-  boost::uint_fast16_t msb_helper(UnsignedIntegralType& u,
-                                  UnsignedIntegralType& mask,
-                                  const boost::uint_fast16_t bit_count)
+  std::uint_fast16_t msb_helper(UnsignedIntegralType& u,
+                                UnsignedIntegralType& mask,
+                                const std::uint_fast16_t bit_count)
   {
     // Use O(log2[N]) binary-halving in an unrolled loop to find the msb.
     // The binary-halving search uses a recursive function call.
@@ -422,7 +424,7 @@
     {
       u = hi_part;
 
-      return (bit_count / 2U) + msb_helper(u, mask, boost::uint_fast16_t(bit_count / 2U));
+      return (bit_count / 2U) + msb_helper(u, mask, std::uint_fast16_t(bit_count / 2U));
     }
     else
     {
@@ -434,9 +436,9 @@
 
   // Make a template specialization of msb_helper() for std::uint32_t.
   template<>
-  boost::uint_fast16_t msb_helper(boost::uint32_t& u,
-                                  boost::uint32_t&,
-                                  const boost::uint_fast16_t)
+  std::uint_fast16_t msb_helper(std::uint32_t& u,
+                                std::uint32_t&,
+                                const std::uint_fast16_t)
   {
     std::uint_fast8_t r(0);
 
@@ -447,14 +449,14 @@
     if((u & UINT32_C(0x0000000C)) != UINT32_C(0)) { u >>=  2; r |= UINT8_C( 2); }
     if((u & UINT32_C(0x00000002)) != UINT32_C(0)) { u >>=  1; r |= UINT8_C( 1); }
 
-    return boost::uint_fast16_t(r);
+    return std::uint_fast16_t(r);
   }
 
   // Make a template specialization of msb_helper() for std::uint16_t.
   template<>
-  boost::uint_fast16_t msb_helper(boost::uint16_t& u,
-                                  boost::uint16_t&,
-                                  const boost::uint_fast16_t)
+  std::uint_fast16_t msb_helper(std::uint16_t& u,
+                                std::uint16_t&,
+                                const std::uint_fast16_t)
   {
     std::uint_fast8_t r(0);
 
@@ -464,14 +466,14 @@
     if((u & UINT16_C(0x000C)) != UINT16_C(0)) { u >>= 2; r |= UINT8_C(2); }
     if((u & UINT16_C(0x0002)) != UINT16_C(0)) { u >>= 1; r |= UINT8_C(1); }
 
-    return boost::uint_fast16_t(r);
+    return std::uint_fast16_t(r);
   }
 
   // Make a template specialization of msb_helper() for std::uint8_t.
   template<>
-  boost::uint_fast16_t msb_helper(boost::uint8_t& u,
-                                  boost::uint8_t&,
-                                  const boost::uint_fast16_t)
+  std::uint_fast16_t msb_helper(std::uint8_t& u,
+                                std::uint8_t&,
+                                const std::uint_fast16_t)
   {
     std::uint_fast8_t r(0);
 
@@ -480,7 +482,7 @@
     if((u & UINT8_C(0x0C)) != UINT8_C(0)) { u >>= 2; r |= UINT8_C(2); }
     if((u & UINT8_C(0x02)) != UINT8_C(0)) { u >>= 1; r |= UINT8_C(1); }
 
-    return boost::uint_fast16_t(r);
+    return std::uint_fast16_t(r);
   }
 
   template<typename ArithmeticType>

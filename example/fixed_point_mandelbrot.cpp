@@ -4,7 +4,7 @@
 // (See accompanying file LICENSE_1_0.txt
 // or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-// Copyright Christopher Kormanyos 2015.
+// Copyright Christopher Kormanyos 2015 - 2016.
 // Copyright Paul A. Bristow 2015.
 
 // This file is written to be included from a Quickbook .qbk document.
@@ -36,6 +36,12 @@
 #include <boost/gil/image.hpp>
 #include <boost/gil/typedefs.hpp>
 
+#define MANDELBROT_01_AQUA_FULL
+//#define MANDELBROT_02_YELLOW_TOP
+//#define MANDELBROT_03_FUSCHIA_SWIRL
+//#define MANDELBROT_04_BLACK_WHITE_SEAHORSES
+
+// Declare a base class for the Mandelbrot configuration.
 class mandelbrot_configuration_base
 {
 public:
@@ -73,6 +79,11 @@ private:
                                     my_y_lo(0.0L), my_y_hi(0.0L) { }
 };
 
+// Make a template class that represents the Mandelbrot configuration.
+// This class automatically creates sensible parameters based on
+// the resolution of the fixed-point type supplied in the template
+// parameter. If a custom pixel count is required, the step()
+// method can be modified accordingly.
 template<const int TotalDigits,
          const boost::uint_fast16_t MaxIterations,
          const int MandelbrotFractionalResolution,
@@ -109,6 +120,8 @@ private:
   virtual boost::uint_fast32_t blue_hue () const { return BlueHue; }
 };
 
+// This class generated the rows of the mandelbrot iteration.
+// The coordinates are set up according to the Mandelbrot configuration.
 template<typename NumericType>
 class mandelbrot_generator
 {
@@ -265,41 +278,54 @@ private:
 
 int main()
 {
-  // This is the classic full immage rendered in aqua tones (and black).
-  //typedef mandelbrot_configuration<128, UINT16_C(2000), -11,
-  //                                 UINT32_C(80),
-  //                                 UINT32_C(255),
-  //                                 UINT32_C(255)> mandelbrot_configuration_type;
+  #if defined MANDELBROT_01_AQUA_FULL
 
-  //const mandelbrot_configuration_type mandelbrot_configuration_object(-2.000L, +0.500L,
-  //                                                                    -1.000L, +1.000L);
+    // This is the classic full immage rendered in aqua tones (and black).
+    typedef mandelbrot_configuration<128, UINT16_C(2000), -11,
+                                     UINT32_C(80),
+                                     UINT32_C(255),
+                                     UINT32_C(255)> mandelbrot_configuration_type;
 
-  // This is an upper part of the image rendered in yellow and black tones.
-  typedef mandelbrot_configuration<128, UINT16_C(2000), -13,
-                                   UINT32_C(255),
-                                   UINT32_C(255),
-                                   UINT32_C(0)> mandelbrot_configuration_type;
+    const mandelbrot_configuration_type mandelbrot_configuration_object(-2.000L, +0.500L,
+                                                                        -1.000L, +1.000L);
 
-  const mandelbrot_configuration_type mandelbrot_configuration_object(-0.1208L - 0.1616L, -0.1208L + 0.1616L,
-                                                                      +0.7607L - 0.1616L, +0.7607L + 0.1616L);
- 
-  // This is a fanning image rendered in fuschia tones (and black).
-  //typedef mandelbrot_configuration<128, UINT16_C(10000), -22,
-  //                                 UINT32_C(255),
-  //                                 UINT32_C(0),
-  //                                 UINT32_C(210)> mandelbrot_configuration_type;
+  #elif defined MANDELBROT_02_YELLOW_TOP
 
-  //const mandelbrot_configuration_type mandelbrot_configuration_object(-0.749730L - 0.0002315L, -0.749730L + 0.0002315L,
-  //                                                                    -0.046608L - 0.0002315L, -0.046608L + 0.0002315L);
+    // This is an upper part of the image rendered in yellow and black tones.
+    typedef mandelbrot_configuration<128, UINT16_C(2000), -13,
+                                     UINT32_C(255),
+                                     UINT32_C(255),
+                                     UINT32_C(0)> mandelbrot_configuration_type;
 
-  // This is a swirly seahorse image rendered in gray tones (and black).
-  //typedef mandelbrot_configuration<128, UINT16_C(10000), -46,
-  //                                 UINT32_C(255),
-  //                                 UINT32_C(255),
-  //                                 UINT32_C(255)> mandelbrot_configuration_type;
+    const mandelbrot_configuration_type mandelbrot_configuration_object(-0.1208L - 0.1616L, -0.1208L + 0.1616L,
+                                                                        +0.7607L - 0.1616L, +0.7607L + 0.1616L);
 
-  //const mandelbrot_configuration_type mandelbrot_configuration_object(-0.745398360667L - 1.25E-11L, -0.745398360667L + 1.25E-11L,
-  //                                                                    +0.112504634996L - 1.25E-11L, +0.112504634996L + 1.25E-11L);
+  #elif defined MANDELBROT_03_FUSCHIA_SWIRL
+
+    // This is a fanning image rendered in fuschia tones (and black).
+    typedef mandelbrot_configuration<128, UINT16_C(10000), -22,
+                                     UINT32_C(255),
+                                     UINT32_C(0),
+                                     UINT32_C(210)> mandelbrot_configuration_type;
+
+    const mandelbrot_configuration_type mandelbrot_configuration_object(-0.749730L - 0.0002315L, -0.749730L + 0.0002315L,
+                                                                        -0.046608L - 0.0002315L, -0.046608L + 0.0002315L);
+
+  #elif defined MANDELBROT_04_BLACK_WHITE_SEAHORSES
+
+    // This is a swirly seahorse image rendered in black-and-white tones.
+    typedef mandelbrot_configuration<128, UINT16_C(10000), -46,
+                                     UINT32_C(255),
+                                     UINT32_C(255),
+                                     UINT32_C(255)> mandelbrot_configuration_type;
+    const mandelbrot_configuration_type mandelbrot_configuration_object(-0.745398360667L - 1.25E-11L, -0.745398360667L + 1.25E-11L,
+                                                                      +0.112504634996L - 1.25E-11L, +0.112504634996L + 1.25E-11L);
+
+  #else
+
+    #error: Mandelbrot imag type is not defined!
+
+  #endif
 
   typedef mandelbrot_configuration_type::fixed_point_type mandelbrot_numeric_type;
 

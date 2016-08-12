@@ -1,3 +1,5 @@
+# jamfile.v2 to create fixed_point documentation.
+
 # Copyright Paul A. Bristow 2015.
 
 # Use, modification, and distribution are subject to the
@@ -13,14 +15,19 @@ using quickbook ;
 using auto-index ;
 using doxygen ;  # Required if you want to use Doxygen.
 
-path-constant images_location : html ; # libs/fixed_point/doc
 path-constant here : . ; # libs/fixed_point/doc
 path-constant parent : .. ;  # libs.fixed_point
-path-constant boost-images : ../../../doc/src/images ;
-path-constant images_location : ../example ; # location of SVG and PNG images referenced by Quickbook.
+
+path-constant images_location : ./html ; # libs/fixed_point/doc location of JPG, SVG and PNG images referenced by Quickbook.
+# images referenced in Quickbook by [$./images/an_image.jpg]
+path-constant boost-images : ../../../doc/src/images ; # Boost standard home, next, note, tip... etc images.
+# path-constant boost-images :  html/images/ ; # Local png and svg images for home, next, note, tip... etc images.
+#path-constant nav_images :  html/images/ ; # png and svg images for home, next, note, tip...
+
+
+#path-constant images_location : $(here) ; # location of SVG and PNG images referenced by Quickbook.
 # http://docbook.sourceforge.net/release/xsl/1.77.1/doc/html/img.src.path.html
 # relative to /doc ?
-
 
 rule all_tables
 {
@@ -69,17 +76,25 @@ doxygen autodoc
 
     # [ glob $(here)/../include/boost/fixed_point/*.hpp ]
     # [ glob $(here)/../include/boost/fixed_point/detail/fixed_point/*.hpp ]
+  :
     # Hide implementation/detail for now.
     # but could also include this and switch Boost.Fixed-point C++ reference info
     # to include implementation/detail or not using Doxygen macro DETAIL.
     # See http://www.stack.nl/~dimitri/doxygen/manual/commands.html#cmdcond
     # and http://www.stack.nl/~dimitri/doxygen/manual/config.html#cfg_enabled_sections
     # by adding this line below with other Doxygen parameters
-    #     <doxygen:param>ENABLED_SECTIONS="DETAIL"
+    #<doxygen:param>ENABLED_SECTIONS="DETAIL"
     #  Or setting this macro value ENABLED_SECTIONS="DETAIL"
     # in /doxygen/doxyfile.txt for Standalone Doxygen documentaation.
     # This might be useful for maintainers.
-  :
+    # By default, no Doxygen comments in namespace detail are passed to the Boostbook.
+    # See modular-boost\tools\boostbook\xsl\doxygen\doxygen2boostbook.xsl
+    #  <!-- The namespace used to identify code that should not be  processed at all. -->
+    # To override this and allow use of the more flexible, (but more work)
+    # Doxygen /cond Macro .../endcond mechanism in namespace detail
+    # enable this line:
+    <xsl:param>boost.doxygen.detailns=dont-ignore-detail-namespace
+
     <doxygen:param>PROJECT_NAME="Fixed_point"
     <doxygen:param>RECURSIVE=YES
     <doxygen:param>ENABLE_PREPROCESSING=YES
@@ -101,7 +116,7 @@ doxygen autodoc
     # then doxygen will generate warnings for all undocumented members.
     <doxygen:param>WARN_IF_DOC_ERROR=YES # If WARN_IF_DOC_ERROR is set to YES,
     # Doxygen will generate warnings for potential errors in the documentation.
-    <doxygen:param>WARN_LOGFILE=AutoDoxywarnings.log # This may not be empty (usually not a good sign!), depending on options chosen.
+    <doxygen:param>WARN_LOGFILE=autodoxywarnings.log # This may not be empty (usually not a good sign!), depending on options chosen.
     # Much better to send message to a logfile than the default stderr.
     # and make sure that there are no Doxygen errors or significant warnings in the log file.
 
@@ -121,80 +136,102 @@ xml fixed_point
 
 
 boostbook standalone
-    :
-        fixed_point
-    :
-        # Path for links to Boost:
-        <xsl:param>boost.root=../../../.. # modular-boost/
+  :
+    fixed_point
+  :
+    # Path for links to Boost:
+    <xsl:param>boost.root=../../../.. # modular-boost/
 
-        # Some general style settings:
-        <xsl:param>table.footnote.number.format=1
-        <xsl:param>footnote.number.format=1
-        # For 'standard Boost syntax coloring.
-        #<xsl:param>html.stylesheet=../../../../doc/src/boostbook.css
-        # Use local preference fixed_point.css for syntax coloring,
-        # that calls boostbook.css for most items.
-        <xsl:param>html.stylesheet=fixed_point.css
+    # Some general style settings:
+    <xsl:param>table.footnote.number.format=1
+    <xsl:param>footnote.number.format=1
+    # For 'standard Boost syntax coloring.
+    #<xsl:param>html.stylesheet=../../../../doc/src/boostbook.css
+    # Use local preference fixed_point.css for syntax coloring,
+    # that calls boostbook.css for most items.
+    <xsl:param>html.stylesheet=fixed_point.css
 
-        # HTML options first:
-        # Use graphics not text for navigation:
-        <xsl:param>navig.graphics=1
-        # How far down we chunk nested sections, basically all of them:
-        <xsl:param>chunk.section.depth=10
-        # Don't put the first section on the same page as the TOC:
-        <xsl:param>chunk.first.sections=10
-        # How far down sections get TOC's
-        <xsl:param>toc.section.depth=10
-        # Max depth in each TOC:
-        <xsl:param>toc.max.depth=4
-        # How far down we go with TOC's
-        #<xsl:param>generate.section.toc.level=10
-        # Index on type:
-        <xsl:param>index.on.type=1
+    # HTML options first:
+    # Use graphics not text for navigation:
+    <xsl:param>navig.graphics=1
+    # How far down we chunk nested sections, basically all of them:
+    <xsl:param>chunk.section.depth=10
+    # Don't put the first section on the same page as the TOC:
+    <xsl:param>chunk.first.sections=10
+    # How far down sections get TOC's
+    <xsl:param>toc.section.depth=10
+    # Max depth in each TOC:
+    <xsl:param>toc.max.depth=4
+    # How far down we go with TOC's
+    #<xsl:param>generate.section.toc.level=10
+    # Index on type:
+    <xsl:param>index.on.type=1
 
-        # PDF Options:
-        # TOC Generation: this is needed for FOP-0.9 and later:
-        <xsl:param>fop1.extensions=0
-        <format>pdf:<xsl:param>xep.extensions=1
-        # TOC generation: this is needed for FOP 0.2, but must not be set to zero for FOP-0.9!
-        <format>pdf:<xsl:param>fop.extensions=0
-        <format>pdf:<xsl:param>fop1.extensions=0
-        # No indent on body text:
-        <format>pdf:<xsl:param>body.start.indent=0pt
-        # Margin size:
-        <format>pdf:<xsl:param>page.margin.inner=0.5in
-        # Margin size:
-        <format>pdf:<xsl:param>page.margin.outer=0.5in
-        # Paper type = A4
-        <format>pdf:<xsl:param>paper.type=A4
-        # Yes, we want graphics for admonishments:
-        <xsl:param>admon.graphics=1
-        # Set this one for PDF generation *only*:
-        # default pnd graphics are awful in PDF form,
-        # better use SVG's instead:
-        <format>pdf:<xsl:param>admon.graphics.extension=".svg"
-        <format>pdf:<xsl:param>use.role.for.mediaobject=1
-        <format>pdf:<xsl:param>preferred.mediaobject.role=print
-        <format>pdf:<xsl:param>img.src.path=$(images_location)/
-        <format>pdf:<xsl:param>draft.mode="no"
+    # Path for links to Boost logo.
+    #<xsl:param>boost.image=Boost # options are: none (no logo), Boost (for boost.png), or your own logo, for example, proposed_for_boost.png
+    <xsl:param>boost.image=proposed_for_boost.png
+    <xsl:param>boost.image.src=proposed_for_boost.png #
+    <xsl:param>boost.image.w=180 # Width of logo in pixels. (JM has W = 162, h = 46)
+    <xsl:param>boost.image.h=90 # Height of logo in pixels.
 
-       # Use local preference for syntax coloring.
-      <format>pdf:<xsl:param>html.stylesheet=fixed_point.css
-      <format>pdf:<xsl:param>boost.url.prefix=http://www.boost.org/doc/libs/release/libs/fixed_point/doc/html
+    # This doesn't work - still using Boost src version???
+    #<format>html:<xsl:param>admon.graphics.path=$(boost-images)/ # next, prev, note, tip ... for html.
 
-       # Index generation conditionally defined above.
+    <format>html:<xsl:param>img.src.path=$(images_location)/
+
+
+    # PDF Options:
+    # TOC Generation: this is needed for FOP-0.9 and later:
+    <xsl:param>fop1.extensions=0
+    <format>pdf:<xsl:param>xep.extensions=1
+    # TOC generation: this is needed for FOP 0.2, but must not be set to zero for FOP-0.9!
+    <format>pdf:<xsl:param>fop.extensions=0
+    <format>pdf:<xsl:param>fop1.extensions=0
+    # No indent on body text:
+    <format>pdf:<xsl:param>body.start.indent=0pt
+    # Margin size:
+    <format>pdf:<xsl:param>page.margin.inner=0.5in
+    # Margin size:
+    <format>pdf:<xsl:param>page.margin.outer=0.5in
+    # Paper type = A4
+    <format>pdf:<xsl:param>paper.type=A4
+    # Yes, we want graphics for admonishments:
+    <xsl:param>admon.graphics=1
+    # Set this one for PDF generation *only*:
+    # default pnd graphics are awful in PDF form,
+    # better use SVG's instead - but we only have pngs
+    #<format>pdf:<xsl:param>admon.graphics.extension=".svg"
+    <format>pdf:<xsl:param>admon.graphics.extension=".png" # Only png images are available.
+    <format>pdf:<xsl:param>admon.graphics.path=$(nav_images)/ # next, prev, note, tip ... for pdf.
+    <format>pdf:<xsl:param>use.role.for.mediaobject=1
+    <format>pdf:<xsl:param>preferred.mediaobject.role=print
+    <format>pdf:<xsl:param>img.src.path=$(images_location)/
+    <format>pdf:<xsl:param>draft.mode="no"
+
+     # Use local preference for syntax coloring.
+    <format>pdf:<xsl:param>html.stylesheet=fixed_point.css
+    <format>pdf:<xsl:param>boost.url.prefix=http://www.boost.org/doc/libs/release/libs/fixed_point/doc/html
+
+     # Index generation conditionally defined above.
    ;
 
    # Copy boostbook.css and custom colors fixed_point.css from doc/ to doc/html/
-   install boostbook-cssinstall : ../../../doc/src/boostbook.css : <location>./html ;
+   # install boostbook-cssinstall : ../../../doc/src/boostbook.css : <location>./html ;
    # Install local version of boostbook.css with different syntax colors etc.
    install fixed_point-cssinstall : fixed_point.css : <location>./html ;
+
+    # Not yet a Boost library, so us a local version of logo.
+   install boost-logo : [ glob proposed_for_boost.png ] : <location>./html ;
+
+   # Copy all the nav and warning, tip etc to a /html so that the html is self-contained - but doesn't work.
+   # install boost-images : [ glob $(BOOST_ROOT)/doc/src/images/*.png ] : <location>./html/images ;
+   install fixed-point-images : [ glob ../example/*.jpg ] : <location>./html/images ; # mandelbrots ...
 
 # Copy and rename to fixed_point.pdf the generated pdf called fixed_point.auto_index.pdf
 # from \modular-boost\bin.v2\libs\fixed_point\doc\455e2f403de9f0fcee2d24dc44229719
 # or other with different hash if not using auto_index
 install pdfinstall : standalone : <location>. <install-type>PDF <name>fixed_point.pdf ;
-# Only copy pdf if called with b2 pdf (not the default html).
+# Only copy pdf if called with b2 pdf (not the default b2 == b2 html).
 explicit pdfinstall ;
 
 # Generate Quickbook tables of types and their numeric_limits.

@@ -49,7 +49,7 @@
 </inlinemediaobject>''']
 
 [/ External links]
-[def __cpp_standard [@http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4382.pdf C++ draft standard]]
+[def __cpp_standard [@http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4604.pdf C++17 draft standard]]
 [/Note that is just a convenient recent draft, not an actual standard.]
 
 [def __boost_license [@http://www.boost.org/LICENSE_1_0.txt Boost License]]
@@ -79,7 +79,7 @@
 [def __boost_math_constants [@http://www.boost.org/doc/libs/release/libs/math/doc/html/math_toolkit/constants.html Boost.Math constants]]
 [def __multiprecision_limits_table [@http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/tut/limits/limits32.html Numeric limits for a 32-bit platform]]
 [def __float_distance [@boost:/libs/math/doc/html/math_toolkit/next_float/float_distance.html Boost.Math float_distance]]
-[def __ulp [@http://en.wikipedia.org/wiki/Unit_in_the_last_place  Unit in the last place (ULP)]]
+[def __ULP [@http://en.wikipedia.org/wiki/Unit_in_the_last_place  Unit in the last place (ULP)]]
 [def __SSE2 [@http://en.wikipedia.org/wiki/SSE2 SSE2 instructions]]
 [def __WolframAlpha [@http://www.wolframalpha.com/ Wolfram Alpha]]
 [def __ARM_architecture  [@https://en.wikipedia.org/wiki/ARM_architecture ARM architecture]]
@@ -101,7 +101,7 @@
 [def __quad_format [@https://en.wikipedia.org/wiki/Quadruple-precision_floating-point_format 128-bit quad format]]
 [def __n1169 [@http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1169.pdf C extensions to support embedded processors N1169]]
 [def __n3352 [@http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html C++ Binary Fixed-Point Arithmetic N3352]]
-[def __CMK_realtime [@http://dx.doi.org/DOI:10.1007/978-3-642-34688-0 Real-Time C++, C M Kormanyos]]
+[def __CMK_realtime [@http://link.springer.com/book/10.1007/978-3-662-47810-3 Real-Time C++, C M Kormanyos]]
 [def __normalization [@https://en.wikibooks.org/wiki/Floating_Point/Normalization normalization]]
 [/See https://en.wikipedia.org/wiki/Digital_object_identifier Note B on specifying links to DOI.  http://dx.doi.org/DOI seems to work best.]
 [def __NaN [@https://en.wikipedia.org/wiki/NaN NaN]]
@@ -206,8 +206,8 @@ value that has a fixed number of integral range digits before the binary point,
 and another fixed number of fractional resolution digits after the point.
 
 The integral value can use a __fundamental_types integral type from `signed char` to `long long`,
-additional types like `__int64` or `__int128`, and, if these are too small, then
-a multiprecision integer from __multiprecision, (perhaps internally using __GMP and __gmp_float).
+additional types like `int64_t` or `int128_t`, and, if these are too small, then
+a multiprecision integer from __multiprecision (perhaps internally using __GMP and __gmp_float).
 
 Proposal __n3352 specifies four different types of fixed-point representations:
 `cardinal`, `integral`, `nonnegative` and `negatable`.[br]
@@ -222,9 +222,11 @@ The integer part is located as more significant than the fractional part.
 This means that if there is a __carry from an addition to the fractional part,
 it simply carrys into the integer part, which means that fast integer instructions can be used.
 (There is no __normalization as required by floating-point, so all operations take a constant fixed time).
+This also means that fixed-point numbers can lose digits in operations such as subtraction
+and division.
 
-So fixed-point trades range and precision for consistent and (very probably) improved efficiency
-using integer-based computation.
+So fixed-point trades range and precision for consistent
+and (potentially) improved efficiency using integer-based computation.
 
 [h5 Fixed_point Q format]
 
@@ -232,13 +234,13 @@ The __Q_format is often used to specify the number of bits used for range and re
 
 Consider, for example, a Q15.16 representation of negatable. It has one sign bit,
 15 integral range bits and 16 fractional resolution bits.
-This format fits neatly into a 32-bit two's complement signed integer,
+This format fits neatly into a 32-bit two's complement signed integer (`int32_t`),
 [/Giving a total spread of values from 1.526e-005 to 3.277e+004  in steps of 1.526e-005.]
 giving a total spread of signed values from about 0.000015 to 32770  in steps of 0.000015.[br]
 Use `boost::fixed_point::negatable<15, -16>` for a Q15.16 fixed-point type.
 
 A small Q7.8 representation has a sign bit, 7 bits of integer part before the binary point,
-and 8 bits for the fractional part that can fit into a 16-bit `short`.
+and 8 bits for the fractional part that can fit into `int16_t`.
 
 The Q7.8 represent can hold integer part values from 0 to 2[super 7] = 127,
 and fraction part from 0 to 1/2[super 8] = 1/256 = 0.00390625.
@@ -247,7 +249,7 @@ Giving a total spread of values from about 0.004 to 128 in steps of 0.004.[br]
 Use `boost::fixed_point::negatable<7, -8>` for a Q7.8 fixed-point type.
 
 A tiny byte-sized Q2.5 representation has a sign bit, 2 bits of integer part before the binary point,
-and 5 bits for the fractional part that can fit into a 8-bit `signed char`.
+and 5 bits for the fractional part that can fit into a 8-bit `int8_t`.
 
 The Q2.5 representation can hold integer part values from 0 to 2[super 2] = 4,
 and fraction part from 0 to 1/2[super 5] = 1/32 = 0.003125.
@@ -288,7 +290,7 @@ with little or no modification, a significant advantage.
 
 What the final scope of the library should be is discussed in the __rationale section.
 
-[section:why_fixed_point Why Fixed-Point (rather than Floating-point)?]
+[section:why_fixed_point Why Fixed-Point (Rather Than Floating-point)?]
 
 For most computing tasks, floating-point works extremely well.
 
@@ -301,9 +303,15 @@ making very efficient use of the 32 and 64 bits available
 There are, nonetheless, a variety of application domains for which fixed-point
 calculations can be preferable to floating-point calculations.
 
-* Very many real-world measurement have a very limited precision.
-For example a car fuel tank reading might only need 0 to 100%
+* Very many real-world measurements have a very limited precision.
+For example, a car fuel tank reading might only need 0 to 100%
 with a precision for which 127 steps from a single 8-bit byte is ample.
+
+* A 16-bit proposed __fundamental
+[@http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0192r0.pdf floating-point type for `short float`]
+is good for saving space but is still a floating-point type,
+and usually involves muchconversion to and from `float` or `double`
+for most computation.
 
 * Certain numerical calculations such as graphics, mathematical
 fractals and geometric representations may preferably use
@@ -315,37 +323,37 @@ when tested for values near the origin, but fails for values further out.
 
 * Fixed-point calculations can also be useful in
 cost-sensitive real-time embedded systems.
-Many microcontrollers, do not have instructions or emulation
-for floating-point calculations. Typical examples
-are 8 and 16-bit __microcontroller, especially those suited
+Many microcontrollers, do not have a floating-point unit (FPU)
+or any instructions for floating-point calculations.
+Typical examples are 8 and 16-bit __microcontroller, especially those suited
 for high-volume, price-optimized applications.
 In these kinds of applications, fixed-point calculations can be
 more efficient than software-emulated floating-point calculations
 and therefore more well-suited for small 8 or 16-bit microcontrollers.
 See __efficiency for some examples.
 
-* High-performance microcontrollers often have an floating-point unit (FPU).
-Deactivating the FPU and preferentially using fixed-point
-instead of floating-point can, nonetheless, be beneficial
-for certain reasons. Some project guidelines forbid the use of
-floating-point calculations because these potentially
+* High-performance microcontrollers often have a floating-point unit (FPU).
+Deactivating the FPU nonetheless and preferentially using fixed-point
+instead of floating-point can be beneficial
+for certain reasons. Some project guidelines forbid the use
+of floating-point calculations because these potentially
 lead to higher consumption of resources such as stack,
 FPU registers, memory, overhead of context-switch, etc.
-In addition, even high-performance microcontrollers that have FPUs may
+In addition, even high-performance microcontrollers that have an FPU may
 have circuitry that can enable or disable the FPU,
 and powering the FPU can cost energy.
 In these cases, deactivating the FPU and using fixed-point
 instead of floating-point can potentially save energy in
 low power-consumption modes.
 
-* In fact, then, the main reason to choose fixed-point may be [*to reduce power consumption];
+* In fact one of the main reasons to choose fixed-point may be [*to reduce power consumption];
 that often means longer battery life, helpful for portable devices like watches, but
 even more for implanted devices having inconvenient battery charges and changes.
 
 * Storing many floating-point values takes up more memory than would be possible using `fixed_point`.
 Memory is cheap, but using less memory can speed data transfer and reduce cache misses.
 So if an entire array of data can be stored as a `negatable`
-using a small integral type ,`byte` or `short int`, in a very fast memory cache,
+using a small integral type, `int8_t` or `int16_t`, in a very fast memory cache,
 it might be processed more quickly.
 
 * If a resolution greater than `double` (usually 64-bit) is required, `fixed_point` may well prove faster.[br]
@@ -365,7 +373,7 @@ in the realm of near-integral math.
 
 * Fixed-point can be sorted in linear time [*['O]]N. [/Using bigo Unicode D476 is OK for html but not PDF]
 
-[endsect] [/section:why_fixed_point Why Fixed-Point (rather than floating-point?]
+[endsect] [/section:why_fixed_point Why Fixed-Point (Rather Than floating-point?]
 
 [section:why_this_fixed_point  Why use Boost.Fixed-point?]
 
@@ -379,8 +387,9 @@ A number of fixed-point libraries have been written; why would one choose this l
 
 * Rounding and overflow may be controlled using C++ templates.
 
-* The smallest underlying power-of-2 hardware type (byte, word, dword, qword ...)
-will be chosen automatically.
+* The type having the smallest underlying power-of-2 bits
+(`int8_t`, `int16_t`, `int32_t`, `int64_t`, etc.)
+will be chosen automatically for the internal representation.
 
 * Extends to use underlying __fundamental_types types automatically.
 
@@ -430,9 +439,7 @@ from the Doxygen-syntax comments in the header and source files).
 
 See __howtouse for more hints on how to find what you are looking for.
 
-An overview of some features, notes,  warnings and tips follow.
-
-[endsect] [/section:synposis Synposis]
+[endsect] [/section:synopsis Synopsis]
 
 [section:examples Examples]
 
@@ -451,11 +458,11 @@ to define a `typedef` for our chosen fixed-point type
 
 This example uses the fixed-point class __negatable
 (the analog of a signed floating-point) defined to have
-a template parameter __resolution of 15
-and a template parameter __range of -16.
+a template parameter __range of 15
+and a template parameter __resolution of -16.
 
-This means that 15 bits are used for the __significand or fraction part and
-16 for the binary exponent or range factor.
+This means that 15 bits are used for the binary integer or range part
+and 16 bits are used for the __significand or fraction part.
 
 (For simplicity, we use the defaults for the other template parameters,
 `round_mode` = __round_fastest and `overflow_mode` = __overflow_undefined).
@@ -488,8 +495,10 @@ and the exponent parts using the using __cmath function __frexp,
 and alter the exponent using __ldexp.
 
 Of course, other __cmath functions such as trigonometric, exponential, logarithmic, etc.
-(`#include <cmath>`) are available. Thus the user can simply call, for example,
-`sqrt(negatable)` without requiring any namespace decoration.
+(`#include <cmath>`) are available. When using the fixed-point versions of
+`<cmath>` functions, the user can simply call, for example,
+`sqrt(negatable)` without any namespace decoration.
+See also the notes on __ADL in [link fixed.design.cmath C math functions section] below.
 
 [numeric_limits_output_2]
 
@@ -517,7 +526,7 @@ The derivative code is
 
 [fixed_point_derivative_function]
 
-The fixed_point 16-bit `negative` type and the coefficients are
+The fixed_point 16-bit `negatable` type and the coefficients are
 
 [fixed_point_derivative_coeffic]
 
@@ -551,30 +560,40 @@ before this include
 
 Full code is at [@../../example/fixed_point_bare_metal_derivative_example.cpp  fixed_point_bare_metal_derivative_example.cpp].
 
-This example is also discussed in C.M. Kormanyos, Real-Time C++: Efficient Object-Oriented and
-Template Microcontroller Programming (Springer, Heidelberg, 2013).
-in Section 12.7 and [@http://link.springer.com/chapter/10.1007/978-3-642-34688-0_13 Chapter 13].
+This example is also discussed in __CMK_realtime, Section 12.7 and Chapter 13.
 
 [endsect] [/section:bare_derivative Example of a bare-metal fixed_point type evaluating  derivative.]
 
 [section:mandelbrot Example of computing images of a Mandelbrot set at low and high-resolution]
 
-This example shows how the famous
+This section presents examples of calculating the famous
 [@https://en.wikipedia.org/wiki/Mandelbrot_set Mandelbrot set]
+at low and high resolution.
 
-[$../mandelbrot.jpg  [width 200px] [height 200px]]
-generated at quite low-resolution using a 32-bit integer type.
+[@../../example/mandelbrot.jpg This]
+shows a Mandelbrot set generated at quite low-resolution
+of 160x128 pixels using a 32-bit fixed-point type.
 
-Some more images are at:
+Additional images having millions of pixels showing different areas
+of the Mandelbrot set are at:
 [@../../example/mandelbrot_01_aqua_full.jpg aqua full],
 [@../../example/mandelbrot_02_yellow_top.jpg yellow top],
 [@../../example/mandelbrot_03_fuschia_swirl.jpg swirl],
 [@../../example/mandelbrot_04_black_white_seahorses.jpg  black and white seahorses].
 
-Images can be generated at higher resolution using `boost::fixed_point::negatable<16, -111>`
-(fits in 128-bit integer type. Even higher resolution is only limited by ones computer memory and patience.
+These images have been be generated at high resolution
+using `boost::fixed_point::negatable<16, -111>`
+(fits in a 128-bit integer type).
+Even higher resolution is only limited by ones computer memory and patience
+for the long calculation time.
 
 Full code is at [@../../example/fixed_point_mandelbrot.cpp fixed_point_mandelbrot.cpp].
+The program uses Boost.Gil for graphical representation of jpeg files
+and needs to be linked with the jpeg-6b library.
+The code uses neither multithreading nor a GPU.
+Calculating the Mandelbrot iterations in the separate rows of the image,
+however, could be parallelized in a straightforward fashion,
+at the cost of using more memory.
 
 [endsect] [/section:mandelbrot Example of evaluating a Mandelbrot function at low and high-precision]
 
@@ -594,11 +613,14 @@ in exactly the same way as the floating-point example
 [@http://www.boost.org/doc/libs/release/libs/math/example/bernoulli_example.cpp bernoulli_example.cpp]
 but using a fixed-point type instead.
 
-This example uses a very large fixed-point type (2048 bit) with an asymetrically large-integral-range (and a resolution of 280).
+This example uses a very large fixed-point type (2048 bit)
+with an asymetrically large-integral-range (and a resolution of 280).
 
 [bernoulli_1]
 
-Outputting the numbers shows that the computed using fixed-point and using floating-point are identical.
+Outputting the numbers shows that the computations using fixed-point
+and using floating-point are identical. One decimal guard digit has
+been used in this example.
 
 [bernoulli_output_1]
 
@@ -607,9 +629,53 @@ Outputting the numbers shows that the computed using fixed-point and using float
 [/but seems a bit obvious?]
 
 Full code (including showing some output) is at [@../../example/fixed_point_bernoulli_b2n.cpp fixed_point_bernoulli_b2n.cpp ].
-[warning This example requires VS 14.0 or GCC 5.1.0 to compile, and takes some time to compute.]
+[warning This example requires VC 14.0, or GCC 5.x, or similar C++11 adherence to compile.]
 
 [endsect] [/section:bernoulli_numbers Example of computing Bernoulli numbers]
+
+[section:hypergeometric Example of computing hypergeometric_1f1 function]
+
+This example shows computation of the
+[@https://reference.wolfram.com/language/ref/Hypergeometric1F1.html hypergeometric 1f1 function]
+using a high precision (and high resolution) fixed_point type.
+The rational approximation, similar to that of
+[@https://books.google.co.uk/books?id=huuO6mKbVoEC&pg=PA115&lpg=PA115&dq=hypergeometric+1f1+function+luke&source=bl&ots=ZrN4BMe1f5&sig=qrKJkSwa_YrdrEf6172WPgq1pJI&hl=en&sa=X&ved=0ahUKEwjBmLGNqbvMAhVKIMAKHdl9AkoQ6AEIIzAA
+Y.L. Luke, "Algorithms for the Computation of Mathematical Functions", Academic Press, New York, 1977],
+is used to compute hypergeometric_1f1(2/3, 4/3, -3/4).
+A 4-term recurrence relation is computed with 340 iterations
+at full precision of approximately 963 decimal digits.
+The result also has the same approximate precision of 963 decimal digits.
+
+[@http://www.wolframalpha.com/input/?i=Hypergeometric1f1%5B2%2F3,4%2F3,-3%2F4%5D  Wolfram Alpha Hypergeometric1f1[2/3,4/3,-3/4]]
+estimates  0.7081686536671296176070489154441892975263864254728...
+
+See also [@https://en.wikipedia.org/wiki/Hypergeometric_function hypergeometric function].
+
+Using fixed_point, this example takes approximately 0.16 sec
+on a modern computer and compiler system.
+For comparison, the same calculation performed with Boost.Multiprecision's
+binary floating-point backend only requires approximately 0.12 sec
+with the same computer and compiler system.
+In this particular case, there is no significant performance
+improvement for fixed-point. In fact, there is a slight slowdown
+for fixed-point.
+
+Even though a performance improvement was not obtained in this example,
+the calculation does exercise the Boost.Fixed-point Library with
+complex algorithms at high precision.
+
+The instantiated fixed-point class in this example is:
+`boost::fixed_point::negatable<122, -3200>>`
+and the instantiated multiprecision class is:
+`boost::multiprecision::number<class boost::multiprecision::backends::cpp_bin_float<963>>`.
+
+Full code for the fixed-point calculation is at [@../../example/fixed_point_hypergeometric_1f1_fixed.cpp fixed_point_hypergeometric_1f1_fixed.cpp].
+
+Full code for the floating-point calculation is at [@../../example/fixed_point_hypergeometric_1f1_float.cpp fixed_point_hypergeometric_1f1_float.cpp].
+
+
+[endsect] [/section:hypergeometric Example of computing hypergeometric_1f1 function]
+
 
 [endsect] [/section:examples Examples]
 
@@ -625,12 +691,18 @@ from byte to multiprecision kilo bytes;
 this will normally be hidden from the user, but there are a few features that may surprise users.
 
 [warning Ensure that the sum of resolution and range
-is not [*equal] to the number of bits in the underlying integral type, usually `int` 32 or 64-bit,
+is not [*equal] to the number of bits in the underlying integral type,
+usually `int` 32 or 64-bit,
 chosen from  [@http://en.cppreference.com/w/cpp/types/integer Fixed-width integer types].
-Other fixed_point will use the next largest type, at worse a __multiprecision type,
+Otherwise, because one bit is required for sign
+(and the same bit also used to provide sapce for rounding),
+fixed_point will use the next largest type, at worse a __multiprecision type.
+This will have a dramatic effect on code size and run-time.
+Otherwise, because one bit is required for sign and rounding,
+fixed_point will use the next largest type, at worse a __multiprecision type,
 with dramatic effect on code size and run-time.
 For example, `negatable<0,63>` and `nonnegative<0,63>`
-are the largest types possible based on `__int64_t` without using __multiprecision.
+are the largest types possible based on `int64_t` without using __multiprecision.
 
 ] [/warning]
 
@@ -643,7 +715,7 @@ from the input type where these might be 'lossy' (cause loss of precision).
 
 This means that one cannot write, for example,
 
-  negatable<2, -5> x1 = 1; // No suitable constructor from int to fixed_point.
+  negatable<2, -5> x1 = 1; // No suitable conversion from int to fixed_point.
 
 but should always prefer to write
 
@@ -667,9 +739,9 @@ because construction followed by initialization will involve a temporary variabl
 
 [h3:assignment Assigning a value that is too big]
 
-[warning There is a major pit awaiting the unwary if the [^fixed_point] type cannot represent the value assigned!]
+[warning There is a major pit awaiting the unwary if the [^fixed_point] type cannot (quite) represent the value assigned!]
 
-In this example, constructing with the integer value ['unity] will cause surprise:
+In this example, constructing with the integer value ['unity] will cause a big surprise:
 
   negatable<0, -7> x1(1);
 
@@ -685,18 +757,33 @@ This is because this type has [*zero] bits used for the range and so the maximum
 Storing the value 1 therefore causes overflow and, in line with C/C++ norms,
 the value stored [*wraps around to -1, the lowest value], `std::numeric_limits<>::lowest()` == -1.0000.
 
-This behaviour is analogous to `short int`
+This behavior is analogous to that of `int16_t`
 where assigning a value that exceeds `(std::numeric_limits<short int>::max)()` (32767)
 silently causes overflow and goes negative to `std::numeric_limits<short int>::lowest()` (-32768).
 
-For `fixed_point` it is because an integral type is used to hold the `fixed_point` value.
+For `fixed_point` it is because an integral type is used
+as the internal representaion tht holds the `fixed_point` value.
 
-Unlike the built-in integers, when used in a simple assignment or construction, the compiler can warn
+As mentioned above,
 
-   short int j(32768); //  warning C4309: 'initializing': truncation of constant value
-   short int k = 32768; //  warning C4309: 'initializing': truncation of constant value
+  negatable<2, -5> x1 = 1; // No suitable conversion from int to fixed_point.
 
-but for Boost `fixed_point`, there is [*no compiler warning].
+has no suitable conversion from int to `fixed_point`.
+
+Unlike the built-in integers, when used in a simple assignment or construction,
+the compiler can warn
+
+  short int j  (32768); //  warning C4309: 'initializing': truncation of constant value
+  short int k = 32768;  //  warning C4309: 'initializing': truncation of constant value
+
+But for Boost `fixed_point`, there is [*no compiler warning].
+As a result, narrowing construction has been made explicit
+and attempting an implicit narrowing conversion results in a compiler error.
+
+Here, narrowing conversion is interpreted to mean trying
+to convert an integral type to a `fixed_point` type
+where the `fixed_point` type has fewer digits of range
+than the number of digits in the integral type.
 
 [warning
 The same pitfall applies for [*all] negatable types when the value provided
@@ -705,6 +792,21 @@ exceeds the size of the integral type used to store the [^fixed_point] data.]
 [note This behaviour might change if `overflow` was other than
 `boost::fixed_point::overflow::undefined`, for example, saturation at the maximum value.[br]
 At present, only `overflow::undefined` is implemented.]
+
+Another type of narrowing conversion occurs when trying
+to convert a fixed-point type with wider range to another
+fixed-point type with less range.
+
+For example, the conversion below is explicit.
+
+  typedef boost::fixed_point::negatable<4, -11> fixed_point_type_a;
+  typedef boost::fixed_point::negatable<6,  -9> fixed_point_type_b;
+
+  fixed_point_type_a a(1);
+  fixed_point_type_b b(2);
+
+  fixed_point_type_a c_ok     (b); // OK, eplicit conversion.
+  fixed_point_type_a c_wrong = b;  // Not OK, attempted implicit narrowing conversion.
 
 [endsect] [/section:construction Constructors and Destructors]
 
@@ -727,7 +829,7 @@ The full code is at [@../../example/fixed_point_limits.cpp fixed_point_limits.cp
 
 [section:how_to_tell How to Determine the Kind of a Fixed_point Number from `std::numeric_limits` and `type_traits`]
 
-Different kinds of `fixed_point` numbers can be differentiated
+Various kinds of `fixed_point` numbers can be differentiated
 based on the information stored in `type_traits`  and `std::numeric_limits`.
 
 The `traits class` __is_fixed_point
@@ -770,11 +872,11 @@ and the extended precision type (usually implemented in software, and thus much 
 Using fixed point `negatable`, we can chose make quite different splits between exponent (range)
 and significand (resolution).
 
-For example, to match the range of `float` using only 32-bit, we can define
+For example, to match the range of (single-precision) `float` using only 32-bit, we can define
 
   typedef boost::fixed_point::negatable<11, -20> fixed_point_type;
 
-We could also match the resolution of `float` using only 32-bit,
+We could also match the resolution of (single-precision) `float` using only 32-bit,
 by defining
 
   typedef boost::fixed_point::negatable<7, -24> fixed_point_type;
@@ -857,22 +959,25 @@ For this use __negatable_float_type:
 
 [fixed_point_type_representation_example_2]
 
-showing that `float` is (plenty) big enough to hold all possible values for this tiny type.
+showing that (single-precision) `float` is (plenty) big enough
+to hold all possible values for this tiny type.
 
 To list some other of the many reasonable fixed_point types, an example function is:
 
 [fixed_point_type_representation_example_3]
 
 [tip The full type given by `typeid(T).name()` will be fully informative
-but may be inconveniently long because it could be a so-called mangled name.]
+but may be inconveniently long because it could be a so-called mangled name,
+and might not be displayable using `std::cout`.]
 
 The full example and some sample output is at
 [@../../example/fixed_point_representation_examples.cpp  fixed_point_representation_examples.cpp].
 
 Most of the results are obvious, but it is worth noting that a type that uses a value type of `__int64`
-cannot use a 64-bit `double` type for its floating-point representation and must switch to a __multiprecision type, like
+cannot use a 64-bit `double` type for its floating-point representation
+and must switch to a __multiprecision type such as
 `class boost::multiprecision::number<class boost::multiprecision::backends::cpp_bin_float<63,2,void,int,0,0>,0>`
-This will have a marked effect on any operation like output that uses this.
+This will have a marked effect on performance.
 
 [tip Take care when choosing your fixed_point type.]
 
@@ -885,7 +990,8 @@ Stream IO is implemented using conversion to floating-point
 
 But for bare-metal embedded devices that have no input-output devices,
 this code can be omitted to save space by defining macro
-BOOST_FIXED_POINT_DISABLE_IOSTREAM.
+
+  BOOST_FIXED_POINT_DISABLE_IOSTREAM.
 
 [section:round_tripping Serialization and Round-tripping]
 
@@ -900,7 +1006,8 @@ is that conversion of a decimal digit string
 to a floating-point type is [*not guaranteed] to be the nearest __representable value,
 but may be, in effect, be one bit 'wrong'.
 
-[warning This means that any fixed_point values after serialization and de-serialization may not be identical,
+[warning This means that any fixed_point values after
+serialization and de-serialization may not be identical,
 and that any integrity check based on
 [@https://en.wikipedia.org/wiki/Checksum checksum or hash]
 may fail.]
@@ -948,7 +1055,7 @@ A possible alternative that would guarantee round-tripping and serialization wou
 [h5:round_trip_details  Round trip details]
 
 Conversion using `operator<<` or `strtof(), stdtod()...`
-does not guarantee the nearest __representable value,
+does [*not] guarantee the nearest __representable value,
 (in contrast to the conversion of decimal digit strings [*by the compiler],
 which [*does] guarantee the [*nearest __representable value]).
 
@@ -968,10 +1075,10 @@ Some platforms achieve the conversion to the nearest representable value,
 at least for decimal digits strings of reasonable lengths
 (usually `std::numeric_limits<T>::max_digits10`).
 
-Sadly a popular platform still fails to convert correctly: see
+A popular platform still fails to convert correctly: see
 [@http://www.exploringbinary.com/visual-c-plus-plus-strtod-still-broken/ Visual C++ strtod() Still Broken].
 
-(The input `operator<<` might also be implemented without using floating-point `strtod` `strtof` or `strtol`,
+(The input `operator<<` might also be implemented without using floating-point `strtod`, `strtof` or `strtol`,
 functions, but this would increase code size.
 Such an implementation would probably be faster because the  length and format of the string
 is already known from the value of `std::numeric_limits<>::max_digits10`,
@@ -980,46 +1087,110 @@ and that the format is also already known.)
 [endsect] [/section:round_tripping Serialization and Round-tripping]
 
 [endsect] [/section:iostream Stream IO]
-[section:conversions Constructing and Interconverting Between Number Types]
-All of the fixed-point types in the Fixed_point Library have certain conversion rules in common.
 
-[/TODO]
+[section:conversions Constructing and Interconverting Between Number Types]
+
+All of the fixed-point types in the Boost.Fixed_point Library have certain conversion rules in common.
+
+Construction and assignment of a fixed-point type from another fixed-point type
+having the same range and resolution simply uses copy semantics.
+
+Construction and assignment of a fixed-point type from another fixed-point type
+having more resolution uses truncation and rounding of the resolution.
+
+Construction and assignment of a fixed-point type from another fixed-point type
+having more range uses truncation of the range.
+
+If the other fixed-point type has more range and more resolution,
+the the range is truncated and the reolution is truncated with rounding.
+
 [endsect] [/section:conversions Constructing and Interconverting Between Number Types]
 
 [section:mixed Mixed-Precision Arithmetic]
-Mixed-precision arithmetic is fully supported by the library.
+Mixed-precision arithmetic of two fixed-point operands
+having different range, different resolution or both
+is fully supported by the library.
 
-There are several different forms:
+The minimal set of needs:
+
+* Mixed-precision ctors.
+* Mixed precision copy ctor.
+* Mixed-precision global operators add, sub, mul, and div.
+* Mixed-precision comparison operators.
+
+Mixed-precision construction has been discussed in the previous section.
+
+There are several different forms of mixed-precision arithmetic
+that need to be considered:
 
 * Where the operands are of different range and equal resolution.
 * Where the operands are of equal range and different resolution.
 * Where the operands are of different range and different precision.
 
-Some design choices were made.
+In order to support mixed-precision arithmetic, certain design choices have been made.
 
-For example, the result of `(a + b)` has the type of
-the operand with the wider resolution.
-Some might argue that the result of `(a + b)` should
-have the type of ['a] or the type of ['b], etc.
-Mixed-math fixed-point binary arithmetic could be
-implement either way; it's just a design choice.
+Consider, for instance, the result of the `negatable` binary addition ['(a + b)],
+where the operands have different range and different resolution.
+This addition returns a `negatable` object having the same type
+as the operand in the binary addition that has the wider resolution.
+
+The code snippet below, for example, implements a mixed-precision
+binary addition operation.
+
+  typedef boost::fixed_point::negatable<2, -13> fixed_point_type_a;
+  typedef boost::fixed_point::negatable<4, -11> fixed_point_type_b;
+
+  fixed_point_type_a a = fixed_point_type_a(1) / 3;
+  fixed_point_type_b b = fixed_point_type_b(1) / 3;
+
+  // The type of c is negatable<2, -13>.
+  auto c = a + b;
+
+  // 0.6663
+  std::cout << std::setprecision(std::numeric_limits<fixed_point_type_b>::digits10)
+            << c
+            << std::endl;
+
+Here, the result of the addition has same type as ['b].
+In other words the type of ['c] is `negatable<2, -13>`.
+This type has been selected by the binary addition operator
+because ['b] has the wider resolution of the two operands in ['(a + b)].
+
+This might be controversial,
+as some might argue that the result of ['(a + b)] should
+return the type of ['a], or the type of ['b], or a
+type having the maximum of both operand range as well as resolution.
+Mixed-precision arithmetic could potentially be implemented
+in any of these different ways. The strategy selected here
+is simply a design choice.
+
+Mixed-precision binary subtraction, multiplication and division
+use a similar strategy regarding the range and resolution
+of the results.
 
 For mixed-math comparison, a so-called supra-negatable type
 is created from the maximum of both range and resolution
-of both operands. A comparison is then made.
+of the two operands. A comparison is then made.
 
 This results in such comparisons like
 
-  negatable<4, -8>(1) / 3 != negatable<3, -11>(1) / 3
+  (negatable<4, -8>(1) / 3) != (negatable<3, -11>(1) / 3)
 
-And the result is symmetric, otherwise, we might be surprised that
+And the result is symmetric, otherwise, one might be surprised that
   `(a == b)`
-and
+but
   `(b != a)`
 
 This is yet another design choice.
 
-[endsect] [/section:mixed Mixed Precision Arithmetic]
+[warning Using mixed-precision arithmetic requires instantiating more
+than one kind of fixed-point type, such as both of `negatable<4, -8>`
+and `negatable<3, -11>`. This means that code will be instantiated
+for two separate types which could significantly increase the code size,
+which may have particularly strong influence on a bare-metal embedded system.]
+
+
+[endsect] [/section:mixed Mixed-Precision Arithmetic]
 
 [section:constants Constants]
 [import ../example/fixed_point_constants.cpp]
@@ -1033,7 +1204,7 @@ To start, we can generate a 'reference' value using __multiprecision, say with 5
 
 [bin_float_50_pi]
 
-Note how we ensure that only significand digits ['for the type] are shown by using
+Note how we ensure that only significant digits ['for the type] are shown by using
 
   std::setprecision(std::numeric_limits<cpp_bin_float_50>::digits10)
 
@@ -1053,6 +1224,28 @@ Finally a much more precise fixed-point type that will fit into 128-bit (16-byte
 [fixed_point_precise_constant]
 
 The full code is at [@../../example/fixed_point_constants.cpp  fixed_point_constants.cpp].
+
+For highly optimized calculations or embedded bare-metal systems,
+certain common constants are also explicitly provided.
+These can be found in the `boost::fixed_point::negatable_constants`
+template structure.
+
+For example,
+
+  typedef boost::fixed_point::negatable<2, -253> fixed_point_type;
+
+  const fixed_point_type value_ln_two =
+    boost::fixed_point::negatable_constants<fixed_point_type>::ln_two();
+
+  // 0.6931471805599453094172321214581765680755001343602552541206800094933936219695
+  std::cout << std::setprecision(std::numeric_limits<fixed_point_type>::digits10)
+            << value_ln_two
+            << std::endl;
+
+The constants `root_two`, `pi`, `pi_half`, `ln_two` and `e`
+are provided with unlimited precision.
+These constants are computed at run-time during the pre-main
+initialization of the program.
 
 [endsect] [/section:constants Constants]
 
@@ -1088,38 +1281,6 @@ leads to an intermediate value in the range ['\[x, x+1)] would round to ['x].
 [endsect] [/section:rounding Rounding]
 
 
-[section:mixed_mode Mixed-mode]
-
-Mixed math are operations using fixed-point types of [*different range and/or precision].
-
-The minimal set of  needs:
-
-* mixed-math ctors.
-* mixed math copy ctor.
-* mixed-math global operators add, sub, mul, and div.
-* mixed-math comparison operators.
-
-Design choices were made that the result of ['(a + b)] has the type of ['a].
-
-This might be controversial,
-as some might argue that the result of ['(a + b)] should
-have the highest precision. It's easy to implement either
-way, just a design choice.
-
-For mixed-math comparison, the supra-negatable type
-is created from the [*maximum of both range and resolution].
-A comparison is then made.
-
-This results in such things like
-
-  negatable<4, -8>(1) / 3 != negatable<3, -11>(1) / 3
-
-And the result is symmetric. Otherwise, we might
-end up with (a == b) and (b != a). It's another
-design choice.
-
-[endsect] [/section:mixed_mode Mixed-mode]
-
 [section:infinity Infinity and NotANumber (NaN)]
 
 Unlike floating-point types, the fixed-point types (may)
@@ -1138,21 +1299,15 @@ In `namespace overflow` some `struct` like `modulus`, `exception` etc are provid
 
 [section:get_and_set Get and Set functions ?]
 
-At present, no functions to access the `private` data
+There are interface functions to access the `private` representation field
 containing the underlying integral type used to hold the fixed_point value.
 
-  value_type value() const;
-  void value(const value_type&);
+    const value_type&  representation() const; // Read-only access.
+    const value_type& crepresentation() const; // Read-only access.
+          value_type&  representation()        // Read-write access.
 
-For some purposes, being able to both set and get without any conversion could be invaluable,
-(but clearly may become a to be a foot-gun for the incompetent user).
-
-Examples are  the functions `fixed_next`, `fixed_prior`, `fixed_advance`
-and `fixed_distance` that have been added, at the cost of making them `friend`
-functions.  Users could not do this without changing the code for the class `fixed_point`,
-something that is most undesirable.
-
-These functions should also permit exact round-tripping and serialization-deserialization.
+For some purposes, being able to both set and get without any conversion is invaluable,
+(but clearly may become a potential source of error).
 
 [endsect] [/section:get_and_set Get and Set functions be provided?]
 
@@ -1160,16 +1315,23 @@ These functions should also permit exact round-tripping and serialization-deseri
 
 There is support for most  functions in the __cmath for the fixed-point
 negatable class. These include elementary transcendental functions,
-exponential functions, power functions, logarithmic functions,
-and various other mathematical support functions.
+such as trigonometric functions, exponential functions,
+power functions, logarithmic functions, hyperbolic trigonometric functions,
+and various other mathematical functions.
+
+There is also support for certain non-standard functions
+such as `fixed_next`, `fixed_prior`, `fixed_advance`
+and `fixed_distance` that are similar to same-named
+functions in Boost.Math. These functions are also useful for
+exact round-tripping and serialization-deserialization.
 
 As long as the math functions are in the same namespace as the classes
 then unqualified calls will still work (via __ADL).
 
 The user can simply call `sqrt(negatable)` without
 requiring any namespace decoration. In this way, the `<cmath>`
-functions of the negatable class work just like those for
-built-in types in the C-language header `<math.h>`.
+functions of the `negatable` class work just like those for
+built-in types in the C/C++-language headers `<math.h>` and `<cmath>`.
 
 So the user can just write:
 
@@ -1209,21 +1371,60 @@ underlying range of the multiple-precision back-end itself.
 
 [h5 Implementation]
 
-Elementary transcendental functions use polynomial approximations
+Elementary transcendental functions have been implemented with
+numerous polynomial approximations and Pade-type approximations
 in combination with argument reduction schemes
 in the smaller two precision ranges. In the larger precision range,
 various calculation methods are used,
 in particular, Taylor series expansion and Newton-Raphson iteration.
 
+Note that argument reduction necessarily results in loss of precision
+because a reduction in range bits can not compensated
+by increasing the resolution in a fixed-point type, as the
+range and resolution are fixed compile-time parameters
+(tamplate arguments).
+Consider, for example, the square root function.
+In the implementation of square root, the argument is first reduced to
+to a value in the range ['\[1/2, 1)] and the square root is subsequently calculated.
+When calculating `sqrt(101)` in `negatable<7, -24>`,
+for example, the argument reduction results in a loss
+of approximately 6-7 bits of precision.
+
+
 [endsect] [/section:cmath C math functions]
 
 [section:boostmath Using the Fixed-point Library with Boost.Math]
 
-The fixed-point Library can be used with Boost.Math,
+The Boost.Fixed-point Library can be used with Boost.Math,
 and some Boost.Math functions work well when used with the __negatable class.
-Due to limitations in numeric limits of the fixed-point type, however,
 care must be taken when selecting the fixed-point range and resolution
 for a given calculation.
+
+In particular, ensure that the fixed-point type has as many
+digits in its range as the number of digits in built-in int
+(which is often 31 or 63). This is necessary because
+narrowing conversions of fixed-point are explicit and
+Boost.Math internally uses a lot of implicit conversion to int.
+
+The following type definition, for example, could be a good choice
+for interoperability with Boost.Math.
+
+  // Ensure that the built-in types have sufficient digits.
+  static_assert(std::numeric_limits<long double>::digits > std::numeric_limits<int>::digits + 7,
+                "Error: Not enough digits are available in long double for this example");
+
+  // Use as many range digits as are available in built-in int.
+  typedef boost::fixed_point::negatable<
+    std::numeric_limits<int>::digits,        // As many range digits as digits in int.
+    -(  std::numeric_limits<long double>::digits  // The remaining resolution digits from long double.
+      - std::numeric_limits<int>::digits)>
+  fixed_point_type;
+
+
+For instance, it is easy to compute the value of a cylindrical Bessel
+function with Boost.Math. The example here
+[@../../example/fixed_point_cyl_bessel_j.cpp fixed_point_cyl_bessel_j.cpp],
+computes `cyl_bessel_j(3/7, 1/4)`.
 
 [endsect] [/section:boostmath Using the Fixed-point Library with Boost.Math]
 
@@ -1298,26 +1499,30 @@ to the left.
 Benchmarks using the fixed-point negatable class have
 been performed using a variety of mathematical techniques
 Two main microcontrollers have been used for benchmarking:
-a 32-bit microcontroller clocked at 24 MHz and an
+a 32-bit microcontroller clocked at 24 MHz and a
 8-bit microcontroller clocked at 16MHz. Both of these
 microcontrollers lack a dedicated hardware FPU.
 Timing results have been obtained with a digital oscilloscope
 in combination with a standard I/O pin toggle mechanism,
 as described in Section 9.6 of __CMK_realtime.
 
-The following table shows run-times for various mathematical calculations
-for `negatable<7, -24>` and built-in single-precision floating-point.
-This benchmark has been performed with the 32-bit microcontroller
-clocked at 24 MHz. GCC 4.8.3 built with newlib has been used.
+The following table shows run-time comparisons of `negatable<7, -24>`
+with built-in single-precision floating-point for various mathematical calculations.
+This benchmark has been performed with a 32-bit microcontroller (without FPU)
+clocked at 24 MHz. GCC 5.2.0 built with newlib for the target `arm-none-eabi`
+has been used.
 
-[table:8bit_speed Comparing speed of fixed-point and floating-point with a 8-bit microcontroller
+[table:32bit_speed Comparing speed of fixed-point and floating-point with a 32-bit microcontroller
 [[function] [run-time `negatable<7, -24>` ([mu]s)] [run-time 32-bit `float` ([mu]s)]]
-[[sqrt(6/10) ][                   17            ][            17 ]]
-[[sin (1/2)     ][                  15            ][            27]]
-[[exp (7/10) ][                  27            ][            54]]
-[[log (13/10) ][                 20           ][             54]]
-[[atan(1/2)  ][                   16            ][            16]]
-[[d/dx[q(x)]  ][                  27           ][             79]]
+[[(1/3) + (9/7) ][             0.4           ][           2.5]]
+[[(1/3) * (9/7) ][             1.6           ][           2.0]]
+[[(1/3) / (9/7) ][               6           ][             7]]
+[[sqrt( 6/10)   ][               6           ][            49]]
+[[sin ( 1/ 2)   ][               6           ][            43]]
+[[exp ( 7/10)   ][              12           ][           110]]
+[[log (13/10)   ][              10           ][           110]]
+[[atan( 1/ 2)   ][               4           ][            64]]
+[[d/dx[q(x)]    ][              27           ][            70]]
 ] [/table]
 
 In the final table entry, ['d/dx] represents the first derivative
@@ -1327,60 +1532,95 @@ __bare_derivative.
 All of the calculations have produced approximately 6-7 decimal
 digits of precision. In general, the fixed-point calculations
 require less run-time than the floating-point calculations.
-For certain mathematical operations such as taking the first
-derivative, the run-time savings can be significant.
+For certain mathematical functions, the run-time savings
+can be significant.
 
 If fewer digits of precision are acceptable for the calculation,
 even further increases of speed are possible using a less wide
 fixed-point type such as `negatable<4, -11>`.
 
 The benchmark results in the table below, for instance, represent
-calculations of `sqrt(6/10)` using both `negatable<4, -11>`
+calculations of `sqrt(6/10)` and `sin(1/2)` using both `negatable<4, -11>`
 and built-in 32-bit single-precision floating-point.
 
-[table:32bit_speed Comparing speed of fixed-point and floating-point with a 32-bit microcontroller
+[table:32bit_speed2 Comparing speed of fixed-point and floating-point with a 32-bit microcontroller
 [[Function] [run-time `negatable<4, -11>` ([mu]s)] [run-time 32-bit `float` ([mu]s)]]
-[[`sqrt(6/10)`][        6     ][                      17]]
+[[sqrt( 6/10) ][             2.0           ][            49]]
+[[sin ( 1/ 2) ][             2.8           ][            43]]
 ] [/table]
 
 In this comparison, we see a significant run-time advantage for
-the fixed-point type, but at the expense of lower precision
-and reduced range as well.
+the `negatable<4, -11>` fixed-point type, but at the expense
+of lower precision. Again, the 32-bit microcontroller (without FPU)
+clocked at 24 MHz has been used with GCC 5.2.0 built with newlib
+for the target `arm-none-eabi`.
+
+
+[/h4 Results from an 8-bit microcontroller]
+
+When using a small 8-bit microcontroller, a smaller fixed-point type
+such as one fitting into a 16-bit integer can result in high performance.
+The benchmark results in the table below have been obtained with
+`negatable<4, -11>` running on an 8-bit microcontroller clocked at 16 MHz.
+This benchmark has been performed with GCC 5.3.0 for the target `avr-unknown-elf`.
+
+[table:8bit_speed Comparing speed of fixed-point and floating-point with an 8-bit microcontroller
+[[function] [run-time `negatable<4, -11>` ([mu]s)] [run-time 32-bit `float` ([mu]s)]]
+[[(1/3) + (9/7) ][               1           ][             8]]
+[[(1/3) * (9/7) ][               9           ][            10]]
+[[(1/3) / (9/7) ][              44           ][            31]]
+[[sqrt( 6/10)   ][              18           ][            31]]
+[[sin ( 1/ 2)   ][              36           ][           100]]
+[[exp ( 7/10)   ][              81           ][           180]]
+[[log (13/10)   ][              53           ][           140]]
+[[atan( 1/ 2)   ][              41           ][           150]]
+[[d/dx[q(x)]    ][             170           ][           290]]
+] [/table]
 
 Another perspective on resource consumption can be obtained
 by measuring the size of the code used in a benchmark.
 
-Consider the `sqrt(1/6)` calculation performed for
+Consider the `sqrt(1/6)` calculation performed on the 32-bit microcontroller
 comparing `negatable<7, -24>` with built-in 32-bit single-precision floating-point.
 The following code sizes were obtained for this particular benchmark.
 
 [table:32bit_size Comparing code size with a 32-bit Microcontroller
 [[ Function] [`negatable<7, -24>` (byte)] [32-bit `float` (byte)]]
-[[`sqrt(6/10)`] [ 4,176 - 1,456 = 2,720 ] [ 5,488 - 1,456 = 4,320]]
-] [/table:32bit_speed 32-bit Microcontroller]
+[[`sqrt(6/10)`] [ 1,900 - 1,200 = 700 ] [ 4,400 - 1,200 = 3,200]]
+] [/table:32bit_size 32-bit Microcontroller]
 
 Here the final code consumption is shown as the result of subtraction.
 The subtracted amount arises from the code required to implement
 a minimalistic cooperative-multitasking scheduler and skinny
 hardware abstraction layer, as described in Chaps. 8, 9 and 11 in __CMK_realtime.
-In this benchmark, GCC 4.8.3 has been used with optimization
-setting -O2
-(see [@https://gcc.gnu.org/onlinedocs/gcc-4.3.1/gcc/Optimize-Options.html#Optimize-Options]).
+In this benchmark, the code contributions from the (pre-main) startup and
+the interrupt vector table have been ignored.
 
-Inline functions have been enabled with the allowed
-inline function-depth set to 32 lines using two
-compiler options `-finline-functions` and `-finline-limit=32`.
+The code can be squeezed even further if a less wide fixed-point
+type is used. The result below shows the code size for the `sqrt(1/6)`
+calculation performed with `negatable<4, -11>` on the 32-bit microcontroller.
+The comparison is with with built-in 32-bit single-precision floating-point.
 
-It can be observed that the fixed-point calculation requires
-less code than the floating-point calculation. For a large fixed-point
-project, however, the resulting code size can vary significantly
-depending on the compiler's inlining characteristics and optimization
-settings. This is because the fixed-point library is template code.
+[table:32bit_size2 Comparing code size with a 32-bit Microcontroller
+[[ Function] [`negatable<4, -11>` (byte)] [32-bit `float` (byte)]]
+[[`sqrt(6/10)`] [ 1,700 - 1,300 = 400 ] [ 4,400 - 1,200 = 3,200]]
+] [/table:32bit_size2 32-bit Microcontroller]
+
+It can be observed that the fixed-point calculations in these benchmarks
+require less code than the corresponding floating-point calculations.
+For a large fixed-point project, however, the resulting code size
+can vary significantly depending on the compiler's inlining
+characteristics and optimization abilities. This is because
+the fixed-point library is template code.
 It is, therefore, a good idea to periodically check the code size
 of a fixed-point project and adjust the compiler parameters
 according to the needs of the project.
 
-[/h4 Results from an 8-bit microcontroller]
+In all of the benchmarks (for both speed measurements as well as
+size measurements), GCC has been used with optimization setting -O2
+(see [@https://gcc.gnu.org/onlinedocs/gcc-6.1.0/gcc/Optimize-Options.html#Optimize-Options]).
+Inline functions have been enabled with inline function-depth set to 32 lines
+using the two compiler options `-finline-functions` and `-finline-limit=32`.
 
 [endsect] [/section:microcontrollers Using Fixed-point with Microcontrollers]
 
@@ -1388,63 +1628,98 @@ according to the needs of the project.
 
 [/http://stackoverflow.com/questions/35090656/how-can-i-document-with-doxygen-macros-like-boost-somefeature-that-are-not-defined]
 
-Some macros are becoming available to disable some features
-that may improve the usefulness of fixed_point in certain applications.
+Some macros are available (or are becoming available) to enable/disable certain
+library features that may improve the usefulness of fixed_point in
+certain application domains.
 
-* BOOST_FIXED_POINT_DISABLE_MULTIPRECISION,
-defined to disable the use of Boost.Multiprecision
-for back-ends of the fixed-point classes.
-(not yet implemented).
+* BOOST_FIXED_POINT_DISABLE_IOSTREAM
+All I/O streaming is disabled, as is the inclusion of associated standard
+library headers. This option eliminates all I/O stream overhead,
+in particular for bare-metal microcontroller projects.
+Disabling I/O streaming requires simultaneous disabling of multiprecision,
+as shown below with BOOST_FIXED_POINT_DISABLE_MULTIPRECISION.
+(Implemented).
 
-* BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH,
-defined to avoid using the unsigned_large_type. This option
-is intended for systems with limited integer widths
-such as bare-metal microcontrollers.[br]
+* BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
+This option is defined to disable the use of
+Boost.Multiprecision for back-ends of the fixed-point classes.
+Multiprecision fixed-point numbers are not available if this
+option is set.
+(Implemented).
+
+* BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH
+This option is defined to avoid using the unsigned_large_type in the
+implementations of multiplication and division operations.
+This option is intended for systems with limited integer widths
+such as bare-metal microcontrollers.
 When used in combination with BOOST_FIXED_POINT_DISABLE_MULTIPRECISION,
-the this option is intended to provide fixed-point representations
-with up to 64-bits (if 64-bit integral types are available)
-without requiring any of __multiprecision.
+this option is intended to provide fixed-point representations
+with up to 64-bits (if 64-bit integer types are available)
+without requiring any multiprecision.
 (Not yet implemented).
 
-* BOOST_FIXED_POINT_DISABLE_IOSTREAM defined to disable
-all I/O streaming and the inclusion of associated standard
-library headers.[br]
-This is intended to eliminate I/O stream
-overhead, in particular for bare-metal microcontroller projects.
+* BOOST_FIXED_POINT_DISABLE_IOSTREAM
+is defined to disable all I/O streaming and the inclusion
+of associated standard library headers.[br]
+This is intended to eliminate all I/O stream overhead,
+in particular for bare-metal microcontroller projects.
+(Implemented).
+For an example, see [@../../example/fixed_point_no_io.cpp fixed_point_no_io.cpp].
+
+* BOOST_FIXED_POINT_DISABLE_CPP11
+This option enables support for a back-port to C++03.
+This option eliminates the use of all native C++11 language elements. This might send the
+wrong message about language technology, but could
+increase the range of potential target compilers, especially for embedded systems.
+(Not yet implemented).
+
+* BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS
+When this option is defined, fixed-point uses multiple-precision backends
+(when required) based on __GMP instead of __multiprecision's self-written
+binary floating-point backend.
+See __gmp_float section in __multiprecision.
+__GMP backends use highly optimized assembler and advanced
+multiplication algorithms that are significantly faster for high digit counts
+in excess of a few hundred binary digits.
 (Implemented but not fully tested).
-For an example, see	[@../../example/fixed_point_no_io.cpp fixed_point_no_io.cpp].
 
-* BOOST_FIXED_POINT_DISABLE_CPP11 would decide
-to support an optional back-port to C++03 and eliminate
-the use of all C++11 language elements. This might send the
-wrong message about language technology, but could potentially
-increase the range of potential target compilers (especially
-for embedded systems). (Not yet implemented).
-
-* BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS when defined will enable
-multiple-precision backends (when used) to use the backends
-based on __GMP instead of __multiprecision's self-written
-multiple-precision backends.  See __gmp_float section in __multiprecision.
-__GMP backends using optimised assembler will probably be faster.
 
 [endsect] [/section:macros  Preprocessor Options to disable some features]
 
 [section:testing Testing]
 
-Our testing is necessarily focussed on typical use cases and __boundary __edge and __corner cases.
+Testing is focussed on typical use cases, stress cases, and __boundary,
+__edge and __corner cases.
+Test coverage has not been used during testing,
+but may optionally be included in future validation.
 
-We have performed round-trip testing.
+A strong effort has also been made to test all arithmetic functions,
+mixed-precision operations, transcendental functions and IO streaming.
 
+A variety of other non-trivial calculations has also been included in the test suite.
+These include calculus operations, mathematical constants, special functions,
+root-finding and more. Some of these tests have been specifically desinged
+to use Boost.Math in order to partially verify interoperability with Boost.Math.
+
+Tests have been created for all key precision ranges.
+Both supported rounding modes have been tested.
+Certain calculations in the tests have been extended
+to very few digits of precision and also to thousands of digits
+of precision in order to stress the limits of the library.
+Some tests have also been run on 8-bit and 32-bit deeply embedded
+bare-metal microcontrollers, strengthening verification of the library's portability.
+
+Extensive round-trip testing has been performed over a wide range of precision.
 This involves constructing a fixed_point type from decimal digits strings like '0.001, 0.002 ...'
 This fixed-point representation is output to a stringstream and then read back into another
 fixed-point variable, and the two checked for equality,
 
-This test can be performed for all possible values of small bit-count fixed-point types,
-but this would take unfeasible test times for more than about 32-bit,
+These kinds of tests could be carried out for all possible values of small bit-count fixed-point types,
+but this would take unfeasible test times for more than about 32 bits,
 so roughly random values covering the entire range of possible binary patterns
 are used for test values instead.
 
-[note History - Random testing was used to track bugs in Microsoft Visual Studio stream
+[note History - Random testing was used to track bugs in a popular compiler's stream
 input from decimal digit strings.
 A fault was originally discovered by a user of __serialization when he found (after much debugging)
 a single value of  de-serialized data that was 1-bit different from that originally written.
@@ -1461,9 +1736,12 @@ were also found in all compilers, most are now achieve correct conversion for al
 
 [section:faq Frequently Asked Questions FAQ]
 #['What compiler do I need?][br]
-Support of many C++11 features is essential.
-Visual Studio 2015 (version 14.0) is best, but many applications will work with Visual Studio 2013.
-Recent GCC and Clang compilers also work well.
+Many C++11 features are used in the Boost.Fixed-point Library and
+the compiler must have a high level of C++11 awareness
+to successfully translate the source code.
+Visual Studio 2015 (VC 14.0) or later works well,
+but many applications will also work with Visual Studio 2013 (VC 12.0).
+GCC compilers versions such as 5.x or later or Clang with similar C++11 adherence also work well.
 #['When should I consider using a fixed-point type?] [br]
 Fixed-point allows you to provide a lower or higher range and/or a lower or higher precision.
 #['Will a fixed-point type use less memory?] [br]
@@ -1473,7 +1751,7 @@ If there is no hardware floating-point, then is very likely to run much faster.
 If you require a very high range or precision that would require __multiprecision or similar
 high or arbitrary precision type, then for the same precision or range, it will probably be quicker,
 possibly much quicker.
-#['How can I avoid using `iostream` on a bare-metal microcontroller without any peripherals?] [br]
+#['How can I avoid using `iostream` on a bare-metal microcontroller without any streaming peripherals?] [br]
 `#define BOOST_FIXED_POINT_DISABLE_IOSTREAM`.
 #['Can I use multiprecision without iostream on a bare-metal microcontroller without any peripherals?] [br]
 This is not possible because the multiprecision software was written assuming `iostream` is available.
@@ -1564,14 +1842,17 @@ To find what you are looking for try:
 
 [section:map Roadmap]
 
-[h4 1.?]
+[h4 0.5]
 
-* First Release.
 [h4 Post review changes]
 
 [h4 Pre-review history]
 
+* First Release to public view for comments Sep 2016 [@https://github.com/BoostGSoC15/fixed_point/tree/develop].
+
 [h4 Pre-Review Comments]
+
+* 2016 Documentation revised and refined for first public view.
 
 * 2015 Christopher Kormanyos  refines the code with the aid of GSoC student Nikhar Agrawal.
 
@@ -1771,9 +2052,9 @@ __CMK_realtime, ISBN 978-3-642-34688-0,  2013,
 
 #[@http://krashan.ppa.pl/articles/stringtofloat/index.html  String To Floating Point Number Conversion] [br]
 atof(), strtod() -  how they work, and how you can write your own ones,
-Grzegorz Kraszewski
+Grzegorz Kraszewski.
 
-#[@http://krashan.ppa.pl/articles/stringtofloat/atof.html atof() float C code] by Grzegorz Kraszewski
+#[@http://krashan.ppa.pl/articles/stringtofloat/atof.html atof() float C code] by Grzegorz Kraszewski.
 
 # [@http://www.drdobbs.com/cpp/optimizing-math-intensive-applications-w/207000448
 Optimizing Math-Intensive Applications with Fixed-Point Arithmetic], Anthony Williams,  Dr Dobbs March 2008.
@@ -1801,6 +2082,10 @@ bandwidth, storage, and electrical power, John L. Gustafson, AMD.
 #[@http://www.pathengine.com/Contents/Overview/FundamentalConcepts/WhyIntegerCoordinates/page.php Why integer coordinates?]
 
 #[@https://github.com/WG21-SG14/SG14/blob/master/Docs/Proposals/Fixed_Point_Library_Proposal.md Fixed-point library proposal John MacFarlane]
+
+#[@http://www.intel.com/content/dam/www/public/us/en/documents/white-papers/ia-32-ia-64-benchmark-code-execution-paper.pdf Intel How to benchmark IA-32 and IA-64]
+
+#[@http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0192r0.pdf Adding Fundamental Type for Short Float]
 
 [/todo Need more background references?]
 
@@ -1830,8 +2115,3 @@ bandwidth, storage, and electrical power, John L. Gustafson, AMD.
 [#macro_index]
 [named_index macro_name Macro Index]
 [endsect] [/section:indexes Indexes]
-
-
-
-
-

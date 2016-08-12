@@ -12,7 +12,7 @@
 
 /*!
   \file
-  \brief Implement most fixed-point negatable \<cmath\> functions.
+  \brief Implement most \<cmath\> functions for fixed-point negatable.
 */
 
 #ifndef FIXED_POINT_NEGATABLE_CMATH_2015_08_21_HPP_
@@ -26,7 +26,7 @@
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> abs(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    return ((x.data < 0) ? -x : x);
+    return ((x.crepresentation() < 0) ? -x : x);
   }
 
   /*! @c std::fabs function (identical to @c abs and provided for completeness).
@@ -35,7 +35,7 @@
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> fabs(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    return ((x.data < 0) ? -x : x);
+    return ((x.crepresentation() < 0) ? -x : x);
   }
 
   /*! Floor function, computes largest integer value not greater than arg.
@@ -49,17 +49,17 @@
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    const local_unsigned_small_type integral_part_mask((local_unsigned_small_type(((std::numeric_limits<local_negatable_type>::max)()).data) >> (-FractionalResolution)) << (-FractionalResolution));
+    const local_unsigned_small_type integral_part_mask((local_unsigned_small_type(((std::numeric_limits<local_negatable_type>::max)()).crepresentation()) >> (-FractionalResolution)) << (-FractionalResolution));
 
-    if(x.data < 0)
+    if(x.crepresentation() < 0)
     {
-      const local_unsigned_small_type u_mask(local_unsigned_small_type(-x.data) & integral_part_mask);
+      const local_unsigned_small_type u_mask(local_unsigned_small_type(-x.crepresentation()) & integral_part_mask);
 
-      return ((local_unsigned_small_type(-x.data) == u_mask) ? x : (local_negatable_type(local_nothing(), -local_value_type(u_mask)) - 1));
+      return ((local_unsigned_small_type(-x.crepresentation()) == u_mask) ? x : (local_negatable_type(local_nothing(), -local_value_type(u_mask)) - 1));
     }
-    else if(x.data > 0)
+    else if(x.crepresentation() > 0)
     {
-      const local_unsigned_small_type u_mask(local_unsigned_small_type(x.data) & integral_part_mask);
+      const local_unsigned_small_type u_mask(local_unsigned_small_type(x.crepresentation()) & integral_part_mask);
 
       return local_negatable_type(local_nothing(), u_mask);
     }
@@ -80,17 +80,17 @@
     typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    const local_unsigned_small_type integral_part_mask((local_unsigned_small_type(((std::numeric_limits<local_negatable_type>::max)()).data) >> (-FractionalResolution)) << (-FractionalResolution));
+    const local_unsigned_small_type integral_part_mask((local_unsigned_small_type(((std::numeric_limits<local_negatable_type>::max)()).crepresentation()) >> (-FractionalResolution)) << (-FractionalResolution));
 
-    if(x.data < 0)
+    if(x.crepresentation() < 0)
     {
-      const local_unsigned_small_type u_mask(local_unsigned_small_type(-x.data) & integral_part_mask);
+      const local_unsigned_small_type u_mask(local_unsigned_small_type(-x.crepresentation()) & integral_part_mask);
 
       return local_negatable_type(local_nothing(), -local_value_type(u_mask));
     }
-    else if(x.data > 0)
+    else if(x.crepresentation() > 0)
     {
-      const local_unsigned_small_type u(x.data);
+      const local_unsigned_small_type u(x.crepresentation());
 
       const local_unsigned_small_type u_mask(u & integral_part_mask);
 
@@ -108,7 +108,7 @@
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> trunc(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x)
   {
-    return ((x.data < 0) ? -floor(-x) : floor(x));
+    return ((x.crepresentation() < 0) ? -floor(-x) : floor(x));
   }
 
   /*! @c std::frexp function \<cmath\> implementation for negatable types.\n
@@ -126,7 +126,7 @@
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    if(x.data == 0)
+    if(x.crepresentation() == 0)
     {
       *exp2 = 0;
 
@@ -134,18 +134,18 @@
     }
     else
     {
-      const bool is_neg = (x.data < 0);
+      const bool is_neg = (x.crepresentation() < 0);
 
       // Extract the unsigned representation of the data field.
-      local_unsigned_small_type result((!is_neg) ? local_unsigned_small_type(x.data) : local_unsigned_small_type(-x.data));
+      local_unsigned_small_type result((!is_neg) ? local_unsigned_small_type(x.crepresentation()) : local_unsigned_small_type(-x.representation()));
 
-      boost::uint_fast16_t msb;
+      std::uint_fast16_t msb;
 
       {
         // Use a binary-halving mechanism to obtain the most significant bit.
         // This will subsequently be used for determination of the binary exponent.
-        BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t unsigned_small_digits =
-          static_cast<boost::uint_fast16_t>(std::numeric_limits<local_unsigned_small_type>::digits);
+        BOOST_CONSTEXPR_OR_CONST std::uint_fast16_t unsigned_small_digits =
+          static_cast<std::uint_fast16_t>(std::numeric_limits<local_unsigned_small_type>::digits);
 
         local_unsigned_small_type unsigned_small_mask((std::numeric_limits<local_unsigned_small_type>::max)());
 
@@ -186,13 +186,13 @@
 
     if(exp2 > 0)
     {
-      return local_negatable_type(local_nothing(), local_value_type(x.data << exp2));
+      return local_negatable_type(local_nothing(), local_value_type(x.crepresentation() << exp2));
     }
     else if(exp2 < 0)
     {
-      const bool is_neg = (x.data < 0);
+      const bool is_neg = (x.crepresentation() < 0);
 
-      local_unsigned_small_type result((!is_neg) ? local_unsigned_small_type(x.data) : local_unsigned_small_type(-x.data));
+      local_unsigned_small_type result((!is_neg) ? local_unsigned_small_type(x.crepresentation()) : local_unsigned_small_type(-x.representation()));
 
       result >>= -exp2;
 
@@ -228,7 +228,7 @@
 
     local_negatable_type fractional_part = x - (integer_part * y);
 
-    if((x.data < 0) != (y < 0))
+    if((x.crepresentation() < 0) != (y < 0))
     {
       fractional_part -= y;
     }
@@ -240,7 +240,7 @@
   */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sqrt(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                               typename std::enable_if<int(11) >= (-FractionalResolution)>::type const*)
+                                                                               typename std::enable_if<11 >= (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
@@ -257,14 +257,14 @@
       return local_negatable_type(1U);
     }
 
-    boost::int_fast8_t n;
+    std::int_fast8_t n;
 
     // Use range reduction for (x < +1/2) or (x > 1).
     if((x < ldexp(local_negatable_type(1U), -1)) || (x > 1))
     {
       int nn;
       x = frexp(x, &nn);
-      n = boost::int_fast8_t(nn);
+      n = std::int_fast8_t(nn);
     }
     else
     {
@@ -285,7 +285,7 @@
         * x + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x070E) >> (11 + FractionalResolution))))  // 0.881555860443492657
         * x + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0289) >> (11 + FractionalResolution)))); // 0.316913013112361600
 
-    const bool is_odd_scaling = ((boost::int_fast8_t(n) & INT8_C(1)) != INT8_C(0));
+    const bool is_odd_scaling = ((std::int_fast8_t(n) & INT8_C(1)) != INT8_C(0));
 
     // Rescale the result. In certain cases there is one extra
     // power of two. If so, either multiply with or divide by
@@ -302,7 +302,7 @@
       }
 
       // Left-shift the result by 1/2 of the even factors of 2.
-      result.data <<= (boost::uint_fast8_t(n) / 2U);
+      result.representation() <<= (std::uint_fast8_t(n) / 2U);
     }
     else if(n < 0)
     {
@@ -315,7 +315,7 @@
       }
 
       // Right-shift the result by 1/2 of the even factors of 2.
-      result.data = local_value_type(local_unsigned_small_type(result.data) >> (boost::uint_fast8_t(-n) / 2U));
+      result.representation() = local_value_type(local_unsigned_small_type(result.representation()) >> (std::uint_fast8_t(-n) / 2U));
     }
 
     return result;
@@ -325,7 +325,7 @@
   */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sqrt(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                               typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
+                                                                               typename std::enable_if<(24 >= (-FractionalResolution)) && (11 < (-FractionalResolution))>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
@@ -376,7 +376,7 @@
             * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x019AD722) >> (24 + FractionalResolution))))  // 1.604845171653826760
             * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0030946A) >> (24 + FractionalResolution)))); // 0.189764675205404663
 
-    const bool is_odd_scaling = ((boost::int_fast8_t(n) & INT8_C(1)) != INT8_C(0));
+    const bool is_odd_scaling = ((std::int_fast8_t(n) & INT8_C(1)) != INT8_C(0));
 
     // Rescale the result. For n odd, there is one extra
     // factor of two in the scaling. If so, either multiply with
@@ -393,7 +393,7 @@
       }
 
       // Left-shift the result by 1/2 of the even factors of 2.
-      result.data <<= (n / 2);
+      result.representation() <<= (n / 2);
     }
     else if(n < 0)
     {
@@ -406,7 +406,7 @@
       }
 
       // Right-shift the result by 1/2 of the even factors of 2.
-      result.data = local_value_type(local_unsigned_small_type(result.data) >> (-n / 2));
+      result.representation() = local_value_type(local_unsigned_small_type(result.representation()) >> (-n / 2));
     }
 
     return result;
@@ -415,7 +415,7 @@
   /*! Computes sqrt for fractional resolution > 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sqrt(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                               typename std::enable_if<int(24) <  (-FractionalResolution)>::type const*)
+                                                                               typename std::enable_if<24 <  (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
@@ -453,17 +453,17 @@
     // (John Wiley and Sons, Inc., 1968), Eq. 2.4.3 on page 27.
 
     // Compute the initial guess [(a + 1) /2].
-    a.data = local_value_type(local_unsigned_small_type(local_unsigned_small_type(a.data) + local_unsigned_small_type(local_unsigned_small_type(1U) << local_negatable_type::radix_split)) >> 1);
+    a.representation() = local_value_type(local_unsigned_small_type(local_unsigned_small_type(a.representation()) + local_unsigned_small_type(local_unsigned_small_type(1U) << local_negatable_type::radix_split)) >> 1);
 
     // Remove the scaling from the reduced guess of the result
     // and use this as the proper initial guess of sqrt(x).
     if((n2 / 2) > 0)
     {
-      a.data <<= (n2 / 2);
+      a.representation() <<= (n2 / 2);
     }
     else if((n2 / 2) < 0)
     {
-      a.data = local_value_type(local_unsigned_small_type(a.data) >> (-n2 / 2));
+      a.representation() = local_value_type(local_unsigned_small_type(a.representation()) >> (-n2 / 2));
     }
 
     if((n2 % 2) != 0)
@@ -473,11 +473,11 @@
       // the rescaling of the initial guess.
       if(n2 > 0)
       {
-        a *= local_negatable_type::value_root_two();
+        a *= negatable_constants<local_negatable_type>::root_two();
       }
       else
       {
-        a /= local_negatable_type::value_root_two();
+        a /= negatable_constants<local_negatable_type>::root_two();
       }
     }
 
@@ -489,7 +489,7 @@
     // We begin with an estimate of 1 binary digit of precision and
     // double the number of binary digits of precision with each iteration.
 
-    for(boost::uint_fast16_t i = UINT16_C(1); i <= boost::uint_fast16_t(local_negatable_type::all_bits / 2); i *= UINT16_C(2))
+    for(std::uint_fast16_t i = UINT16_C(1); i <= std::uint_fast16_t(local_negatable_type::all_bits / 2); i *= UINT16_C(2))
     {
       // Perform the next iteration of vi.
       vi += vi * (1U -((a * vi) * 2U));
@@ -504,14 +504,14 @@
   /*! Computes exponent for fractional resolution < 11 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> exp(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                              typename std::enable_if<int(11) >= (-FractionalResolution)>::type const*)
+                                                                              typename std::enable_if<11 >= (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle zero argument.
-    if(x.data == 0)
+    if(x.crepresentation() == 0)
     {
       return local_negatable_type(1U);
     }
@@ -519,22 +519,22 @@
     // Handle unity argument.
     if(x == local_negatable_type(1U))
     {
-      return local_negatable_type::value_e();
+      return negatable_constants<local_negatable_type>::e();
     }
 
     // Handle reflection for negative arguments.
-    if(x.data < 0)
+    if(x.crepresentation() < 0)
     {
       return 1 / exp(-x);
     }
 
     int nf = 0;
 
-    if(x > local_negatable_type::value_ln_two())
+    if(x > negatable_constants<local_negatable_type>::ln_two())
     {
-      nf = int(x / local_negatable_type::value_ln_two());
+      nf = int(x / negatable_constants<local_negatable_type>::ln_two());
 
-      x -= (local_negatable_type::value_ln_two() * nf);
+      x -= (negatable_constants<local_negatable_type>::ln_two() * nf);
     }
 
     // Use a polynomial approximation.
@@ -558,7 +558,7 @@
 
     if(nf > 0)
     {
-      result.data <<= nf;
+      result.representation() <<= nf;
     }
 
     return result;
@@ -567,14 +567,14 @@
   /*! Computes exponent for fractional resolution  24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> exp(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                              typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
+                                                                              typename std::enable_if<(24 >= (-FractionalResolution)) && (11 < (-FractionalResolution))>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle zero argument.
-    if(x.data == 0)
+    if(x.crepresentation() == 0)
     {
       return local_negatable_type(1U);
     }
@@ -582,22 +582,22 @@
     // Handle unity argument.
     if(x == local_negatable_type(1U))
     {
-      return local_negatable_type::value_e();
+      return negatable_constants<local_negatable_type>::e();
     }
 
     // Handle reflection for negative arguments.
-    if(x.data < 0)
+    if(x.crepresentation() < 0)
     {
       return 1 / exp(-x);
     }
 
     int nf = 0;
 
-    if(x > local_negatable_type::value_ln_two())
+    if(x > negatable_constants<local_negatable_type>::ln_two())
     {
-      nf = int(x / local_negatable_type::value_ln_two());
+      nf = int(x / negatable_constants<local_negatable_type>::ln_two());
 
-      x -= (local_negatable_type::value_ln_two() * nf);
+      x -= (negatable_constants<local_negatable_type>::ln_two() * nf);
     }
 
     // Use a polynomial approximation.
@@ -627,7 +627,7 @@
 
     if(nf > 0)
     {
-      result.data <<= nf;
+      result.representation() <<= nf;
     }
 
     return result;
@@ -636,36 +636,36 @@
   /*! Computes exponent for fractional resolution > 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> exp(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                              typename std::enable_if<int(24) <  (-FractionalResolution)>::type const*)
+                                                                              typename std::enable_if<24 <  (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     // Handle zero argument.
-    if(x.data == 0)
+    if(x.crepresentation() == 0)
     {
       return local_negatable_type(1U);
     }
 
     // Handle reflection for negative arguments.
-    if(x.data < 0)
+    if(x.crepresentation() < 0)
     {
       return 1 / exp(-x);
     }
 
     int nf = 0;
 
-    if(x > local_negatable_type::value_ln_two())
+    if(x > negatable_constants<local_negatable_type>::ln_two())
     {
-      nf = int(x / local_negatable_type::value_ln_two());
+      nf = int(x / negatable_constants<local_negatable_type>::ln_two());
 
-      x -= (local_negatable_type::value_ln_two() * nf);
+      x -= (negatable_constants<local_negatable_type>::ln_two() * nf);
     }
 
     local_negatable_type result = detail::hypergeometric_0f0(x);
 
     if(nf > 0)
     {
-      result.data <<= nf;
+      result.representation() <<= nf;
     }
 
     return result;
@@ -674,7 +674,7 @@
   /*! Computes natural log for fractional resolution < 11 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> log(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                              typename std::enable_if<int(11) >= (-FractionalResolution)>::type const*)
+                                                                              typename std::enable_if<11 >= (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
@@ -685,7 +685,7 @@
 
     if(x < 1)
     {
-      result = ((x.data > 0) ? -log(1 / x) : -local_negatable_type::value_max());
+      result = ((x.crepresentation() > 0) ? -log(1 / x) : -(std::numeric_limits<local_negatable_type>::max)());
     }
     else if(x > 1)
     {
@@ -696,19 +696,19 @@
         // Use a binary-halving mechanism to obtain the most significant bit.
         // This will subsequently be used for argument reduction below.
 
-        BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t unsigned_small_digits =
-          static_cast<boost::uint_fast16_t>(std::numeric_limits<local_unsigned_small_type>::digits);
+        BOOST_CONSTEXPR_OR_CONST std::uint_fast16_t unsigned_small_digits =
+          static_cast<std::uint_fast16_t>(std::numeric_limits<local_unsigned_small_type>::digits);
 
         local_unsigned_small_type unsigned_small_mask((std::numeric_limits<local_unsigned_small_type>::max)());
 
-        local_unsigned_small_type tmp = static_cast<local_unsigned_small_type>(x.data);
+        local_unsigned_small_type tmp = static_cast<local_unsigned_small_type>(x.crepresentation());
 
-        const boost::uint_fast16_t msb = detail::msb_helper(tmp, unsigned_small_mask, unsigned_small_digits);
+        const std::uint_fast16_t msb = detail::msb_helper(tmp, unsigned_small_mask, unsigned_small_digits);
 
         // Evaluate the necessary amount of right-shift.
         n = int(msb) - local_negatable_type::radix_split;
 
-        x.data = local_value_type(local_unsigned_small_type(x.data) >> n);
+        x.representation() = local_value_type(local_unsigned_small_type(x.crepresentation()) >> n);
       }
 
       // Use a polynomial approximation of the base-2 logarithm.
@@ -734,10 +734,10 @@
            * z;
 
       // Scale the result to a base-e logarithm.
-      const local_negatable_type log_value = polynomial_approximation * local_negatable_type::value_ln_two();
+      const local_negatable_type log_value = polynomial_approximation * negatable_constants<local_negatable_type>::ln_two();
 
       // Scale with the logarithms of the powers of 2 if necessary.
-      result = ((n == 0) ? log_value : (log_value + (n * local_negatable_type::value_ln_two())));
+      result = ((n == 0) ? log_value : (log_value + (n * negatable_constants<local_negatable_type>::ln_two())));
     }
     else
     {
@@ -751,7 +751,7 @@
   /*! Computes natural log for fractional resolution < 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> log(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                              typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
+                                                                              typename std::enable_if<(24 >= (-FractionalResolution)) && (11 < (-FractionalResolution))>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
@@ -762,7 +762,7 @@
 
     if(x < 1)
     {
-      result = ((x.data > 0) ? -log(1 / x) : -local_negatable_type::value_max());
+      result = ((x.crepresentation() > 0) ? -log(1 / x) : -(std::numeric_limits<local_negatable_type>::max)());
     }
     else if(x > 1)
     {
@@ -773,19 +773,19 @@
         // Use a binary-halving mechanism to obtain the most significant bit.
         // This will subsequently be used for argument reduction below.
 
-        BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t unsigned_small_digits =
-          static_cast<boost::uint_fast16_t>(std::numeric_limits<local_unsigned_small_type>::digits);
+        BOOST_CONSTEXPR_OR_CONST std::uint_fast16_t unsigned_small_digits =
+          static_cast<std::uint_fast16_t>(std::numeric_limits<local_unsigned_small_type>::digits);
 
         local_unsigned_small_type unsigned_small_mask((std::numeric_limits<local_unsigned_small_type>::max)());
 
-        local_unsigned_small_type tmp = static_cast<local_unsigned_small_type>(x.data);
+        local_unsigned_small_type tmp = static_cast<local_unsigned_small_type>(x.crepresentation());
 
-        const boost::uint_fast16_t msb = detail::msb_helper(tmp, unsigned_small_mask, unsigned_small_digits);
+        const std::uint_fast16_t msb = detail::msb_helper(tmp, unsigned_small_mask, unsigned_small_digits);
 
         // Evaluate the necessary amount of right-shift.
         n = int(msb) - local_negatable_type::radix_split;
 
-        x.data = local_value_type(local_unsigned_small_type(x.data) >> n);
+        x.representation() = local_value_type(local_unsigned_small_type(x.crepresentation()) >> n);
       }
 
       // Use a polynomial approximation of the base-2 logarithm.
@@ -817,10 +817,10 @@
               * z;
 
       // Scale the result to a base-e logarithm.
-      const local_negatable_type log_value = polynomial_approximation * local_negatable_type::value_ln_two();
+      const local_negatable_type log_value = polynomial_approximation * negatable_constants<local_negatable_type>::ln_two();
 
       // Scale with the logarithms of the powers of 2 if necessary.
-      result = ((n == 0) ? log_value : (log_value + (n * local_negatable_type::value_ln_two())));
+      result = ((n == 0) ? log_value : (log_value + (n * negatable_constants<local_negatable_type>::ln_two())));
     }
     else
     {
@@ -834,7 +834,7 @@
   /*! Computes natural log for fractional resolution > 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> log(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                              typename std::enable_if<int(24) <  (-FractionalResolution)>::type const*)
+                                                                              typename std::enable_if<24 <  (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
@@ -844,7 +844,7 @@
 
     if(x < 1)
     {
-      result = ((x.data > 0) ? -log(1 / x) : -local_negatable_type::value_max());
+      result = ((x.crepresentation() > 0) ? -log(1 / x) : -(std::numeric_limits<local_negatable_type>::max)());
     }
     else if(x > 1)
     {
@@ -855,19 +855,19 @@
         // Use a binary-halving mechanism to obtain the most significant bit.
         // This will subsequently be used for argument reduction below.
 
-        BOOST_CONSTEXPR_OR_CONST boost::uint_fast16_t unsigned_small_digits =
-          static_cast<boost::uint_fast16_t>(std::numeric_limits<local_unsigned_small_type>::digits);
+        BOOST_CONSTEXPR_OR_CONST std::uint_fast16_t unsigned_small_digits =
+          static_cast<std::uint_fast16_t>(std::numeric_limits<local_unsigned_small_type>::digits);
 
         local_unsigned_small_type unsigned_small_mask((std::numeric_limits<local_unsigned_small_type>::max)());
 
-        local_unsigned_small_type tmp = static_cast<local_unsigned_small_type>(x.data);
+        local_unsigned_small_type tmp = static_cast<local_unsigned_small_type>(x.crepresentation());
 
-        const boost::uint_fast16_t msb = detail::msb_helper(tmp, unsigned_small_mask, unsigned_small_digits);
+        const std::uint_fast16_t msb = detail::msb_helper(tmp, unsigned_small_mask, unsigned_small_digits);
 
         // Evaluate the necessary amount of right-shift.
         n = int(msb) - local_negatable_type::radix_split;
 
-        x.data = local_value_type(local_unsigned_small_type(x.data) >> n);
+        x.representation() = local_value_type(local_unsigned_small_type(x.representation()) >> n);
       }
       else
       {
@@ -885,7 +885,7 @@
       }
 
       // Use Newton-Raphson iteration to compute the log(x).
-      for(boost::uint_fast16_t i = UINT16_C(1); i <= boost::uint_fast16_t(local_negatable_type::all_bits / 2); i *= UINT16_C(2))
+      for(std::uint_fast16_t i = UINT16_C(1); i <= std::uint_fast16_t(local_negatable_type::all_bits / 2); i *= UINT16_C(2))
       {
         const local_negatable_type exp_minus_log = detail::hypergeometric_0f0(-log_val);
 
@@ -894,7 +894,7 @@
 
       // Obtain the result and scale it with the logarithms
       // of the factors of 2 (if necessary).
-      result = ((n == 0) ? log_val : (log_val + (n * local_negatable_type::value_ln_two())));
+      result = ((n == 0) ? log_val : (log_val + (n * negatable_constants<local_negatable_type>::ln_two())));
     }
     else
     {
@@ -911,7 +911,7 @@
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
-    return log(x) / local_negatable_type::value_ln_two();
+    return log(x) / negatable_constants<local_negatable_type>::ln_two();
   }
 
   /*! Computes log to base 10. */
@@ -937,11 +937,11 @@
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
-    if(x.data == 0)
+    if(x.crepresentation() == 0)
     {
       return local_negatable_type(0U);
     }
-    else if(a.data == 0)
+    else if(a.crepresentation() == 0)
     {
       return local_negatable_type(1U);
     }
@@ -990,14 +990,14 @@
   /*! Computes sine function. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sin(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                              typename std::enable_if<int(11) >= (-FractionalResolution)>::type const*)
+                                                                              typename std::enable_if<11 >= (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle reflection for negative arguments.
-    if(x.data < 0)
+    if(x.crepresentation() < 0)
     {
       return -sin(-x);
     }
@@ -1005,22 +1005,22 @@
     int n = 0;
 
     // Reduce the argument to the range 0 <= x <= +pi/2.
-    if(x > local_negatable_type::value_pi())
+    if(x > negatable_constants<local_negatable_type>::pi())
     {
-      n = int(x / local_negatable_type::value_pi());
+      n = int(x / negatable_constants<local_negatable_type>::pi());
 
-      x -= (n * local_negatable_type::value_pi());
+      x -= (n * negatable_constants<local_negatable_type>::pi());
     }
 
     local_negatable_type result;
 
-    if(x > local_negatable_type::value_pi_half())
+    if(x > negatable_constants<local_negatable_type>::pi_half())
     {
-      result = sin(local_negatable_type::value_pi() - x);
+      result = sin(negatable_constants<local_negatable_type>::pi() - x);
     }
     else
     {
-      if(x == local_negatable_type::value_pi_half())
+      if(x == negatable_constants<local_negatable_type>::pi_half())
       {
         result = local_negatable_type(1U);
       }
@@ -1050,14 +1050,14 @@
   /*! Computes sine function for fractional resolution < 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sin(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                              typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
+                                                                              typename std::enable_if<(24 >= (-FractionalResolution)) && (11 < (-FractionalResolution))>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle reflection for negative arguments.
-    if(x.data < 0)
+    if(x.crepresentation() < 0)
     {
       return -sin(-x);
     }
@@ -1065,22 +1065,22 @@
     int n = 0;
 
     // Reduce the argument to the range 0 <= x <= +pi/2.
-    if(x > local_negatable_type::value_pi())
+    if(x > negatable_constants<local_negatable_type>::pi())
     {
-      n = int(x / local_negatable_type::value_pi());
+      n = int(x / negatable_constants<local_negatable_type>::pi());
 
-      x -= (n * local_negatable_type::value_pi());
+      x -= (n * negatable_constants<local_negatable_type>::pi());
     }
 
     local_negatable_type result;
 
-    if(x > local_negatable_type::value_pi_half())
+    if(x > negatable_constants<local_negatable_type>::pi_half())
     {
-      result = sin(local_negatable_type::value_pi() - x);
+      result = sin(negatable_constants<local_negatable_type>::pi() - x);
     }
     else
     {
-      if(x == local_negatable_type::value_pi_half())
+      if(x == negatable_constants<local_negatable_type>::pi_half())
       {
         result = local_negatable_type(1U);
       }
@@ -1114,12 +1114,12 @@
   /*! Computes sine function for fractional resolution > 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> sin(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                              typename std::enable_if<int(24) <  (-FractionalResolution)>::type const*)
+                                                                              typename std::enable_if<24 <  (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     // Handle reflection for negative arguments.
-    if(x.data < 0)
+    if(x.crepresentation() < 0)
     {
       return -sin(-x);
     }
@@ -1127,22 +1127,22 @@
     int n = 0;
 
     // Reduce the argument to the range 0 <= x <= +pi/2.
-    if(x > local_negatable_type::value_pi())
+    if(x > negatable_constants<local_negatable_type>::pi())
     {
-      n = int(x / local_negatable_type::value_pi());
+      n = int(x / negatable_constants<local_negatable_type>::pi());
 
-      x -= (n * local_negatable_type::value_pi());
+      x -= (n * negatable_constants<local_negatable_type>::pi());
     }
 
     local_negatable_type result;
 
-    if(x > local_negatable_type::value_pi_half())
+    if(x > negatable_constants<local_negatable_type>::pi_half())
     {
-      result = sin(local_negatable_type::value_pi() - x);
+      result = sin(negatable_constants<local_negatable_type>::pi() - x);
     }
     else
     {
-      if(x <= ldexp(local_negatable_type::value_pi(), -2))
+      if(x <= ldexp(negatable_constants<local_negatable_type>::pi(), -2))
       {
         // Use the Taylor series representation of sin(x) near x = 0.
         local_negatable_type x_squared = (x * x);
@@ -1150,9 +1150,9 @@
         bool term_is_negative          = true;
         local_negatable_type sum       = term;
 
-        BOOST_CONSTEXPR_OR_CONST boost::uint32_t maximum_number_of_iterations = UINT32_C(10000);
+        BOOST_CONSTEXPR_OR_CONST std::uint32_t maximum_number_of_iterations = UINT32_C(10000);
 
-        for(boost::uint32_t k = UINT32_C(1); k < maximum_number_of_iterations; k += UINT32_C(2))
+        for(std::uint32_t k = UINT32_C(1); k < maximum_number_of_iterations; k += UINT32_C(2))
         {
           term *= x_squared;
 
@@ -1191,14 +1191,14 @@
   /*! Computes cosine function for fractional resolution < 11 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> cos(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                              typename std::enable_if<int(11) >= (-FractionalResolution)>::type const*)
+                                                                              typename std::enable_if<11 >= (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle reflection for negative arguments.
-    if(x.data < 0)
+    if(x.crepresentation() < 0)
     {
       x = -x;
     }
@@ -1206,16 +1206,16 @@
     // Reduce the argument to the range 0 <= x <= +pi/2.
     int n = 0;
 
-    if(x >= local_negatable_type::value_pi())
+    if(x >= negatable_constants<local_negatable_type>::pi())
     {
-      n = int(x / local_negatable_type::value_pi());
+      n = int(x / negatable_constants<local_negatable_type>::pi());
 
-      x -= (n * local_negatable_type::value_pi());
+      x -= (n * negatable_constants<local_negatable_type>::pi());
     }
 
     local_negatable_type result;
 
-    const local_negatable_type delta = local_negatable_type::value_pi_half() - x;
+    const local_negatable_type delta = negatable_constants<local_negatable_type>::pi_half() - x;
 
     if(fabs(delta) < ldexp(local_negatable_type(1U), -2))
     {
@@ -1228,24 +1228,24 @@
                  * delta2 + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0800) >> (11 + FractionalResolution))))  // 0.1666665066192447
                  * delta;
     }
-    else if(x > local_negatable_type::value_pi_half())
+    else if(x > negatable_constants<local_negatable_type>::pi_half())
     {
-      if(x == local_negatable_type::value_pi())
+      if(x == negatable_constants<local_negatable_type>::pi())
       {
         result = local_negatable_type(-1);
       }
       else
       {
-        result = -cos(local_negatable_type::value_pi() - x);
+        result = -cos(negatable_constants<local_negatable_type>::pi() - x);
       }
     }
     else
     {
-      if(x.data == 0)
+      if(x.crepresentation() == 0)
       {
         result = local_negatable_type(1U);
       }
-      else if(x == local_negatable_type::value_pi_half())
+      else if(x == negatable_constants<local_negatable_type>::pi_half())
       {
         result = local_negatable_type(0U);
       }
@@ -1276,14 +1276,14 @@
   /*! Computes cosine function for fractional resolution < 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> cos(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                              typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
+                                                                              typename std::enable_if<(24 >= (-FractionalResolution)) && (11 < (-FractionalResolution))>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle reflection for negative arguments.
-    if(x.data < 0)
+    if(x.crepresentation() < 0)
     {
       x = -x;
     }
@@ -1291,16 +1291,16 @@
     // Reduce the argument to the range 0 <= x <= +pi/2.
     int n = 0;
 
-    if(x >= local_negatable_type::value_pi())
+    if(x >= negatable_constants<local_negatable_type>::pi())
     {
-      n = int(x / local_negatable_type::value_pi());
+      n = int(x / negatable_constants<local_negatable_type>::pi());
 
-      x -= (n * local_negatable_type::value_pi());
+      x -= (n * negatable_constants<local_negatable_type>::pi());
     }
 
     local_negatable_type result;
 
-    const local_negatable_type delta = local_negatable_type::value_pi_half() - x;
+    const local_negatable_type delta = negatable_constants<local_negatable_type>::pi_half() - x;
 
     if(fabs(delta) < ldexp(local_negatable_type(1U), -2))
     {
@@ -1314,24 +1314,24 @@
                   * delta2 + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x01000000) >> (24 + FractionalResolution))))  // 0.0000025959374407
                   * delta;
     }
-    else if(x > local_negatable_type::value_pi_half())
+    else if(x > negatable_constants<local_negatable_type>::pi_half())
     {
-      if(x == local_negatable_type::value_pi())
+      if(x == negatable_constants<local_negatable_type>::pi())
       {
         result = local_negatable_type(-1);
       }
       else
       {
-        result = -cos(local_negatable_type::value_pi() - x);
+        result = -cos(negatable_constants<local_negatable_type>::pi() - x);
       }
     }
     else
     {
-      if(x.data == 0)
+      if(x.crepresentation() == 0)
       {
         result = local_negatable_type(1U);
       }
-      else if(x == local_negatable_type::value_pi_half())
+      else if(x == negatable_constants<local_negatable_type>::pi_half())
       {
         result = local_negatable_type(0U);
       }
@@ -1366,12 +1366,12 @@
   /*! Computes cosine function for fractional resolution > 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> cos(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                              typename std::enable_if<int(24) <  (-FractionalResolution)>::type const*)
+                                                                              typename std::enable_if<24 <  (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     // Handle reflection for negative arguments.
-    if(x.data < 0)
+    if(x.crepresentation() < 0)
     {
       x = -x;
     }
@@ -1379,22 +1379,22 @@
     // Reduce the argument to the range 0 <= x <= +pi/2.
     int n = 0;
 
-    if(x > local_negatable_type::value_pi())
+    if(x > negatable_constants<local_negatable_type>::pi())
     {
-      n = int(x / local_negatable_type::value_pi());
+      n = int(x / negatable_constants<local_negatable_type>::pi());
 
-      x -= (n * local_negatable_type::value_pi());
+      x -= (n * negatable_constants<local_negatable_type>::pi());
     }
 
     local_negatable_type result;
 
-    if(x > local_negatable_type::value_pi_half())
+    if(x > negatable_constants<local_negatable_type>::pi_half())
     {
-      result = -cos(local_negatable_type::value_pi() - x);
+      result = -cos(negatable_constants<local_negatable_type>::pi() - x);
     }
     else
     {
-      if(x <= ldexp(local_negatable_type::value_pi(), -2))
+      if(x <= ldexp(negatable_constants<local_negatable_type>::pi(), -2))
       {
         // Use the Taylor series representation of cos(x) near x = 0.
         local_negatable_type x_squared = (x * x);
@@ -1402,9 +1402,9 @@
         bool term_is_negative          = false;
         local_negatable_type sum       = 1 - term;
 
-        BOOST_CONSTEXPR_OR_CONST boost::uint32_t maximum_number_of_iterations = UINT32_C(10000);
+        BOOST_CONSTEXPR_OR_CONST std::uint32_t maximum_number_of_iterations = UINT32_C(10000);
 
-        for(boost::uint32_t k = UINT32_C(2); k < maximum_number_of_iterations; k += UINT32_C(2))
+        for(std::uint32_t k = UINT32_C(2); k < maximum_number_of_iterations; k += UINT32_C(2))
         {
           term *= x_squared;
 
@@ -1443,45 +1443,45 @@
   /*! Computes tangent function for fractional resolution < 11 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> tan(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                              typename std::enable_if<int(11) >= (-FractionalResolution)>::type const*)
+                                                                              typename std::enable_if<11 >= (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle negative arguments, zero argument and argument pi/2.
-    if(x.data < 0)
+    if(x.crepresentation() < 0)
     {
       return -tan(-x);
     }
-    else if(x.data == 0)
+    else if(x.crepresentation() == 0)
     {
       return local_negatable_type(0U);
     }
-    else if(x == local_negatable_type::value_pi_half())
+    else if(x == negatable_constants<local_negatable_type>::pi_half())
     {
-      return local_negatable_type::value_max();
+      return (std::numeric_limits<local_negatable_type>::max)();
     }
 
     // Reduce the argument to the range 0 <= x <= +pi/2.
     int n = 0;
 
-    if(x > local_negatable_type::value_pi())
+    if(x > negatable_constants<local_negatable_type>::pi())
     {
-      n = int(x / local_negatable_type::value_pi());
+      n = int(x / negatable_constants<local_negatable_type>::pi());
 
-      x -= (n * local_negatable_type::value_pi());
+      x -= (n * negatable_constants<local_negatable_type>::pi());
     }
 
     local_negatable_type result;
 
-    if(x > local_negatable_type::value_pi_half())
+    if(x > negatable_constants<local_negatable_type>::pi_half())
     {
-      result = -tan(local_negatable_type::value_pi() - x);
+      result = -tan(negatable_constants<local_negatable_type>::pi() - x);
     }
     else
     {
-      const local_negatable_type pi_over_four = local_negatable_type::value_pi() / 4;
+      const local_negatable_type pi_over_four = negatable_constants<local_negatable_type>::pi() / 4;
 
       if(x > pi_over_four)
       {
@@ -1522,45 +1522,45 @@
   /*! Computes tangent function for fractional resolution < 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> tan(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                              typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
+                                                                              typename std::enable_if<(24 >= (-FractionalResolution)) && (11 < (-FractionalResolution))>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
     // Handle negative arguments, zero argument and argument pi/2.
-    if(x.data < 0)
+    if(x.crepresentation() < 0)
     {
       return -tan(-x);
     }
-    else if(x.data == 0)
+    else if(x.crepresentation() == 0)
     {
       return local_negatable_type(0U);
     }
-    else if(x == local_negatable_type::value_pi_half())
+    else if(x == negatable_constants<local_negatable_type>::pi_half())
     {
-      return local_negatable_type::value_max();
+      return (std::numeric_limits<local_negatable_type>::max)();
     }
 
     // Reduce the argument to the range 0 <= x <= +pi/2.
     int n = 0;
 
-    if(x > local_negatable_type::value_pi())
+    if(x > negatable_constants<local_negatable_type>::pi())
     {
-      n = int(x / local_negatable_type::value_pi());
+      n = int(x / negatable_constants<local_negatable_type>::pi());
 
-      x -= (n * local_negatable_type::value_pi());
+      x -= (n * negatable_constants<local_negatable_type>::pi());
     }
 
     local_negatable_type result;
 
-    if(x > local_negatable_type::value_pi_half())
+    if(x > negatable_constants<local_negatable_type>::pi_half())
     {
-      result = -tan(local_negatable_type::value_pi() - x);
+      result = -tan(negatable_constants<local_negatable_type>::pi() - x);
     }
     else
     {
-      const local_negatable_type pi_over_four = local_negatable_type::value_pi() / 4;
+      const local_negatable_type pi_over_four = negatable_constants<local_negatable_type>::pi() / 4;
 
       if(x > pi_over_four)
       {
@@ -1605,22 +1605,22 @@
   /*! Computes tangent function for fractional resolution > 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> tan(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                              typename std::enable_if<int(24) <  (-FractionalResolution)>::type const*)
+                                                                              typename std::enable_if<24 <  (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     // Handle negative arguments, zero argument and argument pi/2.
-    if(x.data < 0)
+    if(x.crepresentation() < 0)
     {
       return -tan(-x);
     }
-    else if(x.data == 0)
+    else if(x.crepresentation() == 0)
     {
       return local_negatable_type(0U);
     }
-    else if(x == local_negatable_type::value_pi_half())
+    else if(x == negatable_constants<local_negatable_type>::pi_half())
     {
-      return local_negatable_type::value_max();
+      return (std::numeric_limits<local_negatable_type>::max)();
     }
 
     // Use a relatively lazy calculation for tan(x) here.
@@ -1635,26 +1635,26 @@
   /*! Computes arc sine function for fractional resolution < 11 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> asin(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                               typename std::enable_if<int(11) >= (-FractionalResolution)>::type const*)
+                                                                               typename std::enable_if<11 >= (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    if(x.data < 0)
+    if(x.crepresentation() < 0)
     {
       return -asin(-x);
     }
 
     local_negatable_type result;
 
-    if(x.data == 0)
+    if(x.crepresentation() == 0)
     {
       result = local_negatable_type(0U);
     }
     else if(x == 1)
     {
-      result = local_negatable_type::value_pi_half();
+      result = negatable_constants<local_negatable_type>::pi_half();
     }
     else if(x > 1)
     {
@@ -1697,7 +1697,7 @@
              * x - local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x01B2) >> (11 + FractionalResolution))))  // 0.2121144
              * x + local_negatable_type(local_nothing(), local_value_type(UINT16_C(0x0C90) >> (11 + FractionalResolution)))); // 1.5707288
 
-        result = local_negatable_type::value_pi_half() - (sqrt(1 - x) * polynomial_approximation);
+        result = negatable_constants<local_negatable_type>::pi_half() - (sqrt(1 - x) * polynomial_approximation);
       }
     }
 
@@ -1707,26 +1707,26 @@
   /*! Computes arc sine function for fractional resolution < 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> asin(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                               typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
+                                                                               typename std::enable_if<(24 >= (-FractionalResolution)) && (11 < (-FractionalResolution))>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    if(x.data < 0)
+    if(x.crepresentation() < 0)
     {
       return -asin(-x);
     }
 
     local_negatable_type result;
 
-    if(x.data == 0)
+    if(x.crepresentation() == 0)
     {
       result = local_negatable_type(0U);
     }
     else if(x == 1)
     {
-      result = local_negatable_type::value_pi_half();
+      result = negatable_constants<local_negatable_type>::pi_half();
     }
     else if(x > 1)
     {
@@ -1758,7 +1758,7 @@
                * x - local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x0036EFDE) >> (24 + FractionalResolution))))  // 0.2145976333738
                * x + local_negatable_type(local_nothing(), local_value_type(UINT32_C(0x01921FB4) >> (24 + FractionalResolution)))); // 1.5707962797298
 
-      result = local_negatable_type::value_pi_half() - (sqrt(1 - x) * polynomial_approximation);
+      result = negatable_constants<local_negatable_type>::pi_half() - (sqrt(1 - x) * polynomial_approximation);
     }
 
     return result;
@@ -1767,24 +1767,24 @@
   /*! Computes arc sine function for fractional resolution > 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> asin(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                               typename std::enable_if<int(24) <  (-FractionalResolution)>::type const*)
+                                                                               typename std::enable_if<24 <  (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
-    if(x.data < 0)
+    if(x.crepresentation() < 0)
     {
       return -asin(-x);
     }
 
     local_negatable_type result;
 
-    if(x.data == 0)
+    if(x.crepresentation() == 0)
     {
       result = local_negatable_type(0U);
     }
     else if(x == 1)
     {
-      result = local_negatable_type::value_pi_half();
+      result = negatable_constants<local_negatable_type>::pi_half();
     }
     else if(x > 1)
     {
@@ -1803,7 +1803,7 @@
       {
         const local_negatable_type delta = (1 - x);
 
-        result =   local_negatable_type::value_pi_half()
+        result =   negatable_constants<local_negatable_type>::pi_half()
                  - (  sqrt(delta * 2)
                     * detail::hypergeometric_2f1(one_half, one_half, three_halves, delta / 2));
       }
@@ -1815,22 +1815,22 @@
   /*! Computes arc cosine function for fractional resolution < 11 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> acos(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                               typename std::enable_if<int(11) >= (-FractionalResolution)>::type const*)
+                                                                               typename std::enable_if<11 >= (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    if(x.data < 0)
+    if(x.crepresentation() < 0)
     {
-      return local_negatable_type::value_pi() - acos(-x);
+      return negatable_constants<local_negatable_type>::pi() - acos(-x);
     }
 
     local_negatable_type result;
 
-    if(x.data == 0)
+    if(x.crepresentation() == 0)
     {
-      result = local_negatable_type::value_pi_half();
+      result = negatable_constants<local_negatable_type>::pi_half();
     }
     else if(x == 1)
     {
@@ -1874,22 +1874,22 @@
   /*! Computes arc cosine function for fractional resolution < 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> acos(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                               typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
+                                                                               typename std::enable_if<(24 >= (-FractionalResolution)) && (11 < (-FractionalResolution))>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    if(x.data < 0)
+    if(x.crepresentation() < 0)
     {
-      return local_negatable_type::value_pi() - acos(-x);
+      return negatable_constants<local_negatable_type>::pi() - acos(-x);
     }
 
     local_negatable_type result;
 
-    if(x.data == 0)
+    if(x.crepresentation() == 0)
     {
-      result = local_negatable_type::value_pi_half();
+      result = negatable_constants<local_negatable_type>::pi_half();
     }
     else if(x == 1)
     {
@@ -1936,20 +1936,20 @@
   /*! Computes arc cosine function for fractional resolution > 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> acos(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                               typename std::enable_if<int(24) <  (-FractionalResolution)>::type const*)
+                                                                               typename std::enable_if<24 <  (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
-    if(x.data < 0)
+    if(x.crepresentation() < 0)
     {
-      return local_negatable_type::value_pi() - acos(-x);
+      return negatable_constants<local_negatable_type>::pi() - acos(-x);
     }
 
     local_negatable_type result;
 
-    if(x.data == 0)
+    if(x.crepresentation() == 0)
     {
-      result = local_negatable_type::value_pi_half();
+      result = negatable_constants<local_negatable_type>::pi_half();
     }
     else if(x == 1)
     {
@@ -1961,7 +1961,7 @@
     }
     else
     {
-      result = local_negatable_type::value_pi_half() - asin(x);
+      result = negatable_constants<local_negatable_type>::pi_half() - asin(x);
     }
 
     return result;
@@ -1972,30 +1972,30 @@
   */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> atan(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                               typename std::enable_if<int(11) >= (-FractionalResolution)>::type const*)
+                                                                               typename std::enable_if<11 >= (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    if(x.data < 0)
+    if(x.crepresentation() < 0)
     {
       return -atan(-x);
     }
 
     local_negatable_type result;
 
-    if(x.data == 0)
+    if(x.crepresentation() == 0)
     {
       result = local_negatable_type(0U);
     }
     else if(x == local_negatable_type(1U))
     {
-      result = ldexp(local_negatable_type::value_pi(), -2);
+      result = ldexp(negatable_constants<local_negatable_type>::pi(), -2);
     }
     else if(x > local_negatable_type(1U))
     {
-      result = local_negatable_type::value_pi_half() - atan(1 / x);
+      result = negatable_constants<local_negatable_type>::pi_half() - atan(1 / x);
     }
     else
     {
@@ -2023,30 +2023,30 @@
   /*! Computes arc tangent function for fractional resolution < 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> atan(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                               typename std::enable_if<(int(24) >= (-FractionalResolution)) && (int(11) < (-FractionalResolution))>::type const*)
+                                                                               typename std::enable_if<(24 >= (-FractionalResolution)) && (11 < (-FractionalResolution))>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    if(x.data < 0)
+    if(x.crepresentation() < 0)
     {
       return -atan(-x);
     }
 
     local_negatable_type result;
 
-    if(x.data == 0)
+    if(x.crepresentation() == 0)
     {
       result = local_negatable_type(0U);
     }
     else if(x == local_negatable_type(1U))
     {
-      result = ldexp(local_negatable_type::value_pi(), -2);
+      result = ldexp(negatable_constants<local_negatable_type>::pi(), -2);
     }
     else if(x > local_negatable_type(1U))
     {
-      result = local_negatable_type::value_pi_half() - atan(1 / x);
+      result = negatable_constants<local_negatable_type>::pi_half() - atan(1 / x);
     }
     else
     {
@@ -2078,28 +2078,28 @@
   /*! Computes arc tangent function for fractional resolution > 24 bits. */
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> atan(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x,
-                                                                               typename std::enable_if<int(24) <  (-FractionalResolution)>::type const*)
+                                                                               typename std::enable_if<24 <  (-FractionalResolution)>::type const*)
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
-    if(x.data < 0)
+    if(x.crepresentation() < 0)
     {
       return -atan(-x);
     }
 
     local_negatable_type result;
 
-    if(x.data == 0)
+    if(x.crepresentation() == 0)
     {
       result = local_negatable_type(0U);
     }
     else if(x == local_negatable_type(1U))
     {
-      result = ldexp(local_negatable_type::value_pi(), -2);
+      result = ldexp(negatable_constants<local_negatable_type>::pi(), -2);
     }
     else if(x > local_negatable_type(1U))
     {
-      result = local_negatable_type::value_pi_half() - atan(1 / x);
+      result = negatable_constants<local_negatable_type>::pi_half() - atan(1 / x);
     }
     else if(x < ldexp(local_negatable_type(1U), -3))
     {
@@ -2123,7 +2123,7 @@
 
       // Do the Newton-Raphson iteration. Start with four binary digits
       // of precision obtained from the initial guess above.
-      for(boost::uint_fast16_t i = UINT16_C(4); i <= boost::uint_fast16_t(local_negatable_type::all_bits / 2); i *= UINT16_C(2))
+      for(std::uint_fast16_t i = UINT16_C(4); i <= std::uint_fast16_t(local_negatable_type::all_bits / 2); i *= UINT16_C(2))
       {
         const local_negatable_type c = cos(result);
         const local_negatable_type s = sin(result);
@@ -2143,26 +2143,26 @@
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
     // Handle the negative arguments and zero arguments.
-    const bool x_is_neg = (x.data < 0);
+    const bool x_is_neg = (x.crepresentation() < 0);
 
     if(y == 0)
     {
-      return ((!x_is_neg) ? local_negatable_type(0U) : local_negatable_type::value_pi());
+      return ((!x_is_neg) ? local_negatable_type(0U) : negatable_constants<local_negatable_type>::pi());
     }
 
     const bool y_is_neg = (y < 0);
 
-    if(x.data == 0)
+    if(x.crepresentation() == 0)
     {
-      return ((!y_is_neg) ? local_negatable_type::value_pi_half() : -local_negatable_type::value_pi_half());
+      return ((!y_is_neg) ? negatable_constants<local_negatable_type>::pi_half() : -negatable_constants<local_negatable_type>::pi_half());
     }
 
     // Compute atan(y / x), thereby ignoring the sign of the arguments.
     const local_negatable_type atan_term(atan(y / x));
 
     // Determine the proper quadrant based on signs of x and y.
-    return ((y_is_neg == x_is_neg) ? ((!x_is_neg) ? atan_term : (atan_term - local_negatable_type::value_pi()))
-                                   : ((!x_is_neg) ? atan_term : (atan_term + local_negatable_type::value_pi())));
+    return ((y_is_neg == x_is_neg) ? ((!x_is_neg) ? atan_term : (atan_term - negatable_constants<local_negatable_type>::pi()))
+                                   : ((!x_is_neg) ? atan_term : (atan_term + negatable_constants<local_negatable_type>::pi())));
   }
 
   /*! Compute hyperbolic sine sinh. */
@@ -2207,7 +2207,7 @@
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
-    if(x.data < 0)
+    if(x.crepresentation() < 0)
     {
       // Handle negative argument.
       return -asinh(-x);
@@ -2215,7 +2215,7 @@
 
     local_negatable_type result;
 
-    if(x.data == 0)
+    if(x.crepresentation() == 0)
     {
       result = local_negatable_type(0U);
     }
@@ -2283,7 +2283,7 @@
   {
     typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
 
-    if(x.data < 0)
+    if(x.crepresentation() < 0)
     {
       // Handle negative argument.
       return -atanh(-x);
@@ -2291,7 +2291,7 @@
 
     local_negatable_type result;
 
-    if(x.data == 0)
+    if(x.crepresentation() == 0)
     {
       // Handle arguments identically equal to 0.
       result = local_negatable_type(0U);
@@ -2299,7 +2299,7 @@
     else if(x >= 1)
     {
       // Handle arguments greater than or equal to 1.
-      result = local_negatable_type::value_max();
+      result = (std::numeric_limits<local_negatable_type>::max)();
     }
     else
     {
@@ -2343,7 +2343,7 @@
   template<const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> copysign(negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> x, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> y)
   {
-    return (((x.data < 0) == (y.data < 0)) ? x : -x);
+    return (((x.crepresentation() < 0) == (y.crepresentation() < 0)) ? x : -x);
   }
 
   /*! Rounds the floating-point argument arg to an integer value in floating-point format, using the current rounding mode.
@@ -2357,10 +2357,10 @@
     typedef typename local_negatable_type::value_type                               local_value_type;
     typedef typename local_negatable_type::nothing                                  local_nothing;
 
-    const bool is_neg = (x.data < 0);
+    const bool is_neg = (x.crepresentation() < 0);
 
-    local_unsigned_small_type u_round = ((!is_neg) ? local_unsigned_small_type( x.data)
-                                                   : local_unsigned_small_type(-x.data));
+    local_unsigned_small_type u_round = ((!is_neg) ? local_unsigned_small_type( x.crepresentation())
+                                                   : local_unsigned_small_type(-x.crepresentation()));
 
     // Shift to the right. The amount of right shift is one bit less than
     // the fractional resolution. This reserves one bit for rounding.
@@ -2368,7 +2368,7 @@
 
     u_round = detail::right_shift_helper(u_round, total_right_shift);
 
-    const boost::int_fast8_t rounding_result = local_negatable_type::binary_round(u_round);
+    const std::int_fast8_t rounding_result = local_negatable_type::binary_round(u_round);
 
     // Round the result.
     local_unsigned_small_type result = local_unsigned_small_type(local_value_type(u_round) + rounding_result);
@@ -2376,7 +2376,7 @@
     // Shift the result back to the left.
     result = detail::left_shift_helper(result, -FractionalResolution);
 
-    const local_unsigned_small_type integral_part_mask((local_unsigned_small_type(((std::numeric_limits<local_negatable_type>::max)()).data) >> (-FractionalResolution)) << (-FractionalResolution));
+    const local_unsigned_small_type integral_part_mask((local_unsigned_small_type(((std::numeric_limits<local_negatable_type>::max)()).crepresentation()) >> (-FractionalResolution)) << (-FractionalResolution));
 
     // Mask out the fractional part (after rounding), leaving the nearby integer value.
     result &= local_value_type(integral_part_mask);

@@ -1,11 +1,10 @@
-
 // Use, modification and distribution are subject to the
 // Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt
 // or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-// Copyright Paul A. Bristow 2015.
-// Copyright Christopher Kormanyos 2015.
+// Copyright Paul A. Bristow 2015 - 2016.
+// Copyright Christopher Kormanyos 2015 - 2016.
 
 // This file is written to be included from a Quickbook .qbk document.
 // It can be compiled by the C++ compiler, and run. Any output can
@@ -80,13 +79,3 @@ int main()
 //] [/fixed_point_precise_constant]
 
 } // int main()
-
-/*
-
-Note that large digit counts rely on the arc-cosine function for
-calculating pi. At the moment, this function is supported in
-the negatable realm, but for one and only one argument 0,
-returning pi/2 which, in turn uses the class-local representation
-of pi based on a quadratically convergent Gauss-AGM method.
-
-*/

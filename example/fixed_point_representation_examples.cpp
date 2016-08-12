@@ -3,9 +3,8 @@
 // (See accompanying file LICENSE_1_0.txt
 // or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-// Copyright Paul A. Bristow 2015.
-// Copyright Christopher Kormanyos 2015.
-// Copyright Nikhar Agrawal 2015.
+// Copyright Paul A. Bristow 2015 - 2016.
+// Copyright Christopher Kormanyos 2015 - 2016.
 
 // This file is written to be included from a Quickbook .qbk document.
 // It can be compiled by the C++ compiler, and run. Any output can
