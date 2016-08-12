@@ -498,7 +498,7 @@ Of course, other __cmath functions such as trigonometric, exponential, logarithm
 (`#include <cmath>`) are available. When using the fixed-point versions of
 `<cmath>` functions, the user can simply call, for example,
 `sqrt(negatable)` without any namespace decoration.
-See also the notes on __ADL in Section xyz below.
+See also the notes on __ADL in [link fixed.design.cmath C math functions section] below.
 
 [numeric_limits_output_2]
 
