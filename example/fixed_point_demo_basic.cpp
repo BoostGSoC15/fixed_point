@@ -185,37 +185,4 @@ sqrt (fabs(x)) = 1.10902405
 sqrt (y)       = 0.213516235
 //] [/fixed_example_functions]
 
-GCC  debug
-
-Numeric_limits: digits10 = 14
-max_digits10 = 15
-radix = 47
-epsilon = 0.0001068115234375
-max = 1.4073748835533e+014
-min = 1.52587890625e-005
-infinity = 0
-NaN = 0
-
-1.2299957275391
-0.045593261718750
-0.61499023437500
-
-RUN SUCCESSFUL (total time: 43ms)
-
-GCC release
-
-Numeric_limits: digits10 = 14
-max_digits10 = 15
-radix = 47
-epsilon = 0.0001068115234375
-max = 1.4073748835533e+014
-min = 1.52587890625e-005
-infinity = 0
-NaN = 0
-
-1.2299957275391
-0.045593261718750
-0.61499023437500
-
-RUN SUCCESSFUL (total time: 43ms)
 */

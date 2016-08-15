@@ -377,7 +377,6 @@
 
     typedef typename detail::integer_type_helper<std::uint32_t(negatable::all_bits * 1)>::exact_unsigned_type unsigned_small_type;
     typedef typename detail::integer_type_helper<std::uint32_t(negatable::all_bits * 2)>::exact_unsigned_type unsigned_large_type;
-    typedef typename detail::integer_type_helper<std::uint32_t(negatable::all_bits * 2)>::exact_signed_type   signed_large_type;
 
     // The class constructors follow below.
 
@@ -1143,7 +1142,7 @@
     {
       // Here, we make a negatable value_type from a signed integral source value.
       return ((n >= 0) ? value_type(unsigned_small_type(+n) << radix_split)
-                       : value_type(-signed_large_type(unsigned_large_type(-signed_large_type(n)) << radix_split)));
+                       : value_type(-value_type(unsigned_small_type(-value_type(n)) << radix_split)));
     }
 
     template<typename FloatingPointType>
@@ -1650,8 +1649,9 @@
     friend inline bool operator==(const negatable& u,
                                   const negatable<OtherIntegralRange, OtherFractionalResolution>& v)
     {
-      typedef negatable<(( IntegralRange >  OtherIntegralRange) ? IntegralRange : OtherIntegralRange),
-                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution)> supra_negatable_type;
+      typedef negatable<(( IntegralRange        >=  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange),
+                        ((-FractionalResolution >= -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution)>
+      supra_negatable_type;
 
       return (supra_negatable_type(u).data == supra_negatable_type(v).data);
     }
@@ -1660,8 +1660,9 @@
     friend inline bool operator!=(const negatable& u,
                                   const negatable<OtherIntegralRange, OtherFractionalResolution>& v)
     {
-      typedef negatable<(( IntegralRange        >  OtherIntegralRange) ? IntegralRange : OtherIntegralRange),
-                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution)> supra_negatable_type;
+      typedef negatable<(( IntegralRange        >=  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange),
+                        ((-FractionalResolution >= -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution)>
+      supra_negatable_type;
 
       return (supra_negatable_type(u).data != supra_negatable_type(v).data);
     }
@@ -1670,8 +1671,9 @@
     friend inline bool operator> (const negatable& u,
                                   const negatable<OtherIntegralRange, OtherFractionalResolution>& v)
     {
-      typedef negatable<(( IntegralRange        >  OtherIntegralRange) ? IntegralRange : OtherIntegralRange),
-                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution)> supra_negatable_type;
+      typedef negatable<(( IntegralRange        >=  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange),
+                        ((-FractionalResolution >= -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution)>
+      supra_negatable_type;
 
       return (supra_negatable_type(u).data > supra_negatable_type(v).data);
     }
@@ -1680,8 +1682,9 @@
     friend inline bool operator< (const negatable& u,
                                   const negatable<OtherIntegralRange, OtherFractionalResolution>& v)
     {
-      typedef negatable<(( IntegralRange        >  OtherIntegralRange) ? IntegralRange : OtherIntegralRange),
-                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution)> supra_negatable_type;
+      typedef negatable<(( IntegralRange        >=  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange),
+                        ((-FractionalResolution >= -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution)>
+      supra_negatable_type;
 
       return (supra_negatable_type(u).data < supra_negatable_type(v).data);
     }
@@ -1690,8 +1693,9 @@
     friend inline bool operator>=(const negatable& u,
                                   const negatable<OtherIntegralRange, OtherFractionalResolution>& v)
     {
-      typedef negatable<(( IntegralRange        >  OtherIntegralRange) ? IntegralRange : OtherIntegralRange),
-                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution)> supra_negatable_type;
+      typedef negatable<(( IntegralRange        >=  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange),
+                        ((-FractionalResolution >= -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution)>
+      supra_negatable_type;
 
       return (supra_negatable_type(u).data >= supra_negatable_type(v).data);
     }
@@ -1700,8 +1704,9 @@
     friend inline bool operator<=(const negatable& u,
                                   const negatable<OtherIntegralRange, OtherFractionalResolution>& v)
     {
-      typedef negatable<(( IntegralRange        >  OtherIntegralRange) ? IntegralRange : OtherIntegralRange),
-                        ((-FractionalResolution > -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution)> supra_negatable_type;
+      typedef negatable<(( IntegralRange        >=  OtherIntegralRange)        ? IntegralRange        : OtherIntegralRange),
+                        ((-FractionalResolution >= -OtherFractionalResolution) ? FractionalResolution : OtherFractionalResolution)>
+      supra_negatable_type;
 
       return (supra_negatable_type(u).data <= supra_negatable_type(v).data);
     }
@@ -1908,15 +1913,15 @@
             const int IntegralRange2, const int FractionalResolution2,
             typename RoundMode,
             typename OverflowMode>
-  negatable<((-FractionalResolution1 > -FractionalResolution2) ? IntegralRange1 : IntegralRange2),
-            ((-FractionalResolution1 > -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
+  negatable<((-FractionalResolution1 >= -FractionalResolution2) ? IntegralRange1        : IntegralRange2),
+            ((-FractionalResolution1 >= -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
             RoundMode,
             OverflowMode>
   operator+(const negatable<IntegralRange1, FractionalResolution1, RoundMode, OverflowMode>& a,
             const negatable<IntegralRange2, FractionalResolution2, RoundMode, OverflowMode>& b)
   {
-    typedef negatable<((-FractionalResolution1 > -FractionalResolution2) ? IntegralRange1        : IntegralRange2),
-                      ((-FractionalResolution1 > -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
+    typedef negatable<((-FractionalResolution1 >= -FractionalResolution2) ? IntegralRange1        : IntegralRange2),
+                      ((-FractionalResolution1 >= -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
                       RoundMode,
                       OverflowMode>
     widest_resolution_negatable_type;
@@ -1928,15 +1933,15 @@
             const int IntegralRange2, const int FractionalResolution2,
             typename RoundMode,
             typename OverflowMode>
-  negatable<((-FractionalResolution1 > -FractionalResolution2) ? IntegralRange1        : IntegralRange2),
-            ((-FractionalResolution1 > -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
+  negatable<((-FractionalResolution1 >= -FractionalResolution2) ? IntegralRange1        : IntegralRange2),
+            ((-FractionalResolution1 >= -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
             RoundMode,
             OverflowMode>
   operator-(const negatable<IntegralRange1, FractionalResolution1, RoundMode, OverflowMode>& a,
             const negatable<IntegralRange2, FractionalResolution2, RoundMode, OverflowMode>& b)
   {
-    typedef negatable<((-FractionalResolution1 > -FractionalResolution2) ? IntegralRange1        : IntegralRange2),
-                      ((-FractionalResolution1 > -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
+    typedef negatable<((-FractionalResolution1 >= -FractionalResolution2) ? IntegralRange1        : IntegralRange2),
+                      ((-FractionalResolution1 >= -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
                       RoundMode,
                       OverflowMode>
     widest_resolution_negatable_type;
@@ -1948,15 +1953,15 @@
             const int IntegralRange2, const int FractionalResolution2,
             typename RoundMode,
             typename OverflowMode>
-  negatable<((-FractionalResolution1 > -FractionalResolution2) ? IntegralRange1        : IntegralRange2),
-            ((-FractionalResolution1 > -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
+  negatable<((-FractionalResolution1 >= -FractionalResolution2) ? IntegralRange1        : IntegralRange2),
+            ((-FractionalResolution1 >= -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
             RoundMode,
             OverflowMode>
   operator*(const negatable<IntegralRange1, FractionalResolution1, RoundMode, OverflowMode>& a,
             const negatable<IntegralRange2, FractionalResolution2, RoundMode, OverflowMode>& b)
   {
-    typedef negatable<((-FractionalResolution1 > -FractionalResolution2) ? IntegralRange1        : IntegralRange2),
-                      ((-FractionalResolution1 > -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
+    typedef negatable<((-FractionalResolution1 >= -FractionalResolution2) ? IntegralRange1        : IntegralRange2),
+                      ((-FractionalResolution1 >= -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
                       RoundMode,
                       OverflowMode>
     widest_resolution_negatable_type;
@@ -1968,15 +1973,15 @@
             const int IntegralRange2, const int FractionalResolution2,
             typename RoundMode,
             typename OverflowMode>
-  negatable<((-FractionalResolution1 > -FractionalResolution2) ? IntegralRange1        : IntegralRange2),
-            ((-FractionalResolution1 > -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
+  negatable<((-FractionalResolution1 >= -FractionalResolution2) ? IntegralRange1        : IntegralRange2),
+            ((-FractionalResolution1 >= -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
             RoundMode,
             OverflowMode>
   operator/(const negatable<IntegralRange1, FractionalResolution1, RoundMode, OverflowMode>& a,
             const negatable<IntegralRange2, FractionalResolution2, RoundMode, OverflowMode>& b)
   {
-    typedef negatable<((-FractionalResolution1 > -FractionalResolution2) ? IntegralRange1        : IntegralRange2),
-                      ((-FractionalResolution1 > -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
+    typedef negatable<((-FractionalResolution1 >= -FractionalResolution2) ? IntegralRange1        : IntegralRange2),
+                      ((-FractionalResolution1 >= -FractionalResolution2) ? FractionalResolution1 : FractionalResolution2),
                       RoundMode,
                       OverflowMode>
     widest_resolution_negatable_type;

@@ -19,7 +19,7 @@ int main()
 
   // Use as many range digits as are available in built-in int.
   typedef boost::fixed_point::negatable<
-    std::numeric_limits<int>::digits,             // Use as many range digits as digits in int.
+    std::numeric_limits<int>::digits,             // Use as many range digits as there are digits in int.
     -(  std::numeric_limits<long double>::digits  // Obtain the remaining resolution digits from long double (minus those from int).
       - std::numeric_limits<int>::digits)>
   fixed_point_type;

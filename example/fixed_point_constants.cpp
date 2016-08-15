@@ -44,7 +44,7 @@ int main()
     << std::endl;
 //] //[/bin_float_50_pi]
 
-  // Use a rather precise fixed_point that will use a 64-bit integer as its underlying representation.
+  // Use a rather precice fixed_point type that uses a 64-bit integer as its underlying representation.
 //[fixed_point__constant
   typedef boost::fixed_point::negatable<3, -60> fixed_point_type;
 

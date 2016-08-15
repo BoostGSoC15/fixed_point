@@ -21,94 +21,97 @@
 #include <boost/fixed_point/fixed_point.hpp>
 #include <boost/test/included/unit_test.hpp>
 
+typedef boost::fixed_point::negatable<12,  -8> fixed_point_type_more_range;
+typedef boost::fixed_point::negatable<10, -10> fixed_point_type_more_resol;
+
 
 BOOST_AUTO_TEST_CASE(test_negatable_basic_mixed_math)
 {
   {
-    boost::fixed_point::negatable<12,  -8> a(4.25);
-    boost::fixed_point::negatable<10, -10> b(2.5);
+    const fixed_point_type_more_range a(4.25F);
+    const fixed_point_type_more_resol b(2.5F);
 
-    auto c = a + b;
+    const auto c = a + b;
 
-    boost::fixed_point::negatable<10, -10> result(6.75);
+    const decltype(c) control(6.75F);
 
-    BOOST_CHECK_EQUAL(c, result);
+    BOOST_CHECK_EQUAL(c, control);
   }
 
   {
-    boost::fixed_point::negatable<10, -10> a(4.25);
-    boost::fixed_point::negatable<12,  -8> b(2.5);
+    const fixed_point_type_more_resol a(4.25F);
+    const fixed_point_type_more_range b(2.5F);
 
-    auto c = a + b;
+    const auto c = a + b;
 
-    boost::fixed_point::negatable<10, -10> result(6.75);
+    const decltype(c) control(6.75F);
 
-    BOOST_CHECK_EQUAL(c, result);
+    BOOST_CHECK_EQUAL(c, control);
   }
 
   {
-    boost::fixed_point::negatable<12,  -8> a(4.25);
-    boost::fixed_point::negatable<10, -10> b(2.5);
+    const fixed_point_type_more_range a(4.25F);
+    const fixed_point_type_more_resol b(2.5F);
 
-    auto c = a - b;
+    const auto c = a - b;
 
-    boost::fixed_point::negatable<10, -10> result(1.75);
+    const decltype(c) control(1.75F);
 
-    BOOST_CHECK_EQUAL(c, result);
+    BOOST_CHECK_EQUAL(c, control);
   }
 
   {
-    boost::fixed_point::negatable<10, -10> a(4.25);
-    boost::fixed_point::negatable<12,  -8> b(2.5);
+    const fixed_point_type_more_resol a(4.25F);
+    const fixed_point_type_more_range b(2.5F);
 
-    auto c = a - b;
+    const auto c = a - b;
 
-    boost::fixed_point::negatable<10, -10> result(1.75);
+    const decltype(c) control(1.75F);
 
-    BOOST_CHECK_EQUAL(c, result);
+    BOOST_CHECK_EQUAL(c, control);
   }
 
   {
-    boost::fixed_point::negatable<12,  -8> a(4.25);
-    boost::fixed_point::negatable<10, -10> b(2.5);
+    const fixed_point_type_more_range a(4.25F);
+    const fixed_point_type_more_resol b(2.5F);
 
-    auto c = a * b;
+    const auto c = a * b;
 
-    boost::fixed_point::negatable<10, -10> result(10.625);
+    const decltype(c) control(10.625F);
 
-    BOOST_CHECK_EQUAL(c, result);
+    BOOST_CHECK_EQUAL(c, control);
   }
 
   {
-    boost::fixed_point::negatable<10, -10> a(4.25);
-    boost::fixed_point::negatable<12,  -8> b(2.5);
+    const fixed_point_type_more_resol a(4.25F);
+    const fixed_point_type_more_range b(2.5F);
 
-    auto c = a * b;
+    const auto c = a * b;
 
-    boost::fixed_point::negatable<10, -10> result(10.625);
+    const decltype(c) control(10.625F);
 
-    BOOST_CHECK_EQUAL(c, result);
+    BOOST_CHECK_EQUAL(c, control);
   }
 
   {
-    boost::fixed_point::negatable<12,  -8> a(4.5);
-    boost::fixed_point::negatable<10, -10> b(2.25);
+    const fixed_point_type_more_range a(4.5F);
+    const fixed_point_type_more_resol b(2.25F);
 
-    auto c = a / b;
+    const auto c = a / b;
 
-    boost::fixed_point::negatable<10, -10> result(2);
+    const decltype(c) control(2.0F);
 
-    BOOST_CHECK_EQUAL(c, result);
+    BOOST_CHECK_EQUAL(c, control);
   }
 
   {
-    boost::fixed_point::negatable<10, -10> a(4.5);
-    boost::fixed_point::negatable<12,  -8> b(2.25);
+    const fixed_point_type_more_resol a(4.5F);
+    const fixed_point_type_more_range b(2.25F);
 
-    auto c = a / b;
+    const auto c = a / b;
 
-    boost::fixed_point::negatable<10, -10> result(2);
+    const decltype(c) control(2.0F);
 
-    BOOST_CHECK_EQUAL(c, result);
+    BOOST_CHECK_EQUAL(c, control);
   }
 }
