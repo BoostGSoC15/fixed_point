@@ -694,12 +694,8 @@ this will normally be hidden from the user, but there are a few features that ma
 is not [*equal] to the number of bits in the underlying integral type,
 usually `int` 32 or 64-bit,
 chosen from  [@http://en.cppreference.com/w/cpp/types/integer Fixed-width integer types].
-Otherwise, because one bit is required for sign
-(and the same bit also used to provide sapce for rounding),
-fixed_point will use the next largest type, at worse a __multiprecision type.
-This will have a dramatic effect on code size and run-time.
 Otherwise, because one bit is required for sign and rounding,
-fixed_point will use the next largest type, at worse a __multiprecision type,
+fixed_point will use the next largest type, at worst a __multiprecision type,
 with dramatic effect on code size and run-time.
 For example, `negatable<0,63>` and `nonnegative<0,63>`
 are the largest types possible based on `int64_t` without using __multiprecision.
@@ -715,24 +711,28 @@ from the input type where these might be 'lossy' (cause loss of precision).
 
 This means that one cannot write, for example,
 
-  negatable<2, -5> x1 = 1; // No suitable conversion from int to fixed_point.
+  negatable<2, -5> x1 = 1; // Error: No suitable conversion from int to negatable.
 
 but should always prefer to write
 
-  negatable<2, -5> x1(1);
+  negatable<2, -5> x1(1);  // OK: x is 1.
 
-and, if later assigning a value after construction, explicit conversion is still required
+If later assigning a value after construction, explicit conversion is still required.
 
-      negatable<2, -5> x; // x == 0
-      //x = 2; // binary '=': no operator found which takes a right-hand operand of type 'int' (or there is no acceptable conversion)
-      x = negatable<2, -5>(2); // x == 2.0000
+  negatable<2, -5> x;      // Default initialization: x is 0.
+
+  x = 2;                   // Error: No suitable conversion from int to negatable.
+  x = negatable<2, -5>(2); // OK: x is 2.
 
 This is tedious and adds much clutter, so a small `typedef` may be convenient:
 
-   typedef negatable<2, -5> my_fp; // Declare a fixed_point type,
-      // using a 8-bit integral type (`unsigned char`),
-      // and split of 2 bits for range and 5 bits for resolution.
-      // with rounding as fastest (no rounding) and overflow undefined.
+  // Declare a fixed_point type,
+  // using an underlying 8-bit integral type (`int8_t`),
+  // and split of 2 bits for range and 5 bits for resolution,
+  // with rounding as fastest (no rounding) and overflow undefined.
+  typedef negatable<2, -5> my_fp;
+
+  my_fp x(1);
 
 [tip It is very likely to be more efficient to use the converting constructor  `negatable<2, -5> x1(1);`
 because construction followed by initialization will involve a temporary variable.]
@@ -1186,8 +1186,8 @@ This is yet another design choice.
 [warning Using mixed-precision arithmetic requires instantiating more
 than one kind of fixed-point type, such as both of `negatable<4, -8>`
 and `negatable<3, -11>`. This means that code will be instantiated
-for two separate types which could significantly increase the code size,
-which may have particularly strong influence on a bare-metal embedded system.]
+for two separate types which could significantly increase the code size.
+This may have particularly strong influence on a bare-metal embedded system.]
 
 
 [endsect] [/section:mixed Mixed-Precision Arithmetic]
@@ -1397,6 +1397,7 @@ of approximately 6-7 bits of precision.
 
 The Boost.Fixed-point Library can be used with Boost.Math,
 and some Boost.Math functions work well when used with the __negatable class.
+Due to limitations in numeric limits of the fixed-point type, however,
 care must be taken when selecting the fixed-point range and resolution
 for a given calculation.
 
