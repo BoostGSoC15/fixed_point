@@ -484,6 +484,8 @@ and the output showing limits is:
 
 [numeric_limits_output_1]
 
+The full code is at  [@../../example/fixed_point_limits.cpp fixed_point_limits.cpp].
+
 Next we can use this defined fixed-point type, constructing from two integer values to avoid
 any conversion from a floating-point value whose value is probably not exactly __representable.
 This ensures no loss of precision or double rounding during construction.
@@ -500,12 +502,12 @@ Of course, other __cmath functions such as trigonometric, exponential, logarithm
 `sqrt(negatable)` without any namespace decoration.
 See also the notes on __ADL in [link fixed.design.cmath C math functions section] below.
 
-[numeric_limits_output_2]
+[fixed_example_functions_output]
 
 [warning Some __cmath functions are not applicable to `fixed_point` values;
 others may not yet be implemented.]
 
-The full code is at  [@../../example/fixed_point_limits.cpp  fixed_point_limits.cpp].
+The full code is at  [@../../example/fixed_point_demo_basic.cpp fixed_point_demo_basic.cpp].
 
 [endsect] [/section:numeric_limits Example of a fixed_point type and its numeric_limits]
 
