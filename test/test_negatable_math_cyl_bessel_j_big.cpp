@@ -10,15 +10,17 @@
 //! \file
 //!\brief Tests for the cylindrical bessel function of (fixed_point) for a big digit range.
 
+#define BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH
+
 #include <array>
 #include <string>
 
 #define BOOST_TEST_MODULE test_negatable_math_cyl_bessel_j_big
 #define BOOST_LIB_DIAGNOSTIC
 
+#include <boost/fixed_point/fixed_point.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/math/special_functions/bessel.hpp>
-#include <boost/fixed_point/fixed_point.hpp>
 #include <boost/test/included/unit_test.hpp>
 
 namespace local
@@ -36,7 +38,8 @@ namespace local
 BOOST_AUTO_TEST_CASE(test_negatable_math_cyl_bessel_j_big)
 {
   typedef boost::fixed_point::negatable<  std::numeric_limits<int>::digits,
-                                        -(255 - std::numeric_limits<int>::digits)>
+                                        -(255 - std::numeric_limits<int>::digits),
+                                        boost::fixed_point::round::nearest_even>
   fixed_point_type;
 
   typedef fixed_point_type::float_type float_point_type;

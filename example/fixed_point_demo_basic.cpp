@@ -83,7 +83,7 @@ int main()
     // Show all the significant digits for this particular floating-point type.
     std::cout.precision(std::numeric_limits<fixed_point_type>::digits10);
 
-    std::cout << "x = fixed_point_type(123) /   100 = " 
+    std::cout << "x = fixed_point_type(123) /   100 = "
               << x // 1.22999573 is the nearest representation of decimal digit string 1.23.
               << std::endl;
 
@@ -93,7 +93,7 @@ int main()
 
     x = -x / 2; // Do some trivial arithmetic.
 
-    std::cout <<"x = -x / 2 = " 
+    std::cout <<"x = -x / 2 = "
               << x // -0.614990234  is the nearest representation of decimal digit string -0.615
               << std::endl;
 
@@ -124,7 +124,7 @@ int main()
               << exponential
               << std::endl; // 1
 
-    // Other C numeric math functions (cmath) are available of course, for example:
+    // Other C numeric math functions (cmath) are available, of course, for example:
     std::cout << "ldexp(x, exponential); = "
               << x
               << std::endl; // -1.22998047
@@ -169,6 +169,9 @@ Type does not have a NaN
 x = fixed_point_type(123) /   100 = 1.22999573
 y = fixed_point_type(456) / 10000 = 0.0455932617
 x = -x / 2 = -0.614990234
+//] [/numeric_limits_output_1]
+
+//[fixed_example_functions_output
 x = frexp(x, &exponential) = -0.614990234 exponential = 0
 double the value
 x = frexp(x, &exponential) = -0.614990234 exponential = 1
@@ -177,12 +180,6 @@ abs  (x)       = 1.22998047
 fabs (x)       = 1.22998047
 sqrt (fabs(x)) = 1.10902405
 sqrt (y)       = 0.213516235
-
-//[fixed_example_functions
-abs  (x)       = 1.22998047
-fabs (x)       = 1.22998047
-sqrt (fabs(x)) = 1.10902405
-sqrt (y)       = 0.213516235
-//] [/fixed_example_functions]
+//] [/fixed_example_functions_output]
 
 */

@@ -760,6 +760,8 @@
       return *this;
     }
 
+  #if !defined(BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH)
+
     //! Unary operator multiply of (*this *= negatable).
     negatable& operator*=(const negatable& v)
     {
@@ -783,21 +785,20 @@
       // straightforward and simple. But this is potentially costly
       // for higher digit counts.
 
-      unsigned_large_type result((!u_is_neg) ? unsigned_large_type(data) : unsigned_large_type(-data));
-
-      result *= ((!v_is_neg) ? unsigned_small_type(v.data) : unsigned_small_type(-v.data));
-
-      // Scale the result of the multiplication to fit once again
-      // in the fixed-point data field.
-
-      // Here we use one extra binary digit for rounding.
+      // Here we use zero or one extra binary digit for rounding.
       // The extra rounding digit fits in @c unsigned_small_type
       // because the value_type (even though just as wide as
       // @c unsigned_small_type) reserves one bit for the sign.
 
-      BOOST_CONSTEXPR int total_right_shift = (radix_split - extra_rounding_bits);
+      unsigned_large_type result((!u_is_neg) ? unsigned_large_type(unsigned_small_type( data) << extra_rounding_bits)
+                                             : unsigned_large_type(unsigned_small_type(-data) << extra_rounding_bits));
 
-      unsigned_small_type u_round = static_cast<unsigned_small_type>(result >> total_right_shift);
+      // Multiply u with v.
+      result *= ((!v_is_neg) ? unsigned_small_type(v.data) : unsigned_small_type(-v.data));
+
+      // Scale the result of the multiplication to fit once again
+      // in the fixed-point data field. Right-shift with the radix split.
+      unsigned_small_type u_round = static_cast<unsigned_small_type>(result >> radix_split);
 
       // Round the result of the multiplication.
       const std::int_fast8_t rounding_result = binary_round(u_round);
@@ -812,6 +813,56 @@
 
       return *this;
     }
+
+  #else
+
+    negatable& operator*=(const negatable& other)
+    {
+      const bool u_is_neg = (      data < value_type(0));
+      const bool v_is_neg = (other.data < value_type(0));
+
+      // Multiplication will be carried out using unsigned integers.
+
+      // Multiplication uses a school algorithm combined with shifting.
+
+      // Here we use zero or one extra binary digit for rounding.
+      // The extra rounding digit fits in @c unsigned_small_type
+      // because the value_type (even though just as wide as
+      // @c unsigned_small_type) reserves one bit for the sign.
+
+      const unsigned_small_type u(unsigned_small_type((!u_is_neg) ? unsigned_small_type(data)       : unsigned_small_type(-data)) << extra_rounding_bits);
+      const unsigned_small_type v(unsigned_small_type((!v_is_neg) ? unsigned_small_type(other.data) : unsigned_small_type(-other.data)));
+
+      // Multiply u with v.
+      unsigned_small_type result_lo;
+      unsigned_small_type result_hi;
+      detail::two_component_multiply<unsigned_small_type>(u, v, result_lo, result_hi);
+
+      // Scale the result of the multiplication to fit once again
+      // in the fixed-point data field. Right-shift with the radix split.
+      // This produces the unrounded reult. Assign this unrounded result
+      // to the variable u_round.
+      unsigned_small_type u_round(  unsigned_small_type(result_hi << (std::numeric_limits<unsigned_small_type>::digits - radix_split))
+                                  | unsigned_small_type(result_lo >> radix_split));
+
+      // Round the result of the multiplication.
+      const std::int_fast8_t rounding_result = binary_round(u_round);
+
+      // With round modes fastest and nearest even, there is no need
+      // for special code for handling underflow. But be aware of
+      // underflow issues if other rounding modes are supported.
+      u_round = unsigned_small_type(u_round + rounding_result);
+
+      // Load the fixed-point result (and account for potentially signed values).
+      data = ((u_is_neg == v_is_neg) ? value_type(u_round) : -value_type(u_round));
+
+      return *this;
+    }
+
+    // TBD: Implement two-component division with something like
+    //      a variation of Donald Knuth's long division algorithm.
+
+  #endif // BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH
 
     //! Unary operator divide of (*this /= negatable).
     negatable& operator/=(const negatable& v)
@@ -828,14 +879,17 @@
         // Division will be carried out using unsigned integers.
 
         // Division uses a relatively lazy method.
-        // The result is first placed in a variable of
-        // type unsigned_large_type (which is twice as wide
-        // as unsigned_small_type).
+        // The result is first placed in a variable of type
+        // unsigned_large_type (which is twice as wide as
+        // unsigned_small_type).
 
-        // The result is divided as (u / v) in the
-        // unsigned_large_type and subsequently scaled down
-        // (potentially with rounding) to the size of the
-        // fixed-point data field.
+        // The result is then left-shifted by the radix-split
+        // and rounding bit.
+
+        // The result is then divided as (u / v) in the
+        // unsigned_large_type and subsequently right-shifted
+        // (potentially with rounding) to the proper width
+        // of the fixed-point data field.
 
         // Hereby, we scale the result of the division to a larger
         // internal size so that the division operation is
@@ -844,12 +898,12 @@
 
         unsigned_large_type result((!u_is_neg) ? unsigned_large_type(data) : unsigned_large_type(-data));
 
-        // Here, we use 1 extra binary digit for rounding.
+        // Here we use zero or one extra binary digit for rounding.
         // The extra rounding digit fits in unsigned_small_type
         // because the value_type (even though just as wide as
         // unsigned_small_type) reserves one bit for the sign.
 
-        result = (result << (radix_split + extra_rounding_bits));
+        result <<= (radix_split + extra_rounding_bits);
 
         result /= ((!v_is_neg) ? unsigned_small_type(v.data) : unsigned_small_type(-v.data));
 
@@ -871,8 +925,19 @@
     }
 
     //! Unary operators add, sub, mul, div of (*this op= arithmetic_type).
-    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> negatable& operator+=(const ArithmeticType& a) { return (*this) += negatable(a); }
-    template<typename ArithmeticType, typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr> negatable& operator-=(const ArithmeticType& a) { return (*this) -= negatable(a); }
+    template<typename ArithmeticType,
+             typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr>
+    negatable& operator+=(const ArithmeticType& a)
+    {
+      return ((*this) += negatable(a));
+    }
+
+    template<typename ArithmeticType,
+             typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr>
+    negatable& operator-=(const ArithmeticType& a)
+    {
+      return ((*this) -= negatable(a));
+    }
 
     // For unary operators mul and div of (*this op= integral_type),
     // a differentiation is made between floating-point types,
@@ -887,7 +952,7 @@
              typename std::enable_if<std::is_floating_point<FloatingPointType>::value>::type const* = nullptr>
     negatable& operator*=(const FloatingPointType& f)
     {
-      return (*this) *= negatable(f);
+      return ((*this) *= negatable(f));
     }
 
     template<typename UnsignedIntegralType,
@@ -959,7 +1024,7 @@
              typename std::enable_if<std::is_floating_point<FloatingPointType>::value>::type const* = nullptr>
     negatable& operator/=(const FloatingPointType& f)
     {
-      return (*this) /= negatable(f);
+      return ((*this) /= negatable(f));
     }
 
     template<typename UnsignedIntegralType,
@@ -1414,6 +1479,13 @@
         return e_helper<std::uint32_t(-resolution)>::calculate_e();
       }
 
+      /*! Return the bit mask of all bits in the resolution.\n
+      */
+      static unsigned_small_type radix_split_mask()
+      {
+        return unsigned_small_type(unsigned_small_type(negatable(1U).data) - 1U);
+      }
+
     #else
 
       /*! Compute (during pre-main static initialization) the representation of the mathematical constant sqrt(2).\n
@@ -1469,6 +1541,17 @@
         static const negatable the_value_e = e_helper<std::uint32_t(-resolution)>::calculate_e();
 
         return the_value_e;
+      }
+
+      /*! Compute (during pre-main static initialization) the bit mask of all bits in the resolution.\n
+      */
+      static const unsigned_small_type& radix_split_mask()
+      {
+        initialization_helper.force_premain_init_of_static_constants();
+
+        static const unsigned_small_type the_value_radix_split_mask(unsigned_small_type(negatable(1U).data) - 1U);
+
+        return the_value_radix_split_mask;
       }
 
     #endif
@@ -1603,6 +1686,7 @@
           static_cast<void>(negatable::value_pi_half());
           static_cast<void>(negatable::value_ln_two());
           static_cast<void>(negatable::value_e());
+          static_cast<void>(negatable::radix_split_mask());
 
         #endif
       }

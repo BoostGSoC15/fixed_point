@@ -34,7 +34,7 @@
   namespace boost { namespace fixed_point { namespace detail {
 
   template<typename UnsignedIntegralType>
-  UnsignedIntegralType left_shift_helper(UnsignedIntegralType& u, const int shift_count)
+  UnsignedIntegralType left_shift_helper(const UnsignedIntegralType& u, const int shift_count)
   {
     #if !defined(BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS)
 
@@ -49,7 +49,7 @@
   }
 
   template<typename UnsignedIntegralType>
-  UnsignedIntegralType right_shift_helper(UnsignedIntegralType& u, const int shift_count)
+  UnsignedIntegralType right_shift_helper(const UnsignedIntegralType& u, const int shift_count)
   {
     #if !defined(BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS)
 
@@ -519,6 +519,65 @@
 
       return the_result;
     }
+  }
+
+  template<typename UnsignedSmallType,
+           typename UnsignedHalfType = typename integer_type_helper<std::numeric_limits<UnsignedSmallType>::digits / 2>::exact_unsigned_type>
+  void two_component_multiply(const UnsignedSmallType& u,
+                              const UnsignedSmallType& v,
+                                    UnsignedSmallType& result_lo,
+                                    UnsignedSmallType& result_hi)
+  {
+    // Multiply u * v, where u and v are both unsigned
+    // and both have 2^n bits. The result has 2*(2^n) bits.
+    // The result is stored in a pair of two unsigned integers,
+    // result_lo and result_hi.
+
+    // Use an elementary school multiplication algorithm.
+
+    // For example, multiply:
+    //  uint32_t * uint32_t --> uint64_t result.
+
+    // The result of the multiplication of (u * v) is:
+    //   (u_hi_v_hi << n) + (uv_cross << (n/2)) + u_lo_v_lo,
+    // where
+    //   u_hi_v_hi = (u_hi * v_hi),
+    // and
+    //   uv_cross  = (u_lo * v_hi) + (u_hi * v_lo),
+    // and
+    //   u_lo_v_lo = (u_lo * v_lo).
+
+    // Care is taken to properly handle shifts and carries.
+
+    typedef UnsignedHalfType  local_unsigned_half_type;
+    typedef UnsignedSmallType local_unsigned_small_type;
+
+    BOOST_CONSTEXPR_OR_CONST int digits_half = std::numeric_limits<local_unsigned_half_type>::digits;
+
+    const local_unsigned_half_type u_lo(u);
+    const local_unsigned_half_type v_lo(v);
+
+    const local_unsigned_half_type u_hi(u >> digits_half);
+    const local_unsigned_half_type v_hi(v >> digits_half);
+
+    const local_unsigned_small_type u_lo_v_lo(u_lo * local_unsigned_small_type(v_lo));
+    const local_unsigned_small_type u_hi_v_lo(u_hi * local_unsigned_small_type(v_lo));
+    const local_unsigned_small_type u_lo_v_hi(u_lo * local_unsigned_small_type(v_hi));
+
+    const local_unsigned_small_type uv_cross_lo =
+          local_unsigned_small_type(   local_unsigned_half_type (u_lo_v_hi))
+        + local_unsigned_small_type(   local_unsigned_half_type (u_hi_v_lo)
+                                    +  local_unsigned_small_type(u_lo_v_lo >> digits_half));
+
+    const local_unsigned_small_type uv_cross_hi =
+          local_unsigned_small_type(   local_unsigned_half_type (u_hi_v_lo   >> digits_half))
+        + local_unsigned_small_type(   local_unsigned_half_type (u_lo_v_hi   >> digits_half)
+                                    +  local_unsigned_small_type(uv_cross_lo >> digits_half));
+
+    result_hi = local_unsigned_small_type(local_unsigned_small_type(u_hi * local_unsigned_small_type(v_hi)) + uv_cross_hi);
+
+    result_lo = local_unsigned_small_type(  local_unsigned_small_type(uv_cross_lo << digits_half)
+                                          | local_unsigned_half_type (u_lo_v_lo));
   }
   } } } // namespace boost::fixed_point::detail
   //! \endcond // DETAIL
