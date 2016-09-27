@@ -1,6 +1,6 @@
 [/
-  Copyright 2013, 2016 Christopher Kormanyos.
-  Copyright 2015, 2016 Paul A. Bristow.
+  Copyright 2013, 2015-2016 Christopher Kormanyos.
+  Copyright 2015-2016 Paul A. Bristow.
   Copyright 2015 Nikhar Agrawal.
 
   Distributed under the Boost Software License, Version 1.0.
@@ -484,6 +484,8 @@ and the output showing limits is:
 
 [numeric_limits_output_1]
 
+The full code is at  [@../../example/fixed_point_limits.cpp fixed_point_limits.cpp].
+
 Next we can use this defined fixed-point type, constructing from two integer values to avoid
 any conversion from a floating-point value whose value is probably not exactly __representable.
 This ensures no loss of precision or double rounding during construction.
@@ -500,12 +502,12 @@ Of course, other __cmath functions such as trigonometric, exponential, logarithm
 `sqrt(negatable)` without any namespace decoration.
 See also the notes on __ADL in [link fixed.design.cmath C math functions section] below.
 
-[numeric_limits_output_2]
+[fixed_example_functions_output]
 
 [warning Some __cmath functions are not applicable to `fixed_point` values;
 others may not yet be implemented.]
 
-The full code is at  [@../../example/fixed_point_limits.cpp  fixed_point_limits.cpp].
+The full code is at  [@../../example/fixed_point_demo_basic.cpp fixed_point_demo_basic.cpp].
 
 [endsect] [/section:numeric_limits Example of a fixed_point type and its numeric_limits]
 
@@ -1137,8 +1139,8 @@ as the operand in the binary addition that has the wider resolution.
 The code snippet below, for example, implements a mixed-precision
 binary addition operation.
 
-  typedef boost::fixed_point::negatable<2, -13> fixed_point_type_a;
-  typedef boost::fixed_point::negatable<4, -11> fixed_point_type_b;
+  typedef boost::fixed_point::negatable<4, -11> fixed_point_type_a;
+  typedef boost::fixed_point::negatable<2, -13> fixed_point_type_b;
 
   fixed_point_type_a a = fixed_point_type_a(1) / 3;
   fixed_point_type_b b = fixed_point_type_b(1) / 3;
@@ -1581,7 +1583,7 @@ This benchmark has been performed with GCC 5.3.0 for the target `avr-unknown-elf
 Another perspective on resource consumption can be obtained
 by measuring the size of the code used in a benchmark.
 
-Consider the `sqrt(1/6)` calculation performed on the 32-bit microcontroller
+Consider the `sqrt(6/10)` calculation performed on the 32-bit microcontroller
 comparing `negatable<7, -24>` with built-in 32-bit single-precision floating-point.
 The following code sizes were obtained for this particular benchmark.
 
@@ -1598,7 +1600,7 @@ In this benchmark, the code contributions from the (pre-main) startup and
 the interrupt vector table have been ignored.
 
 The code can be squeezed even further if a less wide fixed-point
-type is used. The result below shows the code size for the `sqrt(1/6)`
+type is used. The result below shows the code size for the `sqrt(6/10)`
 calculation performed with `negatable<4, -11>` on the 32-bit microcontroller.
 The comparison is with with built-in 32-bit single-precision floating-point.
 
@@ -1607,8 +1609,8 @@ The comparison is with with built-in 32-bit single-precision floating-point.
 [[`sqrt(6/10)`] [ 1,700 - 1,300 = 400 ] [ 4,400 - 1,200 = 3,200]]
 ] [/table:32bit_size2 32-bit Microcontroller]
 
-It can be observed that the fixed-point calculations in these benchmarks
-require less code than the corresponding floating-point calculations.
+It can be observed that the fixed-point calculations in these size benchmarks
+require significantly less code than the corresponding floating-point calculations.
 For a large fixed-point project, however, the resulting code size
 can vary significantly depending on the compiler's inlining
 characteristics and optimization abilities. This is because

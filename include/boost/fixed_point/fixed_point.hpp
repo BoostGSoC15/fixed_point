@@ -74,7 +74,7 @@
     This option eliminates the use of all native C++11 language elements. This might send the
     wrong message about language technology, but could
     increase the range of potential target compilers, especially for embedded systems.
-    (Not yet implemented).
+    (Not yet fully implemented, division algorithm is missing).
     */
     #define BOOST_FIXED_POINT_DISABLE_CPP11
 
