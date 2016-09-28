@@ -1,10 +1,9 @@
 [/
-  Copyright 2015-2016 Christopher Kormanyos.
-  Copyright 2015-2016 Paul A. Bristow.
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE_1_0.txt
-  or copy at http://www.boost.org/LICENSE_1_0.txt).
+Copyright 2015 Paul A. Bristow.
+Copyright 2015 Christopher Kormanyos.
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt).
 ]
 
 [section:fixed_point_limits Numeric limits for various fixed_point types]
