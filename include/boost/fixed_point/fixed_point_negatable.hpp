@@ -376,7 +376,9 @@
     typedef typename detail::float_type_helper<std::uint32_t(all_bits - 1)>::exact_float_type float_type;
 
     typedef typename detail::integer_type_helper<std::uint32_t(negatable::all_bits * 1)>::exact_unsigned_type unsigned_small_type;
+    #if !defined(BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH)
     typedef typename detail::integer_type_helper<std::uint32_t(negatable::all_bits * 2)>::exact_unsigned_type unsigned_large_type;
+    #endif
 
     // The class constructors follow below.
 
@@ -814,56 +816,6 @@
       return *this;
     }
 
-  #else
-
-    negatable& operator*=(const negatable& other)
-    {
-      const bool u_is_neg = (      data < value_type(0));
-      const bool v_is_neg = (other.data < value_type(0));
-
-      // Multiplication will be carried out using unsigned integers.
-
-      // Multiplication uses a school algorithm combined with shifting.
-
-      // Here we use zero or one extra binary digit for rounding.
-      // The extra rounding digit fits in @c unsigned_small_type
-      // because the value_type (even though just as wide as
-      // @c unsigned_small_type) reserves one bit for the sign.
-
-      const unsigned_small_type u(unsigned_small_type((!u_is_neg) ? unsigned_small_type(data)       : unsigned_small_type(-data)) << extra_rounding_bits);
-      const unsigned_small_type v(unsigned_small_type((!v_is_neg) ? unsigned_small_type(other.data) : unsigned_small_type(-other.data)));
-
-      // Multiply u with v.
-      unsigned_small_type result_lo;
-      unsigned_small_type result_hi;
-      detail::two_component_multiply<unsigned_small_type>(u, v, result_lo, result_hi);
-
-      // Scale the result of the multiplication to fit once again
-      // in the fixed-point data field. Right-shift with the radix split.
-      // This produces the unrounded reult. Assign this unrounded result
-      // to the variable u_round.
-      unsigned_small_type u_round(  unsigned_small_type(result_hi << (std::numeric_limits<unsigned_small_type>::digits - radix_split))
-                                  | unsigned_small_type(result_lo >> radix_split));
-
-      // Round the result of the multiplication.
-      const std::int_fast8_t rounding_result = binary_round(u_round);
-
-      // With round modes fastest and nearest even, there is no need
-      // for special code for handling underflow. But be aware of
-      // underflow issues if other rounding modes are supported.
-      u_round = unsigned_small_type(u_round + rounding_result);
-
-      // Load the fixed-point result (and account for potentially signed values).
-      data = ((u_is_neg == v_is_neg) ? value_type(u_round) : -value_type(u_round));
-
-      return *this;
-    }
-
-    // TBD: Implement two-component division with something like
-    //      a variation of Donald Knuth's long division algorithm.
-
-  #endif // BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH
-
     //! Unary operator divide of (*this /= negatable).
     negatable& operator/=(const negatable& v)
     {
@@ -924,6 +876,116 @@
       return *this;
     }
 
+  #else
+
+    negatable& operator*=(const negatable& other)
+    {
+      const bool u_is_neg = (      data < value_type(0));
+      const bool v_is_neg = (other.data < value_type(0));
+
+      // Multiplication will be carried out using unsigned integers.
+
+      // Multiplication uses a school algorithm combined with shifting.
+
+      // Here we use zero or one extra binary digit for rounding.
+      // The extra rounding digit fits in @c unsigned_small_type
+      // because the value_type (even though just as wide as
+      // @c unsigned_small_type) reserves one bit for the sign.
+
+      const unsigned_small_type u(unsigned_small_type((!u_is_neg) ? unsigned_small_type(data)       : unsigned_small_type(-data)) << extra_rounding_bits);
+      const unsigned_small_type v(unsigned_small_type((!v_is_neg) ? unsigned_small_type(other.data) : unsigned_small_type(-other.data)));
+
+      // Multiply u with v.
+      unsigned_small_type result_lo;
+      unsigned_small_type result_hi;
+      detail::two_component_multiply<unsigned_small_type>(u, v, result_lo, result_hi);
+
+      // Scale the result of the multiplication to fit once again
+      // in the fixed-point data field. Right-shift with the radix split.
+      // This produces the unrounded reult. Assign this unrounded result
+      // to the variable u_round.
+      unsigned_small_type u_round(  unsigned_small_type(result_hi << (std::numeric_limits<unsigned_small_type>::digits - radix_split))
+                                  | unsigned_small_type(result_lo >> radix_split));
+
+      // Round the result of the multiplication.
+      const std::int_fast8_t rounding_result = binary_round(u_round);
+
+      // With round modes fastest and nearest even, there is no need
+      // for special code for handling underflow. But be aware of
+      // underflow issues if other rounding modes are supported.
+      u_round = unsigned_small_type(u_round + rounding_result);
+
+      // Load the fixed-point result (and account for potentially signed values).
+      data = ((u_is_neg == v_is_neg) ? value_type(u_round) : -value_type(u_round));
+
+      return *this;
+    }
+
+    //! Unary operator divide of (*this /= negatable).
+    negatable& operator/=(const negatable& v)
+    {
+      if(v.data == 0)
+      {
+        data = 0;
+      }
+      else
+      {
+        const bool u_is_neg = (  data < 0);
+        const bool v_is_neg = (v.data < 0);
+
+        // Division will be carried out using unsigned integers.
+
+        // Division uses a variation of Donald Knuth's
+        // long division algorithm.
+
+        // The result is then left-shifted by the radix-split
+        // and rounding bit.
+
+        // The result is then divided as (u / v) with Knuth's
+        // algorithm and subsequently right-shifted
+        // (potentially with rounding) to the proper width
+        // of the fixed-point data field.
+
+        unsigned_small_type u((!u_is_neg) ? unsigned_small_type(data) : unsigned_small_type(-data));
+
+        // Here we use zero or one extra binary digit for rounding.
+        // The extra rounding digit fits in unsigned_small_type
+        // because the value_type (even though just as wide as
+        // unsigned_small_type) reserves one bit for the sign.
+
+        const unsigned_small_type u_hi(u >> (std::numeric_limits<unsigned_small_type>::digits - (radix_split + extra_rounding_bits)));
+        
+        #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
+          const unsigned_small_type u_lo(u << (radix_split + extra_rounding_bits));
+        #else
+          // Work-around for suspected bug in multiprecision.
+          const unsigned_small_type u_lo(u * (unsigned_small_type(1) << (radix_split + extra_rounding_bits)));
+        #endif
+
+        const unsigned_small_type v_lo((!v_is_neg) ? unsigned_small_type(v.data) : unsigned_small_type(-v.data));
+
+        unsigned_small_type result_lo_round;
+        unsigned_small_type result_hi_dummy;
+
+        detail::two_component_divide(u_lo, u_hi, v_lo, result_lo_round, result_hi_dummy);
+
+        // Round the result of the division.
+        const std::int_fast8_t rounding_result = binary_round(result_lo_round);
+
+        // With round modes fastest and nearest even, there is no need
+        // for special code for handling underflow. But be aware of
+        // underflow issues if other rounding modes are supported.
+        result_lo_round = unsigned_small_type(value_type(result_lo_round) + rounding_result);
+
+        // Load the fixed-point result (and account for potentially signed values).
+        data = value_type((u_is_neg == v_is_neg) ? value_type(result_lo_round) : -value_type(result_lo_round));
+      }
+
+      return *this;
+    }
+
+  #endif // BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH
+
     //! Unary operators add, sub, mul, div of (*this op= arithmetic_type).
     template<typename ArithmeticType,
              typename std::enable_if<std::is_arithmetic<ArithmeticType>::value>::type const* = nullptr>
@@ -943,10 +1005,7 @@
     // a differentiation is made between floating-point types,
     // unsigned integral types, and signed integral types.
     // The operators with unsigned and signed integral types are
-    // optimized to avoid costly multiplication and division
-    // operations involving the unsigned_large_type on the
-    // left-hand-side and the unsigned_small_type on the
-    // right-hand side.
+    // optimized to avoid costly full mul and div operations.
 
     template<typename FloatingPointType,
              typename std::enable_if<std::is_floating_point<FloatingPointType>::value>::type const* = nullptr>
@@ -973,7 +1032,7 @@
 
       result *= u;
 
-      // Round the result of the division.
+      // Round the result of the multiplication.
       const std::int_fast8_t rounding_result = binary_round(result);
 
       // With round modes fastest and nearest even, there is no need
@@ -1006,7 +1065,7 @@
 
       result *= ((!v_is_neg) ? unsigned_small_type(n) : unsigned_small_type(-n));
 
-      // Round the result of the division.
+      // Round the result of the multiplication.
       const std::int_fast8_t rounding_result = binary_round(result);
 
       // With round modes fastest and nearest even, there is no need
