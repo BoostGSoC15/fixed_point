@@ -600,11 +600,11 @@
 
     BOOST_CONSTEXPR_OR_CONST int digits_half = std::numeric_limits<local_unsigned_half_type>::digits;
 
-    const local_unsigned_half_type u_lo(u);
-    const local_unsigned_half_type v_lo(v);
+    const local_unsigned_half_type u_lo(static_cast<local_unsigned_half_type>(u));
+    const local_unsigned_half_type v_lo(static_cast<local_unsigned_half_type>(v));
 
-    const local_unsigned_half_type u_hi(u >> digits_half);
-    const local_unsigned_half_type v_hi(v >> digits_half);
+    const local_unsigned_half_type u_hi(static_cast<local_unsigned_half_type>(u >> digits_half));
+    const local_unsigned_half_type v_hi(static_cast<local_unsigned_half_type>(v >> digits_half));
 
     const local_unsigned_small_type u_lo_v_lo(u_lo * local_unsigned_small_type(v_lo));
     const local_unsigned_small_type u_hi_v_lo(u_hi * local_unsigned_small_type(v_lo));
@@ -627,7 +627,7 @@
   }
 
   template<typename UnsignedSmallType,
-           typename UnsignedHalfType = integer_type_helper<std::numeric_limits<UnsignedSmallType>::digits / 2>::exact_unsigned_type>
+           typename UnsignedHalfType = typename integer_type_helper<std::numeric_limits<UnsignedSmallType>::digits / 2>::exact_unsigned_type>
   void two_component_divide(const UnsignedSmallType& u_lo,
                             const UnsignedSmallType& u_hi,
                             const UnsignedSmallType& v_lo,
@@ -638,13 +638,13 @@
     typedef UnsignedHalfType  local_unsigned_half_type;
 
     // Divide the local_unsigned_small_type pair (u_lo, u_hi)
-    // by v_lo and set the result in local_unsigned_small_type
+    // by v_lo and set the result in the local_unsigned_small_type
     // pair (result_lo, result_hi).
 
     // The Knuth long division algorithm is used.
     // The loop-ordering of Knuth's algorithm
     // has been reversed due to the little endian
-    // data format of used here.
+    // data format used here.
 
     const std::array<local_unsigned_half_type, 4U> u =
     {{
@@ -668,14 +668,13 @@
       local_unsigned_half_type(0U)
     }};
 
-    // Handling zero numerator and/or zero denominator is done in
-    // the function that calls this subroutine.
+    // Handling zero numerator and/or zero denominator is done
+    // in the function that calls this subroutine.
 
     if(v[1U] == 0U)
     {
       // The absolute value of the denominator has one single limb.
       // Use a simplified linear division algorithm.
-
       // The loop has been unrolled.
 
       local_unsigned_small_type lt = u[3U];
@@ -853,7 +852,7 @@
 
       // Set nv = q^ * (v[1..n]).
 
-      std::array<local_unsigned_half_type, 4U + 1U> nv;
+      std::array<local_unsigned_half_type, 2U + 1U> nv;
 
       {
         // The loop has been unrolled.

@@ -62,6 +62,7 @@ test-suite "Fixed_point"
       [ run test_negatable_basic_basic_ops.cpp boost_unit_test ]
       [ run test_negatable_basic_bit_pattern.cpp boost_unit_test ]
       [ run test_negatable_basic_construct.cpp boost_unit_test ]
+      [ run test_negatable_basic_disable_wide_integer_math boost_unit_test ]
       [ run test_negatable_basic_is_fixed_point.cpp boost_unit_test ]
       [ run test_negatable_basic_limits.cpp boost_unit_test ]
       [ run test_negatable_basic_mixed_constructors_part1.cpp boost_unit_test ]

@@ -328,8 +328,14 @@
 
     static_assert(all_bits < 32768, "Error: At the moment, the width of fixed_point negatable can not exceed 32767 bits.");
 
+    // TBD: The following compiler checks assume that uint32_t, uint64_t
+    // are the second widest and widest unsigned integers (i.e. no uint128_t).
     #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
-      static_assert(all_bits <= 32, "Error: The width of fixed_point negatable can not exceed 32 bits when multiprecision is disabled.");
+      #if defined(BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH)
+        static_assert(all_bits <= 64, "Error: The width of fixed_point negatable can not exceed 64 bits when multiprecision is disabled.");
+      #else
+        static_assert(all_bits <= 32, "Error: The width of fixed_point negatable can not exceed 64 bits when multiprecision is disabled.");
+      #endif
     #endif
 
     //! See also public static data items range and resolution.
@@ -958,7 +964,7 @@
         #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
           const unsigned_small_type u_lo(u << (radix_split + extra_rounding_bits));
         #else
-          // Work-around for suspected bug in multiprecision.
+          // Work-around for a potential (suspected) bug in multiprecision.
           const unsigned_small_type u_lo(u * (unsigned_small_type(1) << (radix_split + extra_rounding_bits)));
         #endif
 
@@ -968,6 +974,8 @@
         unsigned_small_type result_hi_dummy;
 
         detail::two_component_divide(u_lo, u_hi, v_lo, result_lo_round, result_hi_dummy);
+
+        static_cast<void>(result_hi_dummy);
 
         // Round the result of the division.
         const std::int_fast8_t rounding_result = binary_round(result_lo_round);
