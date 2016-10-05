@@ -288,8 +288,11 @@
     static_assert(IntegralRange >= 0, "Error: The integral range of negatable must be 0 or more.");
 
     // At the moment, the negatable class only supports two popular round modes.
+    // TBD: Round mode classic is allowed for certain tests.
+    // TBD: But round mode classic does not have a clearly defined round_style in numeric_limits.
     static_assert(   std::is_same<RoundMode, round::fastest>::value
-                  || std::is_same<RoundMode, round::nearest_even>::value,
+                  || std::is_same<RoundMode, round::nearest_even>::value
+                  || std::is_same<RoundMode, round::classic>::value,
                   "Error: Only fastest and nearest_even round modes are supported at the moment.");
 
     // At the moment, the negatable class only supports one popular overflow mode.
@@ -960,7 +963,7 @@
         // unsigned_small_type) reserves one bit for the sign.
 
         const unsigned_small_type u_hi(u >> (std::numeric_limits<unsigned_small_type>::digits - (radix_split + extra_rounding_bits)));
-        
+
         #if defined(BOOST_FIXED_POINT_DISABLE_MULTIPRECISION)
           const unsigned_small_type u_lo(u << (radix_split + extra_rounding_bits));
         #else
@@ -1455,6 +1458,27 @@
     {
       const bool round_up =   ((std::uint_fast8_t(u_round & UINT8_C(1)) == UINT8_C(1))
                             && (std::uint_fast8_t(u_round & UINT8_C(2)) == UINT8_C(2)));
+
+      u_round = (u_round >> extra_rounding_bits);
+
+      return (round_up ? INT8_C(1) : INT8_C(0));
+    }
+
+   /*! Perform the rounding algorithm for @c round::classic.
+       For @c round::classic, the value is rounded to larger
+       absolute value when 1/2-ULP is 1, representing round
+       1-ULP to higher value.
+    \tparam LocalRoundMode Rounding mode for this operation.
+     \param u_round contains the value to be rounded whereby
+       this value is left-shifted one binary digit larger than
+       the final result will be.
+    */
+    template<typename LocalRoundMode = RoundMode>
+    static std::int_fast8_t
+      binary_round(unsigned_small_type& u_round,
+                   typename std::enable_if<std::is_same<LocalRoundMode, round::classic>::value>::type* = nullptr)
+    {
+      const bool round_up = (std::uint_fast8_t(u_round & UINT8_C(1)) == UINT8_C(1));
 
       u_round = (u_round >> extra_rounding_bits);
 
@@ -1974,6 +1998,20 @@
   {
   private:
     typedef negatable<IntegralRange, FractionalResolution, round::nearest_even, overflow::undefined> local_negatable_type;
+
+  public:
+    BOOST_STATIC_CONSTEXPR local_negatable_type root_two() { return local_negatable_type::value_root_two(); }
+    BOOST_STATIC_CONSTEXPR local_negatable_type pi      () { return local_negatable_type::value_pi      (); }
+    BOOST_STATIC_CONSTEXPR local_negatable_type pi_half () { return local_negatable_type::value_pi_half (); }
+    BOOST_STATIC_CONSTEXPR local_negatable_type ln_two  () { return local_negatable_type::value_ln_two  (); }
+    BOOST_STATIC_CONSTEXPR local_negatable_type e       () { return local_negatable_type::value_e       (); }
+  };
+
+  template<const int IntegralRange, const int FractionalResolution>
+  struct negatable_constants<negatable<IntegralRange, FractionalResolution, round::classic, overflow::undefined>>
+  {
+  private:
+    typedef negatable<IntegralRange, FractionalResolution, round::classic, overflow::undefined> local_negatable_type;
 
   public:
     BOOST_STATIC_CONSTEXPR local_negatable_type root_two() { return local_negatable_type::value_root_two(); }

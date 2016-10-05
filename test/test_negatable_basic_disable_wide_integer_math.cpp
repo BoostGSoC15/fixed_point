@@ -6,7 +6,7 @@
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 //! \file
-//!\brief Tests long mul/div of fixed_point negatable with BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH.
+//!\brief Tests long mul/div of fixed_point negatable for BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH.
 
 #define BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH
 #define BOOST_FIXED_POINT_DISABLE_MULTIPRECISION
@@ -15,30 +15,37 @@
 #define BOOST_TEST_MODULE test_negatable_basic_disable_wide_integer_math
 #define BOOST_LIB_DIAGNOSTIC
 
+#include <boost/cstdfloat.hpp>
 #include <boost/fixed_point/fixed_point.hpp>
-#include <boost/math/constants/constants.hpp>
-#include <boost/math/special_functions/bessel.hpp>
 #include <boost/test/included/unit_test.hpp>
-
-namespace
-{
-  typedef boost::fixed_point::negatable<10, -53> fixed_point_type;
-
-  typedef fixed_point_type::float_type float_point_type;
-}
 
 BOOST_AUTO_TEST_CASE(test_negatable_basic_disable_wide_integer_math)
 {
+  typedef boost::fixed_point::negatable< 10,
+                                        -53,
+                                        boost::fixed_point::round::classic> fixed_point_type;
+
+  typedef boost::float64_t float_point_type;
+
   using std::ldexp;
+
   const float_point_type tol = ldexp(float_point_type(1), -15);
 
   const fixed_point_type x(fixed_point_type(100U) /  70U);
   const fixed_point_type y(fixed_point_type(456U) / 110U);
 
-  BOOST_CONSTEXPR float_point_type xd(BOOST_FIXED_POINT_FLOAT64_C(100.0) / BOOST_FIXED_POINT_FLOAT64_C( 70.0));
-  BOOST_CONSTEXPR float_point_type yd(BOOST_FIXED_POINT_FLOAT64_C(456.0) / BOOST_FIXED_POINT_FLOAT64_C(110.0));
+  const fixed_point_type z_mul(x * y);
+  const fixed_point_type z_div(x / y);
 
-  // Check long mul/div for BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH.
-  BOOST_CHECK_CLOSE_FRACTION(float_point_type(x * y), xd * yd, tol); // 5.9220779220779220779220779220779
-  BOOST_CHECK_CLOSE_FRACTION(float_point_type(x / y), xd / yd, tol); // 0.34461152882205513784461152882206
+  BOOST_CONSTEXPR float_point_type xd(BOOST_FLOAT64_C(100.0) / BOOST_FLOAT64_C( 70.0));
+  BOOST_CONSTEXPR float_point_type yd(BOOST_FLOAT64_C(456.0) / BOOST_FLOAT64_C(110.0));
+
+  const fixed_point_type z_mul_control(xd * yd);
+  const fixed_point_type z_div_control(xd / yd);
+
+  BOOST_CHECK_CLOSE_FRACTION(float_point_type(z_mul), float_point_type(z_mul_control), tol); // 5.9220779220779220779220779220779
+  BOOST_CHECK_CLOSE_FRACTION(float_point_type(z_div), float_point_type(z_div_control), tol); // 0.34461152882205513784461152882206
+
+  BOOST_CHECK_EQUAL(z_mul.crepresentation(), z_mul_control.crepresentation()); // UINT64_C(0x0084A7904A7904A8)
+  BOOST_CHECK_EQUAL(z_div.crepresentation(), z_div_control.crepresentation()); // UINT64_C(0x000B070EC1C3B071)
 }
