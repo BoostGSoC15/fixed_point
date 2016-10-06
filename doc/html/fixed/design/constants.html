@@ -1,0 +1,129 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Constants</title>
+<link rel="stylesheet" href="../../fixed_point.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../../index.html" title="Boost.Fixed-point">
+<link rel="up" href="../design.html" title="Design, Implementation (and some Rationale)">
+<link rel="prev" href="mixed.html" title="Mixed-Precision Arithmetic">
+<link rel="next" href="rounding.html" title="Rounding">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="180" height="90" src="../../proposed_for_boost.png"></td>
+<td align="center"><a href="../../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="mixed.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../design.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="rounding.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="fixed.design.constants"></a><a class="link" href="constants.html" title="Constants">Constants</a>
+</h3></div></div></div>
+<p>
+        Constants (as far as they are yet implemented) can be easily used.
+      </p>
+<p>
+        The underlying values are from <a href="http://www.boost.org/doc/libs/release/libs/math/doc/html/math_toolkit/constants.html" target="_top">Boost.Math
+        constants</a> and are used to construct fixed_point types with a suitable
+        precision for the number of bits in the significand.
+      </p>
+<p>
+        To start, we can generate a 'reference' value using <a href="../../../../../../libs/multiprecision/doc/html/index.html" target="_top">Boost.Multiprecision</a>,
+        say with 50 decimal digits precision.
+      </p>
+<pre class="programlisting"><span class="comment">// Construct a 50 decimal digit multiprecision floating-point version of pi for reference.</span>
+<span class="keyword">using</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">multiprecision</span><span class="special">::</span><span class="identifier">cpp_bin_float_50</span><span class="special">;</span>  <span class="comment">// 50 decimal digits precision.</span>
+
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">setprecision</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span><span class="special">&lt;</span><span class="identifier">cpp_bin_float_50</span><span class="special">&gt;::</span><span class="identifier">digits10</span><span class="special">)</span>
+  <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">fixed</span>
+  <span class="special">&lt;&lt;</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">math</span><span class="special">::</span><span class="identifier">constants</span><span class="special">::</span><span class="identifier">pi</span><span class="special">&lt;</span><span class="identifier">cpp_bin_float_50</span><span class="special">&gt;()</span>
+  <span class="comment">// 3.14159265358979323846264338327950288419716939937510</span>
+  <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+</pre>
+<p>
+        Note how we ensure that only significant digits <span class="emphasis"><em>for the type</em></span>
+        are shown by using
+      </p>
+<pre class="programlisting"><span class="identifier">std</span><span class="special">::</span><span class="identifier">setprecision</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span><span class="special">&lt;</span><span class="identifier">cpp_bin_float_50</span><span class="special">&gt;::</span><span class="identifier">digits10</span><span class="special">)</span>
+</pre>
+<p>
+        Then we can generate using a typical fixed-point type that will use a 64-bit
+        integer as its underlying representation.
+      </p>
+<pre class="programlisting"><span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">3</span><span class="special">,</span> <span class="special">-</span><span class="number">60</span><span class="special">&gt;</span> <span class="identifier">fixed_point_type</span><span class="special">;</span>
+
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">setprecision</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span><span class="special">&lt;</span><span class="identifier">fixed_point_type</span><span class="special">&gt;::</span><span class="identifier">digits10</span><span class="special">)</span>
+  <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">fixed</span>
+  <span class="special">&lt;&lt;</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">math</span><span class="special">::</span><span class="identifier">constants</span><span class="special">::</span><span class="identifier">pi</span><span class="special">&lt;</span><span class="identifier">fixed_point_type</span><span class="special">&gt;()</span>
+  <span class="comment">// 3.141592653589793238</span>
+  <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+</pre>
+<p>
+        Then a tiny (and so rather imprecise) fixed-point type that will fit into
+        a single byte.
+      </p>
+<p>
+        The result would almost meet the requirements of the <a href="https://en.wikipedia.org/wiki/Indiana_Pi_Bill" target="_top">Indiana
+        pi bill</a>!
+      </p>
+<p>
+        Finally a much more precise fixed-point type that will fit into 128-bit (16-byte).
+      </p>
+<pre class="programlisting"><span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">2</span><span class="special">,</span> <span class="special">-</span><span class="number">125</span><span class="special">&gt;</span> <span class="identifier">precise_fixed_point_type</span><span class="special">;</span>
+
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">setprecision</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span><span class="special">&lt;</span><span class="identifier">precise_fixed_point_type</span><span class="special">&gt;::</span><span class="identifier">digits10</span><span class="special">)</span>
+  <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">fixed</span>
+  <span class="special">&lt;&lt;</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">math</span><span class="special">::</span><span class="identifier">constants</span><span class="special">::</span><span class="identifier">pi</span><span class="special">&lt;</span><span class="identifier">precise_fixed_point_type</span><span class="special">&gt;()</span>
+  <span class="comment">// 3.1415926535897932384626433832795028842</span>
+  <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+</pre>
+<p>
+        The full code is at <a href="../../../../example/fixed_point_constants.cpp" target="_top">fixed_point_constants.cpp</a>.
+      </p>
+<p>
+        For highly optimized calculations or embedded bare-metal systems, certain
+        common constants are also explicitly provided. These can be found in the
+        <code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">negatable_constants</span></code> template structure.
+      </p>
+<p>
+        For example,
+      </p>
+<pre class="programlisting"><span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">2</span><span class="special">,</span> <span class="special">-</span><span class="number">253</span><span class="special">&gt;</span> <span class="identifier">fixed_point_type</span><span class="special">;</span>
+
+<span class="keyword">const</span> <span class="identifier">fixed_point_type</span> <span class="identifier">value_ln_two</span> <span class="special">=</span>
+  <span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">negatable_constants</span><span class="special">&lt;</span><span class="identifier">fixed_point_type</span><span class="special">&gt;::</span><span class="identifier">ln_two</span><span class="special">();</span>
+
+<span class="comment">// 0.6931471805599453094172321214581765680755001343602552541206800094933936219695</span>
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">setprecision</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span><span class="special">&lt;</span><span class="identifier">fixed_point_type</span><span class="special">&gt;::</span><span class="identifier">digits10</span><span class="special">)</span>
+          <span class="special">&lt;&lt;</span> <span class="identifier">value_ln_two</span>
+          <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+</pre>
+<p>
+        The constants <code class="computeroutput"><span class="identifier">root_two</span></code>,
+        <code class="computeroutput"><span class="identifier">pi</span></code>, <code class="computeroutput"><span class="identifier">pi_half</span></code>,
+        <code class="computeroutput"><span class="identifier">ln_two</span></code> and <code class="computeroutput"><span class="identifier">e</span></code> are provided with unlimited precision.
+        These constants are computed at run-time during the pre-main initialization
+        of the program.
+      </p>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2013, 2015, 2016 Christopher Kormanyos<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="mixed.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../design.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="rounding.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

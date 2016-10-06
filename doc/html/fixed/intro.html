@@ -1,0 +1,196 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Introduction</title>
+<link rel="stylesheet" href="../fixed_point.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../index.html" title="Boost.Fixed-point">
+<link rel="up" href="../index.html" title="Boost.Fixed-point">
+<link rel="prev" href="../index.html" title="Boost.Fixed-point">
+<link rel="next" href="intro/why_fixed_point.html" title="Why Fixed-Point (Rather Than Floating-point)?">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="180" height="90" src="../proposed_for_boost.png"></td>
+<td align="center"><a href="../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../index.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="intro/why_fixed_point.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="fixed.intro"></a><a class="link" href="intro.html" title="Introduction">Introduction</a>
+</h2></div></div></div>
+<div class="toc"><dl>
+<dt><span class="section"><a href="intro/why_fixed_point.html">Why Fixed-Point (Rather
+      Than Floating-point)?</a></span></dt>
+<dt><span class="section"><a href="intro/why_this_fixed_point.html">Why use Boost.Fixed-point?</a></span></dt>
+</dl></div>
+<p>
+      The proposed Boost.Fixed-point Library provides fixed-point types in C++ that
+      have different range and precision than C++'s ordinary <a href="http://en.cppreference.com/w/cpp/types/is_fundamental" target="_top">built-in</a>
+      types (also called <a href="http://en.cppreference.com/w/cpp/types/is_fundamental" target="_top">fundamental</a>
+      types). The fixed-point types can also interoperate with the <a href="http://en.cppreference.com/w/cpp/types/is_fundamental" target="_top">built-in</a>
+      types in C++ using clearly defined conversion rules. This allows Boost.Fixed-point
+      to be used for all kinds of mathematical calculations involving integer, rational
+      and floating-point types requiring extended range and precision.
+    </p>
+<p>
+      This library is based on proposal <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html" target="_top">C++
+      Binary Fixed-Point Arithmetic N3352</a> from Lawrence Crowl. The internal
+      representation of a binary fixed-point type is an integral value that has a
+      fixed number of integral range digits before the binary point, and another
+      fixed number of fractional resolution digits after the point.
+    </p>
+<p>
+      The integral value can use a <a href="http://en.cppreference.com/w/cpp/language/types" target="_top">fundamental</a>
+      integral type from <code class="computeroutput"><span class="keyword">signed</span> <span class="keyword">char</span></code>
+      to <code class="computeroutput"><span class="keyword">long</span> <span class="keyword">long</span></code>,
+      additional types like <code class="computeroutput"><span class="identifier">int64_t</span></code>
+      or <code class="computeroutput"><span class="identifier">int128_t</span></code>, and, if these
+      are too small, then a multiprecision integer from <a href="../../../../../libs/multiprecision/doc/html/index.html" target="_top">Boost.Multiprecision</a>
+      (perhaps internally using <a href="https://gmplib.org/" target="_top">GNU Multiple Precision
+      Arithmetic Library (GMP)</a> and <a href="http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/tut/floats/gmp_float.html" target="_top">GMP
+      float types</a>).
+    </p>
+<p>
+      Proposal <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html" target="_top">C++
+      Binary Fixed-Point Arithmetic N3352</a> specifies four different types
+      of fixed-point representations: <code class="computeroutput"><span class="identifier">cardinal</span></code>,
+      <code class="computeroutput"><span class="identifier">integral</span></code>, <code class="computeroutput"><span class="identifier">nonnegative</span></code>
+      and <code class="computeroutput"><span class="identifier">negatable</span></code>.<br> The proposed
+      cardinal and integral types represent unsigned and signed integers, respectively,
+      with zero fractional resolution bits. <br> The proposed nonnegative and negatable
+      types represent unsigned and signed fixed-point numbers, respectively, having
+      both zero or more integral range bits and one or more fractional resolution
+      bits.<br> The signed fixed-point types require one bit for the sign.
+    </p>
+<p>
+      The integer part is located as more significant than the fractional part. This
+      means that if there is a <a href="https://en.wikipedia.org/wiki/Carry_(arithmetic)" target="_top">carry
+      bit</a> from an addition to the fractional part, it simply carrys into
+      the integer part, which means that fast integer instructions can be used. (There
+      is no <a href="https://en.wikibooks.org/wiki/Floating_Point/Normalization" target="_top">normalization</a>
+      as required by floating-point, so all operations take a constant fixed time).
+      This also means that fixed-point numbers can lose digits in operations such
+      as subtraction and division.
+    </p>
+<p>
+      So fixed-point trades range and precision for consistent and (potentially)
+      improved efficiency using integer-based computation.
+    </p>
+<h6>
+<a name="fixed.intro.h0"></a>
+      <span class="phrase"><a name="fixed.intro.fixed_point_q_format"></a></span><a class="link" href="intro.html#fixed.intro.fixed_point_q_format">Fixed_point
+      Q format</a>
+    </h6>
+<p>
+      The <a href="https://en.wikipedia.org/wiki/Q_(number_format)" target="_top">Q number format</a>
+      is often used to specify the number of bits used for range and resolution.
+    </p>
+<p>
+      Consider, for example, a Q15.16 representation of negatable. It has one sign
+      bit, 15 integral range bits and 16 fractional resolution bits. This format
+      fits neatly into a 32-bit two's complement signed integer (<code class="computeroutput"><span class="identifier">int32_t</span></code>),
+      giving a total spread of signed values from about 0.000015 to 32770 in steps
+      of 0.000015.<br> Use <code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">15</span><span class="special">,</span>
+      <span class="special">-</span><span class="number">16</span><span class="special">&gt;</span></code>
+      for a Q15.16 fixed-point type.
+    </p>
+<p>
+      A small Q7.8 representation has a sign bit, 7 bits of integer part before the
+      binary point, and 8 bits for the fractional part that can fit into <code class="computeroutput"><span class="identifier">int16_t</span></code>.
+    </p>
+<p>
+      The Q7.8 represent can hold integer part values from 0 to 2<sup>7</sup> = 127, and fraction
+      part from 0 to 1/2<sup>8</sup> = 1/256 = 0.00390625. Giving a total spread of values from
+      about 0.004 to 128 in steps of 0.004.<br> Use <code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">7</span><span class="special">,</span>
+      <span class="special">-</span><span class="number">8</span><span class="special">&gt;</span></code>
+      for a Q7.8 fixed-point type.
+    </p>
+<p>
+      A tiny byte-sized Q2.5 representation has a sign bit, 2 bits of integer part
+      before the binary point, and 5 bits for the fractional part that can fit into
+      a 8-bit <code class="computeroutput"><span class="identifier">int8_t</span></code>.
+    </p>
+<p>
+      The Q2.5 representation can hold integer part values from 0 to 2<sup>2</sup> = 4, and fraction
+      part from 0 to 1/2<sup>5</sup> = 1/32 = 0.003125. Giving a total spread of values from
+      about 0.003 to 4 in steps of 0.003.<br> Use <code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">2</span><span class="special">,</span>
+      <span class="special">-</span><span class="number">5</span><span class="special">&gt;</span></code>
+      for a Q2.5 fixed-point type.
+    </p>
+<p>
+      The Q0.7 representation can hold NO integer part values, and fraction part
+      from 0 to 1/2<sup>7</sup> = 1/128 = 0.0078125. Giving a total spread of values from about
+      0.007813 to (almost but not quite unity) 0.992188, in steps of 0.007813.<br>
+      Range from -0.992188, zero 0.000000 , min 0.007813 to max 0.992188 in steps
+      of 0.007813.<br> Use <code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">0</span><span class="special">,</span>
+      <span class="special">-</span><span class="number">7</span><span class="special">&gt;</span></code>
+      for a Q0.7 fixed-point type.
+    </p>
+<div class="warning"><table border="0" summary="Warning">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Warning]" src="../../../../../doc/src/images/warning.png"></td>
+<th align="left">Warning</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+        Any type with zero bits used for range <span class="bold"><strong>cannot represent
+        unity</strong></span> (or greater). This will cause surprise if you construct
+        with a value &gt;= 1 when the result is negative! See <a class="link" href="design/construction.html#fixed.design.construction.assignment">assignment</a>.
+      </p></td></tr>
+</table></div>
+<h6>
+<a name="fixed.intro.h1"></a>
+      <span class="phrase"><a name="fixed.intro.differences_between_proposal_n33"></a></span><a class="link" href="intro.html#fixed.intro.differences_between_proposal_n33">Differences
+      between Proposal N3352 and this library</a>
+    </h6>
+<p>
+      At the moment, there are several significant differences between the Fixed_point
+      Library and proposal <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html" target="_top">C++
+      Binary Fixed-Point Arithmetic N3352</a>.
+    </p>
+<p>
+      The Fixed_point Library implements a subset of proposal <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html" target="_top">C++
+      Binary Fixed-Point Arithmetic N3352</a> including the <code class="computeroutput"><span class="identifier">negatable</span></code>
+      representation only.
+    </p>
+<p>
+      In addition, proposal <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html" target="_top">C++
+      Binary Fixed-Point Arithmetic N3352</a> specifies seven rounding modes
+      and five overflow modes. This library, however, supports only two common rounding
+      modes and only one overflow mode (the overflow mode undefined).
+    </p>
+<p>
+      Proposal <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html" target="_top">C++
+      Binary Fixed-Point Arithmetic N3352</a> does not mention any interaction
+      of with elementary transcendental functions. The Boost.Fixed-point Library,
+      however, has nearly complete support of <a href="http://en.cppreference.com/w/cpp/numeric/math" target="_top">C
+      math</a> functions for the negatable representation. This allows many existing
+      programs and algorithms to use fixed-point with little or no modification,
+      a significant advantage.
+    </p>
+<p>
+      What the final scope of the library should be is discussed in the <a class="link" href="design.html" title="Design, Implementation (and some Rationale)">design
+      rationale</a> section.
+    </p>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2013, 2015, 2016 Christopher Kormanyos<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../index.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="intro/why_fixed_point.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

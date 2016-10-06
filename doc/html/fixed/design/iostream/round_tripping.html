@@ -1,0 +1,186 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Serialization and Round-tripping</title>
+<link rel="stylesheet" href="../../../fixed_point.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../../../index.html" title="Boost.Fixed-point">
+<link rel="up" href="../iostream.html" title="Stream IO">
+<link rel="prev" href="../iostream.html" title="Stream IO">
+<link rel="next" href="../conversions.html" title="Constructing and Interconverting Between Number Types">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="180" height="90" src="../../../proposed_for_boost.png"></td>
+<td align="center"><a href="../../../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../iostream.html"><img src="../../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../iostream.html"><img src="../../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../../index.html"><img src="../../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="../conversions.html"><img src="../../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="fixed.design.iostream.round_tripping"></a><a class="link" href="round_tripping.html" title="Serialization and Round-tripping">Serialization
+        and Round-tripping</a>
+</h4></div></div></div>
+<p>
+          Using floating-point stream operators for input and output has implications
+          for 'round-tripping' and (most commonly, usefully, and significantly) for
+          serialization.
+        </p>
+<p>
+          It is usually necessary to use <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span><span class="special">&lt;</span><span class="identifier">T</span><span class="special">&gt;::</span><span class="identifier">max_digits10</span></code>
+          and sometimes also <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">ios</span><span class="special">::</span><span class="identifier">scientific</span></code>
+          format to ensure that no information is lost on output.
+        </p>
+<p>
+          The implication of the current standards (see <a class="link" href="round_tripping.html#fixed.design.iostream.round_tripping.round_trip_details">round-trip
+          details</a>) is that conversion of a decimal digit string to a floating-point
+          type is <span class="bold"><strong>not guaranteed</strong></span> to be the nearest
+          <a href="http://en.wikipedia.org/wiki/Floating_point#Representable_numbers.2C_conversion_and_rounding" target="_top">representable</a>
+          value, but may be, in effect, be one bit 'wrong'.
+        </p>
+<div class="warning"><table border="0" summary="Warning">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Warning]" src="../../../../../../../doc/src/images/warning.png"></td>
+<th align="left">Warning</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+            This means that any fixed_point values after serialization and de-serialization
+            may not be identical, and that any integrity check based on <a href="https://en.wikipedia.org/wiki/Checksum" target="_top">checksum
+            or hash</a> may fail.
+          </p></td></tr>
+</table></div>
+<p>
+          In practice, as shown in several tests with with <span class="bold"><strong>zero
+          integral range bits</strong></span>, for example, <code class="literal">negatable&lt;0, -7&gt;</code>,
+          round-tripping is correct for all possible values.
+        </p>
+<p>
+          But with non-zero range and lower resolution, there are some differences.
+        </p>
+<p>
+          Using scientific format:
+        </p>
+<p>
+          Range 0, Resolution 7, all bits 8, 256 signed values, digits10 = 1, max_digits10
+          = 4 no fails precision =5<br> Range 1, Resolution 6, all bits 8, 256
+          signed values, digits10 = 1, max_digits10 = 4 no fails precision =5<br>
+          Range 2, Resolution 5, all bits 8, 256 signed values, digits10 = 1, max_digits10
+          = 4 no fails precision =4<br> Range 3, Resolution 4, all bits 8, 256
+          signed values, digits10 = 1, max_digits10 = 4 minimum 2 fails precision
+          3, 4 and 5<br> Range 4, Resolution 3, all bits 8, 256 signed values,
+          digits10 = 1, max_digits10 = 4 Minimum fails 0 for precision 3<br> Range
+          5, Resolution 2, all bits 8, 256 signed values, digits10 = 1, max_digits10
+          = 4 Minimum fails 0 for precision 2<br> Range 6, Resolution 1, all bits
+          8, 256 signed values, digits10 = 1, max_digits10 = 4 Minimum fails 0 for
+          precision 2<br>
+        </p>
+<p>
+          The outlier here is range 3 and resolution 4 which has two failures.
+        </p>
+<p>
+          Using fixed format:
+        </p>
+<p>
+          Range 0, Resolution 7, all bits 8, 256 signed values, digits10 = 1, max_digits10
+          = 4 Minimum fails 31 for precision 3, 32 for fails max_digits10<br> Range
+          1, Resolution 6, all bits 8, 256 signed values, digits10 = 1, max_digits10
+          = 4 no fails for precision=5, 32 fails for max_digits10<br> Range 2,
+          Resolution 5, all bits 8, 256 signed values, digits10 = 1, max_digits10
+          = 4 no fails for precision= 4 max_digits10<br> Range 3, Resolution 4,
+          all bits 8, 256 signed values, digits10 = 1, max_digits10 = 4 no fails
+          for precision = 3, 2 fails for max_digits10 <br> Range 4, Resolution
+          3, all bits 8, 256 signed values, digits10 = 1, max_digits10 = 4 no fails
+          for precision &gt;= 1 <br> Range 5, Resolution 2, all bits 8, 256 signed
+          values, digits10 = 1, max_digits10 = 4 no fails for precision &gt;= 1
+          <br> Range 6, Resolution 1, all bits 8, 256 signed values, digits10 =
+          1, max_digits10 = 4 no fails for precision &gt;= 1 <br>
+        </p>
+<p>
+          For this limited test, one can conclude that scientific is definitely best,
+          but that, as expected, exact round-tripping is not assured.
+        </p>
+<p>
+          For larger, and useful, fixed_point types, it is not possible to test all
+          possible values in a sensible time, (a day for 32-bit and a lifetime for
+          64-bit!) and a random selection of values is all that we can usefully test.
+        </p>
+<p>
+          But we also must expect different results from different compilers and
+          different versions as some are probably are able to guarantee the nearest
+          <a href="http://en.wikipedia.org/wiki/Floating_point#Representable_numbers.2C_conversion_and_rounding" target="_top">representable</a>
+          value.
+        </p>
+<p>
+          What <span class="bold"><strong>one can rely on</strong></span> is getting a result
+          that is <span class="bold"><strong>at most one bit different</strong></span> from
+          the nearest <a href="http://en.wikipedia.org/wiki/Floating_point#Representable_numbers.2C_conversion_and_rounding" target="_top">representable</a>
+          value.
+        </p>
+<p>
+          A possible alternative that would guarantee round-tripping and serialization
+          would be to use <code class="computeroutput"><span class="identifier">get</span></code> and
+          <code class="computeroutput"><span class="identifier">set</span></code> functions.
+        </p>
+<h6>
+<a name="fixed.design.iostream.round_tripping.h0"></a>
+          <span class="phrase"><a name="fixed.design.iostream.round_tripping.round_trip_details"></a></span><a class="link" href="round_tripping.html#fixed.design.iostream.round_tripping.round_trip_details">Round
+          trip details</a>
+        </h6>
+<p>
+          Conversion using <code class="computeroutput"><span class="keyword">operator</span><span class="special">&lt;&lt;</span></code> or <code class="computeroutput"><span class="identifier">strtof</span><span class="special">(),</span> <span class="identifier">stdtod</span><span class="special">()...</span></code> does <span class="bold"><strong>not</strong></span>
+          guarantee the nearest <a href="http://en.wikipedia.org/wiki/Floating_point#Representable_numbers.2C_conversion_and_rounding" target="_top">representable</a>
+          value, (in contrast to the conversion of decimal digit strings <span class="bold"><strong>by the compiler</strong></span>, which <span class="bold"><strong>does</strong></span>
+          guarantee the <span class="bold"><strong>nearest <a href="http://en.wikipedia.org/wiki/Floating_point#Representable_numbers.2C_conversion_and_rounding" target="_top">representable</a>
+          value</strong></span>).
+        </p>
+<p>
+          <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4604.pdf" target="_top">C++17
+          draft standard</a> &#167; 7.22.1.3 says that we use <a href="http://c0x.coding-guidelines.com/6.4.4.2.html" target="_top">C0x</a>
+          &#167; 6.4.4.2/3 (floating constants) rules to interpret the literal decimal digit
+          string thus:
+        </p>
+<p>
+          " For decimal floating constants, and also for hexadecimal floating
+          constants when FLT_RADIX is not a power of 2, the result is either the
+          nearest representable value, or the larger or smaller representable value
+          immediately adjacent to the nearest representable value, chosen in an implementation-defined
+          manner. "
+        </p>
+<p>
+          Some platforms achieve the conversion to the nearest representable value,
+          (and thus exact 'round-tipping') at least for decimal digits strings of
+          reasonable lengths (usually <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span><span class="special">&lt;</span><span class="identifier">T</span><span class="special">&gt;::</span><span class="identifier">max_digits10</span></code>).
+        </p>
+<p>
+          A popular platform still fails to convert correctly: see <a href="http://www.exploringbinary.com/visual-c-plus-plus-strtod-still-broken/" target="_top">Visual
+          C++ strtod() Still Broken</a>.
+        </p>
+<p>
+          (The input <code class="computeroutput"><span class="keyword">operator</span><span class="special">&lt;&lt;</span></code>
+          might also be implemented without using floating-point <code class="computeroutput"><span class="identifier">strtod</span></code>,
+          <code class="computeroutput"><span class="identifier">strtof</span></code> or <code class="computeroutput"><span class="identifier">strtol</span></code>, functions, but this would increase
+          code size. Such an implementation would probably be faster because the
+          length and format of the string is already known from the value of <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span><span class="special">&lt;&gt;::</span><span class="identifier">max_digits10</span></code>, and that the format is
+          also already known.)
+        </p>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2013, 2015, 2016 Christopher Kormanyos<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../iostream.html"><img src="../../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../iostream.html"><img src="../../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../../index.html"><img src="../../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="../conversions.html"><img src="../../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

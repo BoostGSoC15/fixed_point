@@ -1,0 +1,123 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Example of computing Bernoulli numbers</title>
+<link rel="stylesheet" href="../../fixed_point.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../../index.html" title="Boost.Fixed-point">
+<link rel="up" href="../examples.html" title="Examples">
+<link rel="prev" href="mandelbrot.html" title="Example of computing images of a Mandelbrot set at low and high-resolution">
+<link rel="next" href="hypergeometric.html" title="Example of computing hypergeometric_1f1 function">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="180" height="90" src="../../proposed_for_boost.png"></td>
+<td align="center"><a href="../../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="mandelbrot.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../examples.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="hypergeometric.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="fixed.examples.bernoulli_numbers"></a><a class="link" href="bernoulli_numbers.html" title="Example of computing Bernoulli numbers">Example of computing
+      Bernoulli numbers</a>
+</h3></div></div></div>
+<p>
+        Example program showing non-trivial use of <code class="computeroutput"><a class="link" href="../../boost/fixed_point/negatable.html" title="Class template negatable">negatable</a></code>
+        computing an array of <a href="https://en.wikipedia.org/wiki/Bernoulli_number" target="_top">Bernoulli
+        numbers</a> (very useful in real-life for computing functions using several
+        series expansions).
+      </p>
+<p>
+        The compution of an array of fixed-point Bernoulli numbers uses the <a href="http://www.boost.org/doc/libs/release/libs/math/doc/html/special.html" target="_top">Boost.math
+        special function</a> <a href="http://www.boost.org/doc/libs/release/libs/math/doc/html/math_toolkit/number_series/bernoulli_numbers.html" target="_top">bernoulli</a>
+        (code at <a href="http://www.boost.org/doc/libs/release/boost/math/special_functions/bernoulli.hpp" target="_top">bernoulli.hpp</a>)
+        in exactly the same way as the floating-point example <a href="http://www.boost.org/doc/libs/release/libs/math/example/bernoulli_example.cpp" target="_top">bernoulli_example.cpp</a>
+        but using a fixed-point type instead.
+      </p>
+<p>
+        This example uses a very large fixed-point type (2048 bit) with an asymetrically
+        large-integral-range (and a resolution of 280).
+      </p>
+<pre class="programlisting"><span class="identifier">BOOST_CONSTEXPR_OR_CONST</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">size_t</span> <span class="identifier">number_of_bernoulli_b2n</span> <span class="special">=</span> <span class="number">22U</span><span class="special">;</span>
+<span class="identifier">BOOST_CONSTEXPR_OR_CONST</span> <span class="keyword">int</span>         <span class="identifier">resolution_of_bernoulli_b2n</span> <span class="special">=</span> <span class="special">-</span><span class="number">280</span><span class="special">;</span>
+
+<span class="comment">// Make a very large fixed-point type with an asymmetrically large integral range.</span>
+<span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">2047</span> <span class="special">+</span> <span class="identifier">resolution_of_bernoulli_b2n</span><span class="special">,</span>
+                                      <span class="identifier">resolution_of_bernoulli_b2n</span><span class="special">,</span>
+                                      <span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">round</span><span class="special">::</span><span class="identifier">nearest_even</span><span class="special">&gt;</span>
+<span class="identifier">fixed_point_type</span><span class="special">;</span>
+
+<span class="comment">// Define a fixed-point array for storing the Bernoulli numbers.</span>
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">array</span><span class="special">&lt;</span><span class="identifier">fixed_point_type</span><span class="special">,</span> <span class="identifier">number_of_bernoulli_b2n</span><span class="special">&gt;</span> <span class="identifier">b2n_fixed</span><span class="special">;</span>
+
+<span class="comment">// Fill the fixed-point array with even Bernoulli numbers.</span>
+<span class="keyword">for</span><span class="special">(</span><span class="keyword">int</span> <span class="identifier">i</span> <span class="special">=</span> <span class="number">0U</span><span class="special">;</span> <span class="identifier">i</span> <span class="special">&lt;</span> <span class="keyword">int</span><span class="special">(</span><span class="identifier">number_of_bernoulli_b2n</span><span class="special">);</span> <span class="special">++</span><span class="identifier">i</span><span class="special">)</span>
+<span class="special">{</span>
+  <span class="identifier">b2n_fixed</span><span class="special">[</span><span class="identifier">i</span><span class="special">]</span> <span class="special">=</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">math</span><span class="special">::</span><span class="identifier">bernoulli_b2n</span><span class="special">&lt;</span><span class="identifier">fixed_point_type</span><span class="special">&gt;(</span><span class="identifier">i</span><span class="special">);</span>
+<span class="special">}</span>
+</pre>
+<p>
+        Outputting the numbers shows that the computations using fixed-point and
+        using floating-point are identical. One decimal guard digit has been used
+        in this example.
+      </p>
+<pre class="programlisting"><span class="identifier">Fixed</span><span class="special">-</span><span class="identifier">point</span> <span class="identifier">results</span> <span class="identifier">of</span> <span class="identifier">bernoulli_b2n</span><span class="special">:</span>
+
+<span class="number">1.00000000000000000000000000000000000000000000000000000000000000000000000000000000000</span>
+<span class="number">0.16666666666666666666666666666666666666666666666666666666666666666666666666666666667</span>
+<span class="special">-</span><span class="number">0.03333333333333333333333333333333333333333333333333333333333333333333333333333333333</span>
+<span class="number">0.02380952380952380952380952380952380952380952380952380952380952380952380952380952381</span>
+<span class="special">-</span><span class="number">0.03333333333333333333333333333333333333333333333333333333333333333333333333333333333</span>
+<span class="number">0.07575757575757575757575757575757575757575757575757575757575757575757575757575757576</span>
+<span class="special">-</span><span class="number">0.25311355311355311355311355311355311355311355311355311355311355311355311355311355311</span>
+<span class="number">1.16666666666666666666666666666666666666666666666666666666666666666666666666666666667</span>
+<span class="special">-</span><span class="number">7.09215686274509803921568627450980392156862745098039215686274509803921568627450980392</span>
+<span class="number">54.97117794486215538847117794486215538847117794486215538847117794486215538847117794486</span>
+<span class="special">-</span><span class="number">529.12424242424242424242424242424242424242424242424242424242424242424242424242424242424</span>
+<span class="number">6192.12318840579710144927536231884057971014492753623188405797101449275362318840579710145</span>
+<span class="special">-</span><span class="number">86580.25311355311355311355311355311355311355311355311355311355311355311355311355311355311</span>
+<span class="number">1425517.16666666666666666666666666666666666666666666666666666666666666666666666666666666667</span>
+<span class="special">-</span><span class="number">27298231.06781609195402298850574712643678160919540229885057471264367816091954022988505747126</span>
+<span class="number">601580873.90064236838430386817483591677140064236838430386817483591677140064236838430386817484</span>
+<span class="special">-</span><span class="number">15116315767.09215686274509803921568627450980392156862745098039215686274509803921568627450980392</span>
+<span class="number">429614643061.16666666666666666666666666666666666666666666666666666666666666666666666666666666667</span>
+<span class="special">-</span><span class="number">13711655205088.33277215908794856163277215908794856163277215908794856163277215908794856163277215909</span>
+<span class="number">488332318973593.16666666666666666666666666666666666666666666666666666666666666666666666666666666667</span>
+<span class="special">-</span><span class="number">19296579341940068.14863266814486326681448632668144863266814486326681448632668144863266814486326681449</span>
+<span class="number">841693047573682615.00055370985603543743078626799557032115171650055370985603543743078626799557032115172</span>
+</pre>
+<p>
+        Full code (including showing some output) is at <a href="../../../../example/fixed_point_bernoulli_b2n.cpp" target="_top">fixed_point_bernoulli_b2n.cpp
+        </a>.
+      </p>
+<div class="warning"><table border="0" summary="Warning">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Warning]" src="../../../../../../doc/src/images/warning.png"></td>
+<th align="left">Warning</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+          This example requires VC 14.0, or GCC 5.x, or similar C++11 adherence to
+          compile.
+        </p></td></tr>
+</table></div>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2013, 2015, 2016 Christopher Kormanyos<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="mandelbrot.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../examples.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="hypergeometric.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

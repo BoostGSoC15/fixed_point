@@ -1,0 +1,147 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Example of a bare-metal fixed_point type evaluating a derivative.</title>
+<link rel="stylesheet" href="../../fixed_point.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../../index.html" title="Boost.Fixed-point">
+<link rel="up" href="../examples.html" title="Examples">
+<link rel="prev" href="numeric_limits.html" title="Example of a fixed_point type and its numeric_limits">
+<link rel="next" href="mandelbrot.html" title="Example of computing images of a Mandelbrot set at low and high-resolution">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="180" height="90" src="../../proposed_for_boost.png"></td>
+<td align="center"><a href="../../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="numeric_limits.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../examples.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="mandelbrot.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="fixed.examples.bare_derivative"></a><a class="link" href="bare_derivative.html" title="Example of a bare-metal fixed_point type evaluating a derivative.">Example of a bare-metal
+      fixed_point type evaluating a derivative.</a>
+</h3></div></div></div>
+<p>
+        This example shows how a fixed_point type can be used in an 8-bit microcontroller
+        to evaluate the first derivative (and that can be used, for example, to trigger
+        some action).
+      </p>
+<p>
+        It evaluates the first derivative of a real function using a three-point
+        central-difference rule of <span class="emphasis"><em><span class="bold"><strong>O</strong></span>(dx^6)</em></span>.
+      </p>
+<p>
+        For more details see this section on <a href="http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/tut/floats/fp_eg/nd.html" target="_top">Calculating
+        a derivative</a>.
+      </p>
+<p>
+        The derivative code is
+      </p>
+<pre class="programlisting"><span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">RealValueType</span><span class="special">,</span>
+         <span class="keyword">typename</span> <span class="identifier">RealFunctionType</span><span class="special">&gt;</span>
+<span class="identifier">RealValueType</span> <span class="identifier">first_derivative</span><span class="special">(</span><span class="keyword">const</span> <span class="identifier">RealValueType</span><span class="special">&amp;</span> <span class="identifier">x</span><span class="special">,</span>
+                               <span class="keyword">const</span> <span class="identifier">RealValueType</span><span class="special">&amp;</span> <span class="identifier">dx</span><span class="special">,</span>
+                               <span class="identifier">RealFunctionType</span> <span class="identifier">real_function</span><span class="special">)</span>
+<span class="special">{</span>
+  <span class="keyword">const</span> <span class="identifier">RealValueType</span> <span class="identifier">dx2</span><span class="special">(</span><span class="identifier">dx</span>  <span class="special">+</span> <span class="identifier">dx</span><span class="special">);</span>
+  <span class="keyword">const</span> <span class="identifier">RealValueType</span> <span class="identifier">dx3</span><span class="special">(</span><span class="identifier">dx2</span> <span class="special">+</span> <span class="identifier">dx</span><span class="special">);</span>
+
+  <span class="keyword">const</span> <span class="identifier">RealValueType</span> <span class="identifier">m1</span><span class="special">((</span>  <span class="identifier">real_function</span><span class="special">(</span><span class="identifier">x</span> <span class="special">+</span> <span class="identifier">dx</span><span class="special">)</span>
+                          <span class="special">-</span> <span class="identifier">real_function</span><span class="special">(</span><span class="identifier">x</span> <span class="special">-</span> <span class="identifier">dx</span><span class="special">))</span>  <span class="special">/</span> <span class="number">2U</span><span class="special">);</span>
+  <span class="keyword">const</span> <span class="identifier">RealValueType</span> <span class="identifier">m2</span><span class="special">((</span>  <span class="identifier">real_function</span><span class="special">(</span><span class="identifier">x</span> <span class="special">+</span> <span class="identifier">dx2</span><span class="special">)</span>
+                          <span class="special">-</span> <span class="identifier">real_function</span><span class="special">(</span><span class="identifier">x</span> <span class="special">-</span> <span class="identifier">dx2</span><span class="special">))</span> <span class="special">/</span> <span class="number">4U</span><span class="special">);</span>
+  <span class="keyword">const</span> <span class="identifier">RealValueType</span> <span class="identifier">m3</span><span class="special">((</span>  <span class="identifier">real_function</span><span class="special">(</span><span class="identifier">x</span> <span class="special">+</span> <span class="identifier">dx3</span><span class="special">)</span>
+                          <span class="special">-</span> <span class="identifier">real_function</span><span class="special">(</span><span class="identifier">x</span> <span class="special">-</span> <span class="identifier">dx3</span><span class="special">))</span> <span class="special">/</span> <span class="number">6U</span><span class="special">);</span>
+
+  <span class="keyword">const</span> <span class="identifier">RealValueType</span> <span class="identifier">fifteen_m1</span><span class="special">(</span><span class="identifier">m1</span> <span class="special">*</span> <span class="number">15U</span><span class="special">);</span>
+  <span class="keyword">const</span> <span class="identifier">RealValueType</span> <span class="identifier">six_m2</span>    <span class="special">(</span><span class="identifier">m2</span> <span class="special">*</span>  <span class="number">6U</span><span class="special">);</span>
+  <span class="keyword">const</span> <span class="identifier">RealValueType</span> <span class="identifier">ten_dx</span>    <span class="special">(</span><span class="identifier">dx</span> <span class="special">*</span> <span class="number">10U</span><span class="special">);</span>
+
+  <span class="keyword">return</span> <span class="special">((</span><span class="identifier">fifteen_m1</span> <span class="special">-</span> <span class="identifier">six_m2</span><span class="special">)</span> <span class="special">+</span> <span class="identifier">m3</span><span class="special">)</span> <span class="special">/</span> <span class="identifier">ten_dx</span><span class="special">;</span>
+<span class="special">}</span>
+</pre>
+<p>
+        The fixed_point 16-bit <code class="computeroutput"><span class="identifier">negatable</span></code>
+        type and the coefficients are
+      </p>
+<pre class="programlisting"><span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">6</span><span class="special">,</span> <span class="special">-</span><span class="number">9</span><span class="special">&gt;</span> <span class="identifier">fixed_point_type</span><span class="special">;</span>
+
+<span class="keyword">const</span> <span class="identifier">fixed_point_type</span> <span class="identifier">a</span> <span class="special">=</span> <span class="identifier">fixed_point_type</span><span class="special">(</span><span class="number">12</span><span class="special">)</span> <span class="special">/</span> <span class="number">10</span><span class="special">;</span>
+<span class="keyword">const</span> <span class="identifier">fixed_point_type</span> <span class="identifier">b</span> <span class="special">=</span> <span class="identifier">fixed_point_type</span><span class="special">(</span><span class="number">34</span><span class="special">)</span> <span class="special">/</span> <span class="number">10</span><span class="special">;</span>
+<span class="keyword">const</span> <span class="identifier">fixed_point_type</span> <span class="identifier">c</span> <span class="special">=</span> <span class="identifier">fixed_point_type</span><span class="special">(</span><span class="number">56</span><span class="special">)</span> <span class="special">/</span> <span class="number">10</span><span class="special">;</span>
+
+<span class="comment">// Compute the approximate derivative of (a * x^2) + (b * x) + c</span>
+<span class="comment">// evaluated at 1/2, where the approximate values of the coefficients</span>
+<span class="comment">// are: a = 1.2, b = 3.4, and c = 5.6. The numerical tolerance is set</span>
+<span class="comment">// to a value of approximately 1/4.</span>
+</pre>
+<p>
+        Evaluation is at 1/2 and uses a step size of 1/4.
+      </p>
+<p>
+        (see <a href="http://link.springer.com/chapter/10.1007/978-3-642-34688-0_12" target="_top">page
+        219-220</a>).
+      </p>
+<pre class="programlisting"><span class="keyword">const</span> <span class="identifier">fixed_point_type</span> <span class="identifier">d</span> <span class="special">=</span>
+  <span class="identifier">local</span><span class="special">::</span><span class="identifier">first_derivative</span><span class="special">(</span><span class="identifier">fixed_point_type</span><span class="special">(</span><span class="number">1</span><span class="special">)</span> <span class="special">/</span> <span class="number">2</span><span class="special">,</span> <span class="comment">// x</span>
+                          <span class="identifier">fixed_point_type</span><span class="special">(</span><span class="number">1</span><span class="special">)</span> <span class="special">/</span> <span class="number">4</span><span class="special">,</span>  <span class="comment">// Step size dx.</span>
+                          <span class="special">[&amp;</span><span class="identifier">a</span><span class="special">,</span> <span class="special">&amp;</span><span class="identifier">b</span><span class="special">,</span> <span class="special">&amp;</span><span class="identifier">c</span><span class="special">](</span><span class="keyword">const</span> <span class="identifier">fixed_point_type</span><span class="special">&amp;</span> <span class="identifier">x</span><span class="special">)</span> <span class="special">-&gt;</span> <span class="identifier">fixed_point_type</span>
+                          <span class="special">{</span>
+                            <span class="keyword">return</span> <span class="special">(((</span><span class="identifier">a</span> <span class="special">*</span> <span class="identifier">x</span><span class="special">)</span> <span class="special">+</span> <span class="identifier">b</span><span class="special">)</span> <span class="special">*</span> <span class="identifier">x</span><span class="special">)</span> <span class="special">+</span> <span class="identifier">c</span><span class="special">;</span>
+                          <span class="special">});</span>
+</pre>
+<p>
+        The expected exact differential is ((2 * a) + b) = (2.4 + 3.4) = 4.6. We
+        obtain a fixed-point result of approximately 4.5938.
+      </p>
+<p>
+        To verify that the result lies within <span class="emphasis"><em>4.5 &lt; result &lt; 4.7</em></span>
+        (since the expected result is 4.6, this is a wide tolerance):
+      </p>
+<pre class="programlisting"><span class="identifier">global_result_is_ok</span> <span class="special">=</span> <span class="special">((</span><span class="identifier">d</span> <span class="special">&gt;</span> <span class="special">(</span><span class="identifier">fixed_point_type</span><span class="special">(</span><span class="number">45</span><span class="special">)</span> <span class="special">/</span> <span class="number">10</span><span class="special">))</span> <span class="special">&amp;&amp;</span> <span class="special">(</span><span class="identifier">d</span> <span class="special">&lt;</span> <span class="special">(</span><span class="identifier">fixed_point_type</span><span class="special">(</span><span class="number">47</span><span class="special">)</span> <span class="special">/</span> <span class="number">10</span><span class="special">)));</span>
+</pre>
+<p>
+        In a bigger system, we could display the result by sending to an output stream,
+        but our hardware may have no way of doing this (perhaps only toggling a digital
+        output to take some action like switch an LED on).
+      </p>
+<p>
+        So this example shows how to avoid the big overhead of <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">ostream</span></code>
+        code by defining two macros either on the command line, or by adding
+      </p>
+<pre class="programlisting"><span class="preprocessor">#define</span> <span class="identifier">BOOST_FIXED_POINT_DISABLE_MULTIPRECISION</span> <span class="comment">// Do not use Boost.Multiprecision.</span>
+<span class="preprocessor">#define</span> <span class="identifier">BOOST_FIXED_POINT_DISABLE_IOSTREAM</span>       <span class="comment">// Do not use I/O streaming.</span>
+</pre>
+<p>
+        before this include
+      </p>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">fixed_point</span><span class="special">/</span><span class="identifier">fixed_point</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+</pre>
+<p>
+        Full code is at <a href="../../../../example/fixed_point_bare_metal_derivative_example.cpp" target="_top">fixed_point_bare_metal_derivative_example.cpp</a>.
+      </p>
+<p>
+        This example is also discussed in <a href="http://link.springer.com/book/10.1007/978-3-662-47810-3" target="_top">Real-Time
+        C++, C M Kormanyos</a>, Section 12.7 and Chapter 13.
+      </p>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2013, 2015, 2016 Christopher Kormanyos<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="numeric_limits.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../examples.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="mandelbrot.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

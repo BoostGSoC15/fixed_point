@@ -1,0 +1,147 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Why Fixed-Point (Rather Than Floating-point)?</title>
+<link rel="stylesheet" href="../../fixed_point.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../../index.html" title="Boost.Fixed-point">
+<link rel="up" href="../intro.html" title="Introduction">
+<link rel="prev" href="../intro.html" title="Introduction">
+<link rel="next" href="why_this_fixed_point.html" title="Why use Boost.Fixed-point?">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="180" height="90" src="../../proposed_for_boost.png"></td>
+<td align="center"><a href="../../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../intro.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../intro.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="why_this_fixed_point.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="fixed.intro.why_fixed_point"></a><a class="link" href="why_fixed_point.html" title="Why Fixed-Point (Rather Than Floating-point)?">Why Fixed-Point (Rather
+      Than Floating-point)?</a>
+</h3></div></div></div>
+<p>
+        For most computing tasks, floating-point works extremely well.
+      </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+            The <a href="https://en.wikipedia.org/wiki/IEEE_floating_point" target="_top">IEEE
+            floating-point</a> layout is very cleverly devised to provide a good
+            resolution and a wide exponent range making very efficient use of the
+            32 and 64 bits available (including a cunning extra implicit significand
+            bit).
+          </li>
+<li class="listitem">
+            Hardware microcode, refined for decades, provides very fast instructions.
+          </li>
+</ul></div>
+<p>
+        There are, nonetheless, a variety of application domains for which fixed-point
+        calculations can be preferable to floating-point calculations.
+      </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+            Very many real-world measurements have a very limited precision. For
+            example, a car fuel tank reading might only need 0 to 100% with a precision
+            for which 127 steps from a single 8-bit byte is ample.
+          </li>
+<li class="listitem">
+            A 16-bit proposed <a href="http://en.cppreference.com/w/cpp/types/is_fundamental" target="_top">fundamental</a>
+            <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0192r0.pdf" target="_top">floating-point
+            type for <code class="computeroutput"><span class="keyword">short</span> <span class="keyword">float</span></code></a>
+            is good for saving space but is still a floating-point type, and usually
+            involves muchconversion to and from <code class="computeroutput"><span class="keyword">float</span></code>
+            or <code class="computeroutput"><span class="keyword">double</span></code> for most computation.
+          </li>
+<li class="listitem">
+            Certain numerical calculations such as graphics, mathematical fractals
+            and geometric representations may preferably use fixed-point rather than
+            floating-point.<br> While floating point representation gives you extra
+            precision for numbers near zero, this extra precision comes at the expense
+            of precision for numbers further out. So floating-point representation
+            can lead to code that works correctly when tested for values near the
+            origin, but fails for values further out.
+          </li>
+<li class="listitem">
+            Fixed-point calculations can also be useful in cost-sensitive real-time
+            embedded systems. Many microcontrollers, do not have a floating-point
+            unit (FPU) or any instructions for floating-point calculations. Typical
+            examples are 8 and 16-bit <a href="https://en.wikipedia.org/wiki/Microcontroller" target="_top">microcontrollers</a>,
+            especially those suited for high-volume, price-optimized applications.
+            In these kinds of applications, fixed-point calculations can be more
+            efficient than software-emulated floating-point calculations and therefore
+            more well-suited for small 8 or 16-bit microcontrollers. See <a class="link" href="../design/microcontrollers.html#fixed.design.microcontrollers.efficiency">efficiency</a>
+            for some examples.
+          </li>
+<li class="listitem">
+            High-performance microcontrollers often have a floating-point unit (FPU).
+            Deactivating the FPU nonetheless and preferentially using fixed-point
+            instead of floating-point can be beneficial for certain reasons. Some
+            project guidelines forbid the use of floating-point calculations because
+            these potentially lead to higher consumption of resources such as stack,
+            FPU registers, memory, overhead of context-switch, etc. In addition,
+            even high-performance microcontrollers that have an FPU may have circuitry
+            that can enable or disable the FPU, and powering the FPU can cost energy.
+            In these cases, deactivating the FPU and using fixed-point instead of
+            floating-point can potentially save energy in low power-consumption modes.
+          </li>
+<li class="listitem">
+            In fact one of the main reasons to choose fixed-point may be <span class="bold"><strong>to reduce power consumption</strong></span>; that often means
+            longer battery life, helpful for portable devices like watches, but even
+            more for implanted devices having inconvenient battery charges and changes.
+          </li>
+<li class="listitem">
+            Storing many floating-point values takes up more memory than would be
+            possible using <code class="computeroutput"><span class="identifier">fixed_point</span></code>.
+            Memory is cheap, but using less memory can speed data transfer and reduce
+            cache misses. So if an entire array of data can be stored as a <code class="computeroutput"><span class="identifier">negatable</span></code> using a small integral type,
+            <code class="computeroutput"><span class="identifier">int8_t</span></code> or <code class="computeroutput"><span class="identifier">int16_t</span></code>, in a very fast memory cache,
+            it might be processed more quickly.
+          </li>
+<li class="listitem">
+            If a resolution greater than <code class="computeroutput"><span class="keyword">double</span></code>
+            (usually 64-bit) is required, <code class="computeroutput"><span class="identifier">fixed_point</span></code>
+            may well prove faster.<br> Software like <a href="../../../../../../libs/multiprecision/doc/html/index.html" target="_top">Boost.Multiprecision</a>
+            can provide much higher resolution and higher exponent ranges, but at
+            a great cost in computation time, often a hundred-fold slower.<br>
+            Fixed-point using many bits, for example 256-bit, can provide very high
+            resolution, which may execute faster than an equivalent <a href="../../../../../../libs/multiprecision/doc/html/index.html" target="_top">Boost.Multiprecision</a>
+            type (provided the reduced exponent (scaling) range can be tolerated).
+            See <a class="link" href="../design/microcontrollers.html#fixed.design.microcontrollers.efficiency">efficiency</a>
+            for some examples.
+          </li>
+<li class="listitem">
+            Rationalized integer calculations (and even fixed-point) can be more
+            reliable than floating-point emulations and potentially improve robustness
+            by remaining in the realm of near-integral math.
+          </li>
+<li class="listitem">
+            Avoiding <a href="https://en.wikibooks.org/wiki/Floating_Point/Normalization" target="_top">normalization</a>
+            means that the time for any operation is consistent and predictable.
+          </li>
+<li class="listitem">
+            Fixed-point can be sorted in linear time <span class="bold"><strong><span class="emphasis"><em>O</em></span></strong></span>N.
+          </li>
+</ul></div>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2013, 2015, 2016 Christopher Kormanyos<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../intro.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../intro.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="why_this_fixed_point.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Construction, Assignment and Initialization</title>
+<link rel="stylesheet" href="../../fixed_point.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../../index.html" title="Boost.Fixed-point">
+<link rel="up" href="../design.html" title="Design, Implementation (and some Rationale)">
+<link rel="prev" href="../design.html" title="Design, Implementation (and some Rationale)">
+<link rel="next" href="limits.html" title="Numeric Limits">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="180" height="90" src="../../proposed_for_boost.png"></td>
+<td align="center"><a href="../../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../design.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../design.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="limits.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="fixed.design.construction"></a><a class="link" href="construction.html" title="Construction, Assignment and Initialization">Construction, Assignment and
+      Initialization</a>
+</h3></div></div></div>
+<p>
+        An myriad collection of constructors are provided to allow initialization
+        from various types including integral, floating-point and multiprecision
+        types.
+      </p>
+<p>
+        Variants automatically select the appropriate integral type to hold the fixed-point
+        values, from byte to multiprecision kilo bytes; this will normally be hidden
+        from the user, but there are a few features that may surprise users.
+      </p>
+<div class="warning"><table border="0" summary="Warning">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Warning]" src="../../../../../../doc/src/images/warning.png"></td>
+<th align="left">Warning</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+          Ensure that the sum of resolution and range is not <span class="bold"><strong>equal</strong></span>
+          to the number of bits in the underlying integral type, usually <code class="computeroutput"><span class="keyword">int</span></code> 32 or 64-bit, chosen from <a href="http://en.cppreference.com/w/cpp/types/integer" target="_top">Fixed-width
+          integer types</a>. Otherwise, because one bit is required for sign
+          and rounding, fixed_point will use the next largest type, at worst a <a href="../../../../../../libs/multiprecision/doc/html/index.html" target="_top">Boost.Multiprecision</a>
+          type, with dramatic effect on code size and run-time. For example, <code class="computeroutput"><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">0</span><span class="special">,</span><span class="number">63</span><span class="special">&gt;</span></code> and <code class="computeroutput"><span class="identifier">nonnegative</span><span class="special">&lt;</span><span class="number">0</span><span class="special">,</span><span class="number">63</span><span class="special">&gt;</span></code> are
+          the largest types possible based on <code class="computeroutput"><span class="identifier">int64_t</span></code>
+          without using <a href="../../../../../../libs/multiprecision/doc/html/index.html" target="_top">Boost.Multiprecision</a>.
+        </p></td></tr>
+</table></div>
+<p>
+        To conform to C++ norms, many constructors enforce <a href="http://en.cppreference.com/w/cpp/language/explicit" target="_top">explicit
+        conversions</a> from the input type where these might be 'lossy' (cause
+        loss of precision).
+      </p>
+<p>
+        (The rules are similar to those for <a href="../../../../../../libs/multiprecision/doc/html/index.html" target="_top">Boost.Multiprecision</a>
+        <a href="http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/tut/conversions.html" target="_top">conversions</a>).
+      </p>
+<p>
+        This means that one cannot write, for example,
+      </p>
+<pre class="programlisting"><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">2</span><span class="special">,</span> <span class="special">-</span><span class="number">5</span><span class="special">&gt;</span> <span class="identifier">x1</span> <span class="special">=</span> <span class="number">1</span><span class="special">;</span> <span class="comment">// Error: No suitable conversion from int to negatable.</span>
+</pre>
+<p>
+        but should always prefer to write
+      </p>
+<pre class="programlisting"><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">2</span><span class="special">,</span> <span class="special">-</span><span class="number">5</span><span class="special">&gt;</span> <span class="identifier">x1</span><span class="special">(</span><span class="number">1</span><span class="special">);</span>  <span class="comment">// OK: x is 1.</span>
+</pre>
+<p>
+        If later assigning a value after construction, explicit conversion is still
+        required.
+      </p>
+<pre class="programlisting"><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">2</span><span class="special">,</span> <span class="special">-</span><span class="number">5</span><span class="special">&gt;</span> <span class="identifier">x</span><span class="special">;</span>      <span class="comment">// Default initialization: x is 0.</span>
+
+<span class="identifier">x</span> <span class="special">=</span> <span class="number">2</span><span class="special">;</span>                   <span class="comment">// Error: No suitable conversion from int to negatable.</span>
+<span class="identifier">x</span> <span class="special">=</span> <span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">2</span><span class="special">,</span> <span class="special">-</span><span class="number">5</span><span class="special">&gt;(</span><span class="number">2</span><span class="special">);</span> <span class="comment">// OK: x is 2.</span>
+</pre>
+<p>
+        This is tedious and adds much clutter, so a small <code class="computeroutput"><span class="keyword">typedef</span></code>
+        may be convenient:
+      </p>
+<pre class="programlisting"><span class="comment">// Declare a fixed_point type,</span>
+<span class="comment">// using an underlying 8-bit integral type (`int8_t`),</span>
+<span class="comment">// and split of 2 bits for range and 5 bits for resolution,</span>
+<span class="comment">// with rounding as fastest (no rounding) and overflow undefined.</span>
+<span class="keyword">typedef</span> <span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">2</span><span class="special">,</span> <span class="special">-</span><span class="number">5</span><span class="special">&gt;</span> <span class="identifier">my_fp</span><span class="special">;</span>
+
+<span class="identifier">my_fp</span> <span class="identifier">x</span><span class="special">(</span><span class="number">1</span><span class="special">);</span>
+</pre>
+<div class="tip"><table border="0" summary="Tip">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="../../../../../../doc/src/images/tip.png"></td>
+<th align="left">Tip</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+          It is very likely to be more efficient to use the converting constructor
+          <code class="computeroutput"><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">2</span><span class="special">,</span> <span class="special">-</span><span class="number">5</span><span class="special">&gt;</span> <span class="identifier">x1</span><span class="special">(</span><span class="number">1</span><span class="special">);</span></code>
+          because construction followed by initialization will involve a temporary
+          variable.
+        </p></td></tr>
+</table></div>
+<h4>
+<a name="fixed.design.construction.h0"></a>
+        <span class="phrase"><a name="fixed.design.construction.assignment"></a></span><a class="link" href="construction.html#fixed.design.construction.assignment">Assigning
+        a value that is too big</a>
+      </h4>
+<div class="warning"><table border="0" summary="Warning">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Warning]" src="../../../../../../doc/src/images/warning.png"></td>
+<th align="left">Warning</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+          There is a major pit awaiting the unwary if the <code class="literal">fixed_point</code>
+          type cannot (quite) represent the value assigned!
+        </p></td></tr>
+</table></div>
+<p>
+        In this example, constructing with the integer value <span class="emphasis"><em>unity</em></span>
+        will cause a big surprise:
+      </p>
+<pre class="programlisting"><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">0</span><span class="special">,</span> <span class="special">-</span><span class="number">7</span><span class="special">&gt;</span> <span class="identifier">x1</span><span class="special">(</span><span class="number">1</span><span class="special">);</span>
+</pre>
+<p>
+        This is because this type has <span class="bold"><strong>zero</strong></span> bits
+        used for the range and so the maximum value that can be represented is only
+        0.9922 (not 1.0000).
+      </p>
+<pre class="programlisting"><span class="keyword">class</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">0</span><span class="special">,-</span><span class="number">7</span><span class="special">,</span><span class="keyword">struct</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">round</span><span class="special">::</span><span class="identifier">fastest</span><span class="special">,</span><span class="keyword">struct</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">overflow</span><span class="special">::</span><span class="identifier">undefined</span><span class="special">&gt;</span>
+<span class="identifier">Range</span> <span class="number">0</span><span class="special">,</span> <span class="identifier">Resolution</span> <span class="number">7</span><span class="special">,</span> <span class="identifier">all_bits</span> <span class="number">8</span><span class="special">,</span> <span class="number">256</span> <span class="identifier">values</span><span class="special">,</span> <span class="identifier">digits10</span> <span class="special">=</span> <span class="number">1</span><span class="special">,</span> <span class="identifier">max_digits10</span> <span class="special">=</span> <span class="number">4</span>
+<span class="identifier">Range</span> <span class="identifier">from</span> <span class="identifier">lowest</span> <span class="special">-</span><span class="number">1.0000</span> <span class="number">10000000</span><span class="special">,</span> <span class="identifier">zero</span> <span class="number">0.0000</span><span class="special">,</span> <span class="identifier">min</span> <span class="number">0.0078</span> <span class="number">00000001</span> <span class="identifier">to</span> <span class="identifier">max</span> <span class="number">0.9922</span> <span class="number">01111111</span> <span class="identifier">in</span> <span class="identifier">steps</span> <span class="identifier">of</span> <span class="number">0.0078</span><span class="special">:</span>
+<span class="special">-</span><span class="number">1.0000</span><span class="special">,</span> <span class="special">-</span><span class="number">0.9922</span><span class="special">,</span> <span class="special">-</span><span class="number">0.9844</span> <span class="special">...</span> <span class="special">-</span><span class="number">0.0156</span><span class="special">,</span> <span class="special">-</span><span class="number">0.0078</span> <span class="special">,</span> <span class="number">0.0000</span><span class="special">,</span> <span class="number">0.0078</span><span class="special">,</span> <span class="number">0.0156</span> <span class="special">...</span> <span class="number">0.9766</span><span class="special">,</span> <span class="number">0.9844</span> <span class="identifier">to</span> <span class="number">0.9922</span>
+</pre>
+<p>
+        Storing the value 1 therefore causes overflow and, in line with C/C++ norms,
+        the value stored <span class="bold"><strong>wraps around to -1, the lowest value</strong></span>,
+        <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span><span class="special">&lt;&gt;::</span><span class="identifier">lowest</span><span class="special">()</span></code>
+        == -1.0000.
+      </p>
+<p>
+        This behavior is analogous to that of <code class="computeroutput"><span class="identifier">int16_t</span></code>
+        where assigning a value that exceeds <code class="computeroutput"><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span><span class="special">&lt;</span><span class="keyword">short</span> <span class="keyword">int</span><span class="special">&gt;::</span><span class="identifier">max</span><span class="special">)()</span></code>
+        (32767) silently causes overflow and goes negative to <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span><span class="special">&lt;</span><span class="keyword">short</span> <span class="keyword">int</span><span class="special">&gt;::</span><span class="identifier">lowest</span><span class="special">()</span></code>
+        (-32768).
+      </p>
+<p>
+        For <code class="computeroutput"><span class="identifier">fixed_point</span></code> it is because
+        an integral type is used as the internal representaion tht holds the <code class="computeroutput"><span class="identifier">fixed_point</span></code> value.
+      </p>
+<p>
+        As mentioned above,
+      </p>
+<pre class="programlisting"><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">2</span><span class="special">,</span> <span class="special">-</span><span class="number">5</span><span class="special">&gt;</span> <span class="identifier">x1</span> <span class="special">=</span> <span class="number">1</span><span class="special">;</span> <span class="comment">// No suitable conversion from int to fixed_point.</span>
+</pre>
+<p>
+        has no suitable conversion from int to <code class="computeroutput"><span class="identifier">fixed_point</span></code>.
+      </p>
+<p>
+        Unlike the built-in integers, when used in a simple assignment or construction,
+        the compiler can warn
+      </p>
+<pre class="programlisting"><span class="keyword">short</span> <span class="keyword">int</span> <span class="identifier">j</span>  <span class="special">(</span><span class="number">32768</span><span class="special">);</span> <span class="comment">//  warning C4309: 'initializing': truncation of constant value</span>
+<span class="keyword">short</span> <span class="keyword">int</span> <span class="identifier">k</span> <span class="special">=</span> <span class="number">32768</span><span class="special">;</span>  <span class="comment">//  warning C4309: 'initializing': truncation of constant value</span>
+</pre>
+<p>
+        But for Boost <code class="computeroutput"><span class="identifier">fixed_point</span></code>,
+        there is <span class="bold"><strong>no compiler warning</strong></span>. As a result,
+        narrowing construction has been made explicit and attempting an implicit
+        narrowing conversion results in a compiler error.
+      </p>
+<p>
+        Here, narrowing conversion is interpreted to mean trying to convert an integral
+        type to a <code class="computeroutput"><span class="identifier">fixed_point</span></code> type
+        where the <code class="computeroutput"><span class="identifier">fixed_point</span></code> type
+        has fewer digits of range than the number of digits in the integral type.
+      </p>
+<div class="warning"><table border="0" summary="Warning">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Warning]" src="../../../../../../doc/src/images/warning.png"></td>
+<th align="left">Warning</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+          The same pitfall applies for <span class="bold"><strong>all</strong></span> negatable
+          types when the value provided exceeds the size of the integral type used
+          to store the <code class="literal">fixed_point</code> data.
+        </p></td></tr>
+</table></div>
+<div class="note"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../../../../../../doc/src/images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+          This behaviour might change if <code class="computeroutput"><span class="identifier">overflow</span></code>
+          was other than <code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">overflow</span><span class="special">::</span><span class="identifier">undefined</span></code>, for example, saturation at
+          the maximum value.<br> At present, only <code class="computeroutput"><span class="identifier">overflow</span><span class="special">::</span><span class="identifier">undefined</span></code>
+          is implemented.
+        </p></td></tr>
+</table></div>
+<p>
+        Another type of narrowing conversion occurs when trying to convert a fixed-point
+        type with wider range to another fixed-point type with less range.
+      </p>
+<p>
+        For example, the conversion below is explicit.
+      </p>
+<pre class="programlisting"><span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">4</span><span class="special">,</span> <span class="special">-</span><span class="number">11</span><span class="special">&gt;</span> <span class="identifier">fixed_point_type_a</span><span class="special">;</span>
+<span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">6</span><span class="special">,</span>  <span class="special">-</span><span class="number">9</span><span class="special">&gt;</span> <span class="identifier">fixed_point_type_b</span><span class="special">;</span>
+
+<span class="identifier">fixed_point_type_a</span> <span class="identifier">a</span><span class="special">(</span><span class="number">1</span><span class="special">);</span>
+<span class="identifier">fixed_point_type_b</span> <span class="identifier">b</span><span class="special">(</span><span class="number">2</span><span class="special">);</span>
+
+<span class="identifier">fixed_point_type_a</span> <span class="identifier">c_ok</span>     <span class="special">(</span><span class="identifier">b</span><span class="special">);</span> <span class="comment">// OK, eplicit conversion.</span>
+<span class="identifier">fixed_point_type_a</span> <span class="identifier">c_wrong</span> <span class="special">=</span> <span class="identifier">b</span><span class="special">;</span>  <span class="comment">// Not OK, attempted implicit narrowing conversion.</span>
+</pre>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2013, 2015, 2016 Christopher Kormanyos<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../design.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../design.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="limits.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

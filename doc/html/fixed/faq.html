@@ -1,0 +1,84 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Frequently Asked Questions FAQ</title>
+<link rel="stylesheet" href="../fixed_point.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../index.html" title="Boost.Fixed-point">
+<link rel="up" href="../index.html" title="Boost.Fixed-point">
+<link rel="prev" href="design/testing.html" title="Testing">
+<link rel="next" href="howtouse.html" title="How To Use This Documentation">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="180" height="90" src="../proposed_for_boost.png"></td>
+<td align="center"><a href="../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="design/testing.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="howtouse.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="fixed.faq"></a><a class="link" href="faq.html" title="Frequently Asked Questions FAQ">Frequently Asked Questions FAQ</a>
+</h2></div></div></div>
+<div class="orderedlist"><ol class="orderedlist" type="1">
+<li class="listitem">
+          <span class="emphasis"><em>What compiler do I need?</em></span><br> Many C++11 features
+          are used in the Boost.Fixed-point Library and the compiler must have a
+          high level of C++11 awareness to successfully translate the source code.
+          Visual Studio 2015 (VC 14.0) or later works well, but many applications
+          will also work with Visual Studio 2013 (VC 12.0). GCC compilers versions
+          such as 5.x or later or Clang with similar C++11 adherence also work well.
+        </li>
+<li class="listitem">
+          <span class="emphasis"><em>When should I consider using a fixed-point type?</em></span>
+          <br> Fixed-point allows you to provide a lower or higher range and/or
+          a lower or higher precision.
+        </li>
+<li class="listitem">
+          <span class="emphasis"><em>Will a fixed-point type use less memory?</em></span> <br> If
+          you base the fixed-point type on a small underlying integer type, then
+          it will be more efficient.
+        </li>
+<li class="listitem">
+          <span class="emphasis"><em>Will a fixed-point type run faster than floating-point type?</em></span>
+          <br> If there is no hardware floating-point, then is very likely to run
+          much faster. If you require a very high range or precision that would require
+          <a href="../../../../../libs/multiprecision/doc/html/index.html" target="_top">Boost.Multiprecision</a>
+          or similar high or arbitrary precision type, then for the same precision
+          or range, it will probably be quicker, possibly much quicker.
+        </li>
+<li class="listitem">
+          <span class="emphasis"><em>How can I avoid using <code class="computeroutput"><span class="identifier">iostream</span></code>
+          on a bare-metal microcontroller without any streaming peripherals?</em></span>
+          <br> <code class="computeroutput"><span class="preprocessor">#define</span> <span class="identifier">BOOST_FIXED_POINT_DISABLE_IOSTREAM</span></code>.
+        </li>
+<li class="listitem">
+          <span class="emphasis"><em>Can I use multiprecision without iostream on a bare-metal microcontroller
+          without any peripherals?</em></span> <br> This is not possible because
+          the multiprecision software was written assuming <code class="computeroutput"><span class="identifier">iostream</span></code>
+          is available. The work to isolate use of <code class="computeroutput"><span class="identifier">iostream</span></code>
+          using a preprocessor macro is judged too great to be worthwhile just for
+          this unusual requirement.
+        </li>
+</ol></div>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2013, 2015, 2016 Christopher Kormanyos<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="design/testing.html"><img src="../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="howtouse.html"><img src="../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

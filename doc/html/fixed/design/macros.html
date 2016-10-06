@@ -1,0 +1,99 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Preprocessor Options to enable/disable some features</title>
+<link rel="stylesheet" href="../../fixed_point.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../../index.html" title="Boost.Fixed-point">
+<link rel="up" href="../design.html" title="Design, Implementation (and some Rationale)">
+<link rel="prev" href="microcontrollers.html" title="Using Fixed-point with Microcontrollers">
+<link rel="next" href="testing.html" title="Testing">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="180" height="90" src="../../proposed_for_boost.png"></td>
+<td align="center"><a href="../../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="microcontrollers.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../design.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="testing.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="fixed.design.macros"></a><a class="link" href="macros.html" title="Preprocessor Options to enable/disable some features">Preprocessor Options to enable/disable
+      some features</a>
+</h3></div></div></div>
+<p>
+        Some macros are available (or are becoming available) to enable/disable certain
+        library features that may improve the usefulness of fixed_point in certain
+        application domains.
+      </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+            BOOST_FIXED_POINT_DISABLE_IOSTREAM All I/O streaming is disabled, as
+            is the inclusion of associated standard library headers. This option
+            eliminates all I/O stream overhead, in particular for bare-metal microcontroller
+            projects. Disabling I/O streaming requires simultaneous disabling of
+            multiprecision, as shown below with BOOST_FIXED_POINT_DISABLE_MULTIPRECISION.
+            (Implemented).
+          </li>
+<li class="listitem">
+            BOOST_FIXED_POINT_DISABLE_MULTIPRECISION This option is defined to disable
+            the use of Boost.Multiprecision for back-ends of the fixed-point classes.
+            Multiprecision fixed-point numbers are not available if this option is
+            set. (Implemented).
+          </li>
+<li class="listitem">
+            BOOST_FIXED_POINT_DISABLE_WIDE_INTEGER_MATH This option is defined to
+            avoid using the unsigned_large_type in the implementations of multiplication
+            and division operations. This option is intended for systems with limited
+            integer widths such as bare-metal microcontrollers. When used in combination
+            with BOOST_FIXED_POINT_DISABLE_MULTIPRECISION, this option is intended
+            to provide fixed-point representations with up to 64-bits (if 64-bit
+            integer types are available) without requiring any multiprecision. (Not
+            yet implemented).
+          </li>
+<li class="listitem">
+            BOOST_FIXED_POINT_DISABLE_IOSTREAM is defined to disable all I/O streaming
+            and the inclusion of associated standard library headers.<br> This
+            is intended to eliminate all I/O stream overhead, in particular for bare-metal
+            microcontroller projects. (Implemented). For an example, see <a href="../../../../example/fixed_point_no_io.cpp" target="_top">fixed_point_no_io.cpp</a>.
+          </li>
+<li class="listitem">
+            BOOST_FIXED_POINT_DISABLE_CPP11 This option enables support for a back-port
+            to C++03. This option eliminates the use of all native C++11 language
+            elements. This might send the wrong message about language technology,
+            but could increase the range of potential target compilers, especially
+            for embedded systems. (Not yet implemented).
+          </li>
+<li class="listitem">
+            BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS When this option is defined, fixed-point
+            uses multiple-precision backends (when required) based on <a href="https://gmplib.org/" target="_top">GNU
+            Multiple Precision Arithmetic Library (GMP)</a> instead of <a href="../../../../../../libs/multiprecision/doc/html/index.html" target="_top">Boost.Multiprecision</a>'s
+            self-written binary floating-point backend. See <a href="http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/tut/floats/gmp_float.html" target="_top">GMP
+            float types</a> section in <a href="../../../../../../libs/multiprecision/doc/html/index.html" target="_top">Boost.Multiprecision</a>.
+            <a href="https://gmplib.org/" target="_top">GNU Multiple Precision Arithmetic Library
+            (GMP)</a> backends use highly optimized assembler and advanced multiplication
+            algorithms that are significantly faster for high digit counts in excess
+            of a few hundred binary digits. (Implemented but not fully tested).
+          </li>
+</ul></div>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2013, 2015, 2016 Christopher Kormanyos<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="microcontrollers.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../design.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="testing.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

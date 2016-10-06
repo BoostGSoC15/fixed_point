@@ -1,0 +1,86 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Example of computing hypergeometric_1f1 function</title>
+<link rel="stylesheet" href="../../fixed_point.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../../index.html" title="Boost.Fixed-point">
+<link rel="up" href="../examples.html" title="Examples">
+<link rel="prev" href="bernoulli_numbers.html" title="Example of computing Bernoulli numbers">
+<link rel="next" href="../design.html" title="Design, Implementation (and some Rationale)">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="180" height="90" src="../../proposed_for_boost.png"></td>
+<td align="center"><a href="../../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="bernoulli_numbers.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../examples.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="../design.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="fixed.examples.hypergeometric"></a><a class="link" href="hypergeometric.html" title="Example of computing hypergeometric_1f1 function">Example of computing hypergeometric_1f1
+      function</a>
+</h3></div></div></div>
+<p>
+        This example shows computation of the <a href="https://reference.wolfram.com/language/ref/Hypergeometric1F1.html" target="_top">hypergeometric
+        1f1 function</a> using a high precision (and high resolution) fixed_point
+        type. The rational approximation, similar to that of <a href="https://books.google.co.uk/books?id=huuO6mKbVoEC&amp;pg=PA115&amp;lpg=PA115&amp;dq=hypergeometric+1f1+function+luke&amp;source=bl&amp;ots=ZrN4BMe1f5&amp;sig=qrKJkSwa_YrdrEf6172WPgq1pJI&amp;hl=en&amp;sa=X&amp;ved=0ahUKEwjBmLGNqbvMAhVKIMAKHdl9AkoQ6AEIIzAA" target="_top">Y.L.
+        Luke, "Algorithms for the Computation of Mathematical Functions",
+        Academic Press, New York, 1977</a>, is used to compute hypergeometric_1f1(2/3,
+        4/3, -3/4). A 4-term recurrence relation is computed with 340 iterations
+        at full precision of approximately 963 decimal digits. The result also has
+        the same approximate precision of 963 decimal digits.
+      </p>
+<p>
+        <a href="http://www.wolframalpha.com/input/?i=Hypergeometric1f1%5B2%2F3%2c4%2F3%2c-3%2F4%5D" target="_top">Wolfram
+        Alpha Hypergeometric1f1[2/3,4/3,-3/4]</a> estimates 0.7081686536671296176070489154441892975263864254728...
+      </p>
+<p>
+        See also <a href="https://en.wikipedia.org/wiki/Hypergeometric_function" target="_top">hypergeometric
+        function</a>.
+      </p>
+<p>
+        Using fixed_point, this example takes approximately 0.16 sec on a modern
+        computer and compiler system. For comparison, the same calculation performed
+        with Boost.Multiprecision's binary floating-point backend only requires approximately
+        0.12 sec with the same computer and compiler system. In this particular case,
+        there is no significant performance improvement for fixed-point. In fact,
+        there is a slight slowdown for fixed-point.
+      </p>
+<p>
+        Even though a performance improvement was not obtained in this example, the
+        calculation does exercise the Boost.Fixed-point Library with complex algorithms
+        at high precision.
+      </p>
+<p>
+        The instantiated fixed-point class in this example is: <code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">122</span><span class="special">,</span>
+        <span class="special">-</span><span class="number">3200</span><span class="special">&gt;&gt;</span></code> and the instantiated multiprecision
+        class is: <code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">multiprecision</span><span class="special">::</span><span class="identifier">number</span><span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">multiprecision</span><span class="special">::</span><span class="identifier">backends</span><span class="special">::</span><span class="identifier">cpp_bin_float</span><span class="special">&lt;</span><span class="number">963</span><span class="special">&gt;&gt;</span></code>.
+      </p>
+<p>
+        Full code for the fixed-point calculation is at <a href="../../../../example/fixed_point_hypergeometric_1f1_fixed.cpp" target="_top">fixed_point_hypergeometric_1f1_fixed.cpp</a>.
+      </p>
+<p>
+        Full code for the floating-point calculation is at <a href="../../../../example/fixed_point_hypergeometric_1f1_float.cpp" target="_top">fixed_point_hypergeometric_1f1_float.cpp</a>.
+      </p>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2013, 2015, 2016 Christopher Kormanyos<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="bernoulli_numbers.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../examples.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="../design.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

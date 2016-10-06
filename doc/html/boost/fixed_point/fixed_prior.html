@@ -1,0 +1,103 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Function template fixed_prior</title>
+<link rel="stylesheet" href="../../fixed_point.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../../index.html" title="Boost.Fixed-point">
+<link rel="up" href="../../header/boost/fixed_point/fixed_point_negatable_hpp.html" title="Header &lt;boost/fixed_point/fixed_point_negatable.hpp&gt;">
+<link rel="prev" href="nextafter.html" title="Function template nextafter">
+<link rel="next" href="fixed_next.html" title="Function template fixed_next">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="180" height="90" src="../../proposed_for_boost.png"></td>
+<td align="center"><a href="../../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="nextafter.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../../header/boost/fixed_point/fixed_point_negatable_hpp.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="fixed_next.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="refentry">
+<a name="boost.fixed_point.fixed_prior"></a><div class="titlepage"></div>
+<div class="refnamediv">
+<h2><span class="refentrytitle">Function template fixed_prior</span></h2>
+<p>boost::fixed_point::fixed_prior</p>
+</div>
+<h2 xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="refsynopsisdiv-title">Synopsis</h2>
+<div xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" class="refsynopsisdiv"><pre class="synopsis"><span class="comment">// In header: &lt;<a class="link" href="../../header/boost/fixed_point/fixed_point_negatable_hpp.html" title="Header &lt;boost/fixed_point/fixed_point_negatable.hpp&gt;">boost/fixed_point/fixed_point_negatable.hpp</a>&gt;
+
+</span>
+<span class="keyword">template</span><span class="special">&lt;</span><span class="keyword">const</span> <span class="keyword">int</span> IntegralRange<span class="special">,</span> <span class="keyword">const</span> <span class="keyword">int</span> FractionalResolution<span class="special">,</span> 
+         <span class="keyword">typename</span> RoundMode<span class="special">,</span> <span class="keyword">typename</span> OverflowMode<span class="special">&gt;</span> 
+  <a class="link" href="negatable.html" title="Class template negatable">negatable</a><span class="special">&lt;</span> <span class="identifier">IntegralRange</span><span class="special">,</span> <span class="identifier">FractionalResolution</span><span class="special">,</span> <span class="identifier">RoundMode</span><span class="special">,</span> <span class="identifier">OverflowMode</span> <span class="special">&gt;</span> 
+  <span class="identifier">fixed_prior</span><span class="special">(</span><a class="link" href="negatable.html" title="Class template negatable">negatable</a><span class="special">&lt;</span> <span class="identifier">IntegralRange</span><span class="special">,</span> <span class="identifier">FractionalResolution</span><span class="special">,</span> <span class="identifier">RoundMode</span><span class="special">,</span> <span class="identifier">OverflowMode</span> <span class="special">&gt;</span> x<span class="special">)</span><span class="special">;</span></pre></div>
+<div class="refsect1">
+<a name="id1116768"></a><h2>Description</h2>
+<p>Find the prior representation value that is less than x. 
+
+</p>
+<div class="note"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../../../../../../doc/src/images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top">
+<p>If implemented using </p>
+<pre class="programlisting"><span class="identifier">fixed_prior</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span><span class="special">&lt;</span><span class="identifier">fixed_point_type</span><span class="special">&gt;</span><span class="special">::</span><span class="identifier">lowest</span><span class="special">(</span><span class="special">)</span><span class="special">)</span> <span class="special">==</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span><span class="special">&lt;</span><span class="identifier">fixed_point_type</span><span class="special">&gt;</span><span class="special">::</span><span class="identifier">lowest</span><span class="special">(</span><span class="special">)</span>
+</pre>
+</td></tr>
+</table></div>
+<p>
+</p>
+<p><span class="bold"><strong>See Also:</strong></span></p>
+<p><a href="http://www.boost.org/doc/libs/release/libs/math/doc/html/math_toolkit/next_float/float_prior.html" target="_top">http://www.boost.org/doc/libs/release/libs/math/doc/html/math_toolkit/next_float/float_prior.html</a> <br>
+Defined using cmath function nextafter (but might be coded more efficiently). </p>
+<p>
+</p>
+<div class="variablelist"><table border="0" class="variablelist compact">
+<colgroup>
+<col align="left" valign="top">
+<col>
+</colgroup>
+<tbody>
+<tr>
+<td><p><span class="term">Parameters:</span></p></td>
+<td><div class="variablelist"><table border="0" class="variablelist compact">
+<colgroup>
+<col align="left" valign="top">
+<col>
+</colgroup>
+<tbody><tr>
+<td><p><span class="term"><code class="computeroutput">x</code></span></p></td>
+<td><p>fixed_point value to find the prior fixed_point. </p></td>
+</tr></tbody>
+</table></div></td>
+</tr>
+<tr>
+<td><p><span class="term">Returns:</span></p></td>
+<td><p>the next representable value which is less than x.<br>
+ </p></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2013, 2015, 2016 Christopher Kormanyos<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="nextafter.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../../header/boost/fixed_point/fixed_point_negatable_hpp.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="fixed_next.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

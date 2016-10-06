@@ -1,0 +1,137 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>How to tell the Representation types used for a fixed_point type</title>
+<link rel="stylesheet" href="../../fixed_point.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../../index.html" title="Boost.Fixed-point">
+<link rel="up" href="../design.html" title="Design, Implementation (and some Rationale)">
+<link rel="prev" href="fixed_versus_float/floating_point_limits.html" title="Numeric limits for IEE754 floating_point types">
+<link rel="next" href="iostream.html" title="Stream IO">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="180" height="90" src="../../proposed_for_boost.png"></td>
+<td align="center"><a href="../../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="fixed_versus_float/floating_point_limits.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../design.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="iostream.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="fixed.design.representation_types"></a><a class="link" href="representation_types.html" title="How to tell the Representation types used for a fixed_point type">How to tell the Representation
+      types used for a fixed_point type</a>
+</h3></div></div></div>
+<p>
+        Users can (and will) want to know the underlying representations used for
+        a <code class="computeroutput"><a class="link" href="../../boost/fixed_point/negatable.html" title="Class template negatable">negatable</a></code> type.
+        These are <code class="computeroutput"><a class="link" href="../../boost/fixed_point/negatable.html#boost.fixed_point.negatable.value_type">value_type</a></code>
+        and <code class="computeroutput"><a class="link" href="../../boost/fixed_point/negatable.html#boost.fixed_point.negatable.float_type">float_type</a></code>.
+      </p>
+<p>
+        To find the name of the underlying representation used by a particular <code class="computeroutput"><a class="link" href="../../boost/fixed_point/negatable.html" title="Class template negatable">negatable</a></code> type, one can use
+        the <a href="http://www.cplusplus.com/reference/typeinfo/type_info/" target="_top">type_info
+        class</a> with this include:
+      </p>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">typeinfo</span><span class="special">&gt;</span>
+</pre>
+<p>
+        To output the name of fixed_point type <code class="computeroutput"><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">0</span><span class="special">,</span>
+        <span class="special">-</span><span class="number">7</span><span class="special">&gt;</span></code> use the <code class="computeroutput"><a class="link" href="../../boost/fixed_point/negatable.html#boost.fixed_point.negatable.value_type">value_type</a></code>:
+      </p>
+<pre class="programlisting"><span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="keyword">typeid</span><span class="special">(</span><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">0</span><span class="special">,</span> <span class="special">-</span><span class="number">7</span><span class="special">&gt;::</span><span class="identifier">value_type</span><span class="special">).</span><span class="identifier">name</span><span class="special">()</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+</pre>
+<p>
+        So <code class="computeroutput"><span class="keyword">signed</span> <span class="keyword">char</span></code>
+        is signed integer type used for representation of this 8-bit fixed-point
+        negatable number.
+      </p>
+<p>
+        For low digit counts, this will be a <a href="http://en.cppreference.com/w/cpp/language/types" target="_top">fundamental</a>
+        type such as <code class="computeroutput"><span class="identifier">int8_t</span><span class="special">,</span>
+        <span class="identifier">int16_t</span><span class="special">,</span>
+        <span class="identifier">int32_t</span><span class="special">,</span>
+        <span class="identifier">int64_t</span></code>, etc. For larger digit
+        counts, this will be a <a href="../../../../../../libs/multiprecision/doc/html/index.html" target="_top">Boost.Multiprecision</a>
+        signed-integer type.
+      </p>
+<p>
+        One might also want to know the floating-point type that is guaranteed to
+        be wide enough to represent the fixed-point negatable number in its entirety.
+      </p>
+<p>
+        For this use <code class="computeroutput"><a class="link" href="../../boost/fixed_point/negatable.html#boost.fixed_point.negatable.float_type">float_type</a></code>:
+      </p>
+<pre class="programlisting"><span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="keyword">typeid</span><span class="special">(</span><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">0</span><span class="special">,</span> <span class="special">-</span><span class="number">7</span><span class="special">&gt;::</span><span class="identifier">float_type</span><span class="special">).</span><span class="identifier">name</span><span class="special">()</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+</pre>
+<p>
+        showing that (single-precision) <code class="computeroutput"><span class="keyword">float</span></code>
+        is (plenty) big enough to hold all possible values for this tiny type.
+      </p>
+<p>
+        To list some other of the many reasonable fixed_point types, an example function
+        is:
+      </p>
+<pre class="programlisting"><span class="keyword">template</span> <span class="special">&lt;</span><span class="keyword">typename</span> <span class="identifier">T</span><span class="special">&gt;</span>
+<span class="keyword">void</span> <span class="identifier">show_representation_types</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">ostream</span><span class="special">&amp;</span> <span class="identifier">os</span> <span class="special">=</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span><span class="special">)</span>
+<span class="special">{</span>
+  <span class="identifier">os</span> <span class="special">&lt;&lt;</span> <span class="string">"Fixed_point Type "</span>
+    <span class="special">&lt;&lt;</span> <span class="keyword">typeid</span><span class="special">(</span><span class="identifier">T</span><span class="special">).</span><span class="identifier">name</span><span class="special">()</span>
+    <span class="comment">// class boost::fixed_point::negatable&lt;7,-1,struct boost::fixed_point::round::fastest,struct boost::fixed_point::overflow::undefined&gt;</span>
+    <span class="special">&lt;&lt;</span> <span class="string">" with range "</span> <span class="special">&lt;&lt;</span> <span class="identifier">T</span><span class="special">::</span><span class="identifier">range</span> <span class="special">&lt;&lt;</span> <span class="string">", resolution "</span> <span class="special">&lt;&lt;</span> <span class="identifier">T</span><span class="special">::</span><span class="identifier">resolution</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+
+  <span class="identifier">os</span> <span class="special">&lt;&lt;</span> <span class="string">"value_type is "</span> <span class="special">&lt;&lt;</span> <span class="keyword">typeid</span><span class="special">(</span><span class="identifier">T</span><span class="special">::</span><span class="identifier">value_type</span><span class="special">).</span><span class="identifier">name</span><span class="special">()</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span> <span class="comment">// signed char</span>
+  <span class="identifier">os</span> <span class="special">&lt;&lt;</span> <span class="string">"float_type is "</span> <span class="special">&lt;&lt;</span> <span class="keyword">typeid</span><span class="special">(</span><span class="identifier">T</span><span class="special">::</span><span class="identifier">float_type</span><span class="special">).</span><span class="identifier">name</span><span class="special">()</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span> <span class="comment">// float</span>
+<span class="special">}</span> <span class="comment">// template &lt;typename T&gt;void show_representation_types()</span>
+</pre>
+<div class="tip"><table border="0" summary="Tip">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="../../../../../../doc/src/images/tip.png"></td>
+<th align="left">Tip</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+          The full type given by <code class="computeroutput"><span class="keyword">typeid</span><span class="special">(</span><span class="identifier">T</span><span class="special">).</span><span class="identifier">name</span><span class="special">()</span></code>
+          will be fully informative but may be inconveniently long because it could
+          be a so-called mangled name, and might not be displayable using <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span></code>.
+        </p></td></tr>
+</table></div>
+<p>
+        The full example and some sample output is at <a href="../../../../example/fixed_point_representation_examples.cpp" target="_top">fixed_point_representation_examples.cpp</a>.
+      </p>
+<p>
+        Most of the results are obvious, but it is worth noting that a type that
+        uses a value type of <code class="computeroutput"><span class="identifier">__int64</span></code>
+        cannot use a 64-bit <code class="computeroutput"><span class="keyword">double</span></code> type
+        for its floating-point representation and must switch to a <a href="../../../../../../libs/multiprecision/doc/html/index.html" target="_top">Boost.Multiprecision</a>
+        type such as <code class="computeroutput"><span class="keyword">class</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">multiprecision</span><span class="special">::</span><span class="identifier">number</span><span class="special">&lt;</span><span class="keyword">class</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">multiprecision</span><span class="special">::</span><span class="identifier">backends</span><span class="special">::</span><span class="identifier">cpp_bin_float</span><span class="special">&lt;</span><span class="number">63</span><span class="special">,</span><span class="number">2</span><span class="special">,</span><span class="keyword">void</span><span class="special">,</span><span class="keyword">int</span><span class="special">,</span><span class="number">0</span><span class="special">,</span><span class="number">0</span><span class="special">&gt;,</span><span class="number">0</span><span class="special">&gt;</span></code> This
+        will have a marked effect on performance.
+      </p>
+<div class="tip"><table border="0" summary="Tip">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="../../../../../../doc/src/images/tip.png"></td>
+<th align="left">Tip</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+          Take care when choosing your fixed_point type.
+        </p></td></tr>
+</table></div>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2013, 2015, 2016 Christopher Kormanyos<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="fixed_versus_float/floating_point_limits.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../design.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="iostream.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

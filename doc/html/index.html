@@ -1,0 +1,162 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Boost.Fixed-point</title>
+<link rel="stylesheet" href="fixed_point.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="index.html" title="Boost.Fixed-point">
+<link rel="next" href="fixed/intro.html" title="Introduction">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="180" height="90" src="proposed_for_boost.png"></td>
+<td align="center"><a href="../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav"><a accesskey="n" href="fixed/intro.html"><img src="../../../../doc/src/images/next.png" alt="Next"></a></div>
+<div class="article">
+<div class="titlepage">
+<div>
+<div><h2 class="title">
+<a name="fixed"></a>Boost.Fixed-point</h2></div>
+<div><div class="authorgroup">
+<div class="author"><h3 class="author">
+<span class="firstname">Christopher</span> <span class="surname">Kormanyos</span>
+</h3></div>
+<div class="author"><h3 class="author">
+<span class="firstname">Nikhar</span> <span class="surname">Agrawal</span>
+</h3></div>
+<div class="author"><h3 class="author">
+<span class="firstname">Paul A.</span> <span class="surname">Bristow</span>
+</h3></div>
+</div></div>
+<div><p class="copyright">Copyright &#169; 2013, 2015, 2016 Christopher Kormanyos</p></div>
+<div><div class="legalnotice">
+<a name="fixed.legal"></a><p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></div>
+</div>
+<hr>
+</div>
+<div class="toc">
+<p><b>Table of Contents</b></p>
+<dl>
+<dt><span class="section"><a href="fixed/intro.html">Introduction</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="fixed/intro/why_fixed_point.html">Why Fixed-Point (Rather
+      Than Floating-point)?</a></span></dt>
+<dt><span class="section"><a href="fixed/intro/why_this_fixed_point.html">Why use Boost.Fixed-point?</a></span></dt>
+</dl></dd>
+<dt><span class="section"><a href="fixed/synopsis.html">Synopsis</a></span></dt>
+<dd><dl><dt><span class="section"><a href="fixed/synopsis/headers.html">Header File Structure</a></span></dt></dl></dd>
+<dt><span class="section"><a href="fixed/examples.html">Examples</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="fixed/examples/numeric_limits.html">Example of a fixed_point
+      type and its numeric_limits</a></span></dt>
+<dt><span class="section"><a href="fixed/examples/bare_derivative.html">Example of a bare-metal
+      fixed_point type evaluating a derivative.</a></span></dt>
+<dt><span class="section"><a href="fixed/examples/mandelbrot.html">Example of computing images
+      of a Mandelbrot set at low and high-resolution</a></span></dt>
+<dt><span class="section"><a href="fixed/examples/bernoulli_numbers.html">Example of computing
+      Bernoulli numbers</a></span></dt>
+<dt><span class="section"><a href="fixed/examples/hypergeometric.html">Example of computing hypergeometric_1f1
+      function</a></span></dt>
+</dl></dd>
+<dt><span class="section"><a href="fixed/design.html">Design, Implementation (and some Rationale)</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="fixed/design/construction.html">Construction, Assignment and
+      Initialization</a></span></dt>
+<dt><span class="section"><a href="fixed/design/limits.html">Numeric Limits</a></span></dt>
+<dt><span class="section"><a href="fixed/design/how_to_tell.html">How to Determine the Kind of
+      a Fixed_point Number from <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span></code>
+      and <code class="computeroutput"><span class="identifier">type_traits</span></code></a></span></dt>
+<dt><span class="section"><a href="fixed/design/fixed_versus_float.html">Comparison of Fixed-point
+      and Floating-point Formats</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="fixed/design/fixed_versus_float/fixed_point_limits.html">Numeric
+        limits for various fixed_point types</a></span></dt>
+<dt><span class="section"><a href="fixed/design/fixed_versus_float/floating_point_limits.html">Numeric
+        limits for IEE754 floating_point types</a></span></dt>
+</dl></dd>
+<dt><span class="section"><a href="fixed/design/representation_types.html">How to tell the Representation
+      types used for a fixed_point type</a></span></dt>
+<dt><span class="section"><a href="fixed/design/iostream.html">Stream IO</a></span></dt>
+<dd><dl><dt><span class="section"><a href="fixed/design/iostream/round_tripping.html">Serialization
+        and Round-tripping</a></span></dt></dl></dd>
+<dt><span class="section"><a href="fixed/design/conversions.html">Constructing and Interconverting
+      Between Number Types</a></span></dt>
+<dt><span class="section"><a href="fixed/design/mixed.html">Mixed-Precision Arithmetic</a></span></dt>
+<dt><span class="section"><a href="fixed/design/constants.html">Constants</a></span></dt>
+<dt><span class="section"><a href="fixed/design/rounding.html">Rounding</a></span></dt>
+<dt><span class="section"><a href="fixed/design/infinity.html">Infinity and NotANumber (NaN)</a></span></dt>
+<dt><span class="section"><a href="fixed/design/get_and_set.html">Get and Set functions ?</a></span></dt>
+<dt><span class="section"><a href="fixed/design/cmath.html">C math functions</a></span></dt>
+<dt><span class="section"><a href="fixed/design/boostmath.html">Using the Fixed-point Library
+      with Boost.Math</a></span></dt>
+<dt><span class="section"><a href="fixed/design/microcontrollers.html">Using Fixed-point with
+      Microcontrollers</a></span></dt>
+<dt><span class="section"><a href="fixed/design/macros.html">Preprocessor Options to enable/disable
+      some features</a></span></dt>
+<dt><span class="section"><a href="fixed/design/testing.html">Testing</a></span></dt>
+</dl></dd>
+<dt><span class="section"><a href="fixed/faq.html">Frequently Asked Questions FAQ</a></span></dt>
+<dt><span class="section"><a href="fixed/howtouse.html">How To Use This Documentation</a></span></dt>
+<dt><span class="section"><a href="fixed/map.html">Roadmap</a></span></dt>
+<dt><span class="section"><a href="fixed/history.html">Historial discussions</a></span></dt>
+<dt><span class="section"><a href="fixed/ack.html">Acknowledgements, Thanks and Credits</a></span></dt>
+<dt><span class="section"><a href="fixed/references.html">References</a></span></dt>
+<dt><span class="section"><a href="boost_fixed_point_c___reference.html">Boost.Fixed_point C++ Reference</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="header/boost/fixed_point/fixed_point_hpp.html">Header &lt;boost/fixed_point/fixed_point.hpp&gt;</a></span></dt>
+<dd><dl></dl></dd>
+<dt><span class="section"><a href="header/boost/fixed_point/fixed_point_negatable_hpp.html">Header &lt;boost/fixed_point/fixed_point_negatable.hpp&gt;</a></span></dt>
+<dd><dl></dl></dd>
+<dt><span class="section"><a href="header/boost/fixed_point/fixed_point_negatable_cmath_hpp.html">Header &lt;boost/fixed_point/fixed_point_negatable_cmath.hpp&gt;</a></span></dt>
+<dt><span class="section"><a href="header/boost/fixed_point/fixed_point_negatable_next_hpp.html">Header &lt;boost/fixed_point/fixed_point_negatable_next.hpp&gt;</a></span></dt>
+<dt><span class="section"><a href="header/boost/fixed_point/fixed_point_overflow_hpp.html">Header &lt;boost/fixed_point/fixed_point_overflow.hpp&gt;</a></span></dt>
+<dd><dl></dl></dd>
+<dt><span class="section"><a href="header/boost/fixed_point/fixed_point_round_hpp.html">Header &lt;boost/fixed_point/fixed_point_round.hpp&gt;</a></span></dt>
+<dd><dl></dl></dd>
+</dl></dd>
+<dt><span class="section"><a href="fixed/indexes.html">Indexes</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="fixed/indexes/s01.html">Index</a></span></dt>
+<dt><span class="section"><a href="fixed/indexes/s02.html">Function Index</a></span></dt>
+<dt><span class="section"><a href="fixed/indexes/s03.html">Class Index</a></span></dt>
+<dt><span class="section"><a href="fixed/indexes/s04.html">Macro Index</a></span></dt>
+</dl></dd>
+</dl>
+</div>
+<div class="warning"><table border="0" summary="Warning">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Warning]" src="../../../../doc/src/images/warning.png"></td>
+<th align="left">Warning</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+      This is NOT yet a Boost library and is subject to change and development.
+    </p></td></tr>
+</table></div>
+<div class="caution"><table border="0" summary="Caution">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Caution]" src="../../../../doc/src/images/caution.png"></td>
+<th align="left">Caution</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+      This documentation is incomplete and subject to change.
+    </p></td></tr>
+</table></div>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"><p><small>Last revised: October 06, 2016 at 09:27:19 GMT</small></p></td>
+<td align="right"><div class="copyright-footer"></div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav"><a accesskey="n" href="fixed/intro.html"><img src="../../../../doc/src/images/next.png" alt="Next"></a></div>
+</body>
+</html>

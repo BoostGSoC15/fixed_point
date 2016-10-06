@@ -1,0 +1,768 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Numeric limits for various fixed_point types</title>
+<link rel="stylesheet" href="../../../fixed_point.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../../../index.html" title="Boost.Fixed-point">
+<link rel="up" href="../fixed_versus_float.html" title="Comparison of Fixed-point and Floating-point Formats">
+<link rel="prev" href="../fixed_versus_float.html" title="Comparison of Fixed-point and Floating-point Formats">
+<link rel="next" href="floating_point_limits.html" title="Numeric limits for IEE754 floating_point types">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="180" height="90" src="../../../proposed_for_boost.png"></td>
+<td align="center"><a href="../../../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../fixed_versus_float.html"><img src="../../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../fixed_versus_float.html"><img src="../../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../../index.html"><img src="../../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="floating_point_limits.html"><img src="../../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="fixed.design.fixed_versus_float.fixed_point_limits"></a><a class="link" href="fixed_point_limits.html" title="Numeric limits for various fixed_point types">Numeric
+        limits for various fixed_point types</a>
+</h4></div></div></div>
+<div class="table">
+<a name="fixed.design.fixed_versus_float.fixed_point_limits.fixed_point_types_table"></a><p class="title"><b>Table&#160;3.&#160;Numeric limits for Fixed_point types</b></p>
+<div class="table-contents"><table class="table" summary="Numeric limits for Fixed_point types">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+<col>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th>
+                  <p>
+                    negatable
+                  </p>
+                </th>
+<th>
+                  <p>
+                    range
+                  </p>
+                </th>
+<th>
+                  <p>
+                    resolution
+                  </p>
+                </th>
+<th>
+                  <p>
+                    digits
+                  </p>
+                </th>
+<th>
+                  <p>
+                    bits
+                  </p>
+                </th>
+<th>
+                  <p>
+                    epsilon
+                  </p>
+                </th>
+<th>
+                  <p>
+                    lowest
+                  </p>
+                </th>
+<th>
+                  <p>
+                    min
+                  </p>
+                </th>
+<th>
+                  <p>
+                    max
+                  </p>
+                </th>
+</tr></thead>
+<tbody>
+<tr>
+<td>
+                  <p>
+                    &lt;15,-16&gt;
+                  </p>
+                </td>
+<td>
+                  <p>
+                    15
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -16
+                  </p>
+                </td>
+<td>
+                  <p>
+                    31
+                  </p>
+                </td>
+<td>
+                  <p>
+                    32
+                  </p>
+                </td>
+<td>
+                  <p>
+                    3.05e-05
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -3.277e+04
+                  </p>
+                </td>
+<td>
+                  <p>
+                    1.526e-05
+                  </p>
+                </td>
+<td>
+                  <p>
+                    3.277e+04
+                  </p>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+                    &lt;11,-20&gt;
+                  </p>
+                </td>
+<td>
+                  <p>
+                    11
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -20
+                  </p>
+                </td>
+<td>
+                  <p>
+                    31
+                  </p>
+                </td>
+<td>
+                  <p>
+                    32
+                  </p>
+                </td>
+<td>
+                  <p>
+                    1.91e-06
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -2048
+                  </p>
+                </td>
+<td>
+                  <p>
+                    9.537e-07
+                  </p>
+                </td>
+<td>
+                  <p>
+                    2048
+                  </p>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+                    &lt;0,-31&gt;
+                  </p>
+                </td>
+<td>
+                  <p>
+                    0
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -31
+                  </p>
+                </td>
+<td>
+                  <p>
+                    31
+                  </p>
+                </td>
+<td>
+                  <p>
+                    32
+                  </p>
+                </td>
+<td>
+                  <p>
+                    9.31e-10
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -1
+                  </p>
+                </td>
+<td>
+                  <p>
+                    4.657e-10
+                  </p>
+                </td>
+<td>
+                  <p>
+                    1
+                  </p>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+                    &lt;30,-1&gt;
+                  </p>
+                </td>
+<td>
+                  <p>
+                    30
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -1
+                  </p>
+                </td>
+<td>
+                  <p>
+                    31
+                  </p>
+                </td>
+<td>
+                  <p>
+                    32
+                  </p>
+                </td>
+<td>
+                  <p>
+                    1.00e+00
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -1.074e+09
+                  </p>
+                </td>
+<td>
+                  <p>
+                    0.5
+                  </p>
+                </td>
+<td>
+                  <p>
+                    1.074e+09
+                  </p>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+                    &lt;15,-240&gt;
+                  </p>
+                </td>
+<td>
+                  <p>
+                    15
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -240
+                  </p>
+                </td>
+<td>
+                  <p>
+                    255
+                  </p>
+                </td>
+<td>
+                  <p>
+                    256
+                  </p>
+                </td>
+<td>
+                  <p>
+                    1.13e-72
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -3.277e+04
+                  </p>
+                </td>
+<td>
+                  <p>
+                    5.66e-73
+                  </p>
+                </td>
+<td>
+                  <p>
+                    3.277e+04
+                  </p>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+                    &lt;0,-255&gt;
+                  </p>
+                </td>
+<td>
+                  <p>
+                    0
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -255
+                  </p>
+                </td>
+<td>
+                  <p>
+                    255
+                  </p>
+                </td>
+<td>
+                  <p>
+                    256
+                  </p>
+                </td>
+<td>
+                  <p>
+                    3.45e-77
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -1
+                  </p>
+                </td>
+<td>
+                  <p>
+                    1.727e-77
+                  </p>
+                </td>
+<td>
+                  <p>
+                    1
+                  </p>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+                    &lt;200,-55&gt;
+                  </p>
+                </td>
+<td>
+                  <p>
+                    200
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -55
+                  </p>
+                </td>
+<td>
+                  <p>
+                    255
+                  </p>
+                </td>
+<td>
+                  <p>
+                    256
+                  </p>
+                </td>
+<td>
+                  <p>
+                    5.55e-17
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -1.607e+60
+                  </p>
+                </td>
+<td>
+                  <p>
+                    2.776e-17
+                  </p>
+                </td>
+<td>
+                  <p>
+                    1.607e+60
+                  </p>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+                    &lt;7,-8&gt;
+                  </p>
+                </td>
+<td>
+                  <p>
+                    7
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -8
+                  </p>
+                </td>
+<td>
+                  <p>
+                    15
+                  </p>
+                </td>
+<td>
+                  <p>
+                    16
+                  </p>
+                </td>
+<td>
+                  <p>
+                    7.81e-03
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -128
+                  </p>
+                </td>
+<td>
+                  <p>
+                    0.003906
+                  </p>
+                </td>
+<td>
+                  <p>
+                    128
+                  </p>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+                    &lt;0,-7&gt;
+                  </p>
+                </td>
+<td>
+                  <p>
+                    0
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -7
+                  </p>
+                </td>
+<td>
+                  <p>
+                    7
+                  </p>
+                </td>
+<td>
+                  <p>
+                    8
+                  </p>
+                </td>
+<td>
+                  <p>
+                    1.56e-02
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -1
+                  </p>
+                </td>
+<td>
+                  <p>
+                    0.007813
+                  </p>
+                </td>
+<td>
+                  <p>
+                    0.9922
+                  </p>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+                    &lt;2,-5&gt;
+                  </p>
+                </td>
+<td>
+                  <p>
+                    2
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -5
+                  </p>
+                </td>
+<td>
+                  <p>
+                    7
+                  </p>
+                </td>
+<td>
+                  <p>
+                    8
+                  </p>
+                </td>
+<td>
+                  <p>
+                    6.25e-02
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -4
+                  </p>
+                </td>
+<td>
+                  <p>
+                    0.03125
+                  </p>
+                </td>
+<td>
+                  <p>
+                    3.969
+                  </p>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+                    &lt;4,-11&gt;
+                  </p>
+                </td>
+<td>
+                  <p>
+                    4
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -11
+                  </p>
+                </td>
+<td>
+                  <p>
+                    15
+                  </p>
+                </td>
+<td>
+                  <p>
+                    16
+                  </p>
+                </td>
+<td>
+                  <p>
+                    9.77e-04
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -16
+                  </p>
+                </td>
+<td>
+                  <p>
+                    0.0004883
+                  </p>
+                </td>
+<td>
+                  <p>
+                    16
+                  </p>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+                    &lt;7,-24&gt;
+                  </p>
+                </td>
+<td>
+                  <p>
+                    7
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -24
+                  </p>
+                </td>
+<td>
+                  <p>
+                    31
+                  </p>
+                </td>
+<td>
+                  <p>
+                    32
+                  </p>
+                </td>
+<td>
+                  <p>
+                    1.19e-07
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -128
+                  </p>
+                </td>
+<td>
+                  <p>
+                    5.96e-08
+                  </p>
+                </td>
+<td>
+                  <p>
+                    128
+                  </p>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+                    &lt;10,-53&gt;
+                  </p>
+                </td>
+<td>
+                  <p>
+                    10
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -53
+                  </p>
+                </td>
+<td>
+                  <p>
+                    63
+                  </p>
+                </td>
+<td>
+                  <p>
+                    64
+                  </p>
+                </td>
+<td>
+                  <p>
+                    2.22e-16
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -1024
+                  </p>
+                </td>
+<td>
+                  <p>
+                    1.11e-16
+                  </p>
+                </td>
+<td>
+                  <p>
+                    1024
+                  </p>
+                </td>
+</tr>
+<tr>
+<td>
+                  <p>
+                    &lt;14,-113&gt;
+                  </p>
+                </td>
+<td>
+                  <p>
+                    14
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -113
+                  </p>
+                </td>
+<td>
+                  <p>
+                    127
+                  </p>
+                </td>
+<td>
+                  <p>
+                    128
+                  </p>
+                </td>
+<td>
+                  <p>
+                    1.93e-34
+                  </p>
+                </td>
+<td>
+                  <p>
+                    -1.638e+04
+                  </p>
+                </td>
+<td>
+                  <p>
+                    9.63e-35
+                  </p>
+                </td>
+<td>
+                  <p>
+                    1.638e+04
+                  </p>
+                </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<br class="table-break">
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2013, 2015, 2016 Christopher Kormanyos<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../fixed_versus_float.html"><img src="../../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../fixed_versus_float.html"><img src="../../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../../index.html"><img src="../../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="floating_point_limits.html"><img src="../../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

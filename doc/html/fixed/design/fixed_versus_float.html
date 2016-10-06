@@ -1,0 +1,159 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Comparison of Fixed-point and Floating-point Formats</title>
+<link rel="stylesheet" href="../../fixed_point.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../../index.html" title="Boost.Fixed-point">
+<link rel="up" href="../design.html" title="Design, Implementation (and some Rationale)">
+<link rel="prev" href="how_to_tell.html" title="How to Determine the Kind of a Fixed_point Number from std::numeric_limits and type_traits">
+<link rel="next" href="fixed_versus_float/fixed_point_limits.html" title="Numeric limits for various fixed_point types">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="180" height="90" src="../../proposed_for_boost.png"></td>
+<td align="center"><a href="../../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="how_to_tell.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../design.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="fixed_versus_float/fixed_point_limits.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="fixed.design.fixed_versus_float"></a><a class="link" href="fixed_versus_float.html" title="Comparison of Fixed-point and Floating-point Formats">Comparison of Fixed-point
+      and Floating-point Formats</a>
+</h3></div></div></div>
+<div class="toc"><dl>
+<dt><span class="section"><a href="fixed_versus_float/fixed_point_limits.html">Numeric
+        limits for various fixed_point types</a></span></dt>
+<dt><span class="section"><a href="fixed_versus_float/floating_point_limits.html">Numeric
+        limits for IEE754 floating_point types</a></span></dt>
+</dl></div>
+<p>
+        We can compare the ubiquitous <a href="https://en.wikipedia.org/wiki/IEEE_floating_point" target="_top">IEEE
+        floating-point</a> types
+      </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+            <a href="https://en.wikipedia.org/wiki/Single-precision_floating-point_format" target="_top">32-bit
+            float format</a> 1 sign bit, 8 exponent bits, 23 stored bits (+1
+            implicit not-stored bit)
+          </li>
+<li class="listitem">
+            <a href="https://en.wikipedia.org/wiki/Double-precision_floating-point_format" target="_top">64-bit
+            double format</a> 1 sign bit, 11 exponent bits, and 52 stored bits
+            (+1 implicit not-stored bit)
+          </li>
+</ul></div>
+<p>
+        and the extended precision type (usually implemented in software, and thus
+        much slower)
+      </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+            <a href="https://en.wikipedia.org/wiki/Quadruple-precision_floating-point_format" target="_top">128-bit
+            quad format</a> 1 sign bit, 15 exponent bits, 112 stored bits (+1
+            implicit not-stored bit)
+          </li></ul></div>
+<p>
+        Using fixed point <code class="computeroutput"><span class="identifier">negatable</span></code>,
+        we can chose make quite different splits between exponent (range) and significand
+        (resolution).
+      </p>
+<p>
+        For example, to match the range of (single-precision) <code class="computeroutput"><span class="keyword">float</span></code>
+        using only 32-bit, we can define
+      </p>
+<pre class="programlisting"><span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">11</span><span class="special">,</span> <span class="special">-</span><span class="number">20</span><span class="special">&gt;</span> <span class="identifier">fixed_point_type</span><span class="special">;</span>
+</pre>
+<p>
+        We could also match the resolution of (single-precision) <code class="computeroutput"><span class="keyword">float</span></code>
+        using only 32-bit, by defining
+      </p>
+<pre class="programlisting"><span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">7</span><span class="special">,</span> <span class="special">-</span><span class="number">24</span><span class="special">&gt;</span> <span class="identifier">fixed_point_type</span><span class="special">;</span>
+</pre>
+<p>
+        Or we can use all 31 bits for resolution (note that we still need one sign
+        bit for signed type <code class="computeroutput"><span class="identifier">negatable</span></code>)
+      </p>
+<pre class="programlisting"><span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">0</span><span class="special">,</span> <span class="special">-</span><span class="number">31</span><span class="special">&gt;</span> <span class="identifier">fixed_point_type</span><span class="special">;</span>
+</pre>
+<p>
+        or we can use nearly all bits for range with
+      </p>
+<pre class="programlisting"><span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">29</span><span class="special">,</span> <span class="special">-</span><span class="number">2</span><span class="special">&gt;</span> <span class="identifier">fixed_point_type</span><span class="special">;</span>
+</pre>
+<p>
+        Note that not all the <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span></code>
+        member constants and functions are meaningful for all user-defined types
+        (UDT) (or indeed all <a href="http://en.cppreference.com/w/cpp/types/is_fundamental" target="_top">fundamental</a>
+        types), such as the decimal and binary multiprecision types provided here.
+        More information on this is given in the sections below. <a name="numeric_limits_tables"></a>
+      </p>
+<p>
+        See <a class="link" href="fixed_versus_float/fixed_point_limits.html" title="Numeric limits for various fixed_point types">fixed_point
+        numeric_limits_tables</a>, and <a class="link" href="fixed_versus_float/floating_point_limits.html" title="Numeric limits for IEE754 floating_point types">floating_point
+        numeric_limits_tables.</a>
+      </p>
+<p>
+        (A wider range of floating-point types, including <a href="../../../../../../libs/multiprecision/doc/html/index.html" target="_top">Boost.Multiprecision</a>,
+        is at <a href="http://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/boost_multiprecision/tut/limits/limits32.html" target="_top">Numeric
+        limits for a 32-bit platform</a>).
+      </p>
+<h4>
+<a name="fixed.design.fixed_versus_float.h0"></a>
+        <span class="phrase"><a name="fixed.design.fixed_versus_float.type_example"></a></span><a class="link" href="fixed_versus_float.html#fixed.design.fixed_versus_float.type_example">Examples
+        of <code class="computeroutput"><span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">11</span><span class="special">,</span> <span class="special">-</span><span class="number">20</span><span class="special">&gt;</span></code></a>
+      </h4>
+<p>
+        This type has a similar distribution of bits usage to <code class="computeroutput"><span class="keyword">float</span></code>
+        except that IEEE floating point types have an implicit bit that is not stored.
+      </p>
+<p>
+        Epsilon is 9.54e-7 compared to <code class="computeroutput"><span class="keyword">float</span></code>
+        1.2e-7 The range is 2000 compared to <code class="computeroutput"><span class="keyword">float</span></code>
+        3.4e38.
+      </p>
+<p>
+        If we use nearly all the bits for range, (<code class="computeroutput"><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">29</span><span class="special">,-</span><span class="number">2</span><span class="special">&gt;</span></code>) then
+        <code class="computeroutput"><span class="identifier">epsilon</span></code> is 0.25, but <code class="computeroutput"><span class="identifier">max</span></code> is 5.4e8.
+      </p>
+<p>
+        If we try to use all bits for range, then this is not supported and a <code class="computeroutput"><span class="keyword">static</span> <span class="identifier">assert</span></code>
+        issues a compiler error thus
+      </p>
+<pre class="programlisting"><span class="identifier">Error</span><span class="special">:</span> <span class="identifier">The</span> <span class="identifier">fractional</span> <span class="identifier">resolution</span> <span class="identifier">of</span> <span class="identifier">negatable</span> <span class="identifier">must</span> <span class="identifier">be</span> <span class="identifier">negative</span> <span class="keyword">and</span> <span class="identifier">include</span> <span class="identifier">at</span> <span class="identifier">least</span> <span class="number">1</span> <span class="identifier">fractional</span> <span class="identifier">bit</span><span class="special">.</span>
+</pre>
+<p>
+        This would be the same as using a 32-bit <code class="computeroutput"><span class="keyword">int</span></code>
+        whose <code class="computeroutput"><span class="identifier">max</span></code> is = 2147483647
+        or 2.14e9, and conceptually <code class="computeroutput"><span class="identifier">epsilon</span></code>
+        would be unity. (For integral types <code class="computeroutput"><span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span><span class="special">&lt;&gt;::</span><span class="identifier">epsilon</span><span class="special">()</span></code> is not meaningful and is left as zero).
+        Using all possible bits for range <code class="computeroutput"><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">30</span><span class="special">,-</span><span class="number">1</span><span class="special">&gt;</span></code> has a
+        <code class="computeroutput"><span class="identifier">max</span></code> of half of <code class="computeroutput"><span class="keyword">int</span></code> and an <code class="computeroutput"><span class="identifier">epsilon</span></code>
+        of 0.5. These two extreme examples probably do not have much practical use.
+      </p>
+<p>
+        If we use all 31 bits for resolution, then <code class="computeroutput"><span class="identifier">max</span></code>
+        is merely unity, so we can only store fractions &lt;= 1, but <code class="computeroutput"><span class="identifier">epsilon</span></code> is reduced to 9.3e-10, much less
+        than <code class="computeroutput"><span class="keyword">float</span></code>, so this might be
+        useful.
+      </p>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2013, 2015, 2016 Christopher Kormanyos<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="how_to_tell.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../design.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="fixed_versus_float/fixed_point_limits.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

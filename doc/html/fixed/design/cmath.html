@@ -1,0 +1,143 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>C math functions</title>
+<link rel="stylesheet" href="../../fixed_point.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../../index.html" title="Boost.Fixed-point">
+<link rel="up" href="../design.html" title="Design, Implementation (and some Rationale)">
+<link rel="prev" href="get_and_set.html" title="Get and Set functions ?">
+<link rel="next" href="boostmath.html" title="Using the Fixed-point Library with Boost.Math">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="180" height="90" src="../../proposed_for_boost.png"></td>
+<td align="center"><a href="../../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="get_and_set.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../design.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="boostmath.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="fixed.design.cmath"></a><a class="link" href="cmath.html" title="C math functions">C math functions</a>
+</h3></div></div></div>
+<p>
+        There is support for most functions in the <a href="http://en.cppreference.com/w/cpp/numeric/math" target="_top">C
+        math</a> for the fixed-point negatable class. These include elementary
+        transcendental functions, such as trigonometric functions, exponential functions,
+        power functions, logarithmic functions, hyperbolic trigonometric functions,
+        and various other mathematical functions.
+      </p>
+<p>
+        There is also support for certain non-standard functions such as <code class="computeroutput"><span class="identifier">fixed_next</span></code>, <code class="computeroutput"><span class="identifier">fixed_prior</span></code>,
+        <code class="computeroutput"><span class="identifier">fixed_advance</span></code> and <code class="computeroutput"><span class="identifier">fixed_distance</span></code> that are similar to same-named
+        functions in Boost.Math. These functions are also useful for exact round-tripping
+        and serialization-deserialization.
+      </p>
+<p>
+        As long as the math functions are in the same namespace as the classes then
+        unqualified calls will still work (via <a href="http://en.cppreference.com/w/cpp/language/adl" target="_top">Argument
+        Dependent Lookup (ADL)</a>).
+      </p>
+<p>
+        The user can simply call <code class="computeroutput"><span class="identifier">sqrt</span><span class="special">(</span><span class="identifier">negatable</span><span class="special">)</span></code> without requiring any namespace decoration.
+        In this way, the <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">cmath</span><span class="special">&gt;</span></code> functions of the <code class="computeroutput"><span class="identifier">negatable</span></code>
+        class work just like those for built-in types in the C/C++-language headers
+        <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">math</span><span class="special">.</span><span class="identifier">h</span><span class="special">&gt;</span></code>
+        and <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">cmath</span><span class="special">&gt;</span></code>.
+      </p>
+<p>
+        So the user can just write:
+      </p>
+<pre class="programlisting"><span class="identifier">fixed_point_type</span> <span class="identifier">x</span><span class="special">(</span><span class="number">42</span><span class="special">);</span>
+<span class="identifier">sqrt</span><span class="special">(</span><span class="identifier">x</span><span class="special">);</span>
+</pre>
+<p>
+        Elementary transcendental functions have been implemented in three precision
+        ranges :
+      </p>
+<div class="orderedlist"><ol class="orderedlist" type="1">
+<li class="listitem">
+            (-resolution &lt;= 11)
+          </li>
+<li class="listitem">
+            (-resolution &gt; 11) &amp;&amp; (-resolution &lt;= 24)
+          </li>
+<li class="listitem">
+            (-resolution &gt; 24)
+          </li>
+</ol></div>
+<p>
+        The first precision range with <code class="computeroutput"><span class="special">(-</span><span class="identifier">resolution</span> <span class="special">&lt;=</span>
+        <span class="number">11</span><span class="special">)</span></code>
+        is intended for optimized calculations with tiny 16-bit fixed-point negatable
+        numbers. The elementary transcendental functions in this precision range
+        have been specifically optimized for the type <code class="computeroutput"><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">4</span><span class="special">,</span>
+        <span class="special">-</span><span class="number">11</span><span class="special">&gt;</span></code>. The elementary transcendental functions
+        in this precision range will also work properly with other fixed-point splits
+        as long as <code class="computeroutput"><span class="special">(-</span><span class="identifier">resolution</span><span class="special">)</span></code> remains 11 or less.
+      </p>
+<p>
+        The second precision range with <code class="computeroutput"><span class="special">(-</span><span class="identifier">resolution</span> <span class="special">&gt;</span>
+        <span class="number">11</span><span class="special">)</span> <span class="special">&amp;&amp;</span> <span class="special">(-</span><span class="identifier">resolution</span> <span class="special">&lt;=</span>
+        <span class="number">24</span><span class="special">)</span></code>
+        is intended for optimized calculations with 32-bit negatable numbers. The
+        elementary transcendental functions in this precision range have been optimized
+        for the type <code class="computeroutput"><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">7</span><span class="special">,</span> <span class="special">-</span><span class="number">24</span><span class="special">&gt;</span></code>. This
+        type has approximately the same number of fractional digits as single-precision
+        floating-point in IEEE-754. The elementary transcendental functions in this
+        precision range will also work properly with other fixed-point splits as
+        long as <code class="computeroutput"><span class="special">(-</span><span class="identifier">resolution</span><span class="special">)</span></code> remains 24 or less.
+      </p>
+<p>
+        The third range is for larger negatable numbers <code class="computeroutput"><span class="special">(-</span><span class="identifier">resolution</span> <span class="special">&gt;</span>
+        <span class="number">24</span><span class="special">)</span></code>
+        and extends the range of the functions to negatable types built from both
+        wide built-in types as well as multiple-precision back-ends. This extends
+        the fixed-point negatable <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">cmath</span><span class="special">&gt;</span></code>
+        functions well beyond the range of built-in types to a precision limited
+        only by the underlying range of the multiple-precision back-end itself.
+      </p>
+<h6>
+<a name="fixed.design.cmath.h0"></a>
+        <span class="phrase"><a name="fixed.design.cmath.implementation"></a></span><a class="link" href="cmath.html#fixed.design.cmath.implementation">Implementation</a>
+      </h6>
+<p>
+        Elementary transcendental functions have been implemented with numerous polynomial
+        approximations and Pade-type approximations in combination with argument
+        reduction schemes in the smaller two precision ranges. In the larger precision
+        range, various calculation methods are used, in particular, Taylor series
+        expansion and Newton-Raphson iteration.
+      </p>
+<p>
+        Note that argument reduction necessarily results in loss of precision because
+        a reduction in range bits can not compensated by increasing the resolution
+        in a fixed-point type, as the range and resolution are fixed compile-time
+        parameters (tamplate arguments). Consider, for example, the square root function.
+        In the implementation of square root, the argument is first reduced to to
+        a value in the range <span class="emphasis"><em>[1/2, 1)</em></span> and the square root is
+        subsequently calculated. When calculating <code class="computeroutput"><span class="identifier">sqrt</span><span class="special">(</span><span class="number">101</span><span class="special">)</span></code>
+        in <code class="computeroutput"><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">7</span><span class="special">,</span> <span class="special">-</span><span class="number">24</span><span class="special">&gt;</span></code>, for
+        example, the argument reduction results in a loss of approximately 6-7 bits
+        of precision.
+      </p>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2013, 2015, 2016 Christopher Kormanyos<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="get_and_set.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../design.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="boostmath.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

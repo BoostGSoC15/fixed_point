@@ -1,0 +1,103 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Testing</title>
+<link rel="stylesheet" href="../../fixed_point.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../../index.html" title="Boost.Fixed-point">
+<link rel="up" href="../design.html" title="Design, Implementation (and some Rationale)">
+<link rel="prev" href="macros.html" title="Preprocessor Options to enable/disable some features">
+<link rel="next" href="../faq.html" title="Frequently Asked Questions FAQ">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="180" height="90" src="../../proposed_for_boost.png"></td>
+<td align="center"><a href="../../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="macros.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../design.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="../faq.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="fixed.design.testing"></a><a class="link" href="testing.html" title="Testing">Testing</a>
+</h3></div></div></div>
+<p>
+        Testing is focussed on typical use cases, stress cases, and <a href="https://en.wikipedia.org/wiki/Boundary_case" target="_top">boundary
+        case</a>, <a href="https://en.wikipedia.org/wiki/Edge_case" target="_top">edge case</a>
+        and <a href="https://en.wikipedia.org/wiki/Corner_case" target="_top">corner case</a>
+        cases. Test coverage has not been used during testing, but may optionally
+        be included in future validation.
+      </p>
+<p>
+        A strong effort has also been made to test all arithmetic functions, mixed-precision
+        operations, transcendental functions and IO streaming.
+      </p>
+<p>
+        A variety of other non-trivial calculations has also been included in the
+        test suite. These include calculus operations, mathematical constants, special
+        functions, root-finding and more. Some of these tests have been specifically
+        desinged to use Boost.Math in order to partially verify interoperability
+        with Boost.Math.
+      </p>
+<p>
+        Tests have been created for all key precision ranges. Both supported rounding
+        modes have been tested. Certain calculations in the tests have been extended
+        to very few digits of precision and also to thousands of digits of precision
+        in order to stress the limits of the library. Some tests have also been run
+        on 8-bit and 32-bit deeply embedded bare-metal microcontrollers, strengthening
+        verification of the library's portability.
+      </p>
+<p>
+        Extensive round-trip testing has been performed over a wide range of precision.
+        This involves constructing a fixed_point type from decimal digits strings
+        like '0.001, 0.002 ...' This fixed-point representation is output to a stringstream
+        and then read back into another fixed-point variable, and the two checked
+        for equality,
+      </p>
+<p>
+        These kinds of tests could be carried out for all possible values of small
+        bit-count fixed-point types, but this would take unfeasible test times for
+        more than about 32 bits, so roughly random values covering the entire range
+        of possible binary patterns are used for test values instead.
+      </p>
+<div class="note"><table border="0" summary="Note">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="../../../../../../doc/src/images/note.png"></td>
+<th align="left">Note</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+          History - Random testing was used to track bugs in a popular compiler's
+          stream input from decimal digit strings. A fault was originally discovered
+          by a user of <a class="link" href="iostream/round_tripping.html" title="Serialization and Round-tripping">serialization</a>
+          when he found (after much debugging) a single value of de-serialized data
+          that was 1-bit different from that originally written. Random value testing
+          then revealed that a small range of values could not be round-tripped in
+          this way, and a third of the values in this small range were 1-bit different.
+          The <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4604.pdf" target="_top">C++17
+          draft standard</a> does not (yet) <span class="emphasis"><em>require</em></span> input
+          from decimal digit strings to the nearest <a href="http://en.wikipedia.org/wiki/Floating_point#Representable_numbers.2C_conversion_and_rounding" target="_top">representable</a>
+          value, but while other <a href="http://www.exploringbinary.com/visual-c-plus-plus-strtod-still-broken/#more-565" target="_top">examples</a>
+          were also found in all compilers, most are now achieve correct conversion
+          for all values.
+        </p></td></tr>
+</table></div>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2013, 2015, 2016 Christopher Kormanyos<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="macros.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../design.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="../faq.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

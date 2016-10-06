@@ -1,0 +1,83 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Rounding</title>
+<link rel="stylesheet" href="../../fixed_point.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../../index.html" title="Boost.Fixed-point">
+<link rel="up" href="../design.html" title="Design, Implementation (and some Rationale)">
+<link rel="prev" href="constants.html" title="Constants">
+<link rel="next" href="infinity.html" title="Infinity and NotANumber (NaN)">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="180" height="90" src="../../proposed_for_boost.png"></td>
+<td align="center"><a href="../../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="constants.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../design.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="infinity.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="fixed.design.rounding"></a><a class="link" href="rounding.html" title="Rounding">Rounding</a>
+</h3></div></div></div>
+<p>
+        Rounding has emerged as the most contentious and difficult area.
+      </p>
+<p>
+        <a name="combinatorial_explosion"></a>Our starting point has been <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html" target="_top">C++
+        Binary Fixed-Point Arithmetic N3352</a> that specifies seven rounding
+        modes. All have some uses and some logic for their inclusion.
+      </p>
+<p>
+        Five overflow modes are also specified and this leads to combinatorial explosion,
+        for example, potentially requiring 7 rounding * 5 overflow, a total of 35
+        specializations of <a href="http://www.cplusplus.com/reference/limits/numeric_limits/" target="_top">numeric_limits</a>
+        for each fixed_point type! <span class="bold"><strong>This suggests that the number
+        of rounding and overflow mode should be considered rather carefully to make
+        sure that they are really worthwhile.</strong></span>
+      </p>
+<p>
+        So far, only the <code class="computeroutput"><a class="link" href="../../boost/fixed_point/negatable.html" title="Class template negatable">negatable</a></code>
+        class has been implemented, but <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/n3352.html" target="_top">C++
+        Binary Fixed-Point Arithmetic N3352</a> also describes nonegative unsigned
+        versions (as well as integer-only arithmetic <a href="https://en.wikipedia.org/wiki/Cardinal_number" target="_top">cardinal</a>
+        and signed integral), potentially at least doubling the code required.
+      </p>
+<p>
+        Other libraries are tackling the problem of overflow (and underflow) with
+        integral types in so-called 'safe' integers.
+      </p>
+<p>
+        For the rounding mode nearest_even, if the 1/2 <a href="http://en.wikipedia.org/wiki/Unit_in_the_last_place" target="_top">Unit
+        in the last place (ULP)</a> bit 1, then the result of any operation that
+        leads to a result in the range <span class="emphasis"><em>[x, x+ 1/2 ULP]</em></span> would
+        round to x and in the range <span class="emphasis"><em>(x+1/2ULP, x+1)</em></span> would round
+        to x+1.
+      </p>
+<p>
+        If the 1/2 <a href="http://en.wikipedia.org/wiki/Unit_in_the_last_place" target="_top">Unit
+        in the last place (ULP)</a> bit is 0, however, then any operation that
+        leads to an intermediate value in the range <span class="emphasis"><em>[x, x+1)</em></span>
+        would round to <span class="emphasis"><em>x</em></span>.
+      </p>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2013, 2015, 2016 Christopher Kormanyos<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="constants.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../design.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="infinity.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

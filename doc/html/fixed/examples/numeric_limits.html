@@ -1,0 +1,219 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Example of a fixed_point type and its numeric_limits</title>
+<link rel="stylesheet" href="../../fixed_point.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.77.1">
+<link rel="home" href="../../index.html" title="Boost.Fixed-point">
+<link rel="up" href="../examples.html" title="Examples">
+<link rel="prev" href="../examples.html" title="Examples">
+<link rel="next" href="bare_derivative.html" title="Example of a bare-metal fixed_point type evaluating a derivative.">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table cellpadding="2" width="100%"><tr>
+<td valign="top"><img alt="Boost C++ Libraries" width="180" height="90" src="../../proposed_for_boost.png"></td>
+<td align="center"><a href="../../../../../../index.html">Home</a></td>
+<td align="center"><a href="../../../../../../libs/libraries.htm">Libraries</a></td>
+<td align="center"><a href="http://www.boost.org/users/people.html">People</a></td>
+<td align="center"><a href="http://www.boost.org/users/faq.html">FAQ</a></td>
+<td align="center"><a href="../../../../../../more/index.htm">More</a></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../examples.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../examples.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="bare_derivative.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="fixed.examples.numeric_limits"></a><a class="link" href="numeric_limits.html" title="Example of a fixed_point type and its numeric_limits">Example of a fixed_point
+      type and its numeric_limits</a>
+</h3></div></div></div>
+<p>
+        In order to use the fixed_point library, we first need an include:
+      </p>
+<pre class="programlisting"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">boost</span><span class="special">/</span><span class="identifier">fixed_point</span><span class="special">/</span><span class="identifier">fixed_point</span><span class="special">.</span><span class="identifier">hpp</span><span class="special">&gt;</span>
+</pre>
+<p>
+        Then it is convenient (because we are likely to reuse the type name often)
+        to define a <code class="computeroutput"><span class="keyword">typedef</span></code> for our
+        chosen fixed-point type
+      </p>
+<pre class="programlisting"><span class="keyword">typedef</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">15</span><span class="special">,</span> <span class="special">-</span><span class="number">16</span><span class="special">&gt;</span> <span class="identifier">fixed_point_type</span><span class="special">;</span>
+</pre>
+<p>
+        This example uses the fixed-point class <code class="computeroutput"><a class="link" href="../../boost/fixed_point/negatable.html" title="Class template negatable">negatable</a></code>
+        (the analog of a signed floating-point) defined to have a template parameter
+        <code class="computeroutput"><a class="link" href="../../boost/fixed_point/negatable.html" title="Class template negatable">IntegralRange</a></code>
+        of 15 and a template parameter <code class="computeroutput"><a class="link" href="../../boost/fixed_point/negatable.html" title="Class template negatable">FractionalResolution</a></code>
+        of -16.
+      </p>
+<p>
+        This means that 15 bits are used for the binary integer or range part and
+        16 bits are used for the <a href="https://en.wikipedia.org/wiki/Significand" target="_top">significand</a>
+        or fraction part.
+      </p>
+<p>
+        (For simplicity, we use the defaults for the other template parameters,
+        <code class="computeroutput"><span class="identifier">round_mode</span></code> = <code class="computeroutput"><a class="link" href="../../boost/fixed_point/round/fastest.html" title="Struct fastest">round::fastest</a></code>
+        and <code class="computeroutput"><span class="identifier">overflow_mode</span></code> = <code class="computeroutput"><a class="link" href="../../boost/fixed_point/overflow/undefined.html" title="Struct undefined">overflow::undefined</a></code>).
+      </p>
+<div class="tip"><table border="0" summary="Tip">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Tip]" src="../../../../../../doc/src/images/tip.png"></td>
+<th align="left">Tip</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+          Choosing a total of range and resolution (and allowing an extra bit for
+          sign) so that the total is a power of 2 is usually sensible. <br> Choosing
+          just one extra bit would mean that the underlying <a href="http://en.cppreference.com/w/cpp/language/types" target="_top">fundamental</a>
+          type will be twice as wide!<br>
+        </p></td></tr>
+</table></div>
+<div class="warning"><table border="0" summary="Warning">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Warning]" src="../../../../../../doc/src/images/warning.png"></td>
+<th align="left">Warning</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+          Choosing a combination of range and resolution that <span class="bold"><strong>does
+          not quite fit into the largest available <a href="http://en.cppreference.com/w/cpp/types/is_fundamental" target="_top">built-in</a>
+          integral type</strong></span> (usually 32 or 64 bits) can have a dramatic effect
+          because a <a href="../../../../../../libs/multiprecision/doc/html/index.html" target="_top">Boost.Multiprecision</a>
+          type will be used.
+        </p></td></tr>
+</table></div>
+<p>
+        We can show the <a href="http://www.cplusplus.com/reference/limits/numeric_limits/" target="_top">numeric_limits</a>
+        for this type thus:
+      </p>
+<pre class="programlisting"><span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"Numeric_limits for type"</span>                                                 <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span>
+          <span class="special">&lt;&lt;</span> <span class="keyword">typeid</span><span class="special">(</span><span class="identifier">fixed_point_type</span><span class="special">).</span><span class="identifier">name</span><span class="special">()</span>                                           <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span>
+          <span class="special">&lt;&lt;</span> <span class="string">"digits10     = "</span> <span class="special">&lt;&lt;</span>  <span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span><span class="special">&lt;</span><span class="identifier">fixed_point_type</span><span class="special">&gt;::</span><span class="identifier">digits10</span>     <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span>
+          <span class="special">&lt;&lt;</span> <span class="string">"max_digits10 = "</span> <span class="special">&lt;&lt;</span>  <span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span><span class="special">&lt;</span><span class="identifier">fixed_point_type</span><span class="special">&gt;::</span><span class="identifier">max_digits10</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span>
+          <span class="special">&lt;&lt;</span> <span class="string">"radix        = "</span> <span class="special">&lt;&lt;</span>  <span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span><span class="special">&lt;</span><span class="identifier">fixed_point_type</span><span class="special">&gt;::</span><span class="identifier">radix</span>        <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span>
+          <span class="special">&lt;&lt;</span> <span class="string">"epsilon      = "</span> <span class="special">&lt;&lt;</span>  <span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span><span class="special">&lt;</span><span class="identifier">fixed_point_type</span><span class="special">&gt;::</span><span class="identifier">epsilon</span><span class="special">()</span>    <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span>
+          <span class="special">&lt;&lt;</span> <span class="string">"max          = "</span> <span class="special">&lt;&lt;</span> <span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span><span class="special">&lt;</span><span class="identifier">fixed_point_type</span><span class="special">&gt;::</span><span class="identifier">max</span><span class="special">)()</span>       <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span>
+          <span class="special">&lt;&lt;</span> <span class="string">"min          = "</span> <span class="special">&lt;&lt;</span> <span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span><span class="special">&lt;</span><span class="identifier">fixed_point_type</span><span class="special">&gt;::</span><span class="identifier">min</span><span class="special">)()</span>       <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span>
+          <span class="special">&lt;&lt;</span> <span class="string">"lowest       = "</span> <span class="special">&lt;&lt;</span>  <span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span><span class="special">&lt;</span><span class="identifier">fixed_point_type</span><span class="special">&gt;::</span><span class="identifier">lowest</span><span class="special">()</span>     <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span>
+          <span class="special">;</span>
+
+<span class="keyword">if</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span><span class="special">&lt;</span><span class="identifier">fixed_point_type</span><span class="special">&gt;::</span><span class="identifier">has_infinity</span><span class="special">)</span>
+<span class="special">{</span>
+  <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"infinity = "</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span><span class="special">&lt;</span><span class="identifier">fixed_point_type</span><span class="special">&gt;::</span><span class="identifier">infinity</span><span class="special">()</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+<span class="special">}</span>
+<span class="keyword">else</span>
+<span class="special">{</span>
+  <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"Type does not have an infinity"</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+<span class="special">}</span>
+
+<span class="keyword">if</span> <span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span><span class="special">&lt;</span><span class="identifier">fixed_point_type</span><span class="special">&gt;::</span><span class="identifier">has_quiet_NaN</span><span class="special">)</span>
+<span class="special">{</span>
+  <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"NaN = "</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span><span class="special">&lt;</span><span class="identifier">fixed_point_type</span><span class="special">&gt;::</span><span class="identifier">quiet_NaN</span><span class="special">()</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+<span class="special">}</span>
+<span class="keyword">else</span>
+<span class="special">{</span>
+  <span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"Type does not have a NaN"</span> <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+<span class="special">}</span>
+</pre>
+<p>
+        and the output showing limits is:
+      </p>
+<pre class="programlisting"><span class="identifier">Numeric_limits</span> <span class="keyword">for</span> <span class="identifier">type</span>
+<span class="keyword">class</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">negatable</span><span class="special">&lt;</span><span class="number">15</span><span class="special">,-</span><span class="number">16</span><span class="special">,</span><span class="keyword">struct</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">round</span><span class="special">::</span><span class="identifier">fastest</span><span class="special">,</span><span class="keyword">struct</span> <span class="identifier">boost</span><span class="special">::</span><span class="identifier">fixed_point</span><span class="special">::</span><span class="identifier">overflow</span><span class="special">::</span><span class="identifier">undefined</span><span class="special">&gt;</span>
+<span class="identifier">digits10</span>     <span class="special">=</span> <span class="number">9</span>
+<span class="identifier">max_digits10</span> <span class="special">=</span> <span class="number">11</span>
+<span class="identifier">radix</span>        <span class="special">=</span> <span class="number">2</span>
+<span class="identifier">epsilon</span>      <span class="special">=</span> <span class="number">3.051757813e-005</span>
+<span class="identifier">max</span>          <span class="special">=</span> <span class="number">32767.99998</span>
+<span class="identifier">min</span>          <span class="special">=</span> <span class="number">1.525878906e-005</span>
+<span class="identifier">lowest</span>       <span class="special">=</span> <span class="special">-</span><span class="number">32768</span>
+<span class="identifier">Type</span> <span class="identifier">does</span> <span class="keyword">not</span> <span class="identifier">have</span> <span class="identifier">an</span> <span class="identifier">infinity</span>
+<span class="identifier">Type</span> <span class="identifier">does</span> <span class="keyword">not</span> <span class="identifier">have</span> <span class="identifier">a</span> <span class="identifier">NaN</span>
+
+<span class="identifier">x</span> <span class="special">=</span> <span class="identifier">fixed_point_type</span><span class="special">(</span><span class="number">123</span><span class="special">)</span> <span class="special">/</span>   <span class="number">100</span> <span class="special">=</span> <span class="number">1.22999573</span>
+<span class="identifier">y</span> <span class="special">=</span> <span class="identifier">fixed_point_type</span><span class="special">(</span><span class="number">456</span><span class="special">)</span> <span class="special">/</span> <span class="number">10000</span> <span class="special">=</span> <span class="number">0.0455932617</span>
+<span class="identifier">x</span> <span class="special">=</span> <span class="special">-</span><span class="identifier">x</span> <span class="special">/</span> <span class="number">2</span> <span class="special">=</span> <span class="special">-</span><span class="number">0.614990234</span>
+</pre>
+<p>
+        The full code is at <a href="../../../../example/fixed_point_limits.cpp" target="_top">fixed_point_limits.cpp</a>.
+      </p>
+<p>
+        Next we can use this defined fixed-point type, constructing from two integer
+        values to avoid any conversion from a floating-point value whose value is
+        probably not exactly <a href="http://en.wikipedia.org/wiki/Floating_point#Representable_numbers.2C_conversion_and_rounding" target="_top">representable</a>.
+        This ensures no loss of precision or double rounding during construction.
+      </p>
+<pre class="programlisting"><span class="identifier">fixed_point_type</span> <span class="identifier">x</span> <span class="special">=</span> <span class="identifier">fixed_point_type</span><span class="special">(</span><span class="number">123</span><span class="special">)</span> <span class="special">/</span>   <span class="number">100</span><span class="special">;</span>
+<span class="identifier">fixed_point_type</span> <span class="identifier">y</span> <span class="special">=</span> <span class="identifier">fixed_point_type</span><span class="special">(</span><span class="number">456</span><span class="special">)</span> <span class="special">/</span> <span class="number">10000</span><span class="special">;</span>
+
+<span class="comment">// Show all the significant digits for this particular floating-point type.</span>
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span><span class="special">.</span><span class="identifier">precision</span><span class="special">(</span><span class="identifier">std</span><span class="special">::</span><span class="identifier">numeric_limits</span><span class="special">&lt;</span><span class="identifier">fixed_point_type</span><span class="special">&gt;::</span><span class="identifier">digits10</span><span class="special">);</span>
+
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"x = fixed_point_type(123) /   100 = "</span>
+          <span class="special">&lt;&lt;</span> <span class="identifier">x</span> <span class="comment">// 1.22999573 is the nearest representation of decimal digit string 1.23.</span>
+          <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span> <span class="string">"y = fixed_point_type(456) / 10000 = "</span>
+          <span class="special">&lt;&lt;</span> <span class="identifier">y</span> <span class="comment">// 0.0455932617 is the nearest representation of decimal digit string 0.0456</span>
+          <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+
+<span class="identifier">x</span> <span class="special">=</span> <span class="special">-</span><span class="identifier">x</span> <span class="special">/</span> <span class="number">2</span><span class="special">;</span> <span class="comment">// Do some trivial arithmetic.</span>
+
+<span class="identifier">std</span><span class="special">::</span><span class="identifier">cout</span> <span class="special">&lt;&lt;</span><span class="string">"x = -x / 2 = "</span>
+          <span class="special">&lt;&lt;</span> <span class="identifier">x</span> <span class="comment">// -0.614990234  is the nearest representation of decimal digit string -0.615</span>
+          <span class="special">&lt;&lt;</span> <span class="identifier">std</span><span class="special">::</span><span class="identifier">endl</span><span class="special">;</span>
+</pre>
+<p>
+        We can inspect the <a href="https://en.wikipedia.org/wiki/Significand" target="_top">significand</a>
+        or fraction (also called mantissa but this term is now deprecated) and the
+        exponent parts using the using <a href="http://en.cppreference.com/w/cpp/numeric/math" target="_top">C
+        math</a> function <a href="http://en.cppreference.com/w/cpp/numeric/math/frexp" target="_top">frexp</a>,
+        and alter the exponent using <a href="http://en.cppreference.com/w/cpp/numeric/math/ldexp" target="_top">ldexp</a>.
+      </p>
+<p>
+        Of course, other <a href="http://en.cppreference.com/w/cpp/numeric/math" target="_top">C
+        math</a> functions such as trigonometric, exponential, logarithmic, etc.
+        (<code class="computeroutput"><span class="preprocessor">#include</span> <span class="special">&lt;</span><span class="identifier">cmath</span><span class="special">&gt;</span></code>)
+        are available. When using the fixed-point versions of <code class="computeroutput"><span class="special">&lt;</span><span class="identifier">cmath</span><span class="special">&gt;</span></code>
+        functions, the user can simply call, for example, <code class="computeroutput"><span class="identifier">sqrt</span><span class="special">(</span><span class="identifier">negatable</span><span class="special">)</span></code> without any namespace decoration. See also
+        the notes on <a href="http://en.cppreference.com/w/cpp/language/adl" target="_top">Argument
+        Dependent Lookup (ADL)</a> in <a class="link" href="../design/cmath.html" title="C math functions">C math
+        functions section</a> below.
+      </p>
+<pre class="programlisting"><span class="identifier">x</span> <span class="special">=</span> <span class="identifier">frexp</span><span class="special">(</span><span class="identifier">x</span><span class="special">,</span> <span class="special">&amp;</span><span class="identifier">exponential</span><span class="special">)</span> <span class="special">=</span> <span class="special">-</span><span class="number">0.614990234</span> <span class="identifier">exponential</span> <span class="special">=</span> <span class="number">0</span>
+<span class="keyword">double</span> <span class="identifier">the</span> <span class="identifier">value</span>
+<span class="identifier">x</span> <span class="special">=</span> <span class="identifier">frexp</span><span class="special">(</span><span class="identifier">x</span><span class="special">,</span> <span class="special">&amp;</span><span class="identifier">exponential</span><span class="special">)</span> <span class="special">=</span> <span class="special">-</span><span class="number">0.614990234</span> <span class="identifier">exponential</span> <span class="special">=</span> <span class="number">1</span>
+<span class="identifier">ldexp</span><span class="special">(</span><span class="identifier">x</span><span class="special">,</span> <span class="identifier">exponential</span><span class="special">);</span> <span class="special">=</span> <span class="special">-</span><span class="number">1.22998047</span>
+<span class="identifier">abs</span>  <span class="special">(</span><span class="identifier">x</span><span class="special">)</span>       <span class="special">=</span> <span class="number">1.22998047</span>
+<span class="identifier">fabs</span> <span class="special">(</span><span class="identifier">x</span><span class="special">)</span>       <span class="special">=</span> <span class="number">1.22998047</span>
+<span class="identifier">sqrt</span> <span class="special">(</span><span class="identifier">fabs</span><span class="special">(</span><span class="identifier">x</span><span class="special">))</span> <span class="special">=</span> <span class="number">1.10902405</span>
+<span class="identifier">sqrt</span> <span class="special">(</span><span class="identifier">y</span><span class="special">)</span>       <span class="special">=</span> <span class="number">0.213516235</span>
+</pre>
+<div class="warning"><table border="0" summary="Warning">
+<tr>
+<td rowspan="2" align="center" valign="top" width="25"><img alt="[Warning]" src="../../../../../../doc/src/images/warning.png"></td>
+<th align="left">Warning</th>
+</tr>
+<tr><td align="left" valign="top"><p>
+          Some <a href="http://en.cppreference.com/w/cpp/numeric/math" target="_top">C math</a>
+          functions are not applicable to <code class="computeroutput"><span class="identifier">fixed_point</span></code>
+          values; others may not yet be implemented.
+        </p></td></tr>
+</table></div>
+<p>
+        The full code is at <a href="../../../../example/fixed_point_demo_basic.cpp" target="_top">fixed_point_demo_basic.cpp</a>.
+      </p>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer">Copyright &#169; 2013, 2015, 2016 Christopher Kormanyos<p>
+        Distributed under the Boost Software License, Version 1.0. (See accompanying
+        file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt" target="_top">http://www.boost.org/LICENSE_1_0.txt</a>)
+      </p>
+</div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../examples.html"><img src="../../../../../../doc/src/images/prev.png" alt="Prev"></a><a accesskey="u" href="../examples.html"><img src="../../../../../../doc/src/images/up.png" alt="Up"></a><a accesskey="h" href="../../index.html"><img src="../../../../../../doc/src/images/home.png" alt="Home"></a><a accesskey="n" href="bare_derivative.html"><img src="../../../../../../doc/src/images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>
