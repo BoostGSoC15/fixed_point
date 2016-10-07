@@ -922,7 +922,7 @@
       // With round modes fastest and nearest even, there is no need
       // for special code for handling underflow. But be aware of
       // underflow issues if other rounding modes are supported.
-      u_round = unsigned_small_type(u_round + rounding_result);
+      u_round = unsigned_small_type(value_type(u_round) + rounding_result);
 
       // Load the fixed-point result (and account for potentially signed values).
       data = ((u_is_neg == v_is_neg) ? value_type(u_round) : -value_type(u_round));

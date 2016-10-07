@@ -46,6 +46,9 @@ BOOST_AUTO_TEST_CASE(test_negatable_basic_disable_wide_integer_math)
   BOOST_CHECK_CLOSE_FRACTION(float_point_type(z_mul), float_point_type(z_mul_control), tol); // 5.9220779220779220779220779220779
   BOOST_CHECK_CLOSE_FRACTION(float_point_type(z_div), float_point_type(z_div_control), tol); // 0.34461152882205513784461152882206
 
-  BOOST_CHECK_EQUAL(z_mul.crepresentation(), z_mul_control.crepresentation()); // UINT64_C(0x0084A7904A7904A8)
+  BOOST_CHECK_EQUAL(z_mul.crepresentation(), z_mul_control.crepresentation()); // UINT64_C(0x00BD81A98EF606A8)
   BOOST_CHECK_EQUAL(z_div.crepresentation(), z_div_control.crepresentation()); // UINT64_C(0x000B070EC1C3B071)
+
+  BOOST_CHECK_EQUAL(z_mul.crepresentation(), UINT64_C(0x00BD81A98EF606A8));
+  BOOST_CHECK_EQUAL(z_div.crepresentation(), UINT64_C(0x000B070EC1C3B071));
 }
