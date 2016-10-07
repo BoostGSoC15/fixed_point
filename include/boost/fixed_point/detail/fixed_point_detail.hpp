@@ -666,6 +666,10 @@
     // data format used here. Some internal loops of the
     // algorithm have been manually unrolled to improve efficiency.
 
+    // The division algorithm is carried out with arrays
+    // of elements having a type that is half as wide
+    // as the type of the input parameters.
+
     // See also:
     // D.E. Knuth, "The Art of Computer Programming, Volume 2:
     // Seminumerical Algorithms", Addison-Wesley (1998),
@@ -685,15 +689,16 @@
     typedef UnsignedSmallType local_unsigned_small_type;
     typedef UnsignedHalfType  local_unsigned_half_type;
 
-    const std::array<local_unsigned_half_type, 4U> u =
+    std::array<local_unsigned_half_type, 4U + 1U> u_tmp =
     {{
       lo_part(u_lo),
       hi_part(u_lo),
       lo_part(u_hi),
       hi_part(u_hi),
+      local_unsigned_half_type(0U)
     }};
 
-    const std::array<local_unsigned_half_type, 2U> v =
+    std::array<local_unsigned_half_type, 2U> v_tmp =
     {{
       lo_part(v_lo),
       hi_part(v_lo)
@@ -711,24 +716,23 @@
     // has already been done by the function that calls
     // this subroutine.
 
-    if(v[1U] == 0U)
+    if(v_tmp[1U] == 0U)
     {
       // The denominator has one single limb.
       // Use a simplified linear division algorithm.
-
       // The loop has been unrolled.
 
-      result[3U] = u[3U] / v[0U];
+      result[3U] = u_tmp[3U] / v_tmp[0U];
 
       local_unsigned_small_type val
-                  = u[2U] + local_unsigned_small_type(local_unsigned_small_type(u[3U] - local_unsigned_small_type(local_unsigned_small_type(v[0U]) * result[3U])) << std::numeric_limits<local_unsigned_half_type>::digits);
-      result[2U]  = lo_part(local_unsigned_small_type(val / v[0U]));
+                  = u_tmp[2U] + local_unsigned_small_type(local_unsigned_small_type(u_tmp[3U] - local_unsigned_small_type(local_unsigned_small_type(v_tmp[0U]) * result[3U])) << std::numeric_limits<local_unsigned_half_type>::digits);
+      result[2U]  = lo_part(local_unsigned_small_type(val / v_tmp[0U]));
 
-      val         = u[1U] + local_unsigned_small_type(local_unsigned_small_type(val - local_unsigned_small_type(local_unsigned_small_type(v[0U]) * result[2U])) << std::numeric_limits<local_unsigned_half_type>::digits);
-      result[1U]  = lo_part(local_unsigned_small_type(val / v[0U]));
+      val         = u_tmp[1U] + local_unsigned_small_type(local_unsigned_small_type(val       - local_unsigned_small_type(local_unsigned_small_type(v_tmp[0U]) * result[2U])) << std::numeric_limits<local_unsigned_half_type>::digits);
+      result[1U]  = lo_part(local_unsigned_small_type(val / v_tmp[0U]));
 
-      val         = u[0U] + local_unsigned_small_type(local_unsigned_small_type(val - local_unsigned_small_type(local_unsigned_small_type(v[0U]) * result[1U])) << std::numeric_limits<local_unsigned_half_type>::digits);
-      result[0U]  = lo_part(local_unsigned_small_type(val / v[0U]));
+      val         = u_tmp[0U] + local_unsigned_small_type(local_unsigned_small_type(val       - local_unsigned_small_type(local_unsigned_small_type(v_tmp[0U]) * result[1U])) << std::numeric_limits<local_unsigned_half_type>::digits);
+      result[0U]  = lo_part(local_unsigned_small_type(val / v_tmp[0U]));
 
       result_lo = make_large<local_unsigned_small_type>(result[0U], result[1U]);
       result_hi = make_large<local_unsigned_small_type>(result[2U], result[3U]);
@@ -739,7 +743,7 @@
     // Calculate the number of significant limbs in u.
     std::uint_fast8_t sig_limbs_u = 4U;
 
-    for(std::uint_fast8_t i = std::uint_fast8_t(4U - 1U); (std::int_fast8_t(i) >= std::int_fast8_t(0)) && (u[i] == 0U); --i)
+    for(std::uint_fast8_t i = std::uint_fast8_t(4U - 1U); (std::int_fast8_t(i) >= std::int_fast8_t(0)) && (u_tmp[i] == 0U); --i)
     {
       --sig_limbs_u;
     }
@@ -747,8 +751,8 @@
     // The result of the division is zero if the
     // denominator is larger than the numerator.
 
-    // At this point in the subroutine, we know that v has
-    // exactly two significant limbs.
+    // At this point in the subroutine, we know
+    // that v has exactly 2 significant limbs.
 
     bool b_zero = false;
 
@@ -760,11 +764,11 @@
     {
       // Check if (u < v) for zero result.
 
-      if(u[sig_limbs_u - 1U] < v[1U])
+      if(u_tmp[sig_limbs_u - 1U] < v_tmp[1U])
       {
         b_zero = true;
       }
-      else if(u[sig_limbs_u - 1U] == v[1U])
+      else if(u_tmp[sig_limbs_u - 1U] == v_tmp[1U])
       {
         // The numerator is equal to the denominator.
         // The result of the division is 1.
@@ -784,60 +788,47 @@
       return;
     }
 
-    // Now use the Knuth long division algorithm.
+    // Now use the simplified version of Knuth's long division algorithm.
 
     // Compute the normalization factor.
-    const local_unsigned_half_type d_norm = lo_part(local_unsigned_small_type(local_unsigned_small_type(1) << std::numeric_limits<local_unsigned_half_type>::digits) / (local_unsigned_small_type(v[1U]) + 1U));
+    const local_unsigned_half_type d_norm = lo_part(local_unsigned_small_type(local_unsigned_small_type(1) << std::numeric_limits<local_unsigned_half_type>::digits) / (local_unsigned_small_type(v_tmp[1U]) + 1U));
 
-    // Step D1(b): Multiply u by d.
-
-    std::array<local_unsigned_half_type, 4U + 1U> u_tmp;
-
-    if(d_norm == local_unsigned_half_type(1U))
+    if(d_norm != local_unsigned_half_type(1U))
     {
-      std::copy(u.cbegin(), u.cend(), u_tmp.begin());
+      // Step D1(b): Multiply u by d.
 
-      u_tmp.back() = local_unsigned_half_type(0U);
-    }
-    else
-    {
       local_unsigned_half_type carry(0U);
 
       std::uint_fast8_t i;
 
       for(i = 0U; i < sig_limbs_u; ++i)
       {
-        const local_unsigned_small_type val(local_unsigned_small_type(u[i] * local_unsigned_small_type(d_norm)) + carry);
+        const local_unsigned_small_type val(local_unsigned_small_type(u_tmp[i] * local_unsigned_small_type(d_norm)) + carry);
 
         u_tmp[i] = lo_part(val);
         carry    = hi_part(val);
       }
 
       u_tmp[i] = carry;
-    }
 
-    // Step D1(c): Multiply v by d.
+      // Step D1(c): Multiply v by d.
+      // The loop has been unrolled.
 
-    std::array<local_unsigned_half_type, 2U> v_tmp;
-
-    if(d_norm == local_unsigned_half_type(1U))
-    {
-      std::copy(v.cbegin(), v.cend(), v_tmp.begin());
-    }
-    else
-    {
       local_unsigned_small_type val
-                = local_unsigned_small_type(v[0U] * local_unsigned_small_type(d_norm));
+                = local_unsigned_small_type(v_tmp[0U] * local_unsigned_small_type(d_norm));
       v_tmp[0U] = lo_part(val);
 
-      val       = local_unsigned_small_type(v[1U] * local_unsigned_small_type(d_norm)) + hi_part(val);
+      val       = local_unsigned_small_type(v_tmp[1U] * local_unsigned_small_type(d_norm)) + hi_part(val);
       v_tmp[1U] = lo_part(val);
     }
 
     // Steps D2 and D7.
     for(std::uint_fast8_t j = 0U; j <= (sig_limbs_u - 2U); ++j)
     {
-      // Step D3: Calculate q_guess (the initial guess of the .
+      // Step D3: Calculate q_guess.
+
+      // Here q_guess is the initial guess of the next
+      // element in the result of the long division.
 
       const std::uint_fast8_t uj(sig_limbs_u - j);
 
@@ -861,9 +852,13 @@
         {
           break;
         }
+
+        // If either of the two break statements above has
+        // been executed, then q_guess is not dectremented.
       }
 
       // Step D4: Multiply and subtract.
+      // The loop has been unrolled.
 
       std::array<local_unsigned_half_type, 2U + 1U> n_tmp;
 
@@ -902,6 +897,7 @@
       if(borrow != 0U)
       {
         // Step D6: Add v to u and decrement the result.
+        // The loop has been unrolled.
 
         local_unsigned_small_type val
                        = local_unsigned_small_type(local_unsigned_small_type(u_tmp[uj - 2U]) + n_tmp[0U]);
