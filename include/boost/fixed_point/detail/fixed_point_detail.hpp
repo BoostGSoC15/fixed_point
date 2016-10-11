@@ -743,13 +743,19 @@
     // Calculate the number of significant limbs in u.
     std::uint_fast8_t sig_limbs_u = 4U;
 
-    for(std::uint_fast8_t i = std::uint_fast8_t(4U - 1U); (std::int_fast8_t(i) >= std::int_fast8_t(0)) && (u_tmp[i] == 0U); --i)
+    for(std::uint_fast8_t i = std::uint_fast8_t(4U - 1U); ((std::int_fast8_t(i) >= std::int_fast8_t(0)) && (u_tmp[i] == 0U)); --i)
     {
       --sig_limbs_u;
     }
 
-    // The result of the division is zero if the
+    // The result of the division is 0 if the
     // denominator is larger than the numerator.
+
+    // The result of the division is 1 if the
+    // denominator is equal to the numerator.
+
+    // Check if the denominator is larger than
+    // or equal to the numerator.
 
     // At this point in the subroutine, we know
     // that v has exactly 2 significant limbs.
@@ -758,19 +764,21 @@
 
     if(sig_limbs_u < 2U)
     {
+      // The denominator is larger than the numerator.
+      // The result of the division is 0.
       b_zero = true;
     }
     else if(sig_limbs_u == 2U)
     {
-      // Check if (u < v) for zero result.
-
-      if(u_tmp[sig_limbs_u - 1U] < v_tmp[1U])
+      if(u_tmp[1U] < v_tmp[1U])
       {
+        // The denominator is larger than the numerator.
+        // The result of the division is 0.
         b_zero = true;
       }
-      else if(u_tmp[sig_limbs_u - 1U] == v_tmp[1U])
+      else if(u_tmp[1U] == v_tmp[1U])
       {
-        // The numerator is equal to the denominator.
+        // The denominator is equal to the numerator.
         // The result of the division is 1.
         result_lo = 1U;
         result_hi = 0U;
@@ -788,12 +796,14 @@
       return;
     }
 
-    // Now use the simplified version of Knuth's long division algorithm.
+    // Now use the simplified version of Knuth's
+    // long division algorithm.
 
     // Compute the normalization factor.
-    const local_unsigned_half_type d_norm = lo_part(local_unsigned_small_type(local_unsigned_small_type(1) << std::numeric_limits<local_unsigned_half_type>::digits) / (local_unsigned_small_type(v_tmp[1U]) + 1U));
+    const local_unsigned_half_type d_norm =
+      lo_part(local_unsigned_small_type(local_unsigned_small_type(1) << std::numeric_limits<local_unsigned_half_type>::digits) / (local_unsigned_small_type(v_tmp[1U]) + 1U));
 
-    if(d_norm != local_unsigned_half_type(1U))
+    if(d_norm != 1U)
     {
       // Step D1(b): Multiply u by d.
 
@@ -803,7 +813,7 @@
 
       for(i = 0U; i < sig_limbs_u; ++i)
       {
-        const local_unsigned_small_type val(local_unsigned_small_type(u_tmp[i] * local_unsigned_small_type(d_norm)) + carry);
+        const local_unsigned_small_type val(local_unsigned_small_type(local_unsigned_small_type(u_tmp[i]) * d_norm) + carry);
 
         u_tmp[i] = lo_part(val);
         carry    = hi_part(val);
@@ -815,10 +825,10 @@
       // The loop has been unrolled.
 
       local_unsigned_small_type val
-                = local_unsigned_small_type(v_tmp[0U] * local_unsigned_small_type(d_norm));
+                = local_unsigned_small_type(local_unsigned_small_type(v_tmp[0U]) * d_norm);
       v_tmp[0U] = lo_part(val);
 
-      val       = local_unsigned_small_type(v_tmp[1U] * local_unsigned_small_type(d_norm)) + hi_part(val);
+      val       = local_unsigned_small_type(local_unsigned_small_type(v_tmp[1U]) * d_norm) + hi_part(val);
       v_tmp[1U] = lo_part(val);
     }
 
@@ -854,7 +864,7 @@
         }
 
         // If either of the two break statements above has
-        // been executed, then q_guess is not dectremented.
+        // been executed, then q_guess is not decremented.
       }
 
       // Step D4: Multiply and subtract.
@@ -862,7 +872,10 @@
 
       std::array<local_unsigned_half_type, 2U + 1U> n_tmp;
 
+      std::uint_fast8_t borrow;
+
       {
+        // Multiply.
         local_unsigned_small_type val
                   = local_unsigned_small_type(v_tmp[0U] * q_guess);
         n_tmp[0U] = lo_part(val);
@@ -871,13 +884,9 @@
         n_tmp[1U] = lo_part(val);
 
         n_tmp[2U] = hi_part(val);
-      }
 
-      std::uint_fast8_t borrow;
-
-      {
-        local_unsigned_small_type val
-                       = local_unsigned_small_type(local_unsigned_small_type(u_tmp[uj - 2U]) - n_tmp[0U]);
+        // Subtract.
+        val            = local_unsigned_small_type(local_unsigned_small_type(u_tmp[uj - 2U]) - n_tmp[0U]);
         u_tmp[uj - 2U] = lo_part(val);
         borrow         = ((hi_part(val) != 0U) ? 1U : 0U);
 
@@ -891,7 +900,7 @@
       }
 
       // Get the result data.
-      result[(sig_limbs_u - 2U) - j] = lo_part(q_guess);
+      result[uj - 2U] = lo_part(q_guess);
 
       // Step D5: Test the remainder.
       if(borrow != 0U)
@@ -909,13 +918,13 @@
         val            = local_unsigned_small_type(local_unsigned_small_type(u_tmp[uj - 0U]) + n_tmp[2U]) + std::uint_fast8_t((hi_part(val) != 0U) ? 1U : 0U);
         u_tmp[uj - 0U] = lo_part(val);
 
-        u_tmp[(sig_limbs_u - 2U) - j] += std::uint_fast8_t((hi_part(val) != 0U) ? 1U : 0U);
+        u_tmp[uj - 2U] += std::uint_fast8_t((hi_part(val) != 0U) ? 1U : 0U);
 
-        --result[(sig_limbs_u - 2U) - j];
+        --result[uj - 2U];
       }
     }
 
-    // Compute the low and high parts of the result.
+    // Compose the low and high parts of the result.
     result_lo = make_large<local_unsigned_small_type>(result[0U], result[1U]);
     result_hi = make_large<local_unsigned_small_type>(result[2U], result[3U]);
   }
