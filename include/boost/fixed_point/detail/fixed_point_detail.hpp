@@ -566,7 +566,8 @@
                   && (std::numeric_limits<UnsignedSmallType>::is_signed  == false),
                   "The UnsignedSmallType for make_large must be an unsigned integral type.");
 
-    return (UnsignedLargeType(hi) << std::numeric_limits<UnsignedSmallType>::digits) | lo;
+    return  (UnsignedLargeType(hi) << std::numeric_limits<UnsignedSmallType>::digits)
+           | UnsignedLargeType(lo);
   }
 
   template<typename UnsignedSmallType,
@@ -625,19 +626,19 @@
     const local_unsigned_small_type u_lo_v_hi(u_lo * local_unsigned_small_type(v_hi));
 
     const local_unsigned_small_type uv_cross_lo =
-          local_unsigned_small_type(   local_unsigned_half_type (u_lo_v_hi))
-        + local_unsigned_small_type(   local_unsigned_half_type (u_hi_v_lo)
-                                    +  local_unsigned_small_type(u_lo_v_lo >> digits_half));
+          local_unsigned_small_type(   local_unsigned_small_type(lo_part(u_lo_v_hi)))
+        + local_unsigned_small_type(   local_unsigned_small_type(lo_part(u_hi_v_lo))
+                                    +  local_unsigned_small_type(hi_part(u_lo_v_lo)));
 
     const local_unsigned_small_type uv_cross_hi =
-          local_unsigned_small_type(   local_unsigned_half_type (u_hi_v_lo   >> digits_half))
-        + local_unsigned_small_type(   local_unsigned_half_type (u_lo_v_hi   >> digits_half)
-                                    +  local_unsigned_small_type(uv_cross_lo >> digits_half));
+          local_unsigned_small_type(   local_unsigned_small_type(hi_part(u_hi_v_lo)))
+        + local_unsigned_small_type(   local_unsigned_small_type(hi_part(u_lo_v_hi))
+                                    +  local_unsigned_small_type(hi_part(uv_cross_lo)));
 
     result_hi = local_unsigned_small_type(local_unsigned_small_type(u_hi * local_unsigned_small_type(v_hi)) + uv_cross_hi);
 
     result_lo = local_unsigned_small_type(  local_unsigned_small_type(uv_cross_lo << digits_half)
-                                          | local_unsigned_half_type (u_lo_v_lo));
+                                          | local_unsigned_small_type(lo_part(u_lo_v_lo)));
   }
 
   template<typename UnsignedSmallType,
@@ -725,14 +726,14 @@
       result[3U] = u_tmp[3U] / v_tmp[0U];
 
       local_unsigned_small_type val
-                  = u_tmp[2U] + local_unsigned_small_type(local_unsigned_small_type(u_tmp[3U] - local_unsigned_small_type(local_unsigned_small_type(v_tmp[0U]) * result[3U])) << std::numeric_limits<local_unsigned_half_type>::digits);
-      result[2U]  = lo_part(local_unsigned_small_type(val / v_tmp[0U]));
+                  = local_unsigned_small_type(u_tmp[2U]) + local_unsigned_small_type(local_unsigned_small_type(local_unsigned_small_type(u_tmp[3U]) - local_unsigned_small_type(local_unsigned_small_type(v_tmp[0U]) * result[3U])) << std::numeric_limits<local_unsigned_half_type>::digits);
+      result[2U]  = lo_part(local_unsigned_small_type(val / local_unsigned_small_type(v_tmp[0U])));
 
-      val         = u_tmp[1U] + local_unsigned_small_type(local_unsigned_small_type(val       - local_unsigned_small_type(local_unsigned_small_type(v_tmp[0U]) * result[2U])) << std::numeric_limits<local_unsigned_half_type>::digits);
-      result[1U]  = lo_part(local_unsigned_small_type(val / v_tmp[0U]));
+      val         = local_unsigned_small_type(u_tmp[1U]) + local_unsigned_small_type(local_unsigned_small_type(val - local_unsigned_small_type(local_unsigned_small_type(v_tmp[0U]) * result[2U])) << std::numeric_limits<local_unsigned_half_type>::digits);
+      result[1U]  = lo_part(local_unsigned_small_type(val / local_unsigned_small_type(v_tmp[0U])));
 
-      val         = u_tmp[0U] + local_unsigned_small_type(local_unsigned_small_type(val       - local_unsigned_small_type(local_unsigned_small_type(v_tmp[0U]) * result[1U])) << std::numeric_limits<local_unsigned_half_type>::digits);
-      result[0U]  = lo_part(local_unsigned_small_type(val / v_tmp[0U]));
+      val         = local_unsigned_small_type(u_tmp[0U]) + local_unsigned_small_type(local_unsigned_small_type(val - local_unsigned_small_type(local_unsigned_small_type(v_tmp[0U]) * result[1U])) << std::numeric_limits<local_unsigned_half_type>::digits);
+      result[0U]  = lo_part(local_unsigned_small_type(val / local_unsigned_small_type(v_tmp[0U])));
 
       result_lo = make_large<local_unsigned_small_type>(result[0U], result[1U]);
       result_hi = make_large<local_unsigned_small_type>(result[2U], result[3U]);
@@ -800,36 +801,38 @@
     // long division algorithm.
 
     // Compute the normalization factor.
-    const local_unsigned_half_type d_norm =
-      lo_part(local_unsigned_small_type(local_unsigned_small_type(1) << std::numeric_limits<local_unsigned_half_type>::digits) / (local_unsigned_small_type(v_tmp[1U]) + 1U));
-
-    if(d_norm != 1U)
     {
-      // Step D1(b): Multiply u by d.
+      const local_unsigned_half_type norm =
+        lo_part(local_unsigned_small_type(local_unsigned_small_type(1) << std::numeric_limits<local_unsigned_half_type>::digits) / (local_unsigned_small_type(v_tmp[1U]) + 1U));
 
-      local_unsigned_half_type carry(0U);
-
-      std::uint_fast8_t i;
-
-      for(i = 0U; i < sig_limbs_u; ++i)
+      if(norm != 1U)
       {
-        const local_unsigned_small_type val(local_unsigned_small_type(local_unsigned_small_type(u_tmp[i]) * d_norm) + carry);
+        // Step D1(b): Multiply u by d.
 
-        u_tmp[i] = lo_part(val);
-        carry    = hi_part(val);
+        local_unsigned_half_type carry(0U);
+
+        std::uint_fast8_t i;
+
+        for(i = 0U; i < sig_limbs_u; ++i)
+        {
+          const local_unsigned_small_type val(local_unsigned_small_type(local_unsigned_small_type(u_tmp[i]) * norm) + local_unsigned_small_type(carry));
+
+          u_tmp[i] = lo_part(val);
+          carry    = hi_part(val);
+        }
+
+        u_tmp[i] = carry;
+
+        // Step D1(c): Multiply v by d.
+        // The loop has been unrolled.
+
+        local_unsigned_small_type val
+                  = local_unsigned_small_type(local_unsigned_small_type(v_tmp[0U]) * norm);
+        v_tmp[0U] = lo_part(val);
+
+        val       = local_unsigned_small_type(local_unsigned_small_type(v_tmp[1U]) * norm) + local_unsigned_small_type(hi_part(val));
+        v_tmp[1U] = lo_part(val);
       }
-
-      u_tmp[i] = carry;
-
-      // Step D1(c): Multiply v by d.
-      // The loop has been unrolled.
-
-      local_unsigned_small_type val
-                = local_unsigned_small_type(local_unsigned_small_type(v_tmp[0U]) * d_norm);
-      v_tmp[0U] = lo_part(val);
-
-      val       = local_unsigned_small_type(local_unsigned_small_type(v_tmp[1U]) * d_norm) + hi_part(val);
-      v_tmp[1U] = lo_part(val);
     }
 
     // Steps D2 and D7.
@@ -846,7 +849,7 @@
 
       local_unsigned_small_type q_guess =
         ((u_tmp[uj] == v_tmp[1U]) ? local_unsigned_small_type((std::numeric_limits<local_unsigned_half_type>::max)())
-                                  : local_unsigned_small_type(uj_ujm1 / v_tmp[1U]));
+                                  : local_unsigned_small_type(uj_ujm1 / local_unsigned_small_type(v_tmp[1U])));
 
       // Decrease q_guess as needed.
       for( ; ; --q_guess)
@@ -880,21 +883,21 @@
                   = local_unsigned_small_type(v_tmp[0U] * q_guess);
         n_tmp[0U] = lo_part(val);
 
-        val       = local_unsigned_small_type(v_tmp[1U] * q_guess) + hi_part(val);
+        val       = local_unsigned_small_type(v_tmp[1U] * q_guess) + local_unsigned_small_type(hi_part(val));
         n_tmp[1U] = lo_part(val);
 
         n_tmp[2U] = hi_part(val);
 
         // Subtract.
-        val            = local_unsigned_small_type(local_unsigned_small_type(u_tmp[uj - 2U]) - n_tmp[0U]);
+        val            = local_unsigned_small_type(local_unsigned_small_type(u_tmp[uj - 2U]) - local_unsigned_small_type(n_tmp[0U]));
         u_tmp[uj - 2U] = lo_part(val);
         borrow         = ((hi_part(val) != 0U) ? 1U : 0U);
 
-        val            = local_unsigned_small_type(local_unsigned_small_type(u_tmp[uj - 1U]) - n_tmp[1U]) - borrow;
+        val            = local_unsigned_small_type(local_unsigned_small_type(u_tmp[uj - 1U]) - local_unsigned_small_type(n_tmp[1U])) - borrow;
         u_tmp[uj - 1U] = lo_part(val);
         borrow         = ((hi_part(val) != 0U) ? 1U : 0U);
 
-        val            = local_unsigned_small_type(local_unsigned_small_type(u_tmp[uj - 0U]) - n_tmp[2U]) - borrow;
+        val            = local_unsigned_small_type(local_unsigned_small_type(u_tmp[uj - 0U]) - local_unsigned_small_type(n_tmp[2U])) - borrow;
         u_tmp[uj - 0U] = lo_part(val);
         borrow         = ((hi_part(val) != 0U) ? 1U : 0U);
       }
@@ -909,13 +912,13 @@
         // The loop has been unrolled.
 
         local_unsigned_small_type val
-                       = local_unsigned_small_type(local_unsigned_small_type(u_tmp[uj - 2U]) + n_tmp[0U]);
+                       = local_unsigned_small_type(local_unsigned_small_type(u_tmp[uj - 2U]) + local_unsigned_small_type(n_tmp[0U]));
         u_tmp[uj - 2U] = lo_part(val);
 
-        val            = local_unsigned_small_type(local_unsigned_small_type(u_tmp[uj - 1U]) + n_tmp[1U]) + std::uint_fast8_t((hi_part(val) != 0U) ? 1U : 0U);
+        val            = local_unsigned_small_type(local_unsigned_small_type(u_tmp[uj - 1U]) + local_unsigned_small_type(n_tmp[1U])) + std::uint_fast8_t((hi_part(val) != 0U) ? 1U : 0U);
         u_tmp[uj - 1U] = lo_part(val);
 
-        val            = local_unsigned_small_type(local_unsigned_small_type(u_tmp[uj - 0U]) + n_tmp[2U]) + std::uint_fast8_t((hi_part(val) != 0U) ? 1U : 0U);
+        val            = local_unsigned_small_type(local_unsigned_small_type(u_tmp[uj - 0U]) + local_unsigned_small_type(n_tmp[2U])) + std::uint_fast8_t((hi_part(val) != 0U) ? 1U : 0U);
         u_tmp[uj - 0U] = lo_part(val);
 
         u_tmp[uj - 2U] += std::uint_fast8_t((hi_part(val) != 0U) ? 1U : 0U);

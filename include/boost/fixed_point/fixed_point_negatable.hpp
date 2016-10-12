@@ -2272,9 +2272,7 @@
            typename RoundMode,
            typename OverflowMode>
   struct is_fixed_point<negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>>
-    : std::true_type
-  {
-  };
+    : std::true_type { };
 
   } } // namespace boost::fixed_point
 
