@@ -212,6 +212,10 @@
              typename EnableType = void>
     struct float_type_helper
     {
+      // Here multiprecision is disabled. We have no choice
+      // other than using built-in long double here
+      // (even if built-in long double does not have
+      // enough bits).
       typedef long double exact_float_type;
     };
 
@@ -340,8 +344,8 @@
     #if !defined(BOOST_FIXED_POINT_FLOAT80_C)
 
       // Here is a somewhat significant work-around for the conversion of
-      // cpp_bin_float to uint64_t. It is used for cases when the digits
-      // when float80_t is not available and we are trying to convert
+      // cpp_bin_float to uint64_t. It is used for unique cases when
+      // float80_t is not available, but we are still trying to convert
       // a small multiprecision floating point type to uint64_t.
 
       // Say, for instsance, that float64_t is the largest width built-in
@@ -566,8 +570,8 @@
                   && (std::numeric_limits<UnsignedSmallType>::is_signed  == false),
                   "The UnsignedSmallType for make_large must be an unsigned integral type.");
 
-    return  (UnsignedLargeType(hi) << std::numeric_limits<UnsignedSmallType>::digits)
-           | UnsignedLargeType(lo);
+    return UnsignedLargeType( (UnsignedLargeType(hi) << std::numeric_limits<UnsignedSmallType>::digits)
+                             | UnsignedLargeType(lo));
   }
 
   template<typename UnsignedSmallType,
@@ -668,7 +672,7 @@
     // algorithm have been manually unrolled to improve efficiency.
 
     // The division algorithm is carried out with arrays
-    // of elements having a type that is half as wide
+    // of limbs having a type that is half as wide
     // as the type of the input parameters.
 
     // See also:
@@ -800,14 +804,15 @@
     // Now use the simplified version of Knuth's
     // long division algorithm.
 
-    // Compute the normalization factor.
     {
+      // Compute the normalization factor.
+
       const local_unsigned_half_type norm =
         lo_part(local_unsigned_small_type(local_unsigned_small_type(1) << std::numeric_limits<local_unsigned_half_type>::digits) / (local_unsigned_small_type(v_tmp[1U]) + 1U));
 
       if(norm != 1U)
       {
-        // Step D1(b): Multiply u by d.
+        // Step D1(b): Multiply u with the normalization.
 
         local_unsigned_half_type carry(0U);
 
@@ -823,7 +828,7 @@
 
         u_tmp[i] = carry;
 
-        // Step D1(c): Multiply v by d.
+        // Step D1(c): Multiply v with the normalization.
         // The loop has been unrolled.
 
         local_unsigned_small_type val
@@ -841,7 +846,7 @@
       // Step D3: Calculate q_guess.
 
       // Here q_guess is the initial guess of the next
-      // element in the result of the long division.
+      // iteration in the result of the long division.
 
       const std::uint_fast8_t uj(sig_limbs_u - j);
 
