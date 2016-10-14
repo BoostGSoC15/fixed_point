@@ -162,6 +162,15 @@
            const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
   typename std::enable_if<std::is_arithmetic<ArithmeticType>::value, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>>::type operator/(const ArithmeticType& u, const negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>& v);
 
+  // Forward declarations of non-member shift of (negatable shift n).
+  template<typename IntegralType,
+           const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  typename std::enable_if<std::is_integral<IntegralType>::value, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>>::type operator<<(const negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>& u, const IntegralType n);
+
+  template<typename IntegralType,
+           const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  typename std::enable_if<std::is_integral<IntegralType>::value, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>>::type operator>>(const negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>& u, const IntegralType n);
+
   #if !defined(BOOST_FIXED_POINT_DISABLE_IOSTREAM)
 
     // Forward declarations of I/O streaming functions.
@@ -532,9 +541,7 @@
 
       u_superior = (u_superior << total_left_shift);
 
-      const unsigned_small_type u_round = static_cast<unsigned_small_type>(u_superior);
-
-      data = ((!is_neg) ? value_type(u_round) : -value_type(u_round));
+      data = ((!is_neg) ? value_type(u_superior) : -value_type(u_superior));
     }
 
     // Here is the mixed-math class constructor for case 2).
@@ -560,9 +567,7 @@
 
       u_superior = (u_superior << total_left_shift);
 
-      const unsigned_small_type u_round = static_cast<unsigned_small_type>(u_superior);
-
-      data = ((!is_neg) ? value_type(u_round) : -value_type(u_round));
+      data = ((!is_neg) ? value_type(u_superior) : -value_type(u_superior));
     }
 
     // Here is the mixed-math class constructor for case 3).
@@ -2176,6 +2181,60 @@
     widest_resolution_negatable_type;
 
     return widest_resolution_negatable_type(a) /= widest_resolution_negatable_type(b);
+  }
+
+  // Implementations of non-member shift of (negatable shift n).
+  template<typename IntegralType,
+           const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  typename std::enable_if<std::is_integral<IntegralType>::value, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>>::type operator<<(const negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>& u, const IntegralType n)
+  {
+    if(n == 0)
+    {
+      return u;
+    }
+    else
+    {
+      typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+      typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
+      typedef typename local_negatable_type::value_type                               local_value_type;
+      typedef typename local_negatable_type::nothing                                  local_nothing;
+
+      // Perform a left shift of u.
+      const bool is_neg = (u.crepresentation() < 0);
+
+      local_unsigned_small_type result = (!(is_neg) ? local_unsigned_small_type(u.crepresentation()) : local_unsigned_small_type(-u.crepresentation()));
+
+      result <<= n;
+
+      return local_negatable_type(local_nothing(), local_value_type(!(is_neg) ? local_value_type(result) : -local_value_type(result)));
+    }
+  }
+
+  template<typename IntegralType,
+           const int IntegralRange, const int FractionalResolution, typename RoundMode, typename OverflowMode>
+  typename std::enable_if<std::is_integral<IntegralType>::value, negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>>::type operator>>(const negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode>& u, const IntegralType n)
+  {
+    if(n == 0)
+    {
+      return u;
+    }
+    else
+    {
+      // Perform an arithmetic right shift of u.
+      typedef negatable<IntegralRange, FractionalResolution, RoundMode, OverflowMode> local_negatable_type;
+      typedef typename local_negatable_type::unsigned_small_type                      local_unsigned_small_type;
+      typedef typename local_negatable_type::value_type                               local_value_type;
+      typedef typename local_negatable_type::nothing                                  local_nothing;
+
+      // Perform an arithmetic right shift of u.
+      const bool is_neg = (u.crepresentation() < 0);
+
+      local_unsigned_small_type result = (!(is_neg) ? local_unsigned_small_type(u.crepresentation()) : local_unsigned_small_type(-u.crepresentation()));
+
+      result >>= n;
+
+      return local_negatable_type(local_nothing(), local_value_type(!(is_neg) ? local_value_type(result) : -local_value_type(result)));
+    }
   }
 
   //! \endcond // DETAIL
