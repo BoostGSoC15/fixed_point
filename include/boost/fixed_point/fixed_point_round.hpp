@@ -24,9 +24,9 @@
   { // Care - Doxygen is really picky about layout here - don't try to tidy it up!
     struct fastest      { }; //!< Template parameter for fixed_point types.\n Speed is more important than the choice of value.
     struct negative     { }; //!< Template parameter for fixed_point types.\n Round towards negative infinity. This mode is useful in interval arithmetic.
-    struct truncated    { }; //!< Template parameter for fixed_point types.\n Template parameter for fixed_point negatableRound towards zero. This mode is useful in implementing integral arithmetic.
+    struct truncated    { }; //!< Template parameter for fixed_point types.\n Round towards zero. This mode is useful in implementing integral arithmetic.
     struct positive     { }; //!< Template parameter for fixed_point types.\n Round towards positive infinity. This mode is useful in interval arithmetic.
-    struct classic      { }; //!< Template parameter for fixed_point types.\n Template parameter for fixed_point negatableRound towards the nearest value, but exactly-half values are rounded towards maximum magnitude. This mode is the standard school algorithm.
+    struct classic      { }; //!< Template parameter for fixed_point types.\n Round towards the nearest value, but exactly-half values are rounded towards maximum magnitude. This mode is the standard school algorithm.
     struct nearest_even { }; //!< Template parameter for fixed_point types.\n Round towards the nearest value, but exactly-half values are rounded towards even values. This mode has more balance than the classic mode.
     struct nearest_odd  { }; //!< Template parameter for fixed_point types.\n Round towards the nearest value, but exactly-half values are rounded towards odd values. This mode has as much balance as the near_even mode, but preserves more information.
   }
@@ -40,10 +40,10 @@
   //   enum float_round_style
   //   {
   //     round_indeterminate       = -1, : Potential interpretation: fastest
-  //     round_toward_zero         =  0, : Potential interpretation: truncated (Is this the same as fastest?)
+  //     round_toward_zero         =  0, : Potential interpretation: truncated (This might be the same as fastest.)
   //     round_to_nearest          =  1, : Potential interpretation: nearest_even
-  //     round_toward_infinity     =  2, : Potential interpretation: positive (toward positive infinity)
-  //     round_toward_neg_infinity =  3  : Potential interpretation: negative (toward negative infinity)
+  //     round_toward_infinity     =  2, : Potential interpretation: positive (Round toward positive infinity.)
+  //     round_toward_neg_infinity =  3  : Potential interpretation: negative (Round toward negative infinity.)
   //   };
   // }
 

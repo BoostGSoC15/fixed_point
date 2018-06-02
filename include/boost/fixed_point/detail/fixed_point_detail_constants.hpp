@@ -27,11 +27,12 @@
     // because the underlying NumericType might have limited range.
     NumericType a(NumericType(4U) / 3U);
 
-    // Estimate the zero'th term of the iteration with [1 / (2 * result)].
-    NumericType vi(NumericType(1U) / (a * 2U));
+    // Estimate the zero'th term of the iteration with [1 / (2 * result)],
+    // giving [1 / (2 * (4/3))] = 3/8.
+    using std::ldexp;
+    NumericType vi(ldexp(NumericType(3U), -3));
 
     // Compute the square root of x using coupled Newton iteration.
-    // More precisely, this is the Schoenhage variation thereof.
     // We begin with an estimate of 1 binary digit of precision and
     // double the number of binary digits of precision with each iteration.
 
@@ -59,9 +60,9 @@
     NumericType val_pi;
 
     NumericType a (1U);
-    NumericType bB(NumericType(1U) / 2U);
-    NumericType s (NumericType(1U) / 2U);
-    NumericType t (NumericType(3U) / 8U);
+    NumericType bB(ldexp(NumericType(1U), -1));
+    NumericType s (bB);
+    NumericType t (ldexp(NumericType(3U), -3));
 
     // This loop is designed for computing a maximum of a few million
     // decimal digits of pi. The number of digits roughly doubles
@@ -138,11 +139,8 @@
       }
     }
 
-    // Define the large floating-point type that corresponds to the
-    // large fixed-point type.
-
-    // The iteration is finished: Compute ln2 = pi / [AGM(1, 4 / 2^m) * 2m].
-    // Note that the result of the AGM iteration is: ak = bk = AGM(...).
+    // The iteration is now finished. Compute ln2 = pi / [AGM(1, 4 / 2^m) * 2m].
+    // Note that the result of the AGM iteration is [ak = bk = AGM(...)].
     const NumericType val_ln_two = calculate_pi<NumericType>() / (ak * (2U * m));
 
     return val_ln_two;

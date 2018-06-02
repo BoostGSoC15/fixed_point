@@ -49,9 +49,8 @@ BOOST_AUTO_TEST_CASE(test_negatable_math_cyl_bessel_j_big)
   // Check small arguments in the region of Taylor series expansion.
   for(int i = 1; i < int(local::reference.size()); ++i)
   {
-    // Use an integer-valued order wrapped in the fixed-point type in order
-    // to force a high level of compiler work but simultaneously avoid
-    // potentially lossy tgamma calculations (requiring Bernoulli numbers).
+    // Use an integer-valued order to avoid potentially
+    // lossy tgamma calculations (requiring Bernoulli numbers).
 
     const fixed_point_type x = boost::math::cyl_bessel_j(fixed_point_type(2), fixed_point_type(i) / boost::math::constants::e<fixed_point_type>());
     const float_point_type y = float_point_type(local::reference[i]);

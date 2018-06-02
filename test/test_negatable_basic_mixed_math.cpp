@@ -7,7 +7,7 @@
 //  or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 //! \file
-//!\brief Tests round-trip for fixed_point negatable with 1 decimal digit.
+//!\brief Tests basic mixed-math fixed_point negatable.
 
 #define BOOST_TEST_MODULE test_negatable_basic_mixed_math
 #define BOOST_LIB_DIAGNOSTIC

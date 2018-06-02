@@ -12,15 +12,16 @@
 #ifndef FIXED_POINT_DETAIL_2015_05_23_HPP_
   #define FIXED_POINT_DETAIL_2015_05_23_HPP_
 
+  #include <array>
   #include <cstdint>
 
   #include <boost/config.hpp>
   #include <boost/fixed_point/detail/fixed_point_detail_cstdfloat.hpp>
 
-  #if (   !defined(BOOST_FIXED_POINT_FLOAT32_C)  \
-       && !defined(BOOST_FIXED_POINT_FLOAT64_C)  \
-       && !defined(BOOST_FIXED_POINT_FLOAT80_C)  \
-       && !defined(BOOST_FIXED_POINT_FLOAT128_C))
+  #if (   (!defined(BOOST_FIXED_POINT_FLOAT32_C))   \
+       && (!defined(BOOST_FIXED_POINT_FLOAT64_C))   \
+       && (!defined(BOOST_FIXED_POINT_FLOAT80_C))   \
+       && (!defined(BOOST_FIXED_POINT_FLOAT128_C)))
     #error Configuration error: Sorry, fixed_point can not detect any IEEE-754 built-in floating-point types!
   #endif
 
@@ -136,6 +137,7 @@
              typename EnableType = void>
     struct integer_type_helper
     {
+    private:
       typedef signed long long   exact_signed_type;
       typedef unsigned long long exact_unsigned_type;
     };
@@ -210,6 +212,10 @@
              typename EnableType = void>
     struct float_type_helper
     {
+      // Here multiprecision is disabled. We have no choice
+      // other than using built-in long double here
+      // (even if built-in long double does not have
+      // enough bits).
       typedef long double exact_float_type;
     };
 
@@ -338,8 +344,8 @@
     #if !defined(BOOST_FIXED_POINT_FLOAT80_C)
 
       // Here is a somewhat significant work-around for the conversion of
-      // cpp_bin_float to uint64_t. It is used for cases when the digits
-      // when float80_t is not available and we are trying to convert
+      // cpp_bin_float to uint64_t. It is used for unique cases when
+      // float80_t is not available, but we are still trying to convert
       // a small multiprecision floating point type to uint64_t.
 
       // Say, for instsance, that float64_t is the largest width built-in
@@ -405,11 +411,12 @@
                                 UnsignedIntegralType& mask,
                                 const std::uint_fast16_t bit_count)
   {
-    // Use O(log2[N]) binary-halving in an unrolled loop to find the msb.
-    // The binary-halving search uses a recursive function call.
+    // Use O(log2[N]) binary-halving search algorithm to find the msb.
+    // The binary-halving search algorithm uses a recursive function call.
 
-    static_assert(std::numeric_limits<UnsignedIntegralType>::is_signed == false,
-                  "The UnsignedIntegralType for msb_meta_helper_nonconstant must be an unsigned (integral) type.");
+    static_assert(   (std::numeric_limits<UnsignedIntegralType>::is_signed  == false)
+                  && (std::numeric_limits<UnsignedIntegralType>::is_integer == true),
+                  "The UnsignedIntegralType for msb_helper must be an unsigned integral type.");
 
     if(u < 2U)
     {
@@ -521,6 +528,52 @@
     }
   }
 
+  template<typename UnsignedLargeType,
+           typename UnsignedSmallType = typename integer_type_helper<std::numeric_limits<UnsignedLargeType>::digits / 2>::exact_unsigned_type>
+  UnsignedSmallType lo_part(const UnsignedLargeType& lt)
+  {
+    static_assert(   (std::numeric_limits<UnsignedLargeType>::is_integer == true)
+                  && (std::numeric_limits<UnsignedLargeType>::is_signed  == false),
+                  "The UnsignedLargeType for lo_part must be an unsigned integral type.");
+
+    static_assert(   (std::numeric_limits<UnsignedSmallType>::is_integer == true)
+                  && (std::numeric_limits<UnsignedSmallType>::is_signed  == false),
+                  "The UnsignedSmallType for lo_part must be an unsigned integral type.");
+
+    return UnsignedSmallType(lt);
+  }
+
+  template<typename UnsignedLargeType,
+           typename UnsignedSmallType = typename integer_type_helper<std::numeric_limits<UnsignedLargeType>::digits / 2>::exact_unsigned_type>
+  UnsignedSmallType hi_part(const UnsignedLargeType& lt)
+  {
+    static_assert(   (std::numeric_limits<UnsignedLargeType>::is_integer == true)
+                  && (std::numeric_limits<UnsignedLargeType>::is_signed  == false),
+                  "The UnsignedLargeType for hi_part must be an unsigned integral type.");
+
+    static_assert(   (std::numeric_limits<UnsignedSmallType>::is_integer == true)
+                  && (std::numeric_limits<UnsignedSmallType>::is_signed  == false),
+                  "The UnsignedSmallType for hi_part must be an unsigned integral type.");
+
+    return UnsignedSmallType(lt >> std::numeric_limits<UnsignedSmallType>::digits);
+  }
+
+  template<typename UnsignedLargeType,
+           typename UnsignedSmallType = typename integer_type_helper<std::numeric_limits<UnsignedLargeType>::digits / 2>::exact_unsigned_type>
+  UnsignedLargeType make_large(const UnsignedSmallType& lo, const UnsignedSmallType& hi)
+  {
+    static_assert(   (std::numeric_limits<UnsignedLargeType>::is_integer == true)
+                  && (std::numeric_limits<UnsignedLargeType>::is_signed  == false),
+                  "The UnsignedLargeType for make_large must be an unsigned integral type.");
+
+    static_assert(   (std::numeric_limits<UnsignedSmallType>::is_integer == true)
+                  && (std::numeric_limits<UnsignedSmallType>::is_signed  == false),
+                  "The UnsignedSmallType for make_large must be an unsigned integral type.");
+
+    return UnsignedLargeType( (UnsignedLargeType(hi) << std::numeric_limits<UnsignedSmallType>::digits)
+                             | UnsignedLargeType(lo));
+  }
+
   template<typename UnsignedSmallType,
            typename UnsignedHalfType = typename integer_type_helper<std::numeric_limits<UnsignedSmallType>::digits / 2>::exact_unsigned_type>
   void two_component_multiply(const UnsignedSmallType& u,
@@ -536,7 +589,8 @@
     // Use an elementary school multiplication algorithm.
 
     // For example, multiply:
-    //  uint32_t * uint32_t --> uint64_t result.
+    //   uint64_t * uint64_t --> uint128_t result,
+    // where result is stored in a (uint64_t, uint64_t) pair.
 
     // The result of the multiplication of (u * v) is:
     //   (u_hi_v_hi << n) + (uv_cross << (n/2)) + u_lo_v_lo,
@@ -549,36 +603,340 @@
 
     // Care is taken to properly handle shifts and carries.
 
-    typedef UnsignedHalfType  local_unsigned_half_type;
+    static_assert(   (std::numeric_limits<UnsignedSmallType>::is_integer == true)
+                  && (std::numeric_limits<UnsignedSmallType>::is_signed  == false),
+                  "The UnsignedSmallType for two_component_multiply must be an unsigned integral type.");
+
+    static_assert(   (std::numeric_limits<UnsignedHalfType>::is_integer == true)
+                  && (std::numeric_limits<UnsignedHalfType>::is_signed  == false),
+                  "The UnsignedHalfType for two_component_multiply must be an unsigned integral type.");
+
+    static_assert((std::numeric_limits<UnsignedHalfType>::digits * 2) == std::numeric_limits<UnsignedSmallType>::digits,
+                  "The UnsignedSmallType for two_component_multiply must have exactly twice as many digits as the UnsignedHalfType.");
+
     typedef UnsignedSmallType local_unsigned_small_type;
+    typedef UnsignedHalfType  local_unsigned_half_type;
 
     BOOST_CONSTEXPR_OR_CONST int digits_half = std::numeric_limits<local_unsigned_half_type>::digits;
 
-    const local_unsigned_half_type u_lo(u);
-    const local_unsigned_half_type v_lo(v);
+    const local_unsigned_half_type u_lo(static_cast<local_unsigned_half_type>(u));
+    const local_unsigned_half_type v_lo(static_cast<local_unsigned_half_type>(v));
 
-    const local_unsigned_half_type u_hi(u >> digits_half);
-    const local_unsigned_half_type v_hi(v >> digits_half);
+    const local_unsigned_half_type u_hi(static_cast<local_unsigned_half_type>(u >> digits_half));
+    const local_unsigned_half_type v_hi(static_cast<local_unsigned_half_type>(v >> digits_half));
 
     const local_unsigned_small_type u_lo_v_lo(u_lo * local_unsigned_small_type(v_lo));
     const local_unsigned_small_type u_hi_v_lo(u_hi * local_unsigned_small_type(v_lo));
     const local_unsigned_small_type u_lo_v_hi(u_lo * local_unsigned_small_type(v_hi));
 
     const local_unsigned_small_type uv_cross_lo =
-          local_unsigned_small_type(   local_unsigned_half_type (u_lo_v_hi))
-        + local_unsigned_small_type(   local_unsigned_half_type (u_hi_v_lo)
-                                    +  local_unsigned_small_type(u_lo_v_lo >> digits_half));
+          local_unsigned_small_type(   local_unsigned_small_type(lo_part(u_lo_v_hi)))
+        + local_unsigned_small_type(   local_unsigned_small_type(lo_part(u_hi_v_lo))
+                                    +  local_unsigned_small_type(hi_part(u_lo_v_lo)));
 
     const local_unsigned_small_type uv_cross_hi =
-          local_unsigned_small_type(   local_unsigned_half_type (u_hi_v_lo   >> digits_half))
-        + local_unsigned_small_type(   local_unsigned_half_type (u_lo_v_hi   >> digits_half)
-                                    +  local_unsigned_small_type(uv_cross_lo >> digits_half));
+          local_unsigned_small_type(   local_unsigned_small_type(hi_part(u_hi_v_lo)))
+        + local_unsigned_small_type(   local_unsigned_small_type(hi_part(u_lo_v_hi))
+                                    +  local_unsigned_small_type(hi_part(uv_cross_lo)));
 
     result_hi = local_unsigned_small_type(local_unsigned_small_type(u_hi * local_unsigned_small_type(v_hi)) + uv_cross_hi);
 
     result_lo = local_unsigned_small_type(  local_unsigned_small_type(uv_cross_lo << digits_half)
-                                          | local_unsigned_half_type (u_lo_v_lo));
+                                          | local_unsigned_small_type(lo_part(u_lo_v_lo)));
   }
+
+  template<typename UnsignedSmallType,
+           typename UnsignedHalfType = typename integer_type_helper<std::numeric_limits<UnsignedSmallType>::digits / 2>::exact_unsigned_type>
+  void two_component_divide(const UnsignedSmallType& u_lo,
+                            const UnsignedSmallType& u_hi,
+                            const UnsignedSmallType& v_lo,
+                                  UnsignedSmallType& result_lo,
+                                  UnsignedSmallType& result_hi)
+  {
+    // Divide the pair (u_lo, u_hi) in the numerator
+    // by v_lo in the denominator. The result is stored
+    // in the pair (result_lo, result_hi).
+
+    // Here the numerator has 2*(2^n) bits and the denominator
+    // has up to 2^n bits. The result has up to 2*(2^n) bits.
+
+    // For example, divide:
+    //   uint128_t numerator / uint64_t --> uint128_t result,
+    // where the both the numerator as well as the result are
+    // stored in a (uint64_t, uint64_t) pair.
+
+    // A simplified version of Knuth's long division algorithm
+    // is used. The loop-ordering of Knuth's algorithm
+    // has been reversed due to the little endian
+    // data format used here. Some internal loops of the
+    // algorithm have been manually unrolled to improve efficiency.
+
+    // The division algorithm is carried out with arrays
+    // of limbs having a type that is half as wide
+    // as the type of the input parameters.
+
+    // See also:
+    // D.E. Knuth, "The Art of Computer Programming, Volume 2:
+    // Seminumerical Algorithms", Addison-Wesley (1998),
+    // Section 4.3.1 Algorithm D and Exercise 16.
+
+    static_assert(   (std::numeric_limits<UnsignedSmallType>::is_integer == true)
+                  && (std::numeric_limits<UnsignedSmallType>::is_signed  == false),
+                  "The UnsignedSmallType for two_component_divide must be an unsigned integral type.");
+
+    static_assert(   (std::numeric_limits<UnsignedHalfType>::is_integer == true)
+                  && (std::numeric_limits<UnsignedHalfType>::is_signed  == false),
+                  "The UnsignedHalfType for two_component_divide must be an unsigned integral type.");
+
+    static_assert((std::numeric_limits<UnsignedHalfType>::digits * 2) == std::numeric_limits<UnsignedSmallType>::digits,
+                  "The UnsignedSmallType for two_component_divide must have exactly twice as many digits as the UnsignedHalfType.");
+
+    typedef UnsignedSmallType local_unsigned_small_type;
+    typedef UnsignedHalfType  local_unsigned_half_type;
+
+    std::array<local_unsigned_half_type, 4U + 1U> u_tmp =
+    {{
+      lo_part(u_lo),
+      hi_part(u_lo),
+      lo_part(u_hi),
+      hi_part(u_hi),
+      local_unsigned_half_type(0U)
+    }};
+
+    std::array<local_unsigned_half_type, 2U> v_tmp =
+    {{
+      lo_part(v_lo),
+      hi_part(v_lo)
+    }};
+
+    std::array<local_unsigned_half_type, 4U> result =
+    {{
+      local_unsigned_half_type(0U),
+      local_unsigned_half_type(0U),
+      local_unsigned_half_type(0U),
+      local_unsigned_half_type(0U)
+    }};
+
+    // Handling zero numerator and/or zero denominator
+    // has already been done by the function that calls
+    // this subroutine.
+
+    if(v_tmp[1U] == 0U)
+    {
+      // The denominator has one single limb.
+      // Use a simplified linear division algorithm.
+      // The loop has been unrolled.
+
+      result[3U] = u_tmp[3U] / v_tmp[0U];
+
+      local_unsigned_small_type val
+                  = local_unsigned_small_type(u_tmp[2U]) + local_unsigned_small_type(local_unsigned_small_type(local_unsigned_small_type(u_tmp[3U]) - local_unsigned_small_type(local_unsigned_small_type(v_tmp[0U]) * result[3U])) << std::numeric_limits<local_unsigned_half_type>::digits);
+      result[2U]  = lo_part(local_unsigned_small_type(val / local_unsigned_small_type(v_tmp[0U])));
+
+      val         = local_unsigned_small_type(u_tmp[1U]) + local_unsigned_small_type(local_unsigned_small_type(val - local_unsigned_small_type(local_unsigned_small_type(v_tmp[0U]) * result[2U])) << std::numeric_limits<local_unsigned_half_type>::digits);
+      result[1U]  = lo_part(local_unsigned_small_type(val / local_unsigned_small_type(v_tmp[0U])));
+
+      val         = local_unsigned_small_type(u_tmp[0U]) + local_unsigned_small_type(local_unsigned_small_type(val - local_unsigned_small_type(local_unsigned_small_type(v_tmp[0U]) * result[1U])) << std::numeric_limits<local_unsigned_half_type>::digits);
+      result[0U]  = lo_part(local_unsigned_small_type(val / local_unsigned_small_type(v_tmp[0U])));
+
+      result_lo = make_large<local_unsigned_small_type>(result[0U], result[1U]);
+      result_hi = make_large<local_unsigned_small_type>(result[2U], result[3U]);
+
+      return;
+    }
+
+    // Calculate the number of significant limbs in u.
+    std::uint_fast8_t sig_limbs_u = 4U;
+
+    for(std::uint_fast8_t i = std::uint_fast8_t(4U - 1U); ((std::int_fast8_t(i) >= std::int_fast8_t(0)) && (u_tmp[i] == 0U)); --i)
+    {
+      --sig_limbs_u;
+    }
+
+    // The result of the division is 0 if the
+    // denominator is larger than the numerator.
+
+    // The result of the division is 1 if the
+    // denominator is equal to the numerator.
+
+    // Check if the denominator is larger than
+    // or equal to the numerator.
+
+    // At this point in the subroutine, we know
+    // that v has exactly 2 significant limbs.
+
+    bool b_zero = false;
+
+    if(sig_limbs_u < 2U)
+    {
+      // The denominator is larger than the numerator.
+      // The result of the division is 0.
+      b_zero = true;
+    }
+    else if(sig_limbs_u == 2U)
+    {
+      if(u_tmp[1U] < v_tmp[1U])
+      {
+        // The denominator is larger than the numerator.
+        // The result of the division is 0.
+        b_zero = true;
+      }
+      else if(u_tmp[1U] == v_tmp[1U])
+      {
+        // The denominator is equal to the numerator.
+        // The result of the division is 1.
+        result_lo = 1U;
+        result_hi = 0U;
+
+        return;
+      }
+    }
+
+    if(b_zero)
+    {
+      // The result is 0.
+      result_lo = 0U;
+      result_hi = 0U;
+
+      return;
+    }
+
+    // Now use the simplified version of Knuth's
+    // long division algorithm.
+
+    {
+      // Compute the normalization factor.
+
+      const local_unsigned_half_type norm =
+        lo_part(local_unsigned_small_type(local_unsigned_small_type(1) << std::numeric_limits<local_unsigned_half_type>::digits) / (local_unsigned_small_type(v_tmp[1U]) + 1U));
+
+      if(norm != 1U)
+      {
+        // Step D1(b): Multiply u with the normalization.
+
+        local_unsigned_half_type carry(0U);
+
+        std::uint_fast8_t i;
+
+        for(i = 0U; i < sig_limbs_u; ++i)
+        {
+          const local_unsigned_small_type val(local_unsigned_small_type(local_unsigned_small_type(u_tmp[i]) * norm) + local_unsigned_small_type(carry));
+
+          u_tmp[i] = lo_part(val);
+          carry    = hi_part(val);
+        }
+
+        u_tmp[i] = carry;
+
+        // Step D1(c): Multiply v with the normalization.
+        // The loop has been unrolled.
+
+        local_unsigned_small_type val
+                  = local_unsigned_small_type(local_unsigned_small_type(v_tmp[0U]) * norm);
+        v_tmp[0U] = lo_part(val);
+
+        val       = local_unsigned_small_type(local_unsigned_small_type(v_tmp[1U]) * norm) + local_unsigned_small_type(hi_part(val));
+        v_tmp[1U] = lo_part(val);
+      }
+    }
+
+    // Steps D2 and D7.
+    for(std::uint_fast8_t j = 0U; j <= (sig_limbs_u - 2U); ++j)
+    {
+      // Step D3: Calculate q_guess.
+
+      // Here q_guess is the initial guess of the next
+      // iteration in the result of the long division.
+
+      const std::uint_fast8_t uj(sig_limbs_u - j);
+
+      const local_unsigned_small_type uj_ujm1(make_large<local_unsigned_small_type>(u_tmp[uj - 1U], u_tmp[uj]));
+
+      local_unsigned_small_type q_guess =
+        ((u_tmp[uj] == v_tmp[1U]) ? local_unsigned_small_type((std::numeric_limits<local_unsigned_half_type>::max)())
+                                  : local_unsigned_small_type(uj_ujm1 / local_unsigned_small_type(v_tmp[1U])));
+
+      // Decrease q_guess as needed.
+      for( ; ; --q_guess)
+      {
+        const local_unsigned_small_type val(uj_ujm1 - local_unsigned_small_type(q_guess * v_tmp[1U]));
+
+        if(hi_part(val) != 0U)
+        {
+          break;
+        }
+
+        if(local_unsigned_small_type(q_guess * v_tmp[0U]) <= make_large<local_unsigned_small_type>(u_tmp[uj - 2U], lo_part(val)))
+        {
+          break;
+        }
+
+        // If either of the two break statements above has
+        // been executed, then q_guess is not decremented.
+      }
+
+      // Step D4: Multiply and subtract.
+      // The loop has been unrolled.
+
+      std::array<local_unsigned_half_type, 2U + 1U> n_tmp;
+
+      std::uint_fast8_t borrow;
+
+      {
+        // Multiply.
+        local_unsigned_small_type val
+                  = local_unsigned_small_type(v_tmp[0U] * q_guess);
+        n_tmp[0U] = lo_part(val);
+
+        val       = local_unsigned_small_type(v_tmp[1U] * q_guess) + local_unsigned_small_type(hi_part(val));
+        n_tmp[1U] = lo_part(val);
+
+        n_tmp[2U] = hi_part(val);
+
+        // Subtract.
+        val            = local_unsigned_small_type(local_unsigned_small_type(u_tmp[uj - 2U]) - local_unsigned_small_type(n_tmp[0U]));
+        u_tmp[uj - 2U] = lo_part(val);
+        borrow         = ((hi_part(val) != 0U) ? 1U : 0U);
+
+        val            = local_unsigned_small_type(local_unsigned_small_type(u_tmp[uj - 1U]) - local_unsigned_small_type(n_tmp[1U])) - borrow;
+        u_tmp[uj - 1U] = lo_part(val);
+        borrow         = ((hi_part(val) != 0U) ? 1U : 0U);
+
+        val            = local_unsigned_small_type(local_unsigned_small_type(u_tmp[uj - 0U]) - local_unsigned_small_type(n_tmp[2U])) - borrow;
+        u_tmp[uj - 0U] = lo_part(val);
+        borrow         = ((hi_part(val) != 0U) ? 1U : 0U);
+      }
+
+      // Get the result data.
+      result[uj - 2U] = lo_part(q_guess);
+
+      // Step D5: Test the remainder.
+      if(borrow != 0U)
+      {
+        // Step D6: Add v to u and decrement the result.
+        // The loop has been unrolled.
+
+        local_unsigned_small_type val
+                       = local_unsigned_small_type(local_unsigned_small_type(u_tmp[uj - 2U]) + local_unsigned_small_type(n_tmp[0U]));
+        u_tmp[uj - 2U] = lo_part(val);
+
+        val            = local_unsigned_small_type(local_unsigned_small_type(u_tmp[uj - 1U]) + local_unsigned_small_type(n_tmp[1U])) + std::uint_fast8_t((hi_part(val) != 0U) ? 1U : 0U);
+        u_tmp[uj - 1U] = lo_part(val);
+
+        val            = local_unsigned_small_type(local_unsigned_small_type(u_tmp[uj - 0U]) + local_unsigned_small_type(n_tmp[2U])) + std::uint_fast8_t((hi_part(val) != 0U) ? 1U : 0U);
+        u_tmp[uj - 0U] = lo_part(val);
+
+        u_tmp[uj - 2U] += std::uint_fast8_t((hi_part(val) != 0U) ? 1U : 0U);
+
+        --result[uj - 2U];
+      }
+    }
+
+    // Compose the low and high parts of the result.
+    result_lo = make_large<local_unsigned_small_type>(result[0U], result[1U]);
+    result_hi = make_large<local_unsigned_small_type>(result[2U], result[3U]);
+  }
+
   } } } // namespace boost::fixed_point::detail
   //! \endcond // DETAIL
 

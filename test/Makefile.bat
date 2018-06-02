@@ -20,6 +20,9 @@ g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-unin
 g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_60_0 test_negatable_basic_construct.cpp -o test_negatable_basic_construct.exe
 .\test_negatable_basic_construct.exe
 
+g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_60_0 test_negatable_basic_disable_wide_integer_math.cpp -o test_negatable_basic_disable_wide_integer_math.exe
+.\test_negatable_basic_disable_wide_integer_math.exe
+
 g++ -O2 -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-maybe-uninitialized -std=c++14 -IC:\boost_fixed_point\include -IC:\boost\boost_1_60_0 test_negatable_basic_is_fixed_point.cpp -o test_negatable_basic_is_fixed_point.exe
 .\test_negatable_basic_is_fixed_point.exe
 

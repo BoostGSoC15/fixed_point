@@ -74,7 +74,7 @@
     This option eliminates the use of all native C++11 language elements. This might send the
     wrong message about language technology, but could
     increase the range of potential target compilers, especially for embedded systems.
-    (Not yet fully implemented, division algorithm is missing).
+    (Implemented but not yet fully tested).
     */
     #define BOOST_FIXED_POINT_DISABLE_CPP11
 
@@ -86,7 +86,7 @@
     multiplication algorithms that are significantly faster for high digit counts
     in excess of a few hundred binary digits.
     \sa https://gmplib.org
-    (Implemented but not fully tested).
+    (Implemented but not yet fully tested).
     */
     #define BOOST_FIXED_POINT_ENABLE_GMP_BACKENDS
 
