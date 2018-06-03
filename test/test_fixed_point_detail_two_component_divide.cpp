@@ -25,6 +25,7 @@
 
 namespace local
 {
+  template<const std::uint64_t number_of_trials>
   bool test_divide_64_by_32();
 
   template<const std::uint64_t      number_of_trials,
@@ -33,6 +34,7 @@ namespace local
   bool test_divide_xx_by_yy();
 }
 
+template<const std::uint64_t number_of_trials>
 bool local::test_divide_64_by_32()
 {
   bool test_result_is_ok = true;
@@ -46,7 +48,7 @@ bool local::test_divide_64_by_32()
   my_concurrency::parallel_for
   (
     std::uint64_t(0U),
-    std::uint64_t(100000000ULL),
+    number_of_trials,
     [&test_result_is_ok, &random_generator, &uint64_distribution](std::uint64_t count)
     {
       std::uint64_t a;
@@ -97,6 +99,12 @@ template<const std::uint64_t      number_of_trials,
          const std::uint_fast16_t number_of_bits_right>
 bool local::test_divide_xx_by_yy()
 {
+  static_assert(number_of_bits_left <= 64U,
+                "The number of bits on the left hand side of the division can not exceed 64.");
+
+  static_assert(number_of_bits_right <= 32U,
+                "The number of bits on the right hand side of the division can not exceed 32.");
+
   bool test_result_is_ok = true;
 
   my_concurrency::parallel_for
@@ -150,103 +158,103 @@ bool local::test_divide_xx_by_yy()
 
 BOOST_AUTO_TEST_CASE(test_fixed_point_detail_two_component_divide)
 {
-  const bool test_divide_64_by_32_is_ok = local::test_divide_64_by_32();
+  const bool test_divide_64_by_32_is_ok = local::test_divide_64_by_32<25000000ULL>();
   BOOST_CHECK_EQUAL(test_divide_64_by_32_is_ok, true);
   std::cout << "test_divide_64_by_32_is_ok: " << std::boolalpha << test_divide_64_by_32_is_ok << std::endl;
 
-  const bool test_divide_64_by_31_is_ok = local::test_divide_xx_by_yy<100000000ULL, 64U, 31U>();
+  const bool test_divide_64_by_31_is_ok = local::test_divide_xx_by_yy<25000000ULL, 64U, 31U>();
   BOOST_CHECK_EQUAL(test_divide_64_by_31_is_ok, true);
   std::cout << "test_divide_64_by_31_is_ok: " << std::boolalpha << test_divide_64_by_31_is_ok << std::endl;
 
-  const bool test_divide_64_by_17_is_ok = local::test_divide_xx_by_yy<100000000ULL, 64U, 17U>();
+  const bool test_divide_64_by_17_is_ok = local::test_divide_xx_by_yy<25000000ULL, 64U, 17U>();
   BOOST_CHECK_EQUAL(test_divide_64_by_17_is_ok, true);
   std::cout << "test_divide_64_by_17_is_ok: " << std::boolalpha << test_divide_64_by_17_is_ok << std::endl;
 
-  const bool test_divide_64_by_16_is_ok = local::test_divide_xx_by_yy<100000000ULL, 64U, 16U>();
+  const bool test_divide_64_by_16_is_ok = local::test_divide_xx_by_yy<25000000ULL, 64U, 16U>();
   BOOST_CHECK_EQUAL(test_divide_64_by_16_is_ok, true);
   std::cout << "test_divide_64_by_16_is_ok: " << std::boolalpha << test_divide_64_by_16_is_ok << std::endl;
 
-  const bool test_divide_64_by_15_is_ok = local::test_divide_xx_by_yy<100000000ULL, 64U, 15U>();
+  const bool test_divide_64_by_15_is_ok = local::test_divide_xx_by_yy<25000000ULL, 64U, 15U>();
   BOOST_CHECK_EQUAL(test_divide_64_by_15_is_ok, true);
   std::cout << "test_divide_64_by_15_is_ok: " << std::boolalpha << test_divide_64_by_15_is_ok << std::endl;
 
-  const bool test_divide_64_by_09_is_ok = local::test_divide_xx_by_yy<100000000ULL, 64U, 9U>();
+  const bool test_divide_64_by_09_is_ok = local::test_divide_xx_by_yy<25000000ULL, 64U, 9U>();
   BOOST_CHECK_EQUAL(test_divide_64_by_09_is_ok, true);
   std::cout << "test_divide_64_by_09_is_ok: " << std::boolalpha << test_divide_64_by_09_is_ok << std::endl;
 
-  const bool test_divide_64_by_08_is_ok = local::test_divide_xx_by_yy<100000000ULL, 64U, 8U>();
+  const bool test_divide_64_by_08_is_ok = local::test_divide_xx_by_yy<25000000ULL, 64U, 8U>();
   BOOST_CHECK_EQUAL(test_divide_64_by_08_is_ok, true);
   std::cout << "test_divide_64_by_08_is_ok: " << std::boolalpha << test_divide_64_by_08_is_ok << std::endl;
 
-  const bool test_divide_64_by_07_is_ok = local::test_divide_xx_by_yy<100000000ULL, 64U, 7U>();
+  const bool test_divide_64_by_07_is_ok = local::test_divide_xx_by_yy<25000000ULL, 64U, 7U>();
   BOOST_CHECK_EQUAL(test_divide_64_by_07_is_ok, true);
   std::cout << "test_divide_64_by_07_is_ok: " << std::boolalpha << test_divide_64_by_07_is_ok << std::endl;
 
-  const bool test_divide_49_by_32_is_ok = local::test_divide_xx_by_yy<100000000ULL, 49U, 32U>();
+  const bool test_divide_49_by_32_is_ok = local::test_divide_xx_by_yy<25000000ULL, 49U, 32U>();
   BOOST_CHECK_EQUAL(test_divide_49_by_32_is_ok, true);
   std::cout << "test_divide_49_by_32_is_ok: " << std::boolalpha << test_divide_49_by_32_is_ok << std::endl;
 
-  const bool test_divide_49_by_31_is_ok = local::test_divide_xx_by_yy<100000000ULL, 49U, 31U>();
+  const bool test_divide_49_by_31_is_ok = local::test_divide_xx_by_yy<25000000ULL, 49U, 31U>();
   BOOST_CHECK_EQUAL(test_divide_49_by_31_is_ok, true);
   std::cout << "test_divide_49_by_31_is_ok: " << std::boolalpha << test_divide_49_by_31_is_ok << std::endl;
 
-  const bool test_divide_48_by_32_is_ok = local::test_divide_xx_by_yy<100000000ULL, 48U, 32U>();
+  const bool test_divide_48_by_32_is_ok = local::test_divide_xx_by_yy<25000000ULL, 48U, 32U>();
   BOOST_CHECK_EQUAL(test_divide_48_by_32_is_ok, true);
   std::cout << "test_divide_48_by_32_is_ok: " << std::boolalpha << test_divide_48_by_32_is_ok << std::endl;
 
-  const bool test_divide_48_by_31_is_ok = local::test_divide_xx_by_yy<100000000ULL, 48U, 31U>();
+  const bool test_divide_48_by_31_is_ok = local::test_divide_xx_by_yy<25000000ULL, 48U, 31U>();
   BOOST_CHECK_EQUAL(test_divide_48_by_31_is_ok, true);
   std::cout << "test_divide_48_by_31_is_ok: " << std::boolalpha << test_divide_48_by_31_is_ok << std::endl;
 
-  const bool test_divide_48_by_17_is_ok = local::test_divide_xx_by_yy<100000000ULL, 48U, 17U>();
+  const bool test_divide_48_by_17_is_ok = local::test_divide_xx_by_yy<25000000ULL, 48U, 17U>();
   BOOST_CHECK_EQUAL(test_divide_48_by_17_is_ok, true);
   std::cout << "test_divide_48_by_17_is_ok: " << std::boolalpha << test_divide_48_by_17_is_ok << std::endl;
 
-  const bool test_divide_48_by_16_is_ok = local::test_divide_xx_by_yy<100000000ULL, 48U, 16U>();
+  const bool test_divide_48_by_16_is_ok = local::test_divide_xx_by_yy<25000000ULL, 48U, 16U>();
   BOOST_CHECK_EQUAL(test_divide_48_by_16_is_ok, true);
   std::cout << "test_divide_48_by_16_is_ok: " << std::boolalpha << test_divide_48_by_16_is_ok << std::endl;
 
-  const bool test_divide_48_by_15_is_ok = local::test_divide_xx_by_yy<100000000ULL, 48U, 15U>();
+  const bool test_divide_48_by_15_is_ok = local::test_divide_xx_by_yy<25000000ULL, 48U, 15U>();
   BOOST_CHECK_EQUAL(test_divide_48_by_15_is_ok, true);
   std::cout << "test_divide_48_by_15_is_ok: " << std::boolalpha << test_divide_48_by_15_is_ok << std::endl;
 
-  const bool test_divide_33_by_32_is_ok = local::test_divide_xx_by_yy<100000000ULL, 33U, 32U>();
+  const bool test_divide_33_by_32_is_ok = local::test_divide_xx_by_yy<25000000ULL, 33U, 32U>();
   BOOST_CHECK_EQUAL(test_divide_33_by_32_is_ok, true);
   std::cout << "test_divide_33_by_32_is_ok: " << std::boolalpha << test_divide_33_by_32_is_ok << std::endl;
 
-  const bool test_divide_33_by_31_is_ok = local::test_divide_xx_by_yy<100000000ULL, 33U, 31U>();
+  const bool test_divide_33_by_31_is_ok = local::test_divide_xx_by_yy<25000000ULL, 33U, 31U>();
   BOOST_CHECK_EQUAL(test_divide_33_by_31_is_ok, true);
   std::cout << "test_divide_33_by_31_is_ok: " << std::boolalpha << test_divide_33_by_31_is_ok << std::endl;
 
-  const bool test_divide_32_by_32_is_ok = local::test_divide_xx_by_yy<100000000ULL, 32U, 32U>();
+  const bool test_divide_32_by_32_is_ok = local::test_divide_xx_by_yy<25000000ULL, 32U, 32U>();
   BOOST_CHECK_EQUAL(test_divide_32_by_32_is_ok, true);
   std::cout << "test_divide_32_by_32_is_ok: " << std::boolalpha << test_divide_32_by_32_is_ok << std::endl;
 
-  const bool test_divide_32_by_31_is_ok = local::test_divide_xx_by_yy<100000000ULL, 32U, 31U>();
+  const bool test_divide_32_by_31_is_ok = local::test_divide_xx_by_yy<25000000ULL, 32U, 31U>();
   BOOST_CHECK_EQUAL(test_divide_32_by_31_is_ok, true);
   std::cout << "test_divide_32_by_31_is_ok: " << std::boolalpha << test_divide_32_by_31_is_ok << std::endl;
 
-  const bool test_divide_32_by_17_is_ok = local::test_divide_xx_by_yy<100000000ULL, 32U, 17U>();
+  const bool test_divide_32_by_17_is_ok = local::test_divide_xx_by_yy<25000000ULL, 32U, 17U>();
   BOOST_CHECK_EQUAL(test_divide_32_by_17_is_ok, true);
   std::cout << "test_divide_32_by_17_is_ok: " << std::boolalpha << test_divide_32_by_17_is_ok << std::endl;
 
-  const bool test_divide_32_by_16_is_ok = local::test_divide_xx_by_yy<100000000ULL, 32U, 16U>();
+  const bool test_divide_32_by_16_is_ok = local::test_divide_xx_by_yy<25000000ULL, 32U, 16U>();
   BOOST_CHECK_EQUAL(test_divide_32_by_16_is_ok, true);
   std::cout << "test_divide_32_by_16_is_ok: " << std::boolalpha << test_divide_32_by_16_is_ok << std::endl;
 
-  const bool test_divide_32_by_15_is_ok = local::test_divide_xx_by_yy<100000000ULL, 32U, 15U>();
+  const bool test_divide_32_by_15_is_ok = local::test_divide_xx_by_yy<25000000ULL, 32U, 15U>();
   BOOST_CHECK_EQUAL(test_divide_32_by_15_is_ok, true);
   std::cout << "test_divide_32_by_15_is_ok: " << std::boolalpha << test_divide_32_by_15_is_ok << std::endl;
 
-  const bool test_divide_16_by_09_is_ok = local::test_divide_xx_by_yy<100000000ULL, 16U, 9U>();
+  const bool test_divide_16_by_09_is_ok = local::test_divide_xx_by_yy<25000000ULL, 16U, 9U>();
   BOOST_CHECK_EQUAL(test_divide_16_by_09_is_ok, true);
   std::cout << "test_divide_32_by_09_is_ok: " << std::boolalpha << test_divide_16_by_09_is_ok << std::endl;
 
-  const bool test_divide_16_by_08_is_ok = local::test_divide_xx_by_yy<100000000ULL, 16U, 8U>();
+  const bool test_divide_16_by_08_is_ok = local::test_divide_xx_by_yy<25000000ULL, 16U, 8U>();
   BOOST_CHECK_EQUAL(test_divide_16_by_08_is_ok, true);
   std::cout << "test_divide_32_by_08_is_ok: " << std::boolalpha << test_divide_16_by_08_is_ok << std::endl;
 
-  const bool test_divide_16_by_07_is_ok = local::test_divide_xx_by_yy<100000000ULL, 16U, 7U>();
+  const bool test_divide_16_by_07_is_ok = local::test_divide_xx_by_yy<25000000ULL, 16U, 7U>();
   BOOST_CHECK_EQUAL(test_divide_16_by_07_is_ok, true);
   std::cout << "test_divide_32_by_07_is_ok: " << std::boolalpha << test_divide_16_by_07_is_ok << std::endl;
 }
