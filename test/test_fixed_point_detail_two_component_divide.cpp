@@ -246,14 +246,6 @@ BOOST_AUTO_TEST_CASE(test_fixed_point_detail_two_component_divide)
   BOOST_CHECK_EQUAL(test_divide_32_by_15_is_ok, true);
   std::cout << "test_divide_32_by_15_is_ok: " << std::boolalpha << test_divide_32_by_15_is_ok << std::endl;
 
-  const bool test_divide_16_by_16_is_ok = local::test_divide_xx_by_yy<25000000ULL, 16U, 16U>();
-  BOOST_CHECK_EQUAL(test_divide_16_by_16_is_ok, true);
-  std::cout << "test_divide_16_by_16_is_ok: " << std::boolalpha << test_divide_16_by_16_is_ok << std::endl;
-
-  const bool test_divide_16_by_15_is_ok = local::test_divide_xx_by_yy<25000000ULL, 16U, 15U>();
-  BOOST_CHECK_EQUAL(test_divide_16_by_15_is_ok, true);
-  std::cout << "test_divide_16_by_15_is_ok: " << std::boolalpha << test_divide_16_by_15_is_ok << std::endl;
-
   const bool test_divide_16_by_09_is_ok = local::test_divide_xx_by_yy<25000000ULL, 16U, 9U>();
   BOOST_CHECK_EQUAL(test_divide_16_by_09_is_ok, true);
   std::cout << "test_divide_32_by_09_is_ok: " << std::boolalpha << test_divide_16_by_09_is_ok << std::endl;
@@ -265,4 +257,12 @@ BOOST_AUTO_TEST_CASE(test_fixed_point_detail_two_component_divide)
   const bool test_divide_16_by_07_is_ok = local::test_divide_xx_by_yy<25000000ULL, 16U, 7U>();
   BOOST_CHECK_EQUAL(test_divide_16_by_07_is_ok, true);
   std::cout << "test_divide_32_by_07_is_ok: " << std::boolalpha << test_divide_16_by_07_is_ok << std::endl;
+
+  const bool test_divide_16_by_16_is_ok = local::test_divide_xx_by_yy<25000000ULL, 16U, 16U>();
+  BOOST_CHECK_EQUAL(test_divide_16_by_16_is_ok, true);
+  std::cout << "test_divide_16_by_16_is_ok: " << std::boolalpha << test_divide_16_by_16_is_ok << std::endl;
+
+  const bool test_divide_16_by_15_is_ok = local::test_divide_xx_by_yy<25000000ULL, 16U, 15U>();
+  BOOST_CHECK_EQUAL(test_divide_16_by_15_is_ok, true);
+  std::cout << "test_divide_16_by_15_is_ok: " << std::boolalpha << test_divide_16_by_15_is_ok << std::endl;
 }
