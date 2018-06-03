@@ -774,13 +774,16 @@
     }
     else if(sig_limbs_u == 2U)
     {
-      if(u_tmp[1U] < v_tmp[1U])
+      const bool u1_v1_are_equal = (u_tmp[1U] <  v_tmp[1U]);
+
+      if(    u1_v1_are_equal
+         || (u1_v1_are_equal && (u_tmp[0U] < v_tmp[0U])))
       {
         // The denominator is larger than the numerator.
         // The result of the division is 0.
         b_zero = true;
       }
-      else if(u_tmp[1U] == v_tmp[1U])
+      else if(u1_v1_are_equal && (u_tmp[0U] == v_tmp[0U]))
       {
         // The denominator is equal to the numerator.
         // The result of the division is 1.
