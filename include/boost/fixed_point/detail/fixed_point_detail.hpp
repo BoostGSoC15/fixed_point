@@ -666,10 +666,9 @@
     // stored in a (uint64_t, uint64_t) pair.
 
     // A simplified version of Knuth's long division algorithm
-    // is used. The loop-ordering of Knuth's algorithm
-    // has been reversed due to the little endian
-    // data format used here. Some internal loops of the
-    // algorithm have been manually unrolled to improve efficiency.
+    // is used. The loop-ordering of Knuth's algorithm has been
+    // reversed. Some internal loops of the algorithm have been
+    // manually unrolled to improve efficiency.
 
     // The division algorithm is carried out with arrays
     // of limbs having a type that is half as wide
@@ -808,7 +807,7 @@
       // Compute the normalization factor.
 
       const local_unsigned_half_type norm =
-        lo_part(local_unsigned_small_type(local_unsigned_small_type(1) << std::numeric_limits<local_unsigned_half_type>::digits) / (local_unsigned_small_type(v_tmp[1U]) + 1U));
+        lo_part(local_unsigned_small_type(local_unsigned_small_type(1U) << std::numeric_limits<local_unsigned_half_type>::digits) / (local_unsigned_small_type(v_tmp[1U]) + 1U));
 
       if(norm != 1U)
       {
